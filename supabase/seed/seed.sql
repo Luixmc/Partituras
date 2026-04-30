@@ -1,0 +1,38 @@
+-- ============================================================
+-- seed.sql · Sample data for development
+-- Run AFTER all migrations
+-- ============================================================
+
+-- ── Admin user ───────────────────────────────────────────────
+-- After creating the user through Supabase Auth (dashboard or API),
+-- run this to promote them to admin:
+--
+-- update public.profiles
+-- set role = 'admin'
+-- where email = 'your-admin@email.com';
+
+-- ── Sample sheets (no auth required, for testing) ────────────
+-- These can be inserted manually once the admin user exists.
+
+-- Example ABC sheet insert:
+-- insert into public.sheets (
+--   title, composer, key_signature, time_signature,
+--   editor_type, content, status, category_id, created_by
+-- ) values (
+--   'Amazing Grace',
+--   'John Newton',
+--   'G major',
+--   '3/4',
+--   'abc',
+--   'X:1
+-- T:Amazing Grace
+-- C:John Newton
+-- M:3/4
+-- L:1/4
+-- K:G
+-- |:D|"G"G2 B|"G"B2 d|"C"e2 d|"G"B2 G|"G"G2 E|"Em"E3|"D"D3|D2 D|
+-- "G"G2 B|"G"B2 d|"C"e2 d|"G"B2 B|"D"A2 F|"G"G3|G2:|',
+--   'published',
+--   (select id from public.categories where name = 'Hymns'),
+--   (select id from public.profiles where email = 'your-admin@email.com')
+-- );

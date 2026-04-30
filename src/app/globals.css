@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-brand: 79 99 245;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  body {
+    font-family: var(--font-body);
+  }
+}
+
+@layer utilities {
+  /* Chord chart monospace blocks */
+  .chord-chart {
+    @apply font-mono text-sm bg-slate-100 rounded-lg px-4 py-3 leading-7 tracking-wide whitespace-pre-wrap;
+  }
+
+  /* Mobile-first sheet card */
+  .sheet-card {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden
+           transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95;
+  }
+
+  /* Category badge */
+  .category-badge {
+    @apply inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full;
+  }
+}
+
+/* ABC notation renderer overrides */
+.abcjs-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* PDF viewer mobile */
+@media (max-width: 768px) {
+  .react-pdf__Page canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* PWA safe areas */
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
