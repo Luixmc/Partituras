@@ -8,7 +8,7 @@ import type { UserRole } from "@/types";
 
 const navItems = [
   { href: "/catalog",    label: "Catálogo", icon: LayoutGrid, roles: ["admin","musician","viewer"] },
-  { href: "/mosaics",    label: "Mosaicos", icon: Music,      roles: ["admin","musician","viewer"] },
+  { href: "/mosaics",    label: "Canciones", icon: Music,      roles: ["admin","musician","viewer"] },
   { href: "/sheets/new", label: "Nueva",    icon: PlusCircle, roles: ["admin","musician"] },
   { href: "/admin",      label: "Admin",    icon: Settings,   roles: ["admin"] },
 ];

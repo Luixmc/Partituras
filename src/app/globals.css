@@ -40,6 +40,11 @@
   height: auto;
 }
 
+.musicxml-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
 /* PDF viewer mobile */
 @media (max-width: 768px) {
   .react-pdf__Page canvas {

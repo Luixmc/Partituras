@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/catalog",  label: "Catálogo",  icon: LayoutGrid,  roles: ["admin","musician","viewer"] },
-  { href: "/mosaics",  label: "Mosaicos",  icon: Music,       roles: ["admin","musician","viewer"] },
-  { href: "/sheets/new", label: "Nueva partitura", icon: PlusCircle, roles: ["admin","musician"] },
+  { href: "/mosaics",  label: "Canciones",  icon: Music,       roles: ["admin","musician","viewer"] },
+  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin","musician"] },
   { href: "/admin",    label: "Administrar", icon: Settings,  roles: ["admin"] },
 ];
 

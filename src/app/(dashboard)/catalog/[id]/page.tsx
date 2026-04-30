@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Download, Edit } from "lucide-react";
 import Link from "next/link";
 import ABCViewer from "@/components/sheets/ABCViewer";
+import MusicXmlViewer from "@/components/sheets/MusicXmlViewer";
 import { formatKey, categoryStyle } from "@/lib/utils";
 
 export default async function SheetDetailPage({
@@ -136,6 +137,10 @@ export default async function SheetDetailPage({
         ) : sheet.editor_type === "abc" && sheet.content ? (
           <div className="p-4 md:p-8 max-w-4xl mx-auto">
             <ABCViewer content={sheet.content} title={sheet.title} />
+          </div>
+        ) : sheet.editor_type === "musicxml" && sheet.content ? (
+          <div className="p-4 md:p-8 max-w-5xl mx-auto">
+            <MusicXmlViewer content={sheet.content} title={sheet.title} />
           </div>
         ) : (
           <div className="flex items-center justify-center py-20 text-slate-400 text-sm">

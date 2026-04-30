@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────
 export type UserRole    = "admin" | "musician" | "viewer";
 export type SheetStatus = "draft" | "published" | "archived";
-export type EditorType  = "abc" | "lilypond" | "pdf_upload";
+export type EditorType  = "abc" | "lilypond" | "pdf_upload" | "musicxml";
 
 // ─────────────────────────────────────────────
 // Core entities

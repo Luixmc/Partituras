@@ -1,50 +1,71 @@
 import { createClient } from "@/lib/supabase/server";
-import { Music2, ChevronRight } from "lucide-react";
+import { ChevronRight, Music2, PlusCircle } from "lucide-react";
 import Link from "next/link";
-import type { MosaicWithEntries } from "@/types";
+import type { Song } from "@/types";
 
-export default async function MosaicsPage() {
+type SongRow = Song & {
+  category?: {
+    name: string | null;
+    color: string | null;
+  } | null;
+  sections?: Array<{
+    id: string;
+  }>;
+};
+
+export default async function SongsPage() {
   const supabase = await createClient();
 
-  const { data: mosaics } = await supabase
-    .from("mosaics")
+  const { data: songs } = await supabase
+    .from("songs")
     .select(`
       *,
-      entries:mosaic_entries (
-        id, position, block_label, repeat_count, transition_note,
-        song:songs ( id, title, style, key_signature, time_signature )
-      ),
-      category:categories ( name, color )
+      category:categories ( name, color ),
+      sections:song_sections ( id )
     `)
     .eq("status", "published")
-    .order("created_at", { ascending: false });
+    .order("title", { ascending: true });
 
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-5">
-        <h1 className="font-display text-2xl font-bold text-slate-900">Mosaicos</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Sets de canciones encadenadas para el servicio
-        </p>
+    <div className="flex min-h-full flex-col">
+      <div className="border-b border-slate-200 bg-white px-4 py-5 md:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-slate-900">
+              Canciones
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Repertorio con melodia, cifrado americano y pentagrama.
+            </p>
+          </div>
+          <Link
+            href="/sheets/new"
+            className="hidden items-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-500 md:inline-flex"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Nueva
+          </Link>
+        </div>
       </div>
 
       <div className="flex-1 p-4 md:p-8">
-        {mosaics && mosaics.length > 0 ? (
-          <div className="space-y-4 max-w-2xl">
-            {(mosaics as unknown as MosaicWithEntries[]).map((mosaic) => (
-              <MosaicCard key={mosaic.id} mosaic={mosaic} />
+        {songs && songs.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {(songs as SongRow[]).map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-              <Music2 className="w-8 h-8 text-slate-300" />
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+              <Music2 className="h-8 w-8 text-slate-300" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-slate-700 mb-1">
-              Sin mosaicos
+            <h3 className="font-display mb-1 text-lg font-semibold text-slate-700">
+              Sin canciones
             </h3>
-            <p className="text-slate-400 text-sm">No hay mosaicos publicados aún</p>
+            <p className="text-sm text-slate-400">
+              No hay canciones publicadas aun.
+            </p>
           </div>
         )}
       </div>
@@ -52,60 +73,56 @@ export default async function MosaicsPage() {
   );
 }
 
-function MosaicCard({ mosaic }: { mosaic: MosaicWithEntries }) {
-  // Sort entries by position
-  const entries = [...(mosaic.entries ?? [])].sort((a, b) => a.position - b.position);
-
+function SongCard({ song }: { song: SongRow }) {
   return (
-    <Link href={`/mosaics/${mosaic.id}`} className="block">
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden
-                      hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-99">
-        {/* Header bar */}
-        <div className="bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-display font-bold text-white text-lg leading-tight">
-                {mosaic.title}
+    <Link href={`/mosaics/${song.id}`} className="block">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95">
+        <div className="border-b border-slate-100 px-5 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="font-display truncate text-lg font-bold text-slate-900">
+                {song.title}
               </h2>
-              <p className="text-brand-200 text-sm mt-0.5">
-                {mosaic.key_signature?.replace("major","Mayor").replace("minor","menor")} · {mosaic.time_signature}
+              <p className="mt-1 text-sm text-slate-500">
+                {song.composer || song.author || "Repertorio iglesia"}
               </p>
             </div>
-            <ChevronRight className="w-5 h-5 text-brand-200 flex-shrink-0" />
+            <ChevronRight className="mt-1 h-5 w-5 flex-shrink-0 text-slate-300" />
           </div>
         </div>
 
-        {/* Song list */}
-        <div className="divide-y divide-slate-100">
-          {entries.map((entry, idx) => (
-            <div key={entry.id} className="flex items-center gap-3 px-5 py-3">
-              {/* Block label */}
-              <span className="w-7 h-7 rounded-lg bg-brand-50 text-brand-700 text-xs font-bold
-                               flex items-center justify-center flex-shrink-0">
-                {entry.block_label ?? idx + 1}
-              </span>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-800 truncate">
-                  {(entry as any).song?.title}
-                </p>
-                {(entry as any).song?.style && (
-                  <p className="text-xs text-slate-400">{(entry as any).song.style}</p>
-                )}
-              </div>
-
-              {/* Repeat count */}
-              <span className="text-xs text-slate-400 font-medium flex-shrink-0">
-                ×{entry.repeat_count}
-              </span>
-            </div>
-          ))}
+        <div className="grid grid-cols-3 gap-3 px-5 py-4 text-sm">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Tono
+            </p>
+            <p className="mt-1 font-semibold text-slate-700">
+              {song.key_signature || "C"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Compas
+            </p>
+            <p className="mt-1 font-semibold text-slate-700">
+              {song.time_signature || "4/4"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Partes
+            </p>
+            <p className="mt-1 font-semibold text-slate-700">
+              {song.sections?.length ?? 0}
+            </p>
+          </div>
         </div>
 
-        {/* Closing note */}
-        {mosaic.closing_note && (
-          <div className="px-5 py-3 bg-slate-50 border-t border-slate-100">
-            <p className="text-xs text-slate-500 italic">{mosaic.closing_note}</p>
+        {song.chord_chart && (
+          <div className="border-t border-slate-100 bg-slate-50 px-5 py-3">
+            <p className="line-clamp-2 font-mono text-xs leading-5 text-slate-500">
+              {song.chord_chart}
+            </p>
           </div>
         )}
       </div>
