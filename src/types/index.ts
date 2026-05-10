@@ -157,6 +157,7 @@ export interface SheetCatalogItem {
   key_signature:   string | null;
   time_signature:  string | null;
   editor_type:     EditorType;
+  content?:        string | null;
   status:          SheetStatus;
   category_name:   string | null;
   category_color:  string | null;

@@ -8,20 +8,16 @@ type SongRow = Song & {
     name: string | null;
     color: string | null;
   } | null;
-  sections?: Array<{
-    id: string;
-  }>;
 };
 
 export default async function SongsPage() {
   const supabase = await createClient();
 
   const { data: songs } = await supabase
-    .from("songs")
+    .from("sheets")
     .select(`
       *,
-      category:categories ( name, color ),
-      sections:song_sections ( id )
+      category:categories ( name, color )
     `)
     .eq("status", "published")
     .order("title", { ascending: true });
@@ -75,7 +71,7 @@ export default async function SongsPage() {
 
 function SongCard({ song }: { song: SongRow }) {
   return (
-    <Link href={`/mosaics/${song.id}`} className="block">
+    <Link href={`/catalog/${song.id}`} className="block">
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95">
         <div className="border-b border-slate-100 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
@@ -118,10 +114,10 @@ function SongCard({ song }: { song: SongRow }) {
           </div>
         </div>
 
-        {song.chord_chart && (
+        {song.content && (
           <div className="border-t border-slate-100 bg-slate-50 px-5 py-3">
             <p className="line-clamp-2 font-mono text-xs leading-5 text-slate-500">
-              {song.chord_chart}
+              {song.content}
             </p>
           </div>
         )}

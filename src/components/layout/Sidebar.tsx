@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Music, BookOpen, LayoutGrid, Settings, LogOut, PlusCircle } from "lucide-react";
+import { BookOpen, LayoutGrid, LogOut, Music, PlusCircle, Settings } from "lucide-react";
+
 import { createClient } from "@/lib/supabase/client";
-import type { Profile } from "@/types";
 import { cn } from "@/lib/utils";
+import type { Profile } from "@/types";
 
 const navItems = [
-  { href: "/catalog",  label: "Catálogo",  icon: LayoutGrid,  roles: ["admin","musician","viewer"] },
-  { href: "/mosaics",  label: "Canciones",  icon: Music,       roles: ["admin","musician","viewer"] },
-  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin","musician"] },
-  { href: "/admin",    label: "Administrar", icon: Settings,  roles: ["admin"] },
+  { href: "/catalog", label: "Canciones", icon: LayoutGrid, roles: ["admin", "musician", "viewer"] },
+  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin", "musician"] },
+  { href: "/admin", label: "Administrar", icon: Settings, roles: ["admin"] },
 ];
 
 export default function Sidebar({ profile }: { profile: Profile | null }) {
@@ -29,22 +29,24 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
   );
 
   return (
-    <div className="flex flex-col w-full h-full bg-brand-950 text-white border-r border-brand-900">
-      {/* Logo */}
-      <div className="p-6 border-b border-brand-900">
+    <div className="flex h-full w-full flex-col border-r border-brand-900 bg-brand-950 text-white">
+      <div className="border-b border-brand-900 p-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center flex-shrink-0">
-            <BookOpen className="w-5 h-5 text-white" />
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-brand-500">
+            <BookOpen className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-white leading-tight">Partituras</h1>
-            <p className="text-brand-400 text-xs leading-tight">La Casa de mi Padre</p>
+            <h1 className="font-display font-bold leading-tight text-white">
+              Canciones
+            </h1>
+            <p className="text-xs leading-tight text-brand-400">
+              La Casa de mi Padre
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 space-y-1 p-4">
         {visibleItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -52,39 +54,39 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 active
                   ? "bg-brand-500 text-white"
                   : "text-brand-300 hover:bg-brand-900 hover:text-white"
               )}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 flex-shrink-0" />
               {label}
             </Link>
           );
         })}
       </nav>
 
-      {/* User */}
-      <div className="p-4 border-t border-brand-900">
-        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          <div className="w-8 h-8 bg-brand-700 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+      <div className="border-t border-brand-900 p-4">
+        <div className="mb-2 flex items-center gap-3 px-3 py-2">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold">
             {profile?.first_name?.[0]?.toUpperCase() ?? "?"}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-white">
               {profile?.first_name} {profile?.last_name ?? ""}
             </p>
-            <p className="text-brand-400 text-xs capitalize">{profile?.role ?? "viewer"}</p>
+            <p className="text-xs capitalize text-brand-400">
+              {profile?.role ?? "viewer"}
+            </p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-brand-300
-                     hover:bg-brand-900 hover:text-white transition-all"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-brand-300 transition-all hover:bg-brand-900 hover:text-white"
         >
-          <LogOut className="w-4 h-4" />
-          Cerrar sesión
+          <LogOut className="h-4 w-4" />
+          Cerrar sesion
         </button>
       </div>
     </div>

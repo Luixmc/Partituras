@@ -18,14 +18,11 @@ comment on table public.categories is
   'Musical categories for organizing sheet music';
 
 insert into public.categories (name, description, color, sort_order) values
-  ('Hymns',           'Traditional hymns',                     '#7c3aed', 1),
-  ('Choruses',        'Contemporary praise choruses',          '#2563eb', 2),
-  ('Worship',         'Contemplative worship music',           '#0891b2', 3),
-  ('Special Music',   'Solos, duets and special presentations','#d97706', 4),
-  ('Instrumental',    'Pieces without lyrics',                 '#059669', 5),
-  ('Christmas',       'Christmas carols and seasonal music',   '#dc2626', 6),
-  ('Easter',          'Holy Week and Easter music',            '#7e22ce', 7),
-  ('Uncategorized',   'Sheets without a category',             '#6b7280', 99);
+  ('Adoraciones', 'Canciones de adoracion congregacional', '#2563eb', 1),
+  ('Alabanzas',   'Canciones de alabanza y celebracion',   '#16a34a', 2),
+  ('Ofrenda',     'Canciones para el momento de ofrenda',   '#ca8a04', 3),
+  ('Jovenes',     'Repertorio para jovenes',                '#db2777', 4),
+  ('Especiales',  'Solos, grupos y participaciones',        '#7c3aed', 5);
 
 -- ── Tags ─────────────────────────────────────────────────────
 create table public.tags (

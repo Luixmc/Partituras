@@ -33,6 +33,6 @@
 -- |:D|"G"G2 B|"G"B2 d|"C"e2 d|"G"B2 G|"G"G2 E|"Em"E3|"D"D3|D2 D|
 -- "G"G2 B|"G"B2 d|"C"e2 d|"G"B2 B|"D"A2 F|"G"G3|G2:|',
 --   'published',
---   (select id from public.categories where name = 'Hymns'),
+--   (select id from public.categories where name = 'Adoraciones'),
 --   (select id from public.profiles where email = 'your-admin@email.com')
 -- );

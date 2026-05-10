@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Eye, FileCode2, Wand2 } from "lucide-react";
-import MusicXmlViewer from "@/components/sheets/MusicXmlViewer";
-import { buildMusicXml, type MusicSection } from "@/lib/musicxml";
+import { useMemo, useState } from "react";
+import { Eye, Wand2 } from "lucide-react";
+import NoteGrid from "@/components/sheets/NoteGrid";
+import { parseNotes } from "@/lib/notesParser";
+
+type MusicSection = {
+  id?: string;
+  name: string;
+  chords: string;
+  melody?: string;
+  lyrics?: string;
+};
 
 type Props = {
   title: string;
@@ -40,25 +48,12 @@ export default function LeadSheetComposer({
   onMusicXmlChange,
 }: Props) {
   const [sections, setSections] = useState<MusicSection[]>(defaultSections);
-  const [mode, setMode] = useState<"builder" | "musicxml">("builder");
+  const [mode] = useState<"builder">("builder");
 
-  const generatedMusicXml = useMemo(
-    () =>
-      buildMusicXml({
-        title,
-        composer,
-        keySignature,
-        timeSignature,
-        sections,
-      }),
-    [composer, keySignature, sections, timeSignature, title]
+  const allChords = useMemo(
+    () => sections.map((s) => s.chords).join(" "),
+    [sections]
   );
-
-  useEffect(() => {
-    if (mode === "builder") {
-      onMusicXmlChange(generatedMusicXml);
-    }
-  }, [generatedMusicXml, mode, onMusicXmlChange]);
 
   function updateSection(id: string | undefined, field: keyof MusicSection, value: string) {
     setSections((current) =>
@@ -91,32 +86,14 @@ export default function LeadSheetComposer({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setMode("builder")}
-          className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
-            mode === "builder"
-              ? "bg-brand-600 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold bg-brand-600 text-white"
         >
           <Wand2 className="h-4 w-4" />
-          Editor MusicXML
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("musicxml")}
-          className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
-            mode === "musicxml"
-              ? "bg-brand-600 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
-          <FileCode2 className="h-4 w-4" />
-          MusicXML
+          Editor de Cifrado
         </button>
       </div>
 
-      {mode === "builder" ? (
-        <div className="space-y-4">
+      <div className="space-y-4">
           {sections.map((section) => (
             <div key={section.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="grid gap-3 md:grid-cols-[180px_1fr]">
@@ -177,27 +154,13 @@ export default function LeadSheetComposer({
             Agregar seccion
           </button>
         </div>
-      ) : (
-        <label className="block text-sm font-medium text-slate-700">
-          MusicXML
-          <textarea
-            value={musicXmlContent}
-            onChange={(event) => onMusicXmlChange(event.target.value)}
-            rows={16}
-            className="mt-1 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-            spellCheck={false}
-          />
-        </label>
-      )}
 
       <div className="rounded-xl border border-slate-200 bg-white p-3">
         <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <Eye className="h-4 w-4" />
-          Preview
+          Vista Previa (Grid)
         </div>
-        <MusicXmlViewer
-          content={mode === "builder" ? generatedMusicXml : musicXmlContent}
-        />
+        <NoteGrid notes={parseNotes(allChords)} />
       </div>
     </div>
   );
