@@ -8,6 +8,8 @@ type SongRow = Song & {
     name: string | null;
     color: string | null;
   } | null;
+  author?: string | null;
+  sections?: any[] | null;
 };
 
 export default async function SongsPage() {
@@ -109,7 +111,7 @@ function SongCard({ song }: { song: SongRow }) {
               Partes
             </p>
             <p className="mt-1 font-semibold text-slate-700">
-              {song.sections?.length ?? 0}
+              {song.sections?.length ?? (song.content?.match(/\[.*?\]/g)?.length ?? 0)}
             </p>
           </div>
         </div>
