@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Eye, Music2 } from "lucide-react";
+import { Eye, Music2, Layout } from "lucide-react";
 
 import type { SheetCatalogItem } from "@/types";
 import { categoryStyle, formatKey } from "@/lib/utils";
@@ -15,6 +15,7 @@ function parsePreviewNotes(content?: string | null) {
 
 export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
   const notes = parsePreviewNotes(sheet.content);
+  const sectionCount = sheet.content?.match(/\[.*?\]/g)?.length ?? 0;
 
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -83,6 +84,12 @@ export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
             {sheet.time_signature && (
               <span className="text-[11px] text-slate-400">
                 {sheet.time_signature}
+              </span>
+            )}
+            {sectionCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400">
+                <Layout className="h-3 w-3" />
+                {sectionCount} {sectionCount === 1 ? 'parte' : 'partes'}
               </span>
             )}
           </div>
