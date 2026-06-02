@@ -23,23 +23,35 @@ type Props = {
 
 function parseSections(text: string) {
   const sections: { title?: string; content: string }[] = [];
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   let currentSection: { title?: string; content: string } | null = null;
 
-  lines.forEach(line => {
+  lines.forEach((line) => {
     const match = line.match(/^\[(.*?)\]|^<(.*?)>/);
     if (match) {
       const title = match[1] || match[2];
       if (currentSection) sections.push(currentSection);
-      currentSection = { title, content: '' };
+      currentSection = { title, content: "" };
     } else {
-      if (!currentSection) currentSection = { content: '' };
-      currentSection.content += line + ' ';
+      if (!currentSection) currentSection = { content: "" };
+      currentSection.content += line + " ";
     }
   });
   if (currentSection) sections.push(currentSection);
   return sections;
 }
+
+// Modifiers que NO llevan espacio antes
+const MODIFIERS = new Set([
+  "#", "b", "m", "7",
+  "maj7", "maj9", "m7", "m9",
+  "sus2", "sus4",
+  "dim", "dim7",
+  "aug", "aug7",
+  "add9", "add11",
+  "m7b5",
+  ":1", ":2", ":3", ":4", ":0.5",
+]);
 
 export default function SongDetailEditor({ sheet, categories, canEdit }: Props) {
   const router = useRouter();
@@ -50,10 +62,10 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"ok" | "error">("ok");
 
   const [title, setTitle] = useState(sheet.title);
   const [composer, setComposer] = useState(sheet.composer ?? "");
-  const [hymnNumber, setHymnNumber] = useState(sheet.hymn_number ?? "");
   const [keySignature, setKeySignature] = useState(sheet.key_signature ?? "C");
   const [timeSignature, setTimeSignature] = useState(sheet.time_signature ?? "4/4");
   const [categoryId, setCategoryId] = useState(sheet.category_id ?? "");
@@ -62,18 +74,16 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
 
   const appendToContent = (text: string) => {
     setContent((prev) => {
-      const modifiers = ["#", "b", "m", "7"];
-      const isModifier = modifiers.includes(text);
-      const needsSpace = 
-        prev.length > 0 && 
-        !prev.endsWith(" ") && 
-        !prev.endsWith("\n") && 
-        !prev.endsWith("[") && 
-        !prev.endsWith("<") && 
-        !text.startsWith("[") && 
+      const isModifier = MODIFIERS.has(text) || text.startsWith(":");
+      const needsSpace =
+        prev.length > 0 &&
+        !prev.endsWith(" ") &&
+        !prev.endsWith("\n") &&
+        !prev.endsWith("[") &&
+        !prev.endsWith("<") &&
+        !text.startsWith("[") &&
         !text.startsWith("<") &&
         !isModifier;
-
       return prev + (needsSpace ? " " : "") + text;
     });
   };
@@ -89,33 +99,21 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setSaving(true);
     setMessage(null);
-
     try {
       const Tesseract = await import("tesseract.js");
-      
-      const result = await Tesseract.recognize(
-        file,
-        'spa+eng',
-        { logger: m => console.log(m) }
-      );
-
-      const extractedText = result.data.text;
-      const cleanedText = extractedText
-        .replace(/\n/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!cleanedText) {
-        throw new Error("No se pudo extraer texto de la imagen.");
-      }
-
+      const result = await Tesseract.recognize(file, "spa+eng", {
+        logger: (m) => console.log(m),
+      });
+      const cleanedText = result.data.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+      if (!cleanedText) throw new Error("No se pudo extraer texto de la imagen.");
       setContent((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
       setMessage("Texto de imagen procesado correctamente.");
+      setMessageType("ok");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Error en OCR de imagen");
+      setMessageType("error");
     } finally {
       setSaving(false);
       if (event.target) event.target.value = "";
@@ -125,34 +123,27 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   const handlePdfImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setSaving(true);
     setMessage(null);
-
     try {
       const pdfjs = await import("pdfjs-dist");
       pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
       let extractedText = "";
-
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
       }
-
       const cleanedText = extractedText.replace(/\s+/g, " ").trim();
-      
-      if (!cleanedText) {
-        throw new Error("PDF sin texto extraíble.");
-      }
-
+      if (!cleanedText) throw new Error("PDF sin texto extraíble.");
       setContent((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
       setMessage("Texto importado del PDF correctamente.");
+      setMessageType("ok");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Error al importar PDF");
+      setMessageType("error");
     } finally {
       setSaving(false);
       if (event.target) event.target.value = "";
@@ -162,6 +153,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   async function handleSave() {
     if (!title.trim()) {
       setMessage("El titulo es obligatorio.");
+      setMessageType("error");
       return;
     }
 
@@ -173,7 +165,6 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
       .update({
         title: title.trim(),
         composer: composer.trim() || null,
-        hymn_number: hymnNumber.trim() || null,
         key_signature: keySignature.trim() || null,
         time_signature: timeSignature.trim() || null,
         category_id: categoryId || null,
@@ -187,16 +178,19 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
 
     if (error) {
       setMessage(error.message);
+      setMessageType("error");
       return;
     }
 
-    setMessage("Cancion actualizada.");
-    setMode("view");
+    setMessage("Cambios guardados correctamente.");
+    setMessageType("ok");
+    // Nos quedamos en modo edición para poder seguir editando
     router.refresh();
   }
 
   return (
     <div className="flex-1 bg-slate-100">
+      {/* Barra superior */}
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
           <div className="flex-1">
@@ -239,25 +233,13 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
         </div>
       </div>
 
+      {/* ── MODO VISTA ── */}
       {mode === "view" ? (
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
           <article className="mx-auto min-h-[72vh] w-full max-w-[900px] bg-white px-8 py-12 shadow-sm ring-1 ring-slate-200 md:px-12">
             <header className="mb-8 border-b border-slate-200 pb-5">
-              <div className="flex items-start justify-between gap-5">
-                <div>
-                  <h1 className="font-display text-3xl font-bold text-slate-950">
-                    {title}
-                  </h1>
-                  {composer && (
-                    <p className="mt-1 text-sm text-slate-500">{composer}</p>
-                  )}
-                </div>
-                {hymnNumber && (
-                  <span className="rounded border border-slate-200 px-2 py-1 font-mono text-xs text-slate-500">
-                    {hymnNumber}
-                  </span>
-                )}
-              </div>
+              <h1 className="font-display text-3xl font-bold text-slate-950">{title}</h1>
+              {composer && <p className="mt-1 text-sm text-slate-500">{composer}</p>}
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
                 {sheet.category && <span>{sheet.category.name}</span>}
                 {keySignature && <span>Tono: {keySignature}</span>}
@@ -268,7 +250,12 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
             {content.trim() ? (
               <div className="space-y-8">
                 {parseSections(content).map((section, idx) => (
-                  <TablaturePreview key={idx} notes={section.content} label={section.title} compact />
+                  <TablaturePreview
+                    key={idx}
+                    notes={section.content}
+                    label={section.title}
+                    compact
+                  />
                 ))}
               </div>
             ) : (
@@ -279,41 +266,36 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
           </article>
         </div>
       ) : (
+        /* ── MODO EDICIÓN ── */
         <div className="mx-auto grid max-w-6xl gap-5 px-4 py-6 md:grid-cols-[340px_1fr] md:px-8">
+          {/* Panel izquierdo: metadatos */}
           <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
-            <h3 className="font-display font-semibold text-slate-800">
-              Datos de la cancion
-            </h3>
+            <h3 className="font-display font-semibold text-slate-800">Datos de la cancion</h3>
+
             <label className="block text-sm font-medium text-slate-700">
               Titulo
               <input
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </label>
+
             <label className="block text-sm font-medium text-slate-700">
               Autor o compositor
               <input
                 value={composer}
-                onChange={(event) => setComposer(event.target.value)}
+                onChange={(e) => setComposer(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </label>
-            <label className="block text-sm font-medium text-slate-700">
-              Numero
-              <input
-                value={hymnNumber}
-                onChange={(event) => setHymnNumber(event.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </label>
+
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
               <label className="block text-sm font-medium text-slate-700">
                 Tonalidad
                 <input
                   value={keySignature}
-                  onChange={(event) => setKeySignature(event.target.value)}
+                  onChange={(e) => setKeySignature(e.target.value)}
                   className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </label>
@@ -321,37 +303,58 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                 Compas
                 <select
                   value={timeSignature}
-                  onChange={(event) => setTimeSignature(event.target.value)}
+                  onChange={(e) => setTimeSignature(e.target.value)}
                   className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
-                  {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((meter) => (
-                    <option key={meter} value={meter}>
-                      {meter}
-                    </option>
+                  {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((m) => (
+                    <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
               </label>
             </div>
-            <label className="block text-sm font-medium text-slate-700">
+
+            {/* Categoría como pills */}
+            <div className="block text-sm font-medium text-slate-700">
               Categoria
-              <select
-                value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                <option value="">Sin categoria</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCategoryId("")}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                    !categoryId
+                      ? "bg-slate-700 text-white border-slate-700"
+                      : "border-slate-200 text-slate-500 hover:border-slate-400"
+                  }`}
+                >
+                  Sin categoria
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id === categoryId ? "" : cat.id)}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                      cat.id === categoryId
+                        ? "text-white border-transparent"
+                        : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}
+                    style={
+                      cat.id === categoryId
+                        ? { backgroundColor: cat.color, borderColor: cat.color }
+                        : undefined
+                    }
+                  >
+                    {cat.name}
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
+
             <label className="block text-sm font-medium text-slate-700">
               Estado
               <select
                 value={status}
-                onChange={(event) => setStatus(event.target.value as SheetStatus)}
+                onChange={(e) => setStatus(e.target.value as SheetStatus)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="draft">Borrador</option>
@@ -361,6 +364,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
             </label>
           </section>
 
+          {/* Panel derecho: contenido */}
           <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
             <div>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
@@ -369,11 +373,9 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     <Grid2X2 className="h-4 w-4" />
                   </span>
                   <div>
-                    <h3 className="font-display font-semibold text-slate-800">
-                      Contenido
-                    </h3>
+                    <h3 className="font-display font-semibold text-slate-800">Contenido</h3>
                     <p className="text-[10px] text-slate-500">
-                      Agrega notas solo con los botones. No edites el campo a mano.
+                      Usa los botones para insertar acordes, secciones y texto.
                     </p>
                   </div>
                 </div>
@@ -386,13 +388,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     <ImageIcon className="h-3 w-3" />
                     {saving ? "..." : "Imagen"}
                   </button>
-                  <input
-                    type="file"
-                    ref={imageInputRef}
-                    onChange={handleImageImport}
-                    accept="image/*"
-                    className="hidden"
-                  />
+                  <input type="file" ref={imageInputRef} onChange={handleImageImport} accept="image/*" className="hidden" />
                   <button
                     type="button"
                     onClick={() => pdfInputRef.current?.click()}
@@ -401,18 +397,13 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     <FileText className="h-3 w-3" />
                     {saving ? "..." : "PDF"}
                   </button>
-                  <input
-                    type="file"
-                    ref={pdfInputRef}
-                    onChange={handlePdfImport}
-                    accept="application/pdf"
-                    className="hidden"
-                  />
+                  <input type="file" ref={pdfInputRef} onChange={handlePdfImport} accept="application/pdf" className="hidden" />
                 </div>
               </div>
 
-              <div className="space-y-3 mt-4">
-                <div className="flex flex-wrap gap-1 border-b border-slate-100 pb-3">
+              <div className="space-y-2 mt-3">
+                {/* Fila 1: Notas base */}
+                <div className="flex flex-wrap gap-1 pb-2 border-b border-slate-100">
                   {["C", "D", "E", "F", "G", "A", "B"].map((n) => (
                     <button
                       key={n}
@@ -424,25 +415,65 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     </button>
                   ))}
                   <div className="mx-1 h-7 w-px bg-slate-200" />
-                  {["#", "b", "m", "7", "%", "*", "|", "-"].map((m) => (
+                  {/* Alteraciones básicas */}
+                  {["#", "b", "m", "7"].map((m) => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => appendToContent(m)}
-                      className="h-7 w-7 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                      className="h-7 min-w-[28px] rounded bg-slate-50 px-1 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
                     >
                       {m}
                     </button>
-                  ))}                  <button
+                  ))}
+                  <div className="mx-1 h-7 w-px bg-slate-200" />
+                  <button
                     type="button"
                     onClick={deleteLastEntry}
-                    className="h-7 w-7 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                    className="h-7 w-7 rounded bg-red-50 text-[10px] font-medium text-red-500 border border-red-200 hover:bg-red-100 transition-colors"
                   >
                     ⌫
-                  </button>                </div>
-                
+                  </button>
+                </div>
+
+                {/* Fila 2: Alteraciones extendidas */}
+                <div className="flex flex-wrap gap-1 pb-2 border-b border-slate-100">
+                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Alt:</span>
+                  {["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"].map((alt) => (
+                    <button
+                      key={alt}
+                      type="button"
+                      onClick={() => appendToContent(alt)}
+                      className="h-6 rounded bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 border border-brand-100 hover:bg-brand-100 transition-colors"
+                    >
+                      {alt}
+                    </button>
+                  ))}
+                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Dur:</span>
+                  {[":1", ":2", ":3", ":4"].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => appendToContent(d)}
+                      className="h-6 rounded bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                    >
+                      {d}
+                    </button>
+                  ))}
+                  {/* Barra de bajo */}
+                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Bajo:</span>
+                  <button
+                    type="button"
+                    onClick={() => appendToContent("/")}
+                    className="h-6 w-6 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                  >
+                    /
+                  </button>
+                </div>
+
+                {/* Fila 3: Secciones + texto */}
                 <div className="flex flex-wrap gap-2">
-                  {['<Intro>', '<Verso>', '<Coro>', '<Puente>', '<Final>'].map((s) => (
+                  {["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"].map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -456,28 +487,41 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                   <button
                     type="button"
                     onClick={() => appendToContent("(Letra)")}
-                    className="inline-flex items-center gap-1 rounded-md border border-dashed border-slate-300 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400 hover:border-slate-400 hover:text-slate-500 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-md border border-dashed border-amber-300 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-600 hover:border-amber-400 hover:bg-amber-50 transition-colors"
                   >
                     <Type className="h-2.5 w-2.5" />
                     Texto
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => appendToContent("|")}
+                    className="rounded-md border border-slate-200 px-2 py-0.5 text-[9px] font-bold text-slate-500 hover:border-slate-400 transition-colors"
+                  >
+                    | Barra
+                  </button>
                 </div>
               </div>
             </div>
+
             <textarea
               value={content}
-              onChange={(event) => setContent(event.target.value)}
+              onChange={(e) => setContent(e.target.value)}
               rows={7}
               spellCheck={false}
               className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              placeholder="Escribe notas y secciones directamente. Usa <Intro>, <Verso>, <Coro>..."
+              placeholder="Escribe notas y secciones. Usa los botones o escribe directo. Ejemplo: <Intro>\nC Am F G"
             />
+
             <TablaturePreview notes={content} />
+
             {message && (
-              <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              <p className={`rounded-lg px-4 py-3 text-sm ${
+                messageType === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"
+              }`}>
                 {message}
               </p>
             )}
+
             <button
               type="button"
               onClick={handleSave}

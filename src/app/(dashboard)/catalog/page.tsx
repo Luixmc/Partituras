@@ -1,11 +1,14 @@
 import { Filter, Search } from "lucide-react";
 
 import SheetCard from "@/components/sheets/SheetCard";
+import CatalogFilters from "@/components/sheets/CatalogFilters";
 import { createClient } from "@/lib/supabase/server";
 import type { Category, SheetCatalogItem } from "@/types";
 
 interface SearchParams {
   q?: string;
+  categories?: string;
+  // legacy single-category param
   category?: string;
 }
 
@@ -15,7 +18,13 @@ export default async function CatalogPage({
   searchParams: SearchParams;
 }) {
   const supabase = await createClient();
-  const { q, category } = searchParams;
+  const { q, categories: categoriesParam, category: legacyCategory } = searchParams;
+
+  // Soporte para múltiples categorías separadas por coma
+  const rawCategories = categoriesParam ?? legacyCategory ?? "";
+  const selectedIds = rawCategories
+    ? rawCategories.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
 
   const { data: categories } = await supabase
     .from("categories")
@@ -31,8 +40,10 @@ export default async function CatalogPage({
     .order("title", { ascending: true })
     .limit(50);
 
-  if (category) {
-    sheetsQuery = sheetsQuery.eq("category_id", category);
+  if (selectedIds.length === 1) {
+    sheetsQuery = sheetsQuery.eq("category_id", selectedIds[0]);
+  } else if (selectedIds.length > 1) {
+    sheetsQuery = sheetsQuery.in("category_id", selectedIds);
   }
 
   if (q) {
@@ -67,42 +78,17 @@ export default async function CatalogPage({
               name="q"
               defaultValue={q}
               type="search"
-              placeholder="Buscar por titulo, compositor, numero..."
+              placeholder="Buscar por titulo, compositor..."
               className="w-full rounded-xl bg-slate-100 py-2.5 pl-10 pr-4 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </form>
         </div>
 
-        <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
-          <a
-            href="/catalog"
-            className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
-              !category
-                ? "border-brand-600 bg-brand-600 text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-brand-300"
-            }`}
-          >
-            Todas
-          </a>
-          {(categories as Category[])?.map((cat) => (
-            <a
-              key={cat.id}
-              href={`/catalog?category=${cat.id}${q ? `&q=${q}` : ""}`}
-              className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
-                category === cat.id
-                  ? "border-transparent text-white"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-              }`}
-              style={
-                category === cat.id
-                  ? { backgroundColor: cat.color, borderColor: cat.color }
-                  : undefined
-              }
-            >
-              {cat.name}
-            </a>
-          ))}
-        </div>
+        <CatalogFilters
+          categories={(categories ?? []) as Category[]}
+          selectedIds={selectedIds}
+          q={q}
+        />
       </div>
 
       <div className="flex-1 p-4 md:p-8">
@@ -110,6 +96,11 @@ export default async function CatalogPage({
           <>
             <p className="mb-4 text-sm text-slate-500">
               {sheets.length} cancion{sheets.length !== 1 ? "es" : ""} encontrada{sheets.length !== 1 ? "s" : ""}
+              {selectedIds.length > 0 && (
+                <span className="ml-1 text-brand-600">
+                  · {selectedIds.length} categoria{selectedIds.length !== 1 ? "s" : ""} activa{selectedIds.length !== 1 ? "s" : ""}
+                </span>
+              )}
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sheets.map((sheet) => (

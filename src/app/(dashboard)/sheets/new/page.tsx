@@ -9,6 +9,18 @@ import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
 
+// Modifiers que NO llevan espacio antes
+const MODIFIERS = new Set([
+  "#", "b", "m", "7",
+  "maj7", "maj9", "m7", "m9",
+  "sus2", "sus4",
+  "dim", "dim7",
+  "aug", "aug7",
+  "add9", "add11",
+  "m7b5",
+  ":1", ":2", ":3", ":4", ":0.5",
+]);
+
 export default function NewSheetPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -21,7 +33,6 @@ export default function NewSheetPage() {
 
   const [title, setTitle] = useState("");
   const [composer, setComposer] = useState("");
-  const [hymnNumber, setHymnNumber] = useState("");
   const [keySignature, setKeySignature] = useState("C");
   const [timeSignature, setTimeSignature] = useState("4/4");
   const [categoryId, setCategoryId] = useState("");
@@ -38,18 +49,16 @@ export default function NewSheetPage() {
 
   const appendToNotes = (text: string) => {
     setTabNotes((prev) => {
-      const modifiers = ["#", "b", "m", "7"];
-      const isModifier = modifiers.includes(text);
-      const needsSpace = 
-        prev.length > 0 && 
-        !prev.endsWith(" ") && 
-        !prev.endsWith("\n") && 
-        !prev.endsWith("[") && 
-        !prev.endsWith("<") && 
-        !text.startsWith("[") && 
+      const isModifier = MODIFIERS.has(text) || text.startsWith(":");
+      const needsSpace =
+        prev.length > 0 &&
+        !prev.endsWith(" ") &&
+        !prev.endsWith("\n") &&
+        !prev.endsWith("[") &&
+        !prev.endsWith("<") &&
+        !text.startsWith("[") &&
         !text.startsWith("<") &&
-        !isModifier; // No añade espacio si es una alteración
-      
+        !isModifier;
       return prev + (needsSpace ? " " : "") + text;
     });
   };
@@ -65,32 +74,16 @@ export default function NewSheetPage() {
   const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setLoading(true);
     setError(null);
-
     try {
-      // Importación dinámica de Tesseract.js
       const Tesseract = await import("tesseract.js");
-      
-      const result = await Tesseract.recognize(
-        file,
-        'spa+eng', // Soporta español e inglés para detectar acordes y letras
-        { logger: m => console.log(m) }
-      );
-
-      const extractedText = result.data.text;
-      const cleanedText = extractedText
-        .replace(/\n/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!cleanedText) {
-        throw new Error("No se pudo extraer texto de la imagen.");
-      }
-
+      const result = await Tesseract.recognize(file, "spa+eng", {
+        logger: (m) => console.log(m),
+      });
+      const cleanedText = result.data.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+      if (!cleanedText) throw new Error("No se pudo extraer texto de la imagen.");
       setTabNotes((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
-      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al procesar la imagen");
     } finally {
@@ -102,32 +95,21 @@ export default function NewSheetPage() {
   const handlePdfImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setLoading(true);
     setError(null);
-
     try {
-      // Importación dinámica de pdfjs-dist
       const pdfjs = await import("pdfjs-dist");
-      // Configuración del worker vía CDN para compatibilidad con Next.js
       pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
       let extractedText = "";
-
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
       }
-
       const cleanedText = extractedText.replace(/\s+/g, " ").trim();
-      
-      if (!cleanedText) {
-        throw new Error("No se encontró texto en el PDF. Si es un escaneo, usa la importación por imagen.");
-      }
-
+      if (!cleanedText) throw new Error("No se encontró texto en el PDF.");
       setTabNotes((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al importar el PDF");
@@ -140,15 +122,12 @@ export default function NewSheetPage() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!title) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
       if (!user) throw new Error("No autenticado");
 
       const { data: song, error: insertError } = await supabase
@@ -156,7 +135,6 @@ export default function NewSheetPage() {
         .insert({
           title,
           composer: composer || null,
-          hymn_number: hymnNumber || null,
           key_signature: keySignature || null,
           time_signature: timeSignature || null,
           category_id: categoryId || null,
@@ -168,7 +146,6 @@ export default function NewSheetPage() {
         .single();
 
       if (insertError) throw insertError;
-
       router.push(`/catalog/${song.id}`);
     } catch (err) {
       setError(
@@ -194,12 +171,8 @@ export default function NewSheetPage() {
             <ArrowLeft className="h-4 w-4 text-slate-600" />
           </Link>
           <div>
-            <h1 className="font-display text-xl font-bold text-slate-900">
-              Nueva tablatura
-            </h1>
-            <p className="text-sm text-slate-500">
-              Escribe las notas y revisalas en un grid continuo.
-            </p>
+            <h1 className="font-display text-xl font-bold text-slate-900">Nueva cancion</h1>
+            <p className="text-sm text-slate-500">Crea una nueva partitura con acordes.</p>
           </div>
         </div>
       </div>
@@ -208,17 +181,16 @@ export default function NewSheetPage() {
         onSubmit={handleSubmit}
         className="mx-auto grid max-w-5xl gap-5 px-4 py-6 md:grid-cols-[320px_1fr] md:px-8"
       >
+        {/* Panel de metadatos */}
         <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="font-display font-semibold text-slate-800">
-            Datos
-          </h2>
+          <h2 className="font-display font-semibold text-slate-800">Datos</h2>
 
           <label className="block text-sm font-medium text-slate-700">
             Titulo <span className="text-red-500">*</span>
             <input
               required
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="Nombre de la cancion"
             />
@@ -228,19 +200,9 @@ export default function NewSheetPage() {
             Autor o compositor
             <input
               value={composer}
-              onChange={(event) => setComposer(event.target.value)}
+              onChange={(e) => setComposer(e.target.value)}
               className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="Nombre"
-            />
-          </label>
-
-          <label className="block text-sm font-medium text-slate-700">
-            Numero de himno
-            <input
-              value={hymnNumber}
-              onChange={(event) => setHymnNumber(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              placeholder="HV-042"
             />
           </label>
 
@@ -249,7 +211,7 @@ export default function NewSheetPage() {
               Tonalidad
               <input
                 value={keySignature}
-                onChange={(event) => setKeySignature(event.target.value)}
+                onChange={(e) => setKeySignature(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder="C, Dm, F, Bb"
               />
@@ -258,35 +220,55 @@ export default function NewSheetPage() {
               Compas
               <select
                 value={timeSignature}
-                onChange={(event) => setTimeSignature(event.target.value)}
+                onChange={(e) => setTimeSignature(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((meter) => (
-                  <option key={meter} value={meter}>
-                    {meter}
-                  </option>
+                {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((m) => (
+                  <option key={m} value={m}>{m}</option>
                 ))}
               </select>
             </label>
           </div>
 
-          <label className="block text-sm font-medium text-slate-700">
+          {/* Categoría como pills */}
+          <div className="block text-sm font-medium text-slate-700">
             Categoria
-            <select
-              value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              <option value="">Sin categoria</option>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCategoryId("")}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                  !categoryId
+                    ? "bg-slate-700 text-white border-slate-700"
+                    : "border-slate-200 text-slate-500 hover:border-slate-400"
+                }`}
+              >
+                Sin categoria
+              </button>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryId(cat.id === categoryId ? "" : cat.id)}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                    cat.id === categoryId
+                      ? "text-white border-transparent"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                  style={
+                    cat.id === categoryId
+                      ? { backgroundColor: cat.color, borderColor: cat.color }
+                      : undefined
+                  }
+                >
                   {cat.name}
-                </option>
+                </button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
         </section>
 
+        {/* Panel de contenido */}
         <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
@@ -294,15 +276,12 @@ export default function NewSheetPage() {
                 <Grid2X2 className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="font-display font-semibold text-slate-800">
-                  Notas del grid
-                </h2>
+                <h2 className="font-display font-semibold text-slate-800">Notas del grid</h2>
                 <p className="text-xs text-slate-500">
-                  Usa los botones para agregar notas y alteraciones. No edites el campo a mano.
+                  Usa los botones para agregar acordes y alteraciones.
                 </p>
               </div>
             </div>
-            
             <div className="flex gap-2">
               <button
                 type="button"
@@ -312,13 +291,7 @@ export default function NewSheetPage() {
                 <ImageIcon className="h-3.5 w-3.5" />
                 {loading ? "..." : "Imagen (OCR)"}
               </button>
-              <input
-                type="file"
-                ref={imageInputRef}
-                onChange={handleImageImport}
-                accept="image/*"
-                className="hidden"
-              />
+              <input type="file" ref={imageInputRef} onChange={handleImageImport} accept="image/*" className="hidden" />
               <button
                 type="button"
                 onClick={() => pdfInputRef.current?.click()}
@@ -327,18 +300,13 @@ export default function NewSheetPage() {
                 <FileText className="h-3.5 w-3.5" />
                 {loading ? "Procesando..." : "PDF"}
               </button>
-              <input
-                type="file"
-                ref={pdfInputRef}
-                onChange={handlePdfImport}
-                accept="application/pdf"
-                className="hidden"
-              />
+              <input type="file" ref={pdfInputRef} onChange={handlePdfImport} accept="application/pdf" className="hidden" />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-1.5 border-b border-slate-100 pb-3">
+          <div className="space-y-2">
+            {/* Fila 1: Notas base + alteraciones básicas */}
+            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-slate-100">
               {["C", "D", "E", "F", "G", "A", "B"].map((n) => (
                 <button
                   key={n}
@@ -350,25 +318,63 @@ export default function NewSheetPage() {
                 </button>
               ))}
               <div className="mx-1 h-8 w-px bg-slate-200" />
-              {["#", "b", "m", "7", "%", "*", "|", "-"].map((m) => (
+              {["#", "b", "m", "7"].map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => appendToNotes(m)}
-                  className="h-8 w-8 rounded bg-slate-50 text-xs font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                  className="h-8 min-w-[32px] rounded bg-slate-50 px-1 text-xs font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
                 >
                   {m}
                 </button>
-              ))}              <button
+              ))}
+              <div className="mx-1 h-8 w-px bg-slate-200" />
+              <button
                 type="button"
                 onClick={deleteLastNote}
-                className="h-8 w-8 rounded bg-slate-50 text-xs font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                className="h-8 w-8 rounded bg-red-50 text-xs font-medium text-red-500 border border-red-200 hover:bg-red-100 transition-colors"
               >
                 ⌫
-              </button>            </div>
-            
+              </button>
+            </div>
+
+            {/* Fila 2: Alteraciones extendidas + duración + bajo */}
+            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-slate-100">
+              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Alt:</span>
+              {["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"].map((alt) => (
+                <button
+                  key={alt}
+                  type="button"
+                  onClick={() => appendToNotes(alt)}
+                  className="h-7 rounded bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 border border-brand-100 hover:bg-brand-100 transition-colors"
+                >
+                  {alt}
+                </button>
+              ))}
+              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Dur:</span>
+              {[":1", ":2", ":3", ":4"].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => appendToNotes(d)}
+                  className="h-7 rounded bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                >
+                  {d}
+                </button>
+              ))}
+              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Bajo:</span>
+              <button
+                type="button"
+                onClick={() => appendToNotes("/")}
+                className="h-7 w-7 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+              >
+                /
+              </button>
+            </div>
+
+            {/* Fila 3: Secciones + texto */}
             <div className="flex flex-wrap gap-2">
-              {['<Intro>', '<Verso>', '<Coro>', '<Puente>', '<Final>'].map((s) => (
+              {["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"].map((s) => (
                 <button
                   key={s}
                   type="button"
@@ -382,18 +388,25 @@ export default function NewSheetPage() {
               <button
                 type="button"
                 onClick={() => appendToNotes("(Letra)")}
-                className="inline-flex items-center gap-1 rounded-md border border-dashed border-slate-300 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:border-slate-400 hover:text-slate-500 transition-colors"
+                className="inline-flex items-center gap-1 rounded-md border border-dashed border-amber-300 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 hover:border-amber-400 hover:bg-amber-50 transition-colors"
               >
                 <Type className="h-3 w-3" />
-                Texto / No nota
+                Texto
+              </button>
+              <button
+                type="button"
+                onClick={() => appendToNotes("|")}
+                className="rounded-md border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-500 hover:border-slate-400 transition-colors"
+              >
+                | Barra
               </button>
             </div>
           </div>
 
           <textarea
             value={tabNotes}
-            onChange={(event) => setTabNotes(event.target.value)}
-            placeholder="Escribe notas o usa botones para insertar secciones con <Intro>, <Verso>, <Coro>..."
+            onChange={(e) => setTabNotes(e.target.value)}
+            placeholder="Escribe notas o usa los botones. Ejemplo: <Intro>\nC Am F G"
             rows={6}
             spellCheck={false}
             className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -402,9 +415,7 @@ export default function NewSheetPage() {
           <TablaturePreview notes={tabNotes} />
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-              {error}
-            </p>
+            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
           )}
 
           <div className="flex gap-3 pt-2">
@@ -420,7 +431,7 @@ export default function NewSheetPage() {
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
-              {loading ? "Guardando..." : "Guardar borrador"}
+              {loading ? "Guardando..." : "Guardar cancion"}
             </button>
           </div>
         </section>
