@@ -75,6 +75,14 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
     });
   };
 
+  const deleteLastEntry = () => {
+    setContent((prev) => {
+      const trimmed = prev.replace(/[ \t]+$/g, "");
+      const lastBreak = Math.max(trimmed.lastIndexOf(" "), trimmed.lastIndexOf("\n"));
+      return lastBreak === -1 ? "" : trimmed.slice(0, lastBreak + 1);
+    });
+  };
+
   const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -362,7 +370,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                       Contenido
                     </h3>
                     <p className="text-[10px] text-slate-500">
-                      Usa espacios para separar celdas.
+                      Agrega notas solo con los botones. No edites el campo a mano.
                     </p>
                   </div>
                 </div>
@@ -422,8 +430,13 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     >
                       {m}
                     </button>
-                  ))}
-                </div>
+                  ))}                  <button
+                    type="button"
+                    onClick={deleteLastEntry}
+                    className="h-7 w-7 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+                  >
+                    ⌫
+                  </button>                </div>
                 
                 <div className="flex flex-wrap gap-2">
                   {["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"].map((s) => (
@@ -450,10 +463,11 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
             </div>
             <textarea
               value={content}
-              onChange={(event) => setContent(event.target.value)}
+              readOnly
+              onPaste={(event) => event.preventDefault()}
               rows={7}
               spellCheck={false}
-              className="w-full resize-none rounded-lg border border-slate-200 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <TablaturePreview notes={content} />
             {message && (

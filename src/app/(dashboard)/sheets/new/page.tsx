@@ -52,6 +52,14 @@ export default function NewSheetPage() {
     });
   };
 
+  const deleteLastNote = () => {
+    setTabNotes((prev) => {
+      const trimmed = prev.replace(/[ \t]+$/g, "");
+      const lastBreak = Math.max(trimmed.lastIndexOf(" "), trimmed.lastIndexOf("\n"));
+      return lastBreak === -1 ? "" : trimmed.slice(0, lastBreak + 1);
+    });
+  };
+
   const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -288,7 +296,7 @@ export default function NewSheetPage() {
                   Notas del grid
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Usa [Seccion] para separar. Ej: [Intro] C G Am F
+                  Usa los botones para agregar notas y alteraciones. No edites el campo a mano.
                 </p>
               </div>
             </div>
@@ -349,8 +357,13 @@ export default function NewSheetPage() {
                 >
                   {m}
                 </button>
-              ))}
-            </div>
+              ))}              <button
+                type="button"
+                onClick={deleteLastNote}
+                className="h-8 w-8 rounded bg-slate-50 text-xs font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
+              >
+                ⌫
+              </button>            </div>
             
             <div className="flex flex-wrap gap-2">
               {["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"].map((s) => (
@@ -377,11 +390,12 @@ export default function NewSheetPage() {
 
           <textarea
             value={tabNotes}
-            onChange={(event) => setTabNotes(event.target.value)}
-            placeholder="[Intro] C G Am F [Verso] C D E..."
+            readOnly
+            onPaste={(event) => event.preventDefault()}
+            placeholder="Usa los botones para agregar notas y alteraciones"
             rows={6}
             spellCheck={false}
-            className="w-full resize-none rounded-lg border border-slate-200 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
 
           <TablaturePreview notes={tabNotes} />

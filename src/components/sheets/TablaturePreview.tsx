@@ -12,7 +12,8 @@ type Props = {
 function parseTabNotes(value: string) {
   if (typeof value !== "string") return [];
   return value
-    .replace(/[|\n\r\t]/g, " ")
+    .replace(/[\n\r\t]/g, " ")
+    .replace(/\|/g, " | ")
     .split(/\s+/)
     .map((note) => note.trim())
     .filter(Boolean);
@@ -42,27 +43,26 @@ export default function TablaturePreview({ notes, compact = false, label }: Prop
           {(parsedNotes.length ? parsedNotes : [""]).map((note, index) => {
             const isText = note.startsWith("(") && note.endsWith(")");
             
-            // Separar la nota base (A-G) de las alteraciones (#, m, 7, etc)
+            // Separar la nota base (A-G) de las alteraciones (#, b, m, 7, etc)
             const match = !isText ? note.match(/^([A-G])(.*)$/) : null;
             const rootNote = match ? match[1] : (isText ? note.slice(1, -1) : note);
             const suffix = match ? match[2] : "";
+            const noteContent = match ? (
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="font-bold text-base">{rootNote}</span>
+                <span className="text-brand-600 text-[10px]">{suffix}</span>
+              </div>
+            ) : isText ? note.slice(1, -1) : note;
             
             return (
               <div
                 key={`${note}-${index}`}
                 className={cn(
-                  "relative flex aspect-square items-center justify-center border-b border-r border-slate-300 transition-colors hover:bg-slate-50",
+                  "flex aspect-square items-center justify-center border-b border-r border-slate-300 transition-colors hover:bg-slate-50",
                   isText && "bg-slate-100/50 text-[10px] italic text-slate-400 font-sans"
                 )}
               >
-                {suffix && (
-                  <span className="absolute right-1 top-1 text-[10px] font-bold leading-none text-brand-600">
-                    {suffix}
-                  </span>
-                )}
-                <span className={cn("font-bold", isText ? "text-[10px]" : "text-base")}>
-                  {rootNote}
-                </span>
+                {noteContent}
               </div>
             );
           })}

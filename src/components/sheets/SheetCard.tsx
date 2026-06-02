@@ -6,7 +6,8 @@ import { categoryStyle, formatKey } from "@/lib/utils";
 
 function parsePreviewNotes(content?: string | null) {
   return (content ?? "")
-    .replace(/[|\n\r\t]/g, " ")
+    .replace(/[\n\r\t]/g, " ")
+    .replace(/\|/g, " | ")
     .split(/\s+/)
     .map((note) => note.trim())
     .filter(Boolean)
