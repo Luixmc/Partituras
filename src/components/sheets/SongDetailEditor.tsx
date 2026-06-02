@@ -27,10 +27,11 @@ function parseSections(text: string) {
   let currentSection: { title?: string; content: string } | null = null;
 
   lines.forEach(line => {
-    const match = line.match(/^\[(.*?)\]/);
+    const match = line.match(/^\[(.*?)\]|^<(.*?)>/);
     if (match) {
+      const title = match[1] || match[2];
       if (currentSection) sections.push(currentSection);
-      currentSection = { title: match[1], content: '' };
+      currentSection = { title, content: '' };
     } else {
       if (!currentSection) currentSection = { content: '' };
       currentSection.content += line + ' ';
@@ -68,7 +69,9 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
         !prev.endsWith(" ") && 
         !prev.endsWith("\n") && 
         !prev.endsWith("[") && 
-        !text.startsWith("[") &&
+        !prev.endsWith("<") && 
+        !text.startsWith("[") && 
+        !text.startsWith("<") &&
         !isModifier;
 
       return prev + (needsSpace ? " " : "") + text;
@@ -439,14 +442,14 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                   </button>                </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  {["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"].map((s) => (
+                  {['<Intro>', '<Verso>', '<Coro>', '<Puente>', '<Final>'].map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => appendToContent(s + "\n")}
                       className="rounded-md bg-brand-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-700 hover:bg-brand-100 transition-colors"
                     >
-                      {s.replace(/[\[\]]/g, "")}
+                      {s.replace(/[<>]/g, "")}
                     </button>
                   ))}
                   <div className="flex-1" />
@@ -463,11 +466,11 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
             </div>
             <textarea
               value={content}
-              readOnly
-              onPaste={(event) => event.preventDefault()}
+              onChange={(event) => setContent(event.target.value)}
               rows={7}
               spellCheck={false}
-              className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              placeholder="Escribe notas y secciones directamente. Usa <Intro>, <Verso>, <Coro>..."
             />
             <TablaturePreview notes={content} />
             {message && (

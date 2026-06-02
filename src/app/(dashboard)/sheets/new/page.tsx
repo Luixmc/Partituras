@@ -45,7 +45,9 @@ export default function NewSheetPage() {
         !prev.endsWith(" ") && 
         !prev.endsWith("\n") && 
         !prev.endsWith("[") && 
-        !text.startsWith("[") &&
+        !prev.endsWith("<") && 
+        !text.startsWith("[") && 
+        !text.startsWith("<") &&
         !isModifier; // No añade espacio si es una alteración
       
       return prev + (needsSpace ? " " : "") + text;
@@ -366,14 +368,14 @@ export default function NewSheetPage() {
               </button>            </div>
             
             <div className="flex flex-wrap gap-2">
-              {["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"].map((s) => (
+              {['<Intro>', '<Verso>', '<Coro>', '<Puente>', '<Final>'].map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => appendToNotes(s + "\n")}
                   className="rounded-md bg-brand-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-700 hover:bg-brand-100 transition-colors"
                 >
-                  {s.replace(/[\[\]]/g, "")}
+                  {s.replace(/[<>]/g, "")}
                 </button>
               ))}
               <div className="flex-1" />
@@ -390,12 +392,11 @@ export default function NewSheetPage() {
 
           <textarea
             value={tabNotes}
-            readOnly
-            onPaste={(event) => event.preventDefault()}
-            placeholder="Usa los botones para agregar notas y alteraciones"
+            onChange={(event) => setTabNotes(event.target.value)}
+            placeholder="Escribe notas o usa botones para insertar secciones con <Intro>, <Verso>, <Coro>..."
             rows={6}
             spellCheck={false}
-            className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
 
           <TablaturePreview notes={tabNotes} />
