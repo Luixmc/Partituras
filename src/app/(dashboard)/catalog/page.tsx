@@ -20,10 +20,12 @@ export default async function CatalogPage({
   const supabase = await createClient();
   const { q, categories: categoriesParam, category: legacyCategory } = searchParams;
 
-  // Soporte para múltiples categorías separadas por coma
+  // Soporte para múltiples categorías separadas por coma. Validamos que sean
+  // UUIDs para poder usarlas con seguridad en el filtro in() de PostgREST.
+  const UUID_RE = /^[0-9a-fA-F-]{36}$/;
   const rawCategories = categoriesParam ?? legacyCategory ?? "";
   const selectedIds = rawCategories
-    ? rawCategories.split(",").map((s) => s.trim()).filter(Boolean)
+    ? rawCategories.split(",").map((s) => s.trim()).filter((s) => UUID_RE.test(s))
     : [];
 
   const { data: categories } = await supabase
@@ -40,10 +42,18 @@ export default async function CatalogPage({
     .order("title", { ascending: true })
     .limit(50);
 
-  if (selectedIds.length === 1) {
-    sheetsQuery = sheetsQuery.eq("category_id", selectedIds[0]);
-  } else if (selectedIds.length > 1) {
-    sheetsQuery = sheetsQuery.in("category_id", selectedIds);
+  if (selectedIds.length) {
+    // Una canción coincide si su categoría principal está seleccionada O si
+    // está vinculada a alguna de ellas en la tabla de unión (varias categorías).
+    const { data: links } = await supabase
+      .from("sheet_categories")
+      .select("sheet_id")
+      .in("category_id", selectedIds);
+    const linkedIds = Array.from(new Set((links ?? []).map((l) => l.sheet_id as string)));
+
+    const orParts = [`category_id.in.(${selectedIds.join(",")})`];
+    if (linkedIds.length) orParts.push(`id.in.(${linkedIds.join(",")})`);
+    sheetsQuery = sheetsQuery.or(orParts.join(","));
   }
 
   if (q) {

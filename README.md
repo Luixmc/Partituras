@@ -25,12 +25,13 @@ El texto plano se parsea a compases en `TablaturePreview`:
 | Alteración / calidad (pegada) | `#` `b` `m` `7` `maj7` `m7b5` `dim` `sus4` `add9`… | `Dm7`, `Gsus4` |
 | Bajo invertido | `/` | `C/G` |
 | Duración (divide el compás) | `:n` → `:0.5` `:1` `:2` `:3` `:4` | `C:2 G:2` |
+| Silencio | `Z` con duración → `Z:4` `Z:2` `Z:1` | `C:2 Z:2` |
 | Barra de compás | `\|` | `C \| G` |
 | Repetición | `\|:` … `:\|` | `\|: C G :\|` |
 | Sección | `<Intro>` `<Verso>` `<Coro>`… (en su línea) | `<Coro>` |
 | Texto/letra (legado) | `(...)` | `(Aleluya)` |
 
-La duración controla el ancho relativo de cada acorde dentro del compás, de modo que el reparto del tiempo se ve en la cuadrícula. Varios acordes entre barras (`\|F G\|`) se muestran juntos, sin líneas divisorias entre ellos.
+La duración controla el ancho relativo de cada acorde dentro del compás, de modo que el reparto del tiempo se ve en la cuadrícula. Varios acordes entre barras (`\|F G\|`) se muestran juntos, sin líneas divisorias entre ellos. La duración se dibuja como **figura musical** (corchea/negra/blanca/redonda) encima del acorde, y los silencios se dibujan con su figura correspondiente. Toda la notación (figuras y silencios) se renderiza en SVG en `components/sheets/MusicFigures.tsx`.
 
 ---
 
@@ -89,6 +90,7 @@ Ejecuta en orden:
 - `20240007_search_views.sql`
 - `20240008_songs.sql` *(tabla `songs` — del módulo de mosaicos, hoy sin uso en la app)*
 - `20240009_song_categories.sql` *(idem)*
+- `20240010_sheet_categories.sql` *(varias categorías por canción; **aplícala** para usar la multi-categoría en el editor)*
 
 ---
 
@@ -114,6 +116,7 @@ tags              ← etiquetas libres
 sheets            ← tabla principal: contenido de acordes + refs a PDF
 sheet_versions    ← historial de revisiones por canción
 sheet_tags        ← relación N:N sheets ↔ tags
+sheet_categories  ← relación N:N sheets ↔ categorías (varias categorías por canción)
 favorites         ← marcadores por usuario
 drive_sync_log    ← (preparado para sincronización con Drive)
 drive_folders     ← (mapea categoría → carpeta de Drive)
@@ -137,6 +140,7 @@ src/
     layout/                 → Sidebar, MobileNav
     sheets/
       TablaturePreview.tsx  → render de la cuadrícula de acordes
+      MusicFigures.tsx      → figuras musicales SVG (notas y silencios)
       SongDetailEditor.tsx  → editor + vista de una canción
       ChordToolbar.tsx      → barra de botones de acordes (compartida)
       ImportControls.tsx    → botón de importar archivo (PDF/imagen/texto)
@@ -162,7 +166,8 @@ src/
 - [x] Catálogo: explorar, filtrar por categorías, buscar
 - [x] Editor de acordes en cuadrícula con vista previa en vivo
 - [x] Importar canciones desde PDF, imagen (OCR) o texto, con título sugerido
-- [x] Signos de repetición, duraciones y secciones
+- [x] Signos de repetición, duraciones (como figura musical), silencios y secciones
+- [x] Varias categorías por canción (requiere migración `20240010`)
 - [x] Modo claro/oscuro y tamaño de letra en lectura (persistidos)
 
 **Pendiente**

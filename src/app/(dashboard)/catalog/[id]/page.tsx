@@ -42,6 +42,20 @@ export default async function SheetDetailPage({
     .eq("active", true)
     .order("sort_order");
 
+  // Categorías asignadas a esta canción (tabla de unión). Si la tabla aún no
+  // existe (migración 010 sin aplicar), caemos en la categoría única.
+  const { data: sheetCategoryRows } = await supabase
+    .from("sheet_categories")
+    .select("category_id")
+    .eq("sheet_id", params.id);
+
+  const initialCategoryIds =
+    sheetCategoryRows && sheetCategoryRows.length
+      ? sheetCategoryRows.map((r) => r.category_id as string)
+      : sheet.category_id
+        ? [sheet.category_id]
+        : [];
+
   const canEdit =
     profile?.role === "admin" ||
     (profile?.role === "musician" && sheet.created_by === user?.id);
@@ -71,6 +85,7 @@ export default async function SheetDetailPage({
       <SongDetailEditor
         sheet={sheet as SheetWithCategory}
         categories={(categories ?? []) as Category[]}
+        initialCategoryIds={initialCategoryIds}
         canEdit={canEdit}
       />
     </div>

@@ -24,8 +24,11 @@ export default function NewSheetPage() {
   const [composer, setComposer] = useState("");
   const [keySignature, setKeySignature] = useState("C");
   const [timeSignature, setTimeSignature] = useState("4/4");
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [tabNotes, setTabNotes] = useState("");
+
+  const toggleCategory = (id: string) =>
+    setCategoryIds((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
 
   useEffect(() => {
     supabase
@@ -57,7 +60,7 @@ export default function NewSheetPage() {
           composer: composer || null,
           key_signature: keySignature || null,
           time_signature: timeSignature || null,
-          category_id: categoryId || null,
+          category_id: categoryIds[0] ?? null,
           content: tabNotes,
           status: "published",
           created_by: user.id,
@@ -66,6 +69,15 @@ export default function NewSheetPage() {
         .single();
 
       if (insertError) throw insertError;
+
+      // Vinculamos todas las categorías elegidas (best-effort: si la migración
+      // 010 no está aplicada, la canción se crea igual con su categoría principal).
+      if (categoryIds.length) {
+        await supabase
+          .from("sheet_categories")
+          .insert(categoryIds.map((category_id) => ({ sheet_id: song.id, category_id })));
+      }
+
       router.push(`/catalog/${song.id}`);
     } catch (err) {
       setError(
@@ -150,40 +162,40 @@ export default function NewSheetPage() {
             </label>
           </div>
 
-          {/* Categoría como pills */}
+          {/* Categorías (selección múltiple) */}
           <div className="block text-sm font-medium text-slate-700">
-            Categoria
+            Categorias
+            <span className="ml-1 text-[10px] font-normal text-slate-400">(puedes elegir varias)</span>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               <button
                 type="button"
-                onClick={() => setCategoryId("")}
+                onClick={() => setCategoryIds([])}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                  !categoryId
+                  categoryIds.length === 0
                     ? "bg-slate-700 text-white border-slate-700"
                     : "border-slate-200 text-slate-500 hover:border-slate-400"
                 }`}
               >
                 Sin categoria
               </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id === categoryId ? "" : cat.id)}
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                    cat.id === categoryId
-                      ? "text-white border-transparent"
-                      : "border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                  style={
-                    cat.id === categoryId
-                      ? { backgroundColor: cat.color, borderColor: cat.color }
-                      : undefined
-                  }
-                >
-                  {cat.name}
-                </button>
-              ))}
+              {categories.map((cat) => {
+                const selected = categoryIds.includes(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => toggleCategory(cat.id)}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                      selected
+                        ? "text-white border-transparent"
+                        : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}
+                    style={selected ? { backgroundColor: cat.color, borderColor: cat.color } : undefined}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>

@@ -1,7 +1,10 @@
 "use client";
 
+import { RestFigure } from "@/components/sheets/MusicFigures";
+
 // Barra de botones compartida para insertar acordes, alteraciones, duraciones,
-// secciones y signos de repetición. La usan el editor y la página de nueva canción.
+// silencios, secciones y signos de repetición. La usan el editor y la página
+// de nueva canción.
 
 type Props = {
   onInsert: (text: string) => void;
@@ -12,6 +15,12 @@ const ROOT_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 const BASIC_ALT = ["#", "b", "m", "7"];
 const EXT_ALT = ["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"];
 const DURATIONS = [":0.5", ":1", ":2", ":3", ":4"];
+// Silencios: token de la notación → tiempos que muestra la figura.
+const RESTS: { token: string; beats: number; label: string }[] = [
+  { token: "Z:4", beats: 4, label: "4" },
+  { token: "Z:2", beats: 2, label: "2" },
+  { token: "Z:1", beats: 1, label: "1" },
+];
 const SECTIONS = ["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"];
 
 export default function ChordToolbar({ onInsert, onDelete }: Props) {
@@ -83,6 +92,19 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
         >
           /
         </button>
+        <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Silencio:</span>
+        {RESTS.map((r) => (
+          <button
+            key={r.token}
+            type="button"
+            onClick={() => onInsert(r.token)}
+            className="flex h-7 items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 text-[9px] font-semibold text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-600"
+            title={`Silencio de ${r.label} tiempo(s)`}
+          >
+            <RestFigure beats={r.beats} className="h-4" />
+            {r.label}
+          </button>
+        ))}
       </div>
 
       {/* Fila 3: secciones + repeticiones + barra de compás */}

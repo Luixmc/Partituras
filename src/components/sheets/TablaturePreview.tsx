@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NoteFigure, RestFigure } from "@/components/sheets/MusicFigures";
 
 type Props = {
   notes: string;
@@ -19,6 +20,7 @@ type NoteToken = {
   suffix: string;
   duration: number | null;
   text?: string;
+  rest?: boolean;
   raw: string;
 };
 
@@ -74,6 +76,14 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
+    // Silencio: "Z" con duración opcional (Z:4, Z:2, Z:1, Z:0.5).
+    const restMatch = part.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
+    if (restMatch) {
+      const duration = restMatch[1] ? parseFloat(restMatch[1]) : null;
+      current.notes.push({ root: "", suffix: "", duration, rest: true, raw: part });
+      continue;
+    }
+
     const match = part.match(/^([A-G])(.*)$/);
     if (match) {
       let rest = match[2];
@@ -96,26 +106,24 @@ function parseMeasures(value: string): Measure[] {
 function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
   // La duración determina cuánto ocupa la nota dentro del compás (flex-grow).
   const beats = token.duration ?? 1;
+  // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
+  const noteColor = dark ? "text-slate-50" : "text-slate-950";
 
   let content: ReactNode;
-  if (token.root) {
+  if (token.rest) {
+    // Silencio: figura gráfica centrada (la propia figura indica la duración).
     content = (
-      <div className="flex items-baseline justify-center gap-[1px] leading-none">
-        <span
-          className={cn("font-bold leading-none", dark ? "text-slate-50" : "text-slate-950")}
-          style={{ fontSize: "1.6em" }}
-        >
-          {token.root}
-        </span>
-        {token.suffix && (
-          <span
-            className={cn("font-semibold leading-none", dark ? "text-brand-300" : "text-brand-600")}
-            style={{ fontSize: "0.95em" }}
-          >
-            {token.suffix}
-          </span>
-        )}
-      </div>
+      <span className={cn("leading-none", dark ? "text-slate-300" : "text-slate-500")}>
+        <RestFigure beats={token.duration ?? 4} className="h-[1.5em]" />
+      </span>
+    );
+  } else if (token.root) {
+    // Acorde completo (raíz + alteraciones + bajo) con un solo tamaño y color.
+    content = (
+      <span className={cn("whitespace-nowrap text-center font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
+        {token.root}
+        {token.suffix}
+      </span>
     );
   } else if (token.text) {
     content = (
@@ -128,25 +136,23 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
     );
   } else {
     content = (
-      <span className={dark ? "text-slate-500" : "text-slate-400"} style={{ fontSize: "1em" }}>
-        {token.raw}
-      </span>
+      <span className={cn("text-center", dark ? "text-slate-500" : "text-slate-400")}>{token.raw}</span>
     );
   }
 
   return (
     <div
-      className="flex min-w-[28px] flex-col items-center justify-end gap-0.5 px-0.5 py-1.5"
-      style={{ flexGrow: beats, flexBasis: 0 }}
+      className="flex flex-col items-center justify-center"
+      style={{ flexGrow: beats, flexBasis: 0, minWidth: "1.6em", padding: "0.35em 0.12em" }}
     >
-      {/* La duración sale ARRIBA de la nota */}
+      {/* Figura de duración (gráfica) ARRIBA del acorde. Altura reservada para alinear. */}
       <span
-        className={cn("font-semibold leading-none", dark ? "text-slate-500" : "text-slate-400")}
-        style={{ fontSize: "0.55em", minHeight: "0.7em" }}
+        className={cn("flex items-end justify-center", dark ? "text-slate-400" : "text-slate-400")}
+        style={{ height: "1.25em", fontSize: "0.85em" }}
       >
-        {token.duration ? `×${token.duration}` : ""}
+        {token.duration && !token.rest ? <NoteFigure beats={token.duration} /> : null}
       </span>
-      {content}
+      <span className="flex flex-1 items-center justify-center">{content}</span>
     </div>
   );
 }
@@ -230,7 +236,8 @@ export default function TablaturePreview({
                   className={cn("flex items-stretch border-r", barColor)}
                   style={{
                     flexGrow: totalBeats,
-                    flexBasis: `${Math.max(measure.notes.length, 1) * 34}px`,
+                    // En em: las proporciones se mantienen al cambiar el tamaño de letra.
+                    flexBasis: `${Math.max(measure.notes.length, 1) * 2.4}em`,
                   }}
                 >
                   {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
@@ -238,7 +245,7 @@ export default function TablaturePreview({
                     {measure.notes.length ? (
                       measure.notes.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
                     ) : (
-                      <div className="min-w-[28px] flex-1" />
+                      <div className="min-w-[1.6em] flex-1" />
                     )}
                   </div>
                   {measure.repeatEnd && <RepeatGlyph side="end" dark={dark} />}

@@ -21,6 +21,7 @@ type SheetWithCategory = Sheet & {
 type Props = {
   sheet: SheetWithCategory;
   categories: Category[];
+  initialCategoryIds?: string[];
   canEdit: boolean;
 };
 
@@ -44,9 +45,16 @@ function parseSections(text: string) {
   return sections;
 }
 
-export default function SongDetailEditor({ sheet, categories, canEdit }: Props) {
+export default function SongDetailEditor({ sheet, categories, initialCategoryIds, canEdit }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+
+  const startCategoryIds =
+    initialCategoryIds && initialCategoryIds.length
+      ? initialCategoryIds
+      : sheet.category_id
+        ? [sheet.category_id]
+        : [];
 
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [saving, setSaving] = useState(false);
@@ -57,9 +65,12 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   const [composer, setComposer] = useState(sheet.composer ?? "");
   const [keySignature, setKeySignature] = useState(sheet.key_signature ?? "C");
   const [timeSignature, setTimeSignature] = useState(sheet.time_signature ?? "4/4");
-  const [categoryId, setCategoryId] = useState(sheet.category_id ?? "");
+  const [categoryIds, setCategoryIds] = useState<string[]>(startCategoryIds);
   const [status, setStatus] = useState<SheetStatus>(sheet.status);
   const [content, setContent] = useState(sheet.content ?? "");
+
+  const toggleCategory = (id: string) =>
+    setCategoryIds((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
 
   // Preferencias de lectura (tamaño de letra y tema) para quien ve los acordes.
   const [fontScale, setFontScale] = useState(1);
@@ -72,7 +83,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
       composer: sheet.composer ?? "",
       keySignature: sheet.key_signature ?? "C",
       timeSignature: sheet.time_signature ?? "4/4",
-      categoryId: sheet.category_id ?? "",
+      categoryIds: [...startCategoryIds].sort(),
       status: sheet.status,
       content: sheet.content ?? "",
     })
@@ -83,7 +94,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
     composer,
     keySignature,
     timeSignature,
-    categoryId,
+    categoryIds: [...categoryIds].sort(),
     status,
     content,
   });
@@ -111,7 +122,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
       setComposer(snap.composer);
       setKeySignature(snap.keySignature);
       setTimeSignature(snap.timeSignature);
-      setCategoryId(snap.categoryId);
+      setCategoryIds(snap.categoryIds ?? []);
       setStatus(snap.status);
       setContent(snap.content);
     }
@@ -152,6 +163,9 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
     setSaving(true);
     setMessage(null);
 
+    // La categoría principal (para el catálogo) es la primera seleccionada.
+    const primaryCategory = categoryIds[0] ?? null;
+
     const { error } = await supabase
       .from("sheets")
       .update({
@@ -159,23 +173,41 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
         composer: composer.trim() || null,
         key_signature: keySignature.trim() || null,
         time_signature: timeSignature.trim() || null,
-        category_id: categoryId || null,
+        category_id: primaryCategory,
         status,
         editor_type: "abc",
         content,
       })
       .eq("id", sheet.id);
 
-    setSaving(false);
-
     if (error) {
+      setSaving(false);
       setMessage(error.message);
       setMessageType("error");
       return;
     }
 
-    setMessage("Cambios guardados correctamente.");
-    setMessageType("ok");
+    // Sincronizamos la tabla de unión (varias categorías). Si la migración 010
+    // no está aplicada, el guardado principal ya quedó hecho: avisamos sin romper.
+    let categoryWarning = "";
+    const { error: delError } = await supabase
+      .from("sheet_categories")
+      .delete()
+      .eq("sheet_id", sheet.id);
+    if (delError) {
+      categoryWarning = " (No se pudieron guardar varias categorías: aplica la migración 010.)";
+    } else if (categoryIds.length) {
+      const { error: insError } = await supabase
+        .from("sheet_categories")
+        .insert(categoryIds.map((category_id) => ({ sheet_id: sheet.id, category_id })));
+      if (insError) {
+        categoryWarning = " (No se pudieron guardar varias categorías: aplica la migración 010.)";
+      }
+    }
+
+    setSaving(false);
+    setMessage("Cambios guardados correctamente." + categoryWarning);
+    setMessageType(categoryWarning ? "error" : "ok");
     // Actualizamos el snapshot: ya no hay cambios pendientes.
     setSavedSnapshot(currentSnapshot);
     // Nos quedamos en modo edición para poder seguir editando
@@ -355,40 +387,40 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
               </label>
             </div>
 
-            {/* Categoría como pills */}
+            {/* Categorías (selección múltiple): la canción puede agruparse en varias */}
             <div className="block text-sm font-medium text-slate-700">
-              Categoria
+              Categorias
+              <span className="ml-1 text-[10px] font-normal text-slate-400">(puedes elegir varias)</span>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 <button
                   type="button"
-                  onClick={() => setCategoryId("")}
+                  onClick={() => setCategoryIds([])}
                   className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                    !categoryId
+                    categoryIds.length === 0
                       ? "bg-slate-700 text-white border-slate-700"
                       : "border-slate-200 text-slate-500 hover:border-slate-400"
                   }`}
                 >
                   Sin categoria
                 </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setCategoryId(cat.id === categoryId ? "" : cat.id)}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                      cat.id === categoryId
-                        ? "text-white border-transparent"
-                        : "border-slate-200 text-slate-600 hover:border-slate-300"
-                    }`}
-                    style={
-                      cat.id === categoryId
-                        ? { backgroundColor: cat.color, borderColor: cat.color }
-                        : undefined
-                    }
-                  >
-                    {cat.name}
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const selected = categoryIds.includes(cat.id);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => toggleCategory(cat.id)}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                        selected
+                          ? "text-white border-transparent"
+                          : "border-slate-200 text-slate-600 hover:border-slate-300"
+                      }`}
+                      style={selected ? { backgroundColor: cat.color, borderColor: cat.color } : undefined}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
