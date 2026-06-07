@@ -37,7 +37,9 @@ export default async function CatalogPage({
   let sheetsQuery = supabase
     .from("sheets")
     .select(
-      "id, title, composer, hymn_number, key_signature, time_signature, editor_type, content, status, thumbnail_path, drive_file_id, page_count, created_at, category:categories(name, color, icon)"
+      // Desambiguamos el embed con !category_id: ahora hay 2 relaciones entre
+      // sheets y categories (la FK directa y la tabla de unión sheet_categories).
+      "id, title, composer, hymn_number, key_signature, time_signature, editor_type, content, status, thumbnail_path, drive_file_id, page_count, created_at, category:categories!category_id(name, color, icon)"
     )
     .order("title", { ascending: true })
     .limit(50);

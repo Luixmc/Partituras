@@ -25,7 +25,10 @@ function cleanText(raw: string): string {
 
 async function extractFromPdf(file: File): Promise<ImportResult> {
   const pdfjs = await import("pdfjs-dist");
-  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  // pdfjs-dist v5 usa un worker ESM (.mjs). Servimos una copia local desde
+  // /public (mismo origen, funciona sin conexión). Si actualizas pdfjs-dist,
+  // vuelve a copiar el worker con: npm run copy-pdf-worker.
+  pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
 

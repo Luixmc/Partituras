@@ -33,10 +33,6 @@ const nextConfig = {
         source: "/sheets/:path*",
         headers: corsHeaders,
       },
-      {
-        source: "/mosaics/:path*",
-        headers: corsHeaders,
-      },
     ];
   },
   images: {

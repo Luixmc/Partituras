@@ -22,7 +22,7 @@ export default async function SheetDetailPage({
 
   const { data: sheet } = await supabase
     .from("sheets")
-    .select("*, category:categories(name, color)")
+    .select("*, category:categories!category_id(name, color)")
     .eq("id", params.id)
     .single();
 

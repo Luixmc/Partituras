@@ -183,6 +183,6 @@ src/
 
 ## Deuda técnica conocida
 
-- **`pdfjs-dist`** carga su *worker* desde un CDN (cdnjs); conviene servirlo localmente para que la importación funcione sin conexión.
+- **`pdfjs-dist`**: el *worker* se sirve desde `public/pdf.worker.min.mjs` (copia local). Si actualizas `pdfjs-dist`, regenera la copia con `npm run copy-pdf-worker`.
 - **Tabla `songs`** (migraciones `20240008`/`20240009`, del antiguo módulo de mosaicos) sigue en el esquema pero no se usa en la app.
 - **`@react-pdf/renderer`** está instalado pero aún sin usar (pensado para exportar/imprimir).
