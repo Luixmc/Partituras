@@ -47,9 +47,17 @@ export default async function CatalogPage({
   }
 
   if (q) {
-    sheetsQuery = sheetsQuery.or(
-      `title.ilike.%${q}%,composer.ilike.%${q}%,hymn_number.ilike.%${q}%`
-    );
+    // Saneamos la búsqueda: las comas y paréntesis rompen la sintaxis del filtro
+    // .or() de PostgREST, y %/_ son comodines de ilike. Los neutralizamos.
+    const safeQ = q
+      .replace(/[,()]/g, " ")
+      .replace(/[%_]/g, "\\$&")
+      .trim();
+    if (safeQ) {
+      sheetsQuery = sheetsQuery.or(
+        `title.ilike.%${safeQ}%,composer.ilike.%${safeQ}%,hymn_number.ilike.%${safeQ}%`
+      );
+    }
   }
 
   const { data: sheetsData } = await sheetsQuery;

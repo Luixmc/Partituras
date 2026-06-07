@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Edit3, Eye, Save, Image as ImageIcon, FileText, Grid2X2, Moon, Sun, Minus, Plus } from "lucide-react";
+import { Edit3, Eye, Save, Grid2X2, Moon, Sun, Minus, Plus } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import ChordToolbar from "@/components/sheets/ChordToolbar";
+import ImportControls from "@/components/sheets/ImportControls";
+import { appendToken, deleteLastToken } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetStatus } from "@/types";
 
@@ -41,23 +44,9 @@ function parseSections(text: string) {
   return sections;
 }
 
-// Modifiers que NO llevan espacio antes
-const MODIFIERS = new Set([
-  "#", "b", "m", "7",
-  "maj7", "maj9", "m7", "m9",
-  "sus2", "sus4",
-  "dim", "dim7",
-  "aug", "aug7",
-  "add9", "add11",
-  "m7b5",
-  ":1", ":2", ":3", ":4", ":0.5",
-]);
-
 export default function SongDetailEditor({ sheet, categories, canEdit }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [saving, setSaving] = useState(false);
@@ -129,85 +118,29 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
     setMode("view");
   };
 
-  const appendToContent = (text: string) => {
-    setContent((prev) => {
-      // Las barras y signos de repeticion siempre van separados por espacios.
-      const isBarToken = text === "|" || text === "|:" || text === ":|";
-      const isModifier = !isBarToken && (MODIFIERS.has(text) || text.startsWith(":"));
-      const needsSpace =
-        prev.length > 0 &&
-        !prev.endsWith(" ") &&
-        !prev.endsWith("\n") &&
-        !prev.endsWith("[") &&
-        !prev.endsWith("<") &&
-        !text.startsWith("[") &&
-        !text.startsWith("<") &&
-        !isModifier;
-      return prev + (needsSpace ? " " : "") + text;
-    });
-  };
-
-  const deleteLastEntry = () => {
-    setContent((prev) => {
-      const trimmed = prev.replace(/[ \t]+$/g, "");
-      const lastBreak = Math.max(trimmed.lastIndexOf(" "), trimmed.lastIndexOf("\n"));
-      return lastBreak === -1 ? "" : trimmed.slice(0, lastBreak + 1);
-    });
-  };
-
-  const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setSaving(true);
-    setMessage(null);
+  // Cargar/guardar preferencias de lectura en el navegador.
+  useEffect(() => {
     try {
-      const Tesseract = await import("tesseract.js");
-      const result = await Tesseract.recognize(file, "spa+eng", {
-        logger: (m) => console.log(m),
-      });
-      const cleanedText = result.data.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
-      if (!cleanedText) throw new Error("No se pudo extraer texto de la imagen.");
-      setContent((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
-      setMessage("Texto de imagen procesado correctamente.");
-      setMessageType("ok");
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Error en OCR de imagen");
-      setMessageType("error");
-    } finally {
-      setSaving(false);
-      if (event.target) event.target.value = "";
-    }
-  };
-
-  const handlePdfImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setSaving(true);
-    setMessage(null);
-    try {
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      let extractedText = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
+      const saved = localStorage.getItem("reading-prefs");
+      if (saved) {
+        const prefs = JSON.parse(saved);
+        if (typeof prefs.fontScale === "number") setFontScale(prefs.fontScale);
+        if (typeof prefs.dark === "boolean") setDark(prefs.dark);
       }
-      const cleanedText = extractedText.replace(/\s+/g, " ").trim();
-      if (!cleanedText) throw new Error("PDF sin texto extraíble.");
-      setContent((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
-      setMessage("Texto importado del PDF correctamente.");
-      setMessageType("ok");
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Error al importar PDF");
-      setMessageType("error");
-    } finally {
-      setSaving(false);
-      if (event.target) event.target.value = "";
+    } catch {
+      /* ignore */
     }
-  };
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("reading-prefs", JSON.stringify({ fontScale, dark }));
+    } catch {
+      /* ignore */
+    }
+  }, [fontScale, dark]);
+
+  const appendToContent = (text: string) => setContent((prev) => appendToken(prev, text));
+  const deleteLastEntry = () => setContent((prev) => deleteLastToken(prev));
 
   async function handleSave() {
     if (!title.trim()) {
@@ -476,7 +409,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
           {/* Panel derecho: contenido */}
           <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
+              <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
                     <Grid2X2 className="h-4 w-4" />
@@ -484,140 +417,26 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                   <div>
                     <h3 className="font-display font-semibold text-slate-800">Contenido</h3>
                     <p className="text-[10px] text-slate-500">
-                      Usa los botones para insertar acordes, secciones y texto.
+                      Usa los botones, escribe directo o importa un archivo.
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => imageInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 border border-slate-200"
-                  >
-                    <ImageIcon className="h-3 w-3" />
-                    {saving ? "..." : "Imagen"}
-                  </button>
-                  <input type="file" ref={imageInputRef} onChange={handleImageImport} accept="image/*" className="hidden" />
-                  <button
-                    type="button"
-                    onClick={() => pdfInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 border border-slate-200"
-                  >
-                    <FileText className="h-3 w-3" />
-                    {saving ? "..." : "PDF"}
-                  </button>
-                  <input type="file" ref={pdfInputRef} onChange={handlePdfImport} accept="application/pdf" className="hidden" />
-                </div>
+                <ImportControls
+                  label="Importar archivo"
+                  onImported={({ text, title: detectedTitle }) => {
+                    setContent((prev) => (prev.trim() ? `${prev}\n${text}` : text));
+                    if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                    setMessage("Archivo importado. Revisa y ajusta el contenido.");
+                    setMessageType("ok");
+                  }}
+                  onError={(msg) => {
+                    setMessage(msg);
+                    setMessageType("error");
+                  }}
+                />
               </div>
 
-              <div className="space-y-2 mt-3">
-                {/* Fila 1: Notas base */}
-                <div className="flex flex-wrap gap-1 pb-2 border-b border-slate-100">
-                  {["C", "D", "E", "F", "G", "A", "B"].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => appendToContent(n)}
-                      className="h-7 w-7 rounded bg-slate-100 text-[10px] font-bold text-slate-700 hover:bg-brand-500 hover:text-white transition-colors"
-                    >
-                      {n}
-                    </button>
-                  ))}
-                  <div className="mx-1 h-7 w-px bg-slate-200" />
-                  {/* Alteraciones básicas */}
-                  {["#", "b", "m", "7"].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => appendToContent(m)}
-                      className="h-7 min-w-[28px] rounded bg-slate-50 px-1 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                    >
-                      {m}
-                    </button>
-                  ))}
-                  <div className="mx-1 h-7 w-px bg-slate-200" />
-                  <button
-                    type="button"
-                    onClick={deleteLastEntry}
-                    className="h-7 w-7 rounded bg-red-50 text-[10px] font-medium text-red-500 border border-red-200 hover:bg-red-100 transition-colors"
-                  >
-                    ⌫
-                  </button>
-                </div>
-
-                {/* Fila 2: Alteraciones extendidas */}
-                <div className="flex flex-wrap gap-1 pb-2 border-b border-slate-100">
-                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Alt:</span>
-                  {["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"].map((alt) => (
-                    <button
-                      key={alt}
-                      type="button"
-                      onClick={() => appendToContent(alt)}
-                      className="h-6 rounded bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 border border-brand-100 hover:bg-brand-100 transition-colors"
-                    >
-                      {alt}
-                    </button>
-                  ))}
-                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Dur:</span>
-                  {[":0.5", ":1", ":2", ":3", ":4"].map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => appendToContent(d)}
-                      className="h-6 rounded bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                    >
-                      {d}
-                    </button>
-                  ))}
-                  {/* Barra de bajo */}
-                  <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Bajo:</span>
-                  <button
-                    type="button"
-                    onClick={() => appendToContent("/")}
-                    className="h-6 w-6 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                  >
-                    /
-                  </button>
-                </div>
-
-                {/* Fila 3: Secciones + texto */}
-                <div className="flex flex-wrap gap-2">
-                  {["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => appendToContent(s + "\n")}
-                      className="rounded-md bg-brand-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-700 hover:bg-brand-100 transition-colors"
-                    >
-                      {s.replace(/[<>]/g, "")}
-                    </button>
-                  ))}
-                  <div className="flex-1" />
-                  <button
-                    type="button"
-                    onClick={() => appendToContent("|:")}
-                    className="rounded-md border border-brand-200 px-2 py-0.5 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors"
-                    title="Inicio de repeticion"
-                  >
-                    𝄆 |:
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => appendToContent(":|")}
-                    className="rounded-md border border-brand-200 px-2 py-0.5 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors"
-                    title="Fin de repeticion"
-                  >
-                    :| 𝄇
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => appendToContent("|")}
-                    className="rounded-md border border-slate-200 px-2 py-0.5 text-[9px] font-bold text-slate-500 hover:border-slate-400 transition-colors"
-                  >
-                    | Barra
-                  </button>
-                </div>
-              </div>
+              <ChordToolbar onInsert={appendToContent} onDelete={deleteLastEntry} />
             </div>
 
             <textarea

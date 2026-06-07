@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Music, PlusCircle, Settings } from "lucide-react";
+import { LayoutGrid, PlusCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -10,7 +10,6 @@ import type { UserRole } from "@/types";
 const navItems = [
   { href: "/catalog", label: "Canciones", icon: LayoutGrid, roles: ["admin", "musician", "viewer"] },
   { href: "/sheets/new", label: "Nueva", icon: PlusCircle, roles: ["admin", "musician"] },
-  { href: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
 ];
 
 export default function MobileNav({ role }: { role: UserRole }) {

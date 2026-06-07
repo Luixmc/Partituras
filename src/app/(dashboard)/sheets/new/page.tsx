@@ -1,31 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Grid2X2, Save, Type, Image as ImageIcon, FileText } from "lucide-react";
+import { ArrowLeft, Grid2X2, Save } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import ChordToolbar from "@/components/sheets/ChordToolbar";
+import ImportControls from "@/components/sheets/ImportControls";
+import { appendToken, deleteLastToken } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
-
-// Modifiers que NO llevan espacio antes
-const MODIFIERS = new Set([
-  "#", "b", "m", "7",
-  "maj7", "maj9", "m7", "m9",
-  "sus2", "sus4",
-  "dim", "dim7",
-  "aug", "aug7",
-  "add9", "add11",
-  "m7b5",
-  ":1", ":2", ":3", ":4", ":0.5",
-]);
 
 export default function NewSheetPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,77 +36,8 @@ export default function NewSheetPage() {
       .then(({ data }) => setCategories(data ?? []));
   }, [supabase]);
 
-  const appendToNotes = (text: string) => {
-    setTabNotes((prev) => {
-      const isModifier = MODIFIERS.has(text) || text.startsWith(":");
-      const needsSpace =
-        prev.length > 0 &&
-        !prev.endsWith(" ") &&
-        !prev.endsWith("\n") &&
-        !prev.endsWith("[") &&
-        !prev.endsWith("<") &&
-        !text.startsWith("[") &&
-        !text.startsWith("<") &&
-        !isModifier;
-      return prev + (needsSpace ? " " : "") + text;
-    });
-  };
-
-  const deleteLastNote = () => {
-    setTabNotes((prev) => {
-      const trimmed = prev.replace(/[ \t]+$/g, "");
-      const lastBreak = Math.max(trimmed.lastIndexOf(" "), trimmed.lastIndexOf("\n"));
-      return lastBreak === -1 ? "" : trimmed.slice(0, lastBreak + 1);
-    });
-  };
-
-  const handleImageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const Tesseract = await import("tesseract.js");
-      const result = await Tesseract.recognize(file, "spa+eng", {
-        logger: (m) => console.log(m),
-      });
-      const cleanedText = result.data.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
-      if (!cleanedText) throw new Error("No se pudo extraer texto de la imagen.");
-      setTabNotes((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al procesar la imagen");
-    } finally {
-      setLoading(false);
-      if (event.target) event.target.value = "";
-    }
-  };
-
-  const handlePdfImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      let extractedText = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
-      }
-      const cleanedText = extractedText.replace(/\s+/g, " ").trim();
-      if (!cleanedText) throw new Error("No se encontró texto en el PDF.");
-      setTabNotes((prev) => (prev ? `${prev}\n${cleanedText}` : cleanedText));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al importar el PDF");
-    } finally {
-      setLoading(false);
-      if (event.target) event.target.value = "";
-    }
-  };
+  const appendToNotes = (text: string) => setTabNotes((prev) => appendToken(prev, text));
+  const deleteLastNote = () => setTabNotes((prev) => deleteLastToken(prev));
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -282,126 +202,18 @@ export default function NewSheetPage() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => imageInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-              >
-                <ImageIcon className="h-3.5 w-3.5" />
-                {loading ? "..." : "Imagen (OCR)"}
-              </button>
-              <input type="file" ref={imageInputRef} onChange={handleImageImport} accept="image/*" className="hidden" />
-              <button
-                type="button"
-                onClick={() => pdfInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                {loading ? "Procesando..." : "PDF"}
-              </button>
-              <input type="file" ref={pdfInputRef} onChange={handlePdfImport} accept="application/pdf" className="hidden" />
-            </div>
+            <ImportControls
+              label="Importar archivo"
+              onImported={({ text, title: detectedTitle }) => {
+                setTabNotes((prev) => (prev.trim() ? `${prev}\n${text}` : text));
+                if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                setError(null);
+              }}
+              onError={(msg) => setError(msg)}
+            />
           </div>
 
-          <div className="space-y-2">
-            {/* Fila 1: Notas base + alteraciones básicas */}
-            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-slate-100">
-              {["C", "D", "E", "F", "G", "A", "B"].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => appendToNotes(n)}
-                  className="h-8 w-8 rounded bg-slate-100 text-xs font-bold text-slate-700 hover:bg-brand-500 hover:text-white transition-colors"
-                >
-                  {n}
-                </button>
-              ))}
-              <div className="mx-1 h-8 w-px bg-slate-200" />
-              {["#", "b", "m", "7"].map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => appendToNotes(m)}
-                  className="h-8 min-w-[32px] rounded bg-slate-50 px-1 text-xs font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                >
-                  {m}
-                </button>
-              ))}
-              <div className="mx-1 h-8 w-px bg-slate-200" />
-              <button
-                type="button"
-                onClick={deleteLastNote}
-                className="h-8 w-8 rounded bg-red-50 text-xs font-medium text-red-500 border border-red-200 hover:bg-red-100 transition-colors"
-              >
-                ⌫
-              </button>
-            </div>
-
-            {/* Fila 2: Alteraciones extendidas + duración + bajo */}
-            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-slate-100">
-              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Alt:</span>
-              {["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"].map((alt) => (
-                <button
-                  key={alt}
-                  type="button"
-                  onClick={() => appendToNotes(alt)}
-                  className="h-7 rounded bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 border border-brand-100 hover:bg-brand-100 transition-colors"
-                >
-                  {alt}
-                </button>
-              ))}
-              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Dur:</span>
-              {[":1", ":2", ":3", ":4"].map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => appendToNotes(d)}
-                  className="h-7 rounded bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                >
-                  {d}
-                </button>
-              ))}
-              <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Bajo:</span>
-              <button
-                type="button"
-                onClick={() => appendToNotes("/")}
-                className="h-7 w-7 rounded bg-slate-50 text-[10px] font-medium text-slate-600 border border-slate-200 hover:border-brand-500 hover:text-brand-600 transition-colors"
-              >
-                /
-              </button>
-            </div>
-
-            {/* Fila 3: Secciones + texto */}
-            <div className="flex flex-wrap gap-2">
-              {["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => appendToNotes(s + "\n")}
-                  className="rounded-md bg-brand-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-700 hover:bg-brand-100 transition-colors"
-                >
-                  {s.replace(/[<>]/g, "")}
-                </button>
-              ))}
-              <div className="flex-1" />
-              <button
-                type="button"
-                onClick={() => appendToNotes("(Letra)")}
-                className="inline-flex items-center gap-1 rounded-md border border-dashed border-amber-300 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 hover:border-amber-400 hover:bg-amber-50 transition-colors"
-              >
-                <Type className="h-3 w-3" />
-                Texto
-              </button>
-              <button
-                type="button"
-                onClick={() => appendToNotes("|")}
-                className="rounded-md border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-500 hover:border-slate-400 transition-colors"
-              >
-                | Barra
-              </button>
-            </div>
-          </div>
+          <ChordToolbar onInsert={appendToNotes} onDelete={deleteLastNote} />
 
           <textarea
             value={tabNotes}
