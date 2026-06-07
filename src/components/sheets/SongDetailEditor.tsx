@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Edit3, Eye, Save, Type, Image as ImageIcon, FileText, Grid2X2 } from "lucide-react";
+import { Edit3, Eye, Save, Image as ImageIcon, FileText, Grid2X2, Moon, Sun, Minus, Plus } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { createClient } from "@/lib/supabase/client";
@@ -72,9 +72,68 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
   const [status, setStatus] = useState<SheetStatus>(sheet.status);
   const [content, setContent] = useState(sheet.content ?? "");
 
+  // Preferencias de lectura (tamaño de letra y tema) para quien ve los acordes.
+  const [fontScale, setFontScale] = useState(1);
+  const [dark, setDark] = useState(false);
+
+  // Guardamos el estado original para detectar cambios sin guardar.
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    JSON.stringify({
+      title: sheet.title,
+      composer: sheet.composer ?? "",
+      keySignature: sheet.key_signature ?? "C",
+      timeSignature: sheet.time_signature ?? "4/4",
+      categoryId: sheet.category_id ?? "",
+      status: sheet.status,
+      content: sheet.content ?? "",
+    })
+  );
+
+  const currentSnapshot = JSON.stringify({
+    title,
+    composer,
+    keySignature,
+    timeSignature,
+    categoryId,
+    status,
+    content,
+  });
+  const isDirty = currentSnapshot !== savedSnapshot;
+
+  // Aviso al cerrar/recargar la pestaña si hay cambios sin guardar.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const requestLeaveEdit = () => {
+    if (isDirty && !window.confirm("Tienes cambios sin guardar. ¿Quieres descartarlos?")) {
+      return;
+    }
+    if (isDirty) {
+      // Descartar: restauramos los valores guardados.
+      const snap = JSON.parse(savedSnapshot);
+      setTitle(snap.title);
+      setComposer(snap.composer);
+      setKeySignature(snap.keySignature);
+      setTimeSignature(snap.timeSignature);
+      setCategoryId(snap.categoryId);
+      setStatus(snap.status);
+      setContent(snap.content);
+    }
+    setMode("view");
+  };
+
   const appendToContent = (text: string) => {
     setContent((prev) => {
-      const isModifier = MODIFIERS.has(text) || text.startsWith(":");
+      // Las barras y signos de repeticion siempre van separados por espacios.
+      const isBarToken = text === "|" || text === "|:" || text === ":|";
+      const isModifier = !isBarToken && (MODIFIERS.has(text) || text.startsWith(":"));
       const needsSpace =
         prev.length > 0 &&
         !prev.endsWith(" ") &&
@@ -184,6 +243,8 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
 
     setMessage("Cambios guardados correctamente.");
     setMessageType("ok");
+    // Actualizamos el snapshot: ya no hay cambios pendientes.
+    setSavedSnapshot(currentSnapshot);
     // Nos quedamos en modo edición para poder seguir editando
     router.refresh();
   }
@@ -202,10 +263,44 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
             </p>
           </div>
 
+          {/* Controles de lectura: tamaño de letra y tema (solo en vista) */}
+          {mode === "view" && (
+            <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <button
+                type="button"
+                onClick={() => setFontScale((s) => Math.max(0.7, +(s - 0.1).toFixed(2)))}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900"
+                title="Reducir letra"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="min-w-[2.5rem] text-center text-xs font-semibold text-slate-600">
+                {Math.round(fontScale * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setFontScale((s) => Math.min(2, +(s + 0.1).toFixed(2)))}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900"
+                title="Aumentar letra"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+              <div className="mx-1 h-5 w-px bg-slate-200" />
+              <button
+                type="button"
+                onClick={() => setDark((d) => !d)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900"
+                title={dark ? "Modo claro" : "Modo oscuro"}
+              >
+                {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            </div>
+          )}
+
           <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1">
             <button
               type="button"
-              onClick={() => setMode("view")}
+              onClick={requestLeaveEdit}
               className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
                 mode === "view"
                   ? "bg-white text-slate-900 shadow-sm"
@@ -235,12 +330,24 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
 
       {/* ── MODO VISTA ── */}
       {mode === "view" ? (
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
-          <article className="mx-auto min-h-[72vh] w-full max-w-[900px] bg-white px-8 py-12 shadow-sm ring-1 ring-slate-200 md:px-12">
-            <header className="mb-8 border-b border-slate-200 pb-5">
-              <h1 className="font-display text-3xl font-bold text-slate-950">{title}</h1>
-              {composer && <p className="mt-1 text-sm text-slate-500">{composer}</p>}
-              <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
+        <div className={`mx-auto max-w-5xl px-4 py-8 md:px-8 ${dark ? "bg-slate-950" : ""}`}>
+          <article
+            className={`mx-auto min-h-[72vh] w-full max-w-[900px] px-8 py-12 shadow-sm ring-1 md:px-12 ${
+              dark ? "bg-slate-900 ring-slate-700" : "bg-white ring-slate-200"
+            }`}
+          >
+            <header className={`mb-8 border-b pb-5 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+              <h1 className={`font-display text-3xl font-bold ${dark ? "text-slate-50" : "text-slate-950"}`}>
+                {title}
+              </h1>
+              {composer && (
+                <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>{composer}</p>
+              )}
+              <div
+                className={`mt-4 flex flex-wrap gap-2 text-xs font-semibold ${
+                  dark ? "text-slate-400" : "text-slate-500"
+                }`}
+              >
                 {sheet.category && <span>{sheet.category.name}</span>}
                 {keySignature && <span>Tono: {keySignature}</span>}
                 {timeSignature && <span>Compas: {timeSignature}</span>}
@@ -255,6 +362,8 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     notes={section.content}
                     label={section.title}
                     compact
+                    fontScale={fontScale}
+                    dark={dark}
                   />
                 ))}
               </div>
@@ -450,7 +559,7 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                     </button>
                   ))}
                   <span className="self-center text-[9px] text-slate-400 font-semibold uppercase tracking-wider mx-1">Dur:</span>
-                  {[":1", ":2", ":3", ":4"].map((d) => (
+                  {[":0.5", ":1", ":2", ":3", ":4"].map((d) => (
                     <button
                       key={d}
                       type="button"
@@ -486,11 +595,19 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
                   <div className="flex-1" />
                   <button
                     type="button"
-                    onClick={() => appendToContent("(Letra)")}
-                    className="inline-flex items-center gap-1 rounded-md border border-dashed border-amber-300 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-600 hover:border-amber-400 hover:bg-amber-50 transition-colors"
+                    onClick={() => appendToContent("|:")}
+                    className="rounded-md border border-brand-200 px-2 py-0.5 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors"
+                    title="Inicio de repeticion"
                   >
-                    <Type className="h-2.5 w-2.5" />
-                    Texto
+                    𝄆 |:
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => appendToContent(":|")}
+                    className="rounded-md border border-brand-200 px-2 py-0.5 text-[11px] font-bold text-brand-600 hover:bg-brand-50 transition-colors"
+                    title="Fin de repeticion"
+                  >
+                    :| 𝄇
                   </button>
                   <button
                     type="button"
@@ -512,7 +629,18 @@ export default function SongDetailEditor({ sheet, categories, canEdit }: Props) 
               placeholder="Escribe notas y secciones. Usa los botones o escribe directo. Ejemplo: <Intro>\nC Am F G"
             />
 
-            <TablaturePreview notes={content} />
+            {/* Vista previa idéntica al modo lectura: separada por secciones. */}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              {content.trim() ? (
+                <div className="space-y-4">
+                  {parseSections(content).map((section, idx) => (
+                    <TablaturePreview key={idx} notes={section.content} label={section.title} compact />
+                  ))}
+                </div>
+              ) : (
+                <p className="py-6 text-center text-sm text-slate-400">La vista previa aparecerá aquí.</p>
+              )}
+            </div>
 
             {message && (
               <p className={`rounded-lg px-4 py-3 text-sm ${
