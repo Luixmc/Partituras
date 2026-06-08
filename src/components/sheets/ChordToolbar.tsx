@@ -144,6 +144,35 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
           | Barra
         </button>
       </div>
+
+      {/* Fila 4: recuadros / casillas (final 1 y 2) */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">Casilla:</span>
+        <button
+          type="button"
+          onClick={() => onInsert("{")}
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-[11px] font-bold text-slate-600 transition-colors hover:border-slate-500"
+          title="Abrir recuadro"
+        >
+          {"{"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onInsert("}1")}
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-[11px] font-bold text-slate-600 transition-colors hover:border-slate-500"
+          title="Cerrar recuadro (final 1)"
+        >
+          {"}1"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onInsert("}2")}
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-[11px] font-bold text-slate-600 transition-colors hover:border-slate-500"
+          title="Cerrar recuadro (final 2)"
+        >
+          {"}2"}
+        </button>
+      </div>
     </div>
   );
 }

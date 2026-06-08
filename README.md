@@ -10,7 +10,7 @@ Construida con **Next.js 14 (App Router) · React 18 · TypeScript · Tailwind C
 
 - **Catálogo** de canciones con búsqueda (título / compositor / número de himno) y filtro por categorías.
 - **Editor de acordes en cuadrícula** (no es notación de pentagrama): escribes acordes con botones o a mano y se renderizan en compases.
-- **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`) o texto plano (`.txt`/`.md`). Extrae el contenido y sugiere el título automáticamente.
+- **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`, con barra de progreso) o texto plano (`.txt`/`.md`). Extrae el contenido y sugiere el título automáticamente.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
 - **Aviso de cambios sin guardar** al salir del modo edición o cerrar la pestaña.
 - **Autenticación y roles** (admin / músico / lector) con Supabase Auth + Row Level Security.
@@ -28,6 +28,7 @@ El texto plano se parsea a compases en `TablaturePreview`:
 | Silencio | `Z` con duración → `Z:4` `Z:2` `Z:1` | `C:2 Z:2` |
 | Barra de compás | `\|` | `C \| G` |
 | Repetición | `\|:` … `:\|` | `\|: C G :\|` |
+| Recuadro / casilla (final 1 ó 2) | `{` … `}1` / `}2` (el número sale encima) | `\|: C \|: F G :\| { Am }1 { C }2` |
 | Sección | `<Intro>` `<Verso>` `<Coro>`… (en su línea) | `<Coro>` |
 | Texto/letra (legado) | `(...)` | `(Aleluya)` |
 

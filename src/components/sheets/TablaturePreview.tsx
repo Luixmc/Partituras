@@ -28,17 +28,23 @@ type Measure = {
   notes: NoteToken[];
   repeatStart: boolean;
   repeatEnd: boolean;
+  // Recuadro (casilla / final 1 ó 2): compases con el mismo boxId van juntos
+  // dentro de un recuadro, con boxLabel encima.
+  boxId?: number;
+  boxLabel?: string;
 };
 
 function parseMeasures(value: string): Measure[] {
   if (typeof value !== "string") return [];
 
-  // Protegemos los signos de repetición antes de separar las barras simples.
+  // Protegemos signos de repetición y llaves antes de separar las barras simples.
   const spaced = value
     .replace(/[\n\r\t]/g, " ")
     .replace(/\|:/g, " §RS§ ")
     .replace(/:\|/g, " §RE§ ")
-    .replace(/\|/g, " §BAR§ ");
+    .replace(/\|/g, " §BAR§ ")
+    .replace(/\{/g, " { ")
+    .replace(/\}(\d*)/g, " }$1 ");
 
   const parts = spaced
     .split(/\s+/)
@@ -48,13 +54,36 @@ function parseMeasures(value: string): Measure[] {
   const measures: Measure[] = [];
   let current: Measure = { notes: [], repeatStart: false, repeatEnd: false };
 
+  // Estado del recuadro actual.
+  let boxCounter = 0;
+  let currentBoxId: number | null = null;
+  const boxLabels = new Map<number, string>();
+
   const hasContent = (m: Measure) => m.notes.length > 0 || m.repeatStart || m.repeatEnd;
   const flush = () => {
-    if (hasContent(current)) measures.push(current);
+    if (hasContent(current)) {
+      if (currentBoxId !== null) current.boxId = currentBoxId;
+      measures.push(current);
+    }
     current = { notes: [], repeatStart: false, repeatEnd: false };
   };
 
   for (const part of parts) {
+    if (part === "{") {
+      // Inicio de recuadro: arranca en un límite de compás.
+      flush();
+      boxCounter += 1;
+      currentBoxId = boxCounter;
+      continue;
+    }
+    const closeBox = part.match(/^\}(\d*)$/);
+    if (closeBox) {
+      // Fin de recuadro: el compás actual se cierra dentro del recuadro.
+      flush();
+      if (currentBoxId !== null) boxLabels.set(currentBoxId, closeBox[1] || "");
+      currentBoxId = null;
+      continue;
+    }
     if (part === "§RS§") {
       flush();
       current.repeatStart = true;
@@ -100,6 +129,12 @@ function parseMeasures(value: string): Measure[] {
   }
 
   flush();
+
+  // Aplicamos la etiqueta (número) del recuadro a todos sus compases.
+  for (const m of measures) {
+    if (m.boxId != null) m.boxLabel = boxLabels.get(m.boxId) ?? "";
+  }
+
   return measures;
 }
 
@@ -171,6 +206,59 @@ function RepeatGlyph({ side, dark }: { side: "start" | "end"; dark: boolean }) {
   );
 }
 
+function MeasureBlock({
+  measure,
+  dark,
+  barColor,
+  noBar = false,
+}: {
+  measure: Measure;
+  dark: boolean;
+  barColor: string;
+  noBar?: boolean;
+}) {
+  const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
+  return (
+    <div
+      // Cada compás crece según sus tiempos; los compases se reparten la fila.
+      // Borde derecho fino = barra de tempo (se omite en el último de un recuadro).
+      className={cn("flex items-stretch", !noBar && "border-r", !noBar && barColor)}
+      style={{
+        flexGrow: totalBeats,
+        // En em: las proporciones se mantienen al cambiar el tamaño de letra.
+        flexBasis: `${Math.max(measure.notes.length, 1) * 2.4}em`,
+      }}
+    >
+      {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
+      <div className="flex flex-1 items-stretch">
+        {measure.notes.length ? (
+          measure.notes.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
+        ) : (
+          <div className="min-w-[1.6em] flex-1" />
+        )}
+      </div>
+      {measure.repeatEnd && <RepeatGlyph side="end" dark={dark} />}
+    </div>
+  );
+}
+
+type Segment = { boxId?: number; label?: string; items: Measure[] };
+
+function groupSegments(measures: Measure[]): Segment[] {
+  const segments: Segment[] = [];
+  for (const m of measures) {
+    const last = segments[segments.length - 1];
+    if (m.boxId != null) {
+      if (last && last.boxId === m.boxId) last.items.push(m);
+      else segments.push({ boxId: m.boxId, label: m.boxLabel ?? "", items: [m] });
+    } else {
+      // Cada compás sin recuadro es su propio item flexible (como antes).
+      segments.push({ items: [m] });
+    }
+  }
+  return segments;
+}
+
 export default function TablaturePreview({
   notes,
   compact = false,
@@ -179,9 +267,12 @@ export default function TablaturePreview({
   dark = false,
 }: Props) {
   const measures = parseMeasures(notes);
+  const segments = groupSegments(measures);
 
   // La línea divisora entre compases (barra de tempo). Fina, solo entre compases.
   const barColor = dark ? "border-slate-600" : "border-slate-300";
+  const boxBorder = dark ? "border-slate-400" : "border-slate-500";
+  const labelColor = dark ? "text-slate-100" : "text-slate-700";
 
   return (
     <div
@@ -226,29 +317,39 @@ export default function TablaturePreview({
               Sin notas
             </div>
           ) : (
-            measures.map((measure, mi) => {
-              const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
+            segments.map((seg, si) => {
+              // Compás suelto (sin recuadro): item flexible directo.
+              if (seg.boxId == null) {
+                return <MeasureBlock key={si} measure={seg.items[0]} dark={dark} barColor={barColor} />;
+              }
+
+              // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
+              const segBeats =
+                seg.items.reduce(
+                  (s, m) => s + (m.notes.reduce((a, n) => a + (n.duration ?? 1), 0) || 1),
+                  0
+                ) || 1;
+              const segNotes = seg.items.reduce((s, m) => s + Math.max(m.notes.length, 1), 0);
               return (
                 <div
-                  key={mi}
-                  // Cada compás crece según sus tiempos; los compases se reparten la fila.
-                  // Borde derecho fino = barra de tempo. No hay líneas entre acordes del mismo compás.
-                  className={cn("flex items-stretch border-r", barColor)}
-                  style={{
-                    flexGrow: totalBeats,
-                    // En em: las proporciones se mantienen al cambiar el tamaño de letra.
-                    flexBasis: `${Math.max(measure.notes.length, 1) * 2.4}em`,
-                  }}
+                  key={si}
+                  className="flex flex-col"
+                  style={{ flexGrow: segBeats, flexBasis: `${segNotes * 2.4}em` }}
                 >
-                  {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
-                  <div className="flex flex-1 items-stretch">
-                    {measure.notes.length ? (
-                      measure.notes.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
-                    ) : (
-                      <div className="min-w-[1.6em] flex-1" />
-                    )}
+                  <span className={cn("mb-0.5 pl-1 font-bold leading-none", labelColor)} style={{ fontSize: "0.7em" }}>
+                    {seg.label || ""}
+                  </span>
+                  <div className={cn("flex flex-1 items-stretch rounded-md border-2", boxBorder)}>
+                    {seg.items.map((m, idx) => (
+                      <MeasureBlock
+                        key={idx}
+                        measure={m}
+                        dark={dark}
+                        barColor={barColor}
+                        noBar={idx === seg.items.length - 1}
+                      />
+                    ))}
                   </div>
-                  {measure.repeatEnd && <RepeatGlyph side="end" dark={dark} />}
                 </div>
               );
             })

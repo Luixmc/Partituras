@@ -6,6 +6,13 @@ export type ImportResult = {
   title: string | null;
 };
 
+// Progreso 0..1 (útil sobre todo para el OCR de imágenes, que es lento).
+export type ProgressFn = (ratio: number) => void;
+
+// Versión instalada de tesseract.js / tesseract.js-core. Mantener sincronizada
+// con package.json para que los assets del CDN coincidan (evita "Failed to fetch").
+const TESSERACT_VERSION = "7.0.0";
+
 function titleFromFilename(name: string): string {
   return name
     .replace(/\.[^.]+$/, "")
@@ -58,12 +65,29 @@ async function extractFromPdf(file: File): Promise<ImportResult> {
   return { text, title };
 }
 
-async function extractFromImage(file: File): Promise<ImportResult> {
-  const Tesseract = await import("tesseract.js");
-  const result = await Tesseract.recognize(file, "spa+eng");
-  const text = cleanText(result.data.text);
-  if (!text) throw new Error("No se pudo extraer texto de la imagen.");
-  return { text, title: titleFromFilename(file.name) };
+async function extractFromImage(file: File, onProgress?: ProgressFn): Promise<ImportResult> {
+  const { createWorker } = await import("tesseract.js");
+
+  // Fijamos las rutas del worker, el core (WASM) y los idiomas a la versión
+  // instalada, en vez de dejar que tesseract use "latest" (que provoca fallos
+  // de carga / desajustes de versión).
+  const worker = await createWorker("spa+eng", 1, {
+    workerPath: `https://cdn.jsdelivr.net/npm/tesseract.js@${TESSERACT_VERSION}/dist/worker.min.js`,
+    corePath: `https://cdn.jsdelivr.net/npm/tesseract.js-core@${TESSERACT_VERSION}`,
+    langPath: "https://tessdata.projectnaptha.com/4.0.0",
+    logger: (m: { status: string; progress: number }) => {
+      if (onProgress && m.status === "recognizing text") onProgress(m.progress);
+    },
+  });
+
+  try {
+    const { data } = await worker.recognize(file);
+    const text = cleanText(data.text);
+    if (!text) throw new Error("No se pudo extraer texto de la imagen.");
+    return { text, title: titleFromFilename(file.name) };
+  } finally {
+    await worker.terminate();
+  }
 }
 
 async function extractFromTextFile(file: File): Promise<ImportResult> {
@@ -76,7 +100,7 @@ async function extractFromTextFile(file: File): Promise<ImportResult> {
 }
 
 /** Extrae texto + título de un archivo, eligiendo el método según su tipo. */
-export async function extractFromFile(file: File): Promise<ImportResult> {
+export async function extractFromFile(file: File, onProgress?: ProgressFn): Promise<ImportResult> {
   const name = file.name.toLowerCase();
   const type = file.type;
 
@@ -84,7 +108,7 @@ export async function extractFromFile(file: File): Promise<ImportResult> {
     return extractFromPdf(file);
   }
   if (type.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp)$/.test(name)) {
-    return extractFromImage(file);
+    return extractFromImage(file, onProgress);
   }
   if (type.startsWith("text/") || /\.(txt|md|csv|text)$/.test(name)) {
     return extractFromTextFile(file);
@@ -94,3 +118,5 @@ export async function extractFromFile(file: File): Promise<ImportResult> {
 
 /** Tipos aceptados por el selector de archivos (atributo accept). */
 export const IMPORT_ACCEPT = "application/pdf,image/*,.txt,.md,.csv";
+/** Solo imágenes (para el botón de OCR). */
+export const IMAGE_ACCEPT = "image/*";
