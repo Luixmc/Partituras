@@ -52,6 +52,22 @@ export function NoteFigure({ beats, className }: FigureProps) {
   );
 }
 
+/** Calderón (fermata): arco con punto, para acordes de pausa/alargación. */
+export function FermataFigure({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 16"
+      className={className}
+      style={{ height: "1em", width: "auto", display: "block" }}
+      fill="none"
+      aria-hidden="true"
+    >
+      <path d="M3 13 Q 12 1 21 13" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <circle cx="12" cy="9.5" r="1.8" fill="currentColor" />
+    </svg>
+  );
+}
+
 /**
  * Figura de silencio según los tiempos:
  *  4 = silencio de redonda · 2 = de blanca · 1 (o menos) = de negra

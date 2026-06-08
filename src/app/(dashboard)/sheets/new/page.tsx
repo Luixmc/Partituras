@@ -79,7 +79,8 @@ export default function NewSheetPage() {
     if (pos == null || !textareaRef.current) return;
     pendingCursorRef.current = null;
     const ta = textareaRef.current;
-    ta.focus();
+    // preventScroll evita que la página salte al textarea al reenfocar.
+    ta.focus({ preventScroll: true });
     ta.setSelectionRange(pos, pos);
     selectionRef.current = { start: pos, end: pos };
   }, [tabNotes]);

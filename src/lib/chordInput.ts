@@ -10,6 +10,7 @@ export const MODIFIERS = new Set([
   "add9", "add11",
   "m7b5",
   ":0.5", ":1", ":2", ":3", ":4",
+  "^", // calderón: se pega al acorde anterior (E^)
 ]);
 
 // Las secciones (<...> o [...]) empiezan en su propia línea.

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NoteFigure, RestFigure } from "@/components/sheets/MusicFigures";
+import { NoteFigure, RestFigure, FermataFigure } from "@/components/sheets/MusicFigures";
 
 type Props = {
   notes: string;
@@ -21,6 +21,7 @@ type NoteToken = {
   duration: number | null;
   text?: string;
   rest?: boolean;
+  fermata?: boolean; // calderón: acorde de pausa/alargación
   raw: string;
 };
 
@@ -99,21 +100,25 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
-    const isText = part.startsWith("(") && part.endsWith(")");
+    // Calderón (fermata): el `^` se quita del token y marca el acorde.
+    const fermata = part.includes("^");
+    const core = fermata ? part.replace(/\^/g, "") : part;
+
+    const isText = core.startsWith("(") && core.endsWith(")");
     if (isText) {
-      current.notes.push({ root: "", suffix: "", duration: null, text: part.slice(1, -1), raw: part });
+      current.notes.push({ root: "", suffix: "", duration: null, text: core.slice(1, -1), raw: part });
       continue;
     }
 
     // Silencio: "Z" con duración opcional (Z:4, Z:2, Z:1, Z:0.5).
-    const restMatch = part.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
+    const restMatch = core.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
     if (restMatch) {
       const duration = restMatch[1] ? parseFloat(restMatch[1]) : null;
-      current.notes.push({ root: "", suffix: "", duration, rest: true, raw: part });
+      current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, raw: part });
       continue;
     }
 
-    const match = part.match(/^([A-G])(.*)$/);
+    const match = core.match(/^([A-G])(.*)$/);
     if (match) {
       let rest = match[2];
       let duration: number | null = null;
@@ -122,9 +127,9 @@ function parseMeasures(value: string): Measure[] {
         duration = parseFloat(durMatch[1]);
         rest = rest.slice(0, rest.lastIndexOf(":"));
       }
-      current.notes.push({ root: match[1], suffix: rest, duration, raw: part });
+      current.notes.push({ root: match[1], suffix: rest, duration, fermata, raw: part });
     } else {
-      current.notes.push({ root: "", suffix: "", duration: null, text: part, raw: part });
+      current.notes.push({ root: "", suffix: "", duration: null, text: core, fermata, raw: part });
     }
   }
 
@@ -180,19 +185,20 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
 
   return (
     <div
-      // items-center + justify-center centran el acorde en la celda. minWidth:0
-      // evita que un acorde ancho robe espacio y descuadre la rejilla; el
-      // padding-top reserva sitio para la figura de duración (posición absoluta),
-      // de modo que el acorde queda centrado exista o no dicha figura.
-      className="relative flex items-center justify-center overflow-visible text-center"
-      style={{ flexGrow: beats, flexBasis: 0, minWidth: 0, padding: "1.05em 0.12em 0.4em" }}
+      // Acorde centrado horizontal y verticalmente. minWidth:0 + flexBasis:0 +
+      // flexGrow reparten el compás en partes IGUALES por tiempos, así cada
+      // acorde queda centrado en su porción del rectángulo (aunque no haya línea
+      // divisora visible). El padding vertical simétrico centra verticalmente y
+      // deja sitio arriba para el calderón / figura de duración.
+      className="relative flex items-center justify-center text-center"
+      style={{ flexGrow: beats, flexBasis: 0, minWidth: 0, padding: "0.95em 0.15em" }}
     >
-      {token.duration && !token.rest && (
+      {!token.rest && (token.fermata || token.duration) && (
         <span
-          className={cn("absolute inset-x-0 top-0 flex justify-center", dark ? "text-slate-400" : "text-slate-400")}
-          style={{ fontSize: "0.85em", height: "1em" }}
+          className="absolute inset-x-0 top-0 flex justify-center text-slate-400"
+          style={{ fontSize: "0.85em", height: "0.95em" }}
         >
-          <NoteFigure beats={token.duration} />
+          {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} />}
         </span>
       )}
       {content}

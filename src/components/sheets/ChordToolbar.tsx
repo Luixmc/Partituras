@@ -1,6 +1,6 @@
 "use client";
 
-import { RestFigure } from "@/components/sheets/MusicFigures";
+import { RestFigure, FermataFigure } from "@/components/sheets/MusicFigures";
 
 // Barra de botones compartida para insertar acordes, alteraciones, duraciones,
 // silencios, secciones y signos de repetición. La usan el editor y la página
@@ -105,6 +105,15 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             {r.label}
           </button>
         ))}
+        <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Calderon:</span>
+        <button
+          type="button"
+          onClick={() => onInsert("^")}
+          className="flex h-7 items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 text-[9px] font-semibold text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-600"
+          title="Calderón (pausa/alargación) sobre el acorde anterior"
+        >
+          <FermataFigure className="h-3.5" />
+        </button>
       </div>
 
       {/* Fila 3: secciones + repeticiones + barra de compás */}
