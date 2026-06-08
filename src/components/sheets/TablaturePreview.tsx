@@ -146,16 +146,19 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
 
   let content: ReactNode;
   if (token.rest) {
-    // Silencio: figura gráfica centrada (la propia figura indica la duración).
+    // Silencio: figura gráfica grande (la propia figura indica la duración).
     content = (
-      <span className={cn("leading-none", dark ? "text-slate-300" : "text-slate-500")}>
-        <RestFigure beats={token.duration ?? 4} className="h-[1.5em]" />
+      <span
+        className={cn("flex items-center justify-center leading-none", dark ? "text-slate-200" : "text-slate-500")}
+        style={{ fontSize: "2.1em" }}
+      >
+        <RestFigure beats={token.duration ?? 4} />
       </span>
     );
   } else if (token.root) {
     // Acorde completo (raíz + alteraciones + bajo) con un solo tamaño y color.
     content = (
-      <span className={cn("whitespace-nowrap text-center font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
+      <span className={cn("whitespace-nowrap font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
         {token.root}
         {token.suffix}
       </span>
@@ -177,17 +180,22 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
 
   return (
     <div
-      className="flex flex-col items-center justify-center"
-      style={{ flexGrow: beats, flexBasis: 0, minWidth: "1.6em", padding: "0.35em 0.12em" }}
+      // items-center + justify-center centran el acorde en la celda. minWidth:0
+      // evita que un acorde ancho robe espacio y descuadre la rejilla; el
+      // padding-top reserva sitio para la figura de duración (posición absoluta),
+      // de modo que el acorde queda centrado exista o no dicha figura.
+      className="relative flex items-center justify-center overflow-visible text-center"
+      style={{ flexGrow: beats, flexBasis: 0, minWidth: 0, padding: "1.05em 0.12em 0.4em" }}
     >
-      {/* Figura de duración (gráfica) ARRIBA del acorde. Altura reservada para alinear. */}
-      <span
-        className={cn("flex items-end justify-center", dark ? "text-slate-400" : "text-slate-400")}
-        style={{ height: "1.25em", fontSize: "0.85em" }}
-      >
-        {token.duration && !token.rest ? <NoteFigure beats={token.duration} /> : null}
-      </span>
-      <span className="flex flex-1 items-center justify-center">{content}</span>
+      {token.duration && !token.rest && (
+        <span
+          className={cn("absolute inset-x-0 top-0 flex justify-center", dark ? "text-slate-400" : "text-slate-400")}
+          style={{ fontSize: "0.85em", height: "1em" }}
+        >
+          <NoteFigure beats={token.duration} />
+        </span>
+      )}
+      {content}
     </div>
   );
 }

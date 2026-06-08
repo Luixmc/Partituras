@@ -111,22 +111,63 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  const requestLeaveEdit = () => {
-    if (isDirty && !window.confirm("Tienes cambios sin guardar. ¿Quieres descartarlos?")) {
-      return;
-    }
-    if (isDirty) {
-      // Descartar: restauramos los valores guardados.
-      const snap = JSON.parse(savedSnapshot);
-      setTitle(snap.title);
-      setComposer(snap.composer);
-      setKeySignature(snap.keySignature);
-      setTimeSignature(snap.timeSignature);
-      setCategoryIds(snap.categoryIds ?? []);
-      setStatus(snap.status);
-      setContent(snap.content);
-    }
-    setMode("view");
+  // Intercepta la navegación interna (enlaces del menú, "volver", etc.) para
+  // mostrar el diálogo de guardar/descartar en vez de salir sin avisar.
+  useEffect(() => {
+    if (mode !== "edit" || !isDirty) return;
+    const handler = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || anchor.target === "_blank") return;
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setLeavePrompt({ proceed: () => router.push(url.pathname + url.search) });
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [mode, isDirty, router]);
+
+  // Diálogo "guardar o descartar" al salir con cambios sin guardar.
+  const [leavePrompt, setLeavePrompt] = useState<{ proceed: () => void } | null>(null);
+
+  const restoreSnapshot = () => {
+    const snap = JSON.parse(savedSnapshot);
+    setTitle(snap.title);
+    setComposer(snap.composer);
+    setKeySignature(snap.keySignature);
+    setTimeSignature(snap.timeSignature);
+    setCategoryIds(snap.categoryIds ?? []);
+    setStatus(snap.status);
+    setContent(snap.content);
+  };
+
+  // Pide salir: si hay cambios, muestra el diálogo; si no, sigue de una.
+  const requestLeave = (proceed: () => void) => {
+    if (mode === "edit" && isDirty) setLeavePrompt({ proceed });
+    else proceed();
+  };
+
+  const requestLeaveEdit = () => requestLeave(() => setMode("view"));
+
+  const handleDiscardAndLeave = () => {
+    const proceed = leavePrompt?.proceed;
+    restoreSnapshot();
+    setLeavePrompt(null);
+    proceed?.();
+  };
+
+  const handleSaveAndLeave = async () => {
+    const proceed = leavePrompt?.proceed;
+    const ok = await handleSave();
+    if (!ok) return; // si falla el guardado, no salimos (se muestra el error)
+    setLeavePrompt(null);
+    proceed?.();
   };
 
   // Cargar/guardar preferencias de lectura en el navegador.
@@ -197,11 +238,11 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
     });
   };
 
-  async function handleSave() {
+  async function handleSave(): Promise<boolean> {
     if (!title.trim()) {
       setMessage("El titulo es obligatorio.");
       setMessageType("error");
-      return;
+      return false;
     }
 
     setSaving(true);
@@ -228,7 +269,7 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
       setSaving(false);
       setMessage(error.message);
       setMessageType("error");
-      return;
+      return false;
     }
 
     // Sincronizamos la tabla de unión (varias categorías). Si la migración 010
@@ -256,10 +297,49 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
     setSavedSnapshot(currentSnapshot);
     // Nos quedamos en modo edición para poder seguir editando
     router.refresh();
+    return !categoryWarning;
   }
 
   return (
     <div className="flex-1 bg-slate-100">
+      {/* Diálogo: guardar o descartar cambios al salir */}
+      {leavePrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl">
+            <h3 className="font-display text-lg font-bold text-slate-900">Cambios sin guardar</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Tienes cambios sin guardar. ¿Quieres guardarlos antes de salir?
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleSaveAndLeave}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? "Guardando..." : "Guardar y salir"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDiscardAndLeave}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              >
+                Descartar cambios
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeavePrompt(null)}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center rounded-lg py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Barra superior */}
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
