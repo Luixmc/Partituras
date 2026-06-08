@@ -336,7 +336,7 @@ export default function TablaturePreview({
                   className="flex flex-col"
                   style={{ flexGrow: segBeats, flexBasis: `${segNotes * 2.4}em` }}
                 >
-                  <span className={cn("mb-0.5 pl-1 font-bold leading-none", labelColor)} style={{ fontSize: "0.7em" }}>
+                  <span className={cn("mb-0.5 pl-1 font-bold leading-none", labelColor)} style={{ fontSize: "1.2em" }}>
                     {seg.label || ""}
                   </span>
                   <div className={cn("flex flex-1 items-stretch rounded-md border-2", boxBorder)}>

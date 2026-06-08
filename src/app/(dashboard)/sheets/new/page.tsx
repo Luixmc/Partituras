@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Grid2X2, Save } from "lucide-react";
@@ -8,7 +8,7 @@ import { ArrowLeft, Grid2X2, Save } from "lucide-react";
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
-import { appendToken, deleteLastToken } from "@/lib/chordInput";
+import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
 
@@ -27,8 +27,33 @@ export default function NewSheetPage() {
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [tabNotes, setTabNotes] = useState("");
 
+  // Solo los administradores pueden crear canciones.
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
   const toggleCategory = (id: string) =>
     setCategoryIds((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
+
+  useEffect(() => {
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      if (profile?.role !== "admin") {
+        router.replace("/catalog");
+        return;
+      }
+      setAuthorized(true);
+    })();
+  }, [supabase, router]);
 
   useEffect(() => {
     supabase
@@ -39,8 +64,51 @@ export default function NewSheetPage() {
       .then(({ data }) => setCategories(data ?? []));
   }, [supabase]);
 
-  const appendToNotes = (text: string) => setTabNotes((prev) => appendToken(prev, text));
-  const deleteLastNote = () => setTabNotes((prev) => deleteLastToken(prev));
+  // Inserción/borrado en la posición del cursor del textarea.
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectionRef = useRef<{ start: number; end: number } | null>(null);
+  const pendingCursorRef = useRef<number | null>(null);
+
+  const rememberSelection = () => {
+    const ta = textareaRef.current;
+    if (ta) selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
+  };
+
+  useEffect(() => {
+    const pos = pendingCursorRef.current;
+    if (pos == null || !textareaRef.current) return;
+    pendingCursorRef.current = null;
+    const ta = textareaRef.current;
+    ta.focus();
+    ta.setSelectionRange(pos, pos);
+    selectionRef.current = { start: pos, end: pos };
+  }, [tabNotes]);
+
+  const appendToNotes = (text: string) => {
+    const sel = selectionRef.current;
+    setTabNotes((prev) => {
+      if (!sel) {
+        const v = appendToken(prev, text);
+        pendingCursorRef.current = v.length;
+        return v;
+      }
+      const start = Math.min(sel.start, prev.length);
+      const end = Math.min(sel.end, prev.length);
+      const { value, cursor } = insertToken(prev, text, start, end);
+      pendingCursorRef.current = cursor;
+      return value;
+    });
+  };
+
+  const deleteLastNote = () => {
+    const sel = selectionRef.current;
+    setTabNotes((prev) => {
+      const pos = sel ? Math.min(sel.end, prev.length) : prev.length;
+      const { value, cursor } = deleteTokenBefore(prev, pos);
+      pendingCursorRef.current = cursor;
+      return value;
+    });
+  };
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -89,6 +157,15 @@ export default function NewSheetPage() {
       );
       setLoading(false);
     }
+  }
+
+  // Mientras verificamos el rol (o si no es admin) no mostramos el formulario.
+  if (!authorized) {
+    return (
+      <div className="flex min-h-full items-center justify-center p-8 text-sm text-slate-400">
+        Cargando...
+      </div>
+    );
   }
 
   return (
@@ -219,6 +296,7 @@ export default function NewSheetPage() {
               onImported={({ text, title: detectedTitle }) => {
                 setTabNotes((prev) => (prev.trim() ? `${prev}\n${text}` : text));
                 if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                selectionRef.current = null; // próxima inserción al final
                 setError(null);
               }}
               onError={(msg) => setError(msg)}
@@ -228,8 +306,16 @@ export default function NewSheetPage() {
           <ChordToolbar onInsert={appendToNotes} onDelete={deleteLastNote} />
 
           <textarea
+            ref={textareaRef}
             value={tabNotes}
-            onChange={(e) => setTabNotes(e.target.value)}
+            onChange={(e) => {
+              setTabNotes(e.target.value);
+              rememberSelection();
+            }}
+            onSelect={rememberSelection}
+            onClick={rememberSelection}
+            onKeyUp={rememberSelection}
+            onFocus={rememberSelection}
             placeholder="Escribe notas o usa los botones. Ejemplo: <Intro>\nC Am F G"
             rows={6}
             spellCheck={false}

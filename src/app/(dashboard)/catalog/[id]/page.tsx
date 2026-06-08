@@ -56,9 +56,8 @@ export default async function SheetDetailPage({
         ? [sheet.category_id]
         : [];
 
-  const canEdit =
-    profile?.role === "admin" ||
-    (profile?.role === "musician" && sheet.created_by === user?.id);
+  // Solo los administradores pueden editar; músicos y lectores solo ven.
+  const canEdit = profile?.role === "admin";
 
   return (
     <div className="flex min-h-full flex-col">

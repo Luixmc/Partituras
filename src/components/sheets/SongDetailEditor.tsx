@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Edit3, Eye, Save, Grid2X2, Moon, Sun, Minus, Plus } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
-import { appendToken, deleteLastToken } from "@/lib/chordInput";
+import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetStatus } from "@/types";
 
@@ -150,8 +150,52 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
     }
   }, [fontScale, dark]);
 
-  const appendToContent = (text: string) => setContent((prev) => appendToken(prev, text));
-  const deleteLastEntry = () => setContent((prev) => deleteLastToken(prev));
+  // Inserción/borrado en la posición del cursor del textarea.
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectionRef = useRef<{ start: number; end: number } | null>(null);
+  const pendingCursorRef = useRef<number | null>(null);
+
+  const rememberSelection = () => {
+    const ta = textareaRef.current;
+    if (ta) selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
+  };
+
+  // Tras actualizar el contenido, restauramos el foco y el cursor.
+  useEffect(() => {
+    const pos = pendingCursorRef.current;
+    if (pos == null || !textareaRef.current) return;
+    pendingCursorRef.current = null;
+    const ta = textareaRef.current;
+    ta.focus();
+    ta.setSelectionRange(pos, pos);
+    selectionRef.current = { start: pos, end: pos };
+  }, [content]);
+
+  const appendToContent = (text: string) => {
+    const sel = selectionRef.current;
+    setContent((prev) => {
+      if (!sel) {
+        const v = appendToken(prev, text);
+        pendingCursorRef.current = v.length;
+        return v;
+      }
+      const start = Math.min(sel.start, prev.length);
+      const end = Math.min(sel.end, prev.length);
+      const { value, cursor } = insertToken(prev, text, start, end);
+      pendingCursorRef.current = cursor;
+      return value;
+    });
+  };
+
+  const deleteLastEntry = () => {
+    const sel = selectionRef.current;
+    setContent((prev) => {
+      const pos = sel ? Math.min(sel.end, prev.length) : prev.length;
+      const { value, cursor } = deleteTokenBefore(prev, pos);
+      pendingCursorRef.current = cursor;
+      return value;
+    });
+  };
 
   async function handleSave() {
     if (!title.trim()) {
@@ -458,6 +502,7 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
                   onImported={({ text, title: detectedTitle }) => {
                     setContent((prev) => (prev.trim() ? `${prev}\n${text}` : text));
                     if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                    selectionRef.current = null; // próxima inserción al final
                     setMessage("Archivo importado. Revisa y ajusta el contenido.");
                     setMessageType("ok");
                   }}
@@ -472,8 +517,16 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
             </div>
 
             <textarea
+              ref={textareaRef}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => {
+                setContent(e.target.value);
+                rememberSelection();
+              }}
+              onSelect={rememberSelection}
+              onClick={rememberSelection}
+              onKeyUp={rememberSelection}
+              onFocus={rememberSelection}
               rows={7}
               spellCheck={false}
               className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, LayoutGrid, LogOut, PlusCircle } from "lucide-react";
+import { BookOpen, LayoutGrid, LogOut, PlusCircle, Settings } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,8 @@ import type { Profile } from "@/types";
 
 const navItems = [
   { href: "/catalog", label: "Canciones", icon: LayoutGrid, roles: ["admin", "musician", "viewer"] },
-  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin", "musician"] },
+  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin"] },
+  { href: "/admin", label: "Administrar", icon: Settings, roles: ["admin"] },
 ];
 
 export default function Sidebar({ profile }: { profile: Profile | null }) {

@@ -1,22 +1,21 @@
 import Link from "next/link";
 import { Eye, Music2, Layout } from "lucide-react";
 
-import type { SheetCatalogItem } from "@/types";
+import TablaturePreview from "@/components/sheets/TablaturePreview";
+import type { SheetCatalogItem, SheetStatus } from "@/types";
 import { categoryStyle, formatKey } from "@/lib/utils";
 
-function parsePreviewNotes(content?: string | null) {
-  return (content ?? "")
-    .replace(/[\n\r\t]/g, " ")
-    .replace(/\|/g, " | ")
-    .split(/\s+/)
-    .map((note) => note.trim())
-    .filter(Boolean)
-    .slice(0, 14);
-}
+const STATUS_BADGE: Record<SheetStatus, { label: string; className: string }> = {
+  published: { label: "Publicada", className: "bg-emerald-50 text-emerald-700" },
+  draft: { label: "Borrador", className: "bg-slate-200 text-slate-600" },
+  archived: { label: "Archivada", className: "bg-amber-50 text-amber-700" },
+};
 
 export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
-  const notes = parsePreviewNotes(sheet.content);
-  const sectionCount = sheet.content?.match(/\[.*?\]/g)?.length ?? 0;
+  const hasNotes = Boolean(sheet.content?.trim());
+  // Secciones marcadas con [..] o <..>.
+  const sectionCount = sheet.content?.match(/\[.*?\]|<.*?>/g)?.length ?? 0;
+  const badge = STATUS_BADGE[sheet.status] ?? STATUS_BADGE.draft;
 
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -27,27 +26,15 @@ export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
               <Music2 className="h-3.5 w-3.5" />
               Cancion
             </span>
-            <span
-              className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                sheet.status === "published"
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-slate-200 text-slate-600"
-              }`}
-            >
-              {sheet.status === "published" ? "Publicada" : "Borrador"}
+            <span className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>
+              {badge.label}
             </span>
           </div>
 
-          {notes.length > 0 ? (
-            <div className="grid grid-cols-7 border-l border-t border-slate-300 bg-white font-mono text-[11px] text-slate-950">
-              {notes.map((note, index) => (
-                <div
-                  key={`${note}-${index}`}
-                  className="flex h-9 items-end border-b border-r border-slate-300 px-1 pb-0.5"
-                >
-                  {note}
-                </div>
-              ))}
+          {hasNotes ? (
+            // Mini-vista con el mismo render que el visor (acordes, figuras, etc.).
+            <div className="max-h-[80px] overflow-hidden rounded bg-white">
+              <TablaturePreview notes={sheet.content ?? ""} compact fontScale={0.7} />
             </div>
           ) : (
             <div className="flex h-[72px] items-center justify-center border border-dashed border-slate-300 bg-white text-xs text-slate-400">
@@ -90,7 +77,7 @@ export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
             {sectionCount > 0 && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400">
                 <Layout className="h-3 w-3" />
-                {sectionCount} {sectionCount === 1 ? 'parte' : 'partes'}
+                {sectionCount} {sectionCount === 1 ? "parte" : "partes"}
               </span>
             )}
           </div>

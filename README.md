@@ -136,6 +136,7 @@ src/
       catalog               → catálogo + búsqueda y filtros
       catalog/[id]          → vista/editor de una canción (SongDetailEditor)
       sheets/new            → crear canción nueva
+      admin                 → gestión de usuarios (solo admins): page + actions.ts + AdminUsers
     layout.tsx, page.tsx
   components/
     layout/                 → Sidebar, MobileNav
@@ -169,11 +170,11 @@ src/
 - [x] Importar canciones desde PDF, imagen (OCR) o texto, con título sugerido
 - [x] Signos de repetición, duraciones (como figura musical), silencios y secciones
 - [x] Varias categorías por canción (requiere migración `20240010`)
+- [x] Panel de administración (`/admin`, solo admins): crear usuarios, cambiar contraseña y rol, activar/desactivar
 - [x] Modo claro/oscuro y tamaño de letra en lectura (persistidos)
 
 **Pendiente**
 
-- [ ] Panel de administración (`/admin`)
 - [ ] Exportar / imprimir a PDF (`@react-pdf/renderer` ya está instalado, sin usar)
 - [ ] Etiquetas, favoritos e historial de versiones en la UI (las tablas ya existen)
 - [ ] Subida y visor de PDF original + miniaturas
