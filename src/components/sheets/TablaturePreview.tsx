@@ -22,6 +22,7 @@ type NoteToken = {
   text?: string;
   rest?: boolean;
   fermata?: boolean; // calderón: acorde de pausa/alargación
+  timeSig?: string; // cambio de compás inline (ej. "6/8")
   raw: string;
 };
 
@@ -104,6 +105,12 @@ function parseMeasures(value: string): Measure[] {
     const fermata = part.includes("^");
     const core = fermata ? part.replace(/\^/g, "") : part;
 
+    // Cambio de compás inline (2/4, 6/8, 12/8...).
+    if (/^\d{1,2}\/\d{1,2}$/.test(core)) {
+      current.notes.push({ root: "", suffix: "", duration: null, timeSig: core, raw: part });
+      continue;
+    }
+
     const isText = core.startsWith("(") && core.endsWith(")");
     if (isText) {
       current.notes.push({ root: "", suffix: "", duration: null, text: core.slice(1, -1), raw: part });
@@ -144,13 +151,20 @@ function parseMeasures(value: string): Measure[] {
 }
 
 function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
-  // La duración determina cuánto ocupa la nota dentro del compás (flex-grow).
-  const beats = token.duration ?? 1;
   // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
   const noteColor = dark ? "text-slate-50" : "text-slate-950";
 
   let content: ReactNode;
-  if (token.rest) {
+  if (token.timeSig) {
+    // Cambio de compás: numerador sobre denominador (2/4, 6/8, ...).
+    const [num, den] = token.timeSig.split("/");
+    content = (
+      <span className={cn("flex flex-col items-center font-bold", noteColor)} style={{ fontSize: "1.05em", lineHeight: 0.85 }}>
+        <span>{num}</span>
+        <span>{den}</span>
+      </span>
+    );
+  } else if (token.rest) {
     // Silencio: figura gráfica grande (la propia figura indica la duración).
     content = (
       <span
@@ -185,15 +199,13 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
 
   return (
     <div
-      // Acorde centrado horizontal y verticalmente. minWidth:0 + flexBasis:0 +
-      // flexGrow reparten el compás en partes IGUALES por tiempos, así cada
-      // acorde queda centrado en su porción del rectángulo (aunque no haya línea
-      // divisora visible). El padding vertical simétrico centra verticalmente y
-      // deja sitio arriba para el calderón / figura de duración.
+      // Celda del tamaño de su contenido (no se estira). El compás centra el
+      // grupo de acordes y un gap los separa. El padding vertical simétrico
+      // centra verticalmente y deja sitio arriba para el calderón/figura.
       className="relative flex items-center justify-center text-center"
-      style={{ flexGrow: beats, flexBasis: 0, minWidth: 0, padding: "0.95em 0.15em" }}
+      style={{ minWidth: "1.3em", padding: "0.95em 0.15em" }}
     >
-      {!token.rest && (token.fermata || token.duration) && (
+      {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
           className="absolute inset-x-0 top-0 flex justify-center text-slate-400"
           style={{ fontSize: "0.85em", height: "0.95em" }}
@@ -239,12 +251,13 @@ function MeasureBlock({
       className={cn("flex items-stretch", !noBar && "border-r", !noBar && barColor)}
       style={{
         flexGrow: totalBeats,
-        // En em: las proporciones se mantienen al cambiar el tamaño de letra.
-        flexBasis: `${Math.max(measure.notes.length, 1) * 2.4}em`,
+        // De base, el ancho según nº de acordes; crece para llenar la fila.
+        flexBasis: `${Math.max(measure.notes.length, 1) * 3}em`,
       }}
     >
       {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
-      <div className="flex flex-1 items-stretch">
+      {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre ellos. */}
+      <div className="flex flex-1 items-stretch justify-center gap-[0.5em]">
         {measure.notes.length ? (
           measure.notes.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
         ) : (

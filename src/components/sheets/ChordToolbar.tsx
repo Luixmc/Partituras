@@ -181,6 +181,19 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
         >
           {"}2"}
         </button>
+
+        <span className="ml-2 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Compas:</span>
+        {["2/4", "3/4", "4/4", "6/8", "12/8"].map((ts) => (
+          <button
+            key={ts}
+            type="button"
+            onClick={() => onInsert(ts)}
+            className="rounded-md border border-slate-300 px-2 py-1 text-[10px] font-bold text-slate-600 transition-colors hover:border-slate-500"
+            title={`Cambiar a compás ${ts}`}
+          >
+            {ts}
+          </button>
+        ))}
       </div>
     </div>
   );
