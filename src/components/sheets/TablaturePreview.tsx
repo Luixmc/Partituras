@@ -23,6 +23,7 @@ type NoteToken = {
   rest?: boolean;
   fermata?: boolean; // calderón: acorde de pausa/alargación
   timeSig?: string; // cambio de compás inline (ej. "6/8")
+  lyric?: string; // texto entre paréntesis, se muestra debajo del acorde
   raw: string;
 };
 
@@ -113,7 +114,14 @@ function parseMeasures(value: string): Measure[] {
 
     const isText = core.startsWith("(") && core.endsWith(")");
     if (isText) {
-      current.notes.push({ root: "", suffix: "", duration: null, text: core.slice(1, -1), raw: part });
+      const lyric = core.slice(1, -1);
+      // Se adjunta debajo del acorde/silencio anterior; si no hay, queda suelto.
+      const prev = current.notes[current.notes.length - 1];
+      if (prev && (prev.root || prev.rest)) {
+        prev.lyric = prev.lyric ? `${prev.lyric} ${lyric}` : lyric;
+      } else {
+        current.notes.push({ root: "", suffix: "", duration: null, text: lyric, raw: part });
+      }
       continue;
     }
 
@@ -200,9 +208,9 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
   return (
     <div
       // Celda del tamaño de su contenido (no se estira). El compás centra el
-      // grupo de acordes y un gap los separa. El padding vertical simétrico
-      // centra verticalmente y deja sitio arriba para el calderón/figura.
-      className="relative flex items-center justify-center text-center"
+      // grupo de acordes y un gap los separa. El padding vertical centra y deja
+      // sitio arriba para el calderón/figura. La letra (paréntesis) va debajo.
+      className="relative flex flex-col items-center justify-center text-center"
       style={{ minWidth: "1.3em", padding: "0.95em 0.15em" }}
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
@@ -214,6 +222,14 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
         </span>
       )}
       {content}
+      {token.lyric && (
+        <span
+          className={cn("mt-0.5 whitespace-nowrap italic leading-none", dark ? "text-amber-300" : "text-amber-700")}
+          style={{ fontSize: "0.62em" }}
+        >
+          {token.lyric}
+        </span>
+      )}
     </div>
   );
 }
@@ -244,6 +260,9 @@ function MeasureBlock({
   noBar?: boolean;
 }) {
   const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
+  // El compás (timeSig) se muestra a la IZQUIERDA; los acordes se centran aparte.
+  const timeSigs = measure.notes.filter((n) => n.timeSig);
+  const chords = measure.notes.filter((n) => !n.timeSig);
   return (
     <div
       // Cada compás crece según sus tiempos; los compases se reparten la fila.
@@ -256,10 +275,14 @@ function MeasureBlock({
       }}
     >
       {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
+      {/* Indicación de compás pegada a la izquierda. */}
+      {timeSigs.map((token, ti) => (
+        <NoteCell key={`ts-${ti}`} token={token} dark={dark} />
+      ))}
       {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre ellos. */}
       <div className="flex flex-1 items-stretch justify-center gap-[0.5em]">
-        {measure.notes.length ? (
-          measure.notes.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
+        {chords.length ? (
+          chords.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
         ) : (
           <div className="min-w-[1.6em] flex-1" />
         )}
