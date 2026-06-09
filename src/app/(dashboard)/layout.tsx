@@ -19,7 +19,7 @@ export default async function DashboardLayout({
     .single();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-dvh overflow-hidden bg-slate-50">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 flex-shrink-0">
         <Sidebar profile={profile} />

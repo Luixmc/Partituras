@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#191c4d"/>
+  <g fill="#ffffff">
+    <!-- corchea (nota musical) centrada -->
+    <ellipse cx="196" cy="338" rx="56" ry="42" transform="rotate(-18 196 338)"/>
+    <rect x="244" y="150" width="17" height="195"/>
+    <path d="M261 150 C 338 172, 346 250, 300 296 C 332 246, 312 196, 261 182 Z"/>
+  </g>
+</svg>

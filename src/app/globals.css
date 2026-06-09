@@ -53,7 +53,20 @@
   }
 }
 
-/* PWA safe areas */
+/* ── Móvil / Android ───────────────────────────────────────── */
+html,
 body {
+  /* Evita scroll horizontal accidental y zoom de texto en Android. */
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respeta el área segura inferior (barra de gestos / notch) en PWA. */
+.safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);
 }

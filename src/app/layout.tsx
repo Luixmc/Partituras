@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
+import PWARegister from "@/components/PWARegister";
 
 const displayFont = Playfair_Display({
   subsets: ["latin"],
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
   themeColor: "#191c4d",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -33,7 +36,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body className="font-body antialiased bg-slate-50 text-slate-900 min-h-screen">
+      <body className="font-body antialiased bg-slate-50 text-slate-900 min-h-dvh">
+        <PWARegister />
         {children}
       </body>
     </html>
