@@ -4,6 +4,7 @@
 export type UserRole    = "admin" | "musician" | "viewer";
 export type SheetStatus = "draft" | "published" | "archived";
 export type EditorType  = "abc" | "lilypond" | "pdf_upload" | "musicxml";
+export type ServiceType = "viernes" | "domingo" | "ayuno" | "santa_cena" | "otro";
 
 // ─────────────────────────────────────────────
 // Core entities
@@ -65,6 +66,43 @@ export interface Sheet {
   created_at:      string;
   updated_at:      string;
   published_at:    string | null;
+}
+
+// ─────────────────────────────────────────────
+// Cultos / setlists
+// ─────────────────────────────────────────────
+export interface Service {
+  id:           string;
+  name:         string;
+  service_type: ServiceType;
+  service_date: string | null;   // ISO date (YYYY-MM-DD)
+  notes:        string | null;
+  created_by:   string;
+  created_at:   string;
+  updated_at:   string;
+}
+
+export interface ServiceSong {
+  service_id:   string;
+  sheet_id:     string;
+  position:     number;
+  key_override: string | null;
+  note:         string | null;
+}
+
+// Canción dentro de un culto, ya enriquecida con datos de la partitura.
+export interface ServiceSongItem {
+  sheet_id:      string;
+  position:      number;
+  key_override:  string | null;
+  note:          string | null;
+  title:         string;
+  composer:      string | null;
+  key_signature: string | null;
+}
+
+export interface ServiceWithSongs extends Service {
+  songs: ServiceSongItem[];
 }
 
 export interface SheetVersion {
