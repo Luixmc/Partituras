@@ -9,7 +9,7 @@ export const MODIFIERS = new Set([
   "aug", "aug7",
   "add9", "add11",
   "m7b5",
-  ":0.5", ":1", ":2", ":3", ":4",
+  ":0.25", ":0.5", ":1", ":1.5", ":2", ":3", ":4",
   "^", // calderón: se pega al acorde anterior (E^)
 ]);
 

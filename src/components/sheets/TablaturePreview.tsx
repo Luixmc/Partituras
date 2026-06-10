@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NoteFigure, RestFigure, FermataFigure } from "@/components/sheets/MusicFigures";
+import { NoteFigure, RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
 
 type Props = {
   notes: string;
@@ -11,8 +11,6 @@ type Props = {
   label?: string;
   /** Escala de la letra (1 = normal). */
   fontScale?: number;
-  /** Modo oscuro para la lectura. */
-  dark?: boolean;
 };
 
 type NoteToken = {
@@ -21,6 +19,8 @@ type NoteToken = {
   duration: number | null;
   text?: string;
   rest?: boolean;
+  repeat?: boolean; // "%": repetición de un acorde (se dibuja como acorde)
+  tieNext?: boolean; // ligadura: une este acorde con el siguiente por arriba
   fermata?: boolean; // calderón: acorde de pausa/alargación
   timeSig?: string; // cambio de compás inline (ej. "6/8")
   lyric?: string; // texto entre paréntesis, se muestra debajo del acorde
@@ -37,12 +37,22 @@ type Measure = {
   boxLabel?: string;
 };
 
+// Marcador interno: espacios DENTRO de un paréntesis para que el texto entre
+// paréntesis (aunque tenga varias palabras) no se parta al separar por espacios.
+const SP = "";
+
 function parseMeasures(value: string): Measure[] {
   if (typeof value !== "string") return [];
 
-  // Protegemos signos de repetición y llaves antes de separar las barras simples.
-  const spaced = value
+  // 1) Protegemos el texto entre paréntesis: sus espacios internos se sustituyen
+  //    por un marcador para que "(mi Dios)" quede como un solo token y no se
+  //    interprete cada palabra (p. ej. "Dios") como un acorde.
+  const withParens = value
     .replace(/[\n\r\t]/g, " ")
+    .replace(/\(([^)]*)\)/g, (_m, inner: string) => ` (${inner.trim().split(/\s+/).join(SP)}) `);
+
+  // 2) Protegemos signos de repetición y llaves antes de separar las barras.
+  const spaced = withParens
     .replace(/\|:/g, " §RS§ ")
     .replace(/:\|/g, " §RE§ ")
     .replace(/\|/g, " §BAR§ ")
@@ -102,9 +112,29 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
+    // Ligadura / ligado: "~" suelto une el acorde anterior con el siguiente.
+    if (part === "~") {
+      const prev = current.notes[current.notes.length - 1];
+      if (prev && (prev.root || prev.rest || prev.repeat)) prev.tieNext = true;
+      continue;
+    }
+
     // Calderón (fermata): el `^` se quita del token y marca el acorde.
     const fermata = part.includes("^");
-    const core = fermata ? part.replace(/\^/g, "") : part;
+    let core = fermata ? part.replace(/\^/g, "") : part;
+
+    // Ligadura pegada al final del acorde (p. ej. "C~"): marca el acorde y se quita.
+    let tieNext = false;
+    if (core.length > 1 && core.endsWith("~")) {
+      tieNext = true;
+      core = core.slice(0, -1);
+    }
+
+    // Repetición de acorde: "%" se dibuja con las mismas características que un acorde.
+    if (core === "%") {
+      current.notes.push({ root: "", suffix: "", duration: null, repeat: true, fermata, tieNext, raw: part });
+      continue;
+    }
 
     // Cambio de compás inline (2/4, 6/8, 12/8...).
     if (/^\d{1,2}\/\d{1,2}$/.test(core)) {
@@ -114,10 +144,10 @@ function parseMeasures(value: string): Measure[] {
 
     const isText = core.startsWith("(") && core.endsWith(")");
     if (isText) {
-      const lyric = core.slice(1, -1);
+      const lyric = core.slice(1, -1).split(SP).join(" ");
       // Se adjunta debajo del acorde/silencio anterior; si no hay, queda suelto.
       const prev = current.notes[current.notes.length - 1];
-      if (prev && (prev.root || prev.rest)) {
+      if (prev && (prev.root || prev.rest || prev.repeat)) {
         prev.lyric = prev.lyric ? `${prev.lyric} ${lyric}` : lyric;
       } else {
         current.notes.push({ root: "", suffix: "", duration: null, text: lyric, raw: part });
@@ -125,11 +155,11 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
-    // Silencio: "Z" con duración opcional (Z:4, Z:2, Z:1, Z:0.5).
+    // Silencio: "Z" con duración opcional (Z:4, Z:2, Z:1.5, Z:1, Z:0.5, Z:0.25).
     const restMatch = core.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
     if (restMatch) {
       const duration = restMatch[1] ? parseFloat(restMatch[1]) : null;
-      current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, raw: part });
+      current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, tieNext, raw: part });
       continue;
     }
 
@@ -142,7 +172,7 @@ function parseMeasures(value: string): Measure[] {
         duration = parseFloat(durMatch[1]);
         rest = rest.slice(0, rest.lastIndexOf(":"));
       }
-      current.notes.push({ root: match[1], suffix: rest, duration, fermata, raw: part });
+      current.notes.push({ root: match[1], suffix: rest, duration, fermata, tieNext, raw: part });
     } else {
       current.notes.push({ root: "", suffix: "", duration: null, text: core, fermata, raw: part });
     }
@@ -158,9 +188,9 @@ function parseMeasures(value: string): Measure[] {
   return measures;
 }
 
-function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
+function NoteCell({ token }: { token: NoteToken }) {
   // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
-  const noteColor = dark ? "text-slate-50" : "text-slate-950";
+  const noteColor = "text-slate-950 dark:text-slate-50";
 
   let content: ReactNode;
   if (token.timeSig) {
@@ -176,10 +206,17 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
     // Silencio: figura gráfica grande (la propia figura indica la duración).
     content = (
       <span
-        className={cn("flex items-center justify-center leading-none", dark ? "text-slate-200" : "text-slate-500")}
+        className="flex items-center justify-center leading-none text-slate-500 dark:text-slate-200"
         style={{ fontSize: "2.1em" }}
       >
         <RestFigure beats={token.duration ?? 4} />
+      </span>
+    );
+  } else if (token.repeat) {
+    // Repetición de acorde ("%"): mismas características que un acorde.
+    content = (
+      <span className={cn("whitespace-nowrap font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
+        %
       </span>
     );
   } else if (token.root) {
@@ -193,16 +230,14 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
   } else if (token.text) {
     content = (
       <span
-        className={cn("text-center italic leading-tight", dark ? "text-amber-300" : "text-amber-700")}
+        className="text-center italic leading-tight text-amber-700 dark:text-amber-300"
         style={{ fontSize: "0.7em" }}
       >
         {token.text}
       </span>
     );
   } else {
-    content = (
-      <span className={cn("text-center", dark ? "text-slate-500" : "text-slate-400")}>{token.raw}</span>
-    );
+    content = <span className="text-center text-slate-400 dark:text-slate-500">{token.raw}</span>;
   }
 
   return (
@@ -215,16 +250,25 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
-          className="absolute inset-x-0 top-0 flex justify-center text-slate-400"
+          className="absolute inset-x-0 top-0 flex justify-center text-slate-400 dark:text-slate-300"
           style={{ fontSize: "0.85em", height: "0.95em" }}
         >
           {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} />}
         </span>
       )}
+      {/* Ligadura: arco que sale de este acorde hacia el siguiente, por arriba. */}
+      {token.tieNext && (
+        <span
+          className="pointer-events-none absolute top-0 z-10 text-slate-500 dark:text-slate-300"
+          style={{ left: "50%", width: "calc(100% + 1.1em)", height: "0.55em" }}
+        >
+          <SlurFigure />
+        </span>
+      )}
       {content}
       {token.lyric && (
         <span
-          className={cn("mt-0.5 whitespace-nowrap italic leading-none", dark ? "text-amber-300" : "text-amber-700")}
+          className="mt-0.5 whitespace-nowrap italic leading-none text-amber-700 dark:text-amber-300"
           style={{ fontSize: "0.62em" }}
         >
           {token.lyric}
@@ -234,13 +278,10 @@ function NoteCell({ token, dark }: { token: NoteToken; dark: boolean }) {
   );
 }
 
-function RepeatGlyph({ side, dark }: { side: "start" | "end"; dark: boolean }) {
+function RepeatGlyph({ side }: { side: "start" | "end" }) {
   return (
     <div
-      className={cn(
-        "flex w-4 items-center justify-center self-stretch font-bold",
-        dark ? "text-brand-300" : "text-brand-600"
-      )}
+      className="flex w-4 items-center justify-center self-stretch font-bold text-brand-600 dark:text-brand-300"
       style={{ fontSize: "1.2em" }}
     >
       {side === "start" ? "𝄆" : "𝄇"}
@@ -250,13 +291,9 @@ function RepeatGlyph({ side, dark }: { side: "start" | "end"; dark: boolean }) {
 
 function MeasureBlock({
   measure,
-  dark,
-  barColor,
   noBar = false,
 }: {
   measure: Measure;
-  dark: boolean;
-  barColor: string;
   noBar?: boolean;
 }) {
   const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
@@ -267,27 +304,27 @@ function MeasureBlock({
     <div
       // Cada compás crece según sus tiempos; los compases se reparten la fila.
       // Borde derecho fino = barra de tempo (se omite en el último de un recuadro).
-      className={cn("flex items-stretch", !noBar && "border-r", !noBar && barColor)}
+      className={cn("flex items-stretch", !noBar && "border-r border-slate-300 dark:border-slate-600")}
       style={{
         flexGrow: totalBeats,
         // De base, el ancho según nº de acordes; crece para llenar la fila.
         flexBasis: `${Math.max(measure.notes.length, 1) * 3}em`,
       }}
     >
-      {measure.repeatStart && <RepeatGlyph side="start" dark={dark} />}
+      {measure.repeatStart && <RepeatGlyph side="start" />}
       {/* Indicación de compás pegada a la izquierda. */}
       {timeSigs.map((token, ti) => (
-        <NoteCell key={`ts-${ti}`} token={token} dark={dark} />
+        <NoteCell key={`ts-${ti}`} token={token} />
       ))}
       {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre ellos. */}
       <div className="flex flex-1 items-stretch justify-center gap-[0.5em]">
         {chords.length ? (
-          chords.map((token, ti) => <NoteCell key={ti} token={token} dark={dark} />)
+          chords.map((token, ti) => <NoteCell key={ti} token={token} />)
         ) : (
           <div className="min-w-[1.6em] flex-1" />
         )}
       </div>
-      {measure.repeatEnd && <RepeatGlyph side="end" dark={dark} />}
+      {measure.repeatEnd && <RepeatGlyph side="end" />}
     </div>
   );
 }
@@ -314,36 +351,20 @@ export default function TablaturePreview({
   compact = false,
   label,
   fontScale = 1,
-  dark = false,
 }: Props) {
   const measures = parseMeasures(notes);
   const segments = groupSegments(measures);
-
-  // La línea divisora entre compases (barra de tempo). Fina, solo entre compases.
-  const barColor = dark ? "border-slate-600" : "border-slate-300";
-  const boxBorder = dark ? "border-slate-400" : "border-slate-500";
-  const labelColor = dark ? "text-slate-100" : "text-slate-700";
 
   return (
     <div
       className={cn(
         "overflow-hidden rounded-lg",
-        !compact && (dark ? "border border-slate-700 bg-slate-900" : "border border-slate-200 bg-white")
+        !compact && "border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
       )}
     >
       {(label || !compact) && (
-        <div
-          className={cn(
-            "flex items-center justify-between border-b px-4 py-2",
-            dark ? "border-slate-700 bg-slate-800/60" : "border-slate-100 bg-slate-50/50"
-          )}
-        >
-          <div
-            className={cn(
-              "flex items-center gap-2 text-sm font-semibold",
-              dark ? "text-slate-100" : "text-slate-800"
-            )}
-          >
+        <div className="flex items-center justify-between border-b px-4 py-2 border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
             <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
             {label || "Notas"}
           </div>
@@ -354,23 +375,23 @@ export default function TablaturePreview({
         className={cn(
           "w-full",
           compact ? "p-0" : "p-4",
-          dark ? "bg-slate-900" : compact ? "bg-white" : "bg-slate-50"
+          compact ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-900"
         )}
       >
         <div
-          className={cn("flex flex-wrap items-stretch gap-y-3 rounded-lg", dark ? "bg-slate-900" : "bg-white")}
+          className="flex flex-wrap items-stretch gap-y-3 rounded-lg bg-white dark:bg-slate-900"
           // Base de la fuente: todo el contenido escala con esto.
           style={{ fontSize: `${16 * fontScale}px` }}
         >
           {measures.length === 0 ? (
-            <div className="flex min-h-[64px] w-full items-center justify-center text-sm text-slate-300">
+            <div className="flex min-h-[64px] w-full items-center justify-center text-sm text-slate-300 dark:text-slate-600">
               Sin notas
             </div>
           ) : (
             segments.map((seg, si) => {
               // Compás suelto (sin recuadro): item flexible directo.
               if (seg.boxId == null) {
-                return <MeasureBlock key={si} measure={seg.items[0]} dark={dark} barColor={barColor} />;
+                return <MeasureBlock key={si} measure={seg.items[0]} />;
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
@@ -386,18 +407,15 @@ export default function TablaturePreview({
                   className="flex flex-col"
                   style={{ flexGrow: segBeats, flexBasis: `${segNotes * 2.4}em` }}
                 >
-                  <span className={cn("mb-0.5 pl-1 font-bold leading-none", labelColor)} style={{ fontSize: "1.2em" }}>
+                  <span
+                    className="mb-0.5 pl-1 font-bold leading-none text-slate-700 dark:text-slate-100"
+                    style={{ fontSize: "1.2em" }}
+                  >
                     {seg.label || ""}
                   </span>
-                  <div className={cn("flex flex-1 items-stretch rounded-md border-2", boxBorder)}>
+                  <div className="flex flex-1 items-stretch rounded-md border-2 border-slate-500 dark:border-slate-400">
                     {seg.items.map((m, idx) => (
-                      <MeasureBlock
-                        key={idx}
-                        measure={m}
-                        dark={dark}
-                        barColor={barColor}
-                        noBar={idx === seg.items.length - 1}
-                      />
+                      <MeasureBlock key={idx} measure={m} noBar={idx === seg.items.length - 1} />
                     ))}
                   </div>
                 </div>

@@ -36,7 +36,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body className="font-body antialiased bg-slate-50 text-slate-900 min-h-dvh">
+      <head>
+        {/* Aplica el tema (oscuro/claro) y el tamaño de letra ANTES de pintar,
+            leyendo la preferencia guardada, para evitar el parpadeo inicial. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=JSON.parse(localStorage.getItem('reading-prefs')||'{}');if(p&&p.dark)document.documentElement.classList.add('dark');if(p&&typeof p.fontScale==='number')document.documentElement.style.fontSize=(16*p.fontScale)+'px';}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="font-body antialiased bg-slate-50 text-slate-900 min-h-dvh dark:bg-slate-950 dark:text-slate-100">
         <PWARegister />
         {children}
       </body>

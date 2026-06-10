@@ -18,7 +18,7 @@ export default function MobileNav({ role }: { role: UserRole }) {
   const visible = navItems.filter((item) => item.roles.includes(role));
 
   return (
-    <nav className="safe-area-pb flex border-t border-slate-200 bg-white md:hidden">
+    <nav className="safe-area-pb flex border-t border-slate-200 bg-white md:hidden dark:border-slate-700 dark:bg-slate-900">
       {visible.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(href + "/");
         return (
@@ -27,7 +27,9 @@ export default function MobileNav({ role }: { role: UserRole }) {
             href={href}
             className={cn(
               "flex flex-1 flex-col items-center justify-center gap-1 py-3 text-xs font-medium transition-colors",
-              active ? "text-brand-600" : "text-slate-400 hover:text-slate-600"
+              active
+                ? "text-brand-600 dark:text-brand-300"
+                : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
             )}
           >
             <Icon className={cn("h-5 w-5", active && "stroke-[2.5px]")} />

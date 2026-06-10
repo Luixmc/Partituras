@@ -29,14 +29,14 @@ export default async function AdminPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <div className="border-b border-slate-200 bg-white px-4 py-5 md:px-8">
+      <div className="border-b border-slate-200 bg-white px-4 py-5 md:px-8 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex max-w-5xl items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-200">
             <Settings className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="font-display text-2xl font-bold text-slate-900">Administracion</h1>
-            <p className="text-sm text-slate-500">Gestiona usuarios, contraseñas y roles.</p>
+            <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-slate-50">Administracion</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Gestiona usuarios, contraseñas y roles.</p>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { BookOpen, LayoutGrid, LogOut, PlusCircle, Settings } from "lucide-react
 
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import ReadingControls from "@/components/theme/ReadingControls";
 import type { Profile } from "@/types";
 
 const navItems = [
@@ -68,6 +69,10 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
       </nav>
 
       <div className="border-t border-brand-900 p-4">
+        {/* Lectura: tamaño de letra y modo claro/oscuro (afecta a toda la página). */}
+        <div className="mb-3 px-1">
+          <ReadingControls variant="dark" />
+        </div>
         <div className="mb-2 flex items-center gap-3 px-3 py-2">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-bold">
             {profile?.first_name?.[0]?.toUpperCase() ?? "?"}

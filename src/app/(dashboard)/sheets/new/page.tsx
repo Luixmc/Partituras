@@ -170,19 +170,19 @@ export default function NewSheetPage() {
   }
 
   return (
-    <div className="min-h-full bg-slate-100">
-      <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8">
+    <div className="min-h-full bg-slate-100 dark:bg-slate-950">
+      <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex max-w-5xl items-center gap-3">
           <Link
             href="/catalog"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
             aria-label="Volver al catalogo"
           >
-            <ArrowLeft className="h-4 w-4 text-slate-600" />
+            <ArrowLeft className="h-4 w-4 text-slate-600 dark:text-slate-300" />
           </Link>
           <div>
-            <h1 className="font-display text-xl font-bold text-slate-900">Nueva cancion</h1>
-            <p className="text-sm text-slate-500">Crea una nueva partitura con acordes.</p>
+            <h1 className="font-display text-xl font-bold text-slate-900 dark:text-slate-50">Nueva cancion</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Crea una nueva partitura con acordes.</p>
           </div>
         </div>
       </div>
@@ -192,46 +192,46 @@ export default function NewSheetPage() {
         className="mx-auto grid max-w-5xl gap-5 px-4 py-6 md:grid-cols-[320px_1fr] md:px-8"
       >
         {/* Panel de metadatos */}
-        <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="font-display font-semibold text-slate-800">Datos</h2>
+        <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">Datos</h2>
 
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Titulo <span className="text-red-500">*</span>
             <input
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               placeholder="Nombre de la cancion"
             />
           </label>
 
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Autor o compositor
             <input
               value={composer}
               onChange={(e) => setComposer(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               placeholder="Nombre"
             />
           </label>
 
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
               Tonalidad
               <input
                 value={keySignature}
                 onChange={(e) => setKeySignature(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="C, Dm, F, Bb"
               />
             </label>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
               Compas
               <select
                 value={timeSignature}
                 onChange={(e) => setTimeSignature(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
                 {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -241,9 +241,9 @@ export default function NewSheetPage() {
           </div>
 
           {/* Categorías (selección múltiple) */}
-          <div className="block text-sm font-medium text-slate-700">
+          <div className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Categorias
-            <span className="ml-1 text-[10px] font-normal text-slate-400">(puedes elegir varias)</span>
+            <span className="ml-1 text-[10px] font-normal text-slate-400 dark:text-slate-500">(puedes elegir varias)</span>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               <button
                 type="button"
@@ -279,15 +279,15 @@ export default function NewSheetPage() {
         </section>
 
         {/* Panel de contenido */}
-        <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
+        <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
                 <Grid2X2 className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="font-display font-semibold text-slate-800">Notas del grid</h2>
-                <p className="text-xs text-slate-500">
+                <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">Notas del grid</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Usa los botones para agregar acordes y alteraciones.
                 </p>
               </div>
@@ -320,7 +320,7 @@ export default function NewSheetPage() {
             placeholder="Escribe notas o usa los botones. Ejemplo: <Intro>\nC Am F G"
             rows={6}
             spellCheck={false}
-            className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
           />
 
           <TablaturePreview notes={tabNotes} />

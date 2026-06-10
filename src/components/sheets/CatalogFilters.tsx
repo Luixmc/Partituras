@@ -38,7 +38,7 @@ export default function CatalogFilters({ categories, selectedIds, q }: Props) {
         className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
           selectedIds.length === 0
             ? "border-brand-600 bg-brand-600 text-white"
-            : "border-slate-200 bg-white text-slate-600 hover:border-brand-300"
+            : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
         }`}
       >
         Todas
@@ -52,7 +52,7 @@ export default function CatalogFilters({ categories, selectedIds, q }: Props) {
             className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
               active
                 ? "border-transparent text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
             }`}
             style={active ? { backgroundColor: cat.color, borderColor: cat.color } : undefined}
           >

@@ -97,57 +97,57 @@ export default function AdminUsers({ users, currentUserId }: Props) {
       )}
 
       {/* Crear usuario */}
-      <section className="rounded-lg border border-slate-200 bg-white p-5">
+      <section className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
         <div className="mb-4 flex items-center gap-2">
           <UserPlus className="h-4 w-4 text-brand-600" />
-          <h2 className="font-display font-semibold text-slate-800">Crear usuario</h2>
+          <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">Crear usuario</h2>
         </div>
         <form onSubmit={handleCreate} className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Email
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               placeholder="usuario@ejemplo.com"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Contraseña
             <input
               type="text"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               placeholder="Mínimo 6 caracteres"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Nombre
             <input
               required
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Apellido
             <input
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Rol
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             >
               {ROLE_OPTIONS.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -170,8 +170,8 @@ export default function AdminUsers({ users, currentUserId }: Props) {
       </section>
 
       {/* Lista de usuarios */}
-      <section className="rounded-lg border border-slate-200 bg-white p-5">
-        <h2 className="mb-4 font-display font-semibold text-slate-800">
+      <section className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+        <h2 className="mb-4 font-display font-semibold text-slate-800 dark:text-slate-100">
           Usuarios ({users.length})
         </h2>
         <div className="space-y-3">
@@ -180,30 +180,30 @@ export default function AdminUsers({ users, currentUserId }: Props) {
             return (
               <div
                 key={u.id}
-                className="flex flex-col gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3 lg:flex-row lg:items-center lg:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3 lg:flex-row lg:items-center lg:justify-between dark:border-slate-700 dark:bg-slate-800/40"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-slate-800">
+                  <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
                     {u.first_name} {u.last_name ?? ""}
-                    {isSelf && <span className="ml-2 text-[10px] font-bold uppercase text-brand-600">(tú)</span>}
+                    {isSelf && <span className="ml-2 text-[10px] font-bold uppercase text-brand-600 dark:text-brand-300">(tú)</span>}
                     {!u.active && (
                       <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-700">
                         Inactivo
                       </span>
                     )}
                   </p>
-                  <p className="truncate text-xs text-slate-500">{u.email}</p>
+                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   {/* Rol */}
-                  <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1">
+                  <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 dark:border-slate-600 dark:bg-slate-800">
                     <ShieldCheck className="h-3.5 w-3.5 text-slate-400" />
                     <select
                       value={u.role}
                       disabled={pending}
                       onChange={(e) => handleSetRole(u.id, e.target.value as UserRole)}
-                      className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none"
+                      className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none dark:text-slate-200"
                       title="Cambiar rol"
                     >
                       {ROLE_OPTIONS.map((r) => (
@@ -215,14 +215,14 @@ export default function AdminUsers({ users, currentUserId }: Props) {
                   </div>
 
                   {/* Cambiar contraseña */}
-                  <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1">
+                  <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 dark:border-slate-600 dark:bg-slate-800">
                     <KeyRound className="h-3.5 w-3.5 text-slate-400" />
                     <input
                       type="text"
                       value={pwInputs[u.id] ?? ""}
                       onChange={(e) => setPwInputs((prev) => ({ ...prev, [u.id]: e.target.value }))}
                       placeholder="Nueva contraseña"
-                      className="w-32 bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none"
+                      className="w-32 bg-transparent text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none dark:text-slate-200"
                     />
                     <button
                       type="button"
@@ -241,8 +241,8 @@ export default function AdminUsers({ users, currentUserId }: Props) {
                     onClick={() => handleToggleActive(u.id, !u.active)}
                     className={`inline-flex items-center gap-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                       u.active
-                        ? "border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-600"
-                        : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                        ? "border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-600 dark:border-slate-600 dark:text-slate-300"
+                        : "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400"
                     }`}
                     title={isSelf ? "No puedes desactivarte" : u.active ? "Desactivar" : "Activar"}
                   >
