@@ -7,6 +7,7 @@ import { Edit3, Eye, Save, Grid2X2 } from "lucide-react";
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
+import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetStatus } from "@/types";
@@ -509,20 +510,32 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
                     </p>
                   </div>
                 </div>
-                <ImportControls
-                  label="Importar archivo"
-                  onImported={({ text, title: detectedTitle }) => {
-                    setContent((prev) => (prev.trim() ? `${prev}\n${text}` : text));
-                    if (!title.trim() && detectedTitle) setTitle(detectedTitle);
-                    selectionRef.current = null; // próxima inserción al final
-                    setMessage("Archivo importado. Revisa y ajusta el contenido.");
-                    setMessageType("ok");
-                  }}
-                  onError={(msg) => {
-                    setMessage(msg);
-                    setMessageType("error");
-                  }}
-                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <ImportControls
+                    label="Importar archivo"
+                    onImported={({ text, title: detectedTitle }) => {
+                      setContent((prev) => (prev.trim() ? `${prev}\n${text}` : text));
+                      if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                      selectionRef.current = null; // próxima inserción al final
+                      setMessage("Archivo importado. Revisa y ajusta el contenido.");
+                      setMessageType("ok");
+                    }}
+                    onError={(msg) => {
+                      setMessage(msg);
+                      setMessageType("error");
+                    }}
+                  />
+                  <ChordPasteImport
+                    onConverted={({ content: imported, key, title: detectedTitle }) => {
+                      setContent((prev) => (prev.trim() ? `${prev}\n${imported}` : imported));
+                      if (key) setKeySignature(key);
+                      if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                      selectionRef.current = null;
+                      setMessage("Acordes importados. Ajusta el ritmo (duraciones y compases).");
+                      setMessageType("ok");
+                    }}
+                  />
+                </div>
               </div>
 
               <ChordToolbar onInsert={appendToContent} onDelete={deleteLastEntry} />

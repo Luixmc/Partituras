@@ -8,6 +8,7 @@ import { ArrowLeft, Grid2X2, Save } from "lucide-react";
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
+import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
@@ -292,16 +293,27 @@ export default function NewSheetPage() {
                 </p>
               </div>
             </div>
-            <ImportControls
-              label="Importar archivo"
-              onImported={({ text, title: detectedTitle }) => {
-                setTabNotes((prev) => (prev.trim() ? `${prev}\n${text}` : text));
-                if (!title.trim() && detectedTitle) setTitle(detectedTitle);
-                selectionRef.current = null; // próxima inserción al final
-                setError(null);
-              }}
-              onError={(msg) => setError(msg)}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <ImportControls
+                label="Importar archivo"
+                onImported={({ text, title: detectedTitle }) => {
+                  setTabNotes((prev) => (prev.trim() ? `${prev}\n${text}` : text));
+                  if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                  selectionRef.current = null; // próxima inserción al final
+                  setError(null);
+                }}
+                onError={(msg) => setError(msg)}
+              />
+              <ChordPasteImport
+                onConverted={({ content, key, title: detectedTitle }) => {
+                  setTabNotes((prev) => (prev.trim() ? `${prev}\n${content}` : content));
+                  if (key) setKeySignature(key);
+                  if (!title.trim() && detectedTitle) setTitle(detectedTitle);
+                  selectionRef.current = null;
+                  setError(null);
+                }}
+              />
+            </div>
           </div>
 
           <ChordToolbar onInsert={appendToNotes} onDelete={deleteLastNote} />
