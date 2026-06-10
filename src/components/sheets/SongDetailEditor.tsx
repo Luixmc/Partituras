@@ -7,7 +7,6 @@ import { Edit3, Eye, Save, Grid2X2 } from "lucide-react";
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetStatus } from "@/types";
@@ -49,8 +48,6 @@ function parseSections(text: string) {
 export default function SongDetailEditor({ sheet, categories, initialCategoryIds, canEdit }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
-  // Tamaño de letra de lectura compartido (el tema oscuro/claro es global por CSS).
-  const { fontScale } = useTheme();
 
   const startCategoryIds =
     initialCategoryIds && initialCategoryIds.length
@@ -388,7 +385,6 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
                     notes={section.content}
                     label={section.title}
                     compact
-                    fontScale={fontScale}
                   />
                 ))}
               </div>
@@ -554,7 +550,7 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
               {content.trim() ? (
                 <div className="space-y-4">
                   {parseSections(content).map((section, idx) => (
-                    <TablaturePreview key={idx} notes={section.content} label={section.title} compact fontScale={fontScale} />
+                    <TablaturePreview key={idx} notes={section.content} label={section.title} compact />
                   ))}
                 </div>
               ) : (

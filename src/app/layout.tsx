@@ -37,11 +37,12 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${displayFont.variable} ${bodyFont.variable}`}>
       <head>
-        {/* Aplica el tema (oscuro/claro) y el tamaño de letra ANTES de pintar,
-            leyendo la preferencia guardada, para evitar el parpadeo inicial. */}
+        {/* Aplica el tema (oscuro/claro) ANTES de pintar, leyendo la preferencia
+            guardada, para evitar el parpadeo inicial. El tamaño de letra (zoom)
+            se aplica solo al contenido, no aquí. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=JSON.parse(localStorage.getItem('reading-prefs')||'{}');if(p&&p.dark)document.documentElement.classList.add('dark');if(p&&typeof p.fontScale==='number')document.documentElement.style.fontSize=(16*p.fontScale)+'px';}catch(e){}})();`,
+            __html: `(function(){try{var p=JSON.parse(localStorage.getItem('reading-prefs')||'{}');if(p&&p.dark)document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
       </head>

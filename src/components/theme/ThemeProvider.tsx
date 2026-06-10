@@ -14,6 +14,9 @@ type ThemeContextValue = {
   fontScale: number;
   incFont: () => void;
   decFont: () => void;
+  /** Barra lateral plegada (solo escritorio). */
+  sidebarCollapsed: boolean;
+  toggleSidebar: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -25,6 +28,7 @@ const MAX_SCALE = 1.6;
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [dark, setDarkState] = useState(false);
   const [fontScale, setFontScale] = useState(1);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   // Carga inicial de las preferencias guardadas.
@@ -35,6 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const prefs = JSON.parse(saved);
         if (typeof prefs.dark === "boolean") setDarkState(prefs.dark);
         if (typeof prefs.fontScale === "number") setFontScale(prefs.fontScale);
+        if (typeof prefs.sidebarCollapsed === "boolean") setSidebarCollapsed(prefs.sidebarCollapsed);
       }
     } catch {
       /* ignore */
@@ -42,18 +47,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setLoaded(true);
   }, []);
 
-  // Aplica el tema y el tamaño sobre <html>, y los persiste.
+  // Aplica el tema sobre <html> y persiste las preferencias. OJO: el tamaño de
+  // letra (fontScale) NO se aplica al <html> a propósito, para que ampliar NO
+  // afecte a la barra lateral ni a la navegación; el zoom se aplica solo al
+  // contenido (ver ContentScale).
   useEffect(() => {
     if (!loaded) return;
-    const root = document.documentElement;
-    root.classList.toggle("dark", dark);
-    root.style.fontSize = `${16 * fontScale}px`;
+    document.documentElement.classList.toggle("dark", dark);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ dark, fontScale }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ dark, fontScale, sidebarCollapsed }));
     } catch {
       /* ignore */
     }
-  }, [dark, fontScale, loaded]);
+  }, [dark, fontScale, sidebarCollapsed, loaded]);
 
   const value: ThemeContextValue = {
     dark,
@@ -62,6 +68,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     fontScale,
     incFont: () => setFontScale((s) => Math.min(MAX_SCALE, +(s + 0.1).toFixed(2))),
     decFont: () => setFontScale((s) => Math.max(MIN_SCALE, +(s - 0.1).toFixed(2))),
+    sidebarCollapsed,
+    toggleSidebar: () => setSidebarCollapsed((c) => !c),
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

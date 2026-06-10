@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/layout/Sidebar";
+import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import MobileNav from "@/components/layout/MobileNav";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ReadingControls from "@/components/theme/ReadingControls";
+import ContentScale from "@/components/theme/ContentScale";
 
 export default async function DashboardLayout({
   children,
@@ -23,16 +24,13 @@ export default async function DashboardLayout({
   return (
     <ThemeProvider>
       <div className="flex h-dvh overflow-hidden bg-slate-50 dark:bg-slate-950">
-        {/* Desktop sidebar */}
-        <aside className="hidden md:flex w-64 flex-shrink-0">
-          <Sidebar profile={profile} />
-        </aside>
+        {/* Desktop sidebar (plegable) */}
+        <DesktopSidebar profile={profile} />
 
-        {/* Main content */}
+        {/* Main content. El zoom de lectura se aplica solo aquí (ContentScale),
+            no a la barra lateral ni a la navegación. */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
-            {children}
-          </div>
+          <ContentScale>{children}</ContentScale>
           {/* Mobile bottom nav */}
           <MobileNav role={profile?.role ?? "viewer"} />
         </main>
