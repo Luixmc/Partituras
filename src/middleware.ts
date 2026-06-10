@@ -31,9 +31,13 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Public routes
-  const publicRoutes = ["/login", "/signup"];
+  // Public routes (incluye los cultos compartidos: /s/<token>)
+  const publicRoutes = ["/login", "/signup", "/s/"];
   const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
+
+  // Los enlaces compartidos son accesibles aunque haya sesión iniciada;
+  // solo /login y /signup redirigen a /catalog cuando el usuario ya entró.
+  const isAuthOnlyPublic = pathname.startsWith("/login") || pathname.startsWith("/signup");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -41,7 +45,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublic) {
+  if (user && isAuthOnlyPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/catalog";
     return NextResponse.redirect(url);

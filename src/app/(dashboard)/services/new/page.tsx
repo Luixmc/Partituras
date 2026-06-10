@@ -18,10 +18,19 @@ export default async function NewServicePage() {
   // Solo los administradores pueden crear cultos.
   if (profile?.role !== "admin") redirect("/services");
 
-  const { data: catalog } = await supabase
+  const { data: catalogRows } = await supabase
     .from("sheets")
-    .select("id, title, composer, key_signature")
+    .select("id, title, composer, key_signature, category:categories!category_id(name, color)")
     .order("title", { ascending: true });
+
+  const catalog = (catalogRows ?? []).map((c: any) => ({
+    id: c.id,
+    title: c.title,
+    composer: c.composer,
+    key_signature: c.key_signature,
+    category_name: c.category?.name ?? null,
+    category_color: c.category?.color ?? null,
+  }));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -45,7 +54,7 @@ export default async function NewServicePage() {
         </div>
       </div>
 
-      <ServiceEditor service={null} catalog={(catalog ?? []) as CatalogSong[]} canEdit />
+      <ServiceEditor service={null} catalog={catalog as CatalogSong[]} canEdit />
     </div>
   );
 }

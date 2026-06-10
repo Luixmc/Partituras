@@ -1,16 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown,
   ArrowUp,
   CalendarDays,
+  Check,
+  Copy,
   Music2,
+  Play,
   Plus,
   Save,
   Search,
+  Share2,
   Trash2,
   X,
 } from "lucide-react";
@@ -19,25 +23,32 @@ import {
   createServiceAction,
   updateServiceAction,
   deleteServiceAction,
+  setServiceShareAction,
   type ServiceInput,
 } from "@/app/(dashboard)/services/actions";
+import ServicePdfButton from "@/components/services/ServicePdfButton";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
+import { KEY_OPTIONS } from "@/lib/music";
 import type { ServiceType, ServiceWithSongs } from "@/types";
 
 export interface CatalogSong {
-  id:            string;
-  title:         string;
-  composer:      string | null;
-  key_signature: string | null;
+  id:             string;
+  title:          string;
+  composer:       string | null;
+  key_signature:  string | null;
+  category_name:  string | null;
+  category_color: string | null;
 }
 
 interface SongRow {
-  sheet_id:      string;
-  title:         string;
-  composer:      string | null;
-  key_signature: string | null;
-  key_override:  string;
-  note:          string;
+  sheet_id:       string;
+  title:          string;
+  composer:       string | null;
+  key_signature:  string | null;
+  category_name:  string | null;
+  category_color: string | null;
+  key_override:   string;
+  note:           string;
 }
 
 type Props = {
@@ -45,6 +56,20 @@ type Props = {
   catalog: CatalogSong[];
   canEdit: boolean;
 };
+
+/** Chip con la categoría de la canción (color de la categoría). */
+function CategoryBadge({ name, color }: { name: string | null; color: string | null }) {
+  if (!name) return null;
+  const c = color ?? "#6b7280";
+  return (
+    <span
+      className="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+      style={{ backgroundColor: c + "20", color: c, borderColor: c + "40" }}
+    >
+      {name}
+    </span>
+  );
+}
 
 export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const router = useRouter();
@@ -56,12 +81,14 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [notes, setNotes] = useState(service?.notes ?? "");
   const [songs, setSongs] = useState<SongRow[]>(
     (service?.songs ?? []).map((s) => ({
-      sheet_id:      s.sheet_id,
-      title:         s.title,
-      composer:      s.composer,
-      key_signature: s.key_signature,
-      key_override:  s.key_override ?? "",
-      note:          s.note ?? "",
+      sheet_id:       s.sheet_id,
+      title:          s.title,
+      composer:       s.composer,
+      key_signature:  s.key_signature,
+      category_name:  s.category_name,
+      category_color: s.category_color,
+      key_override:   s.key_override ?? "",
+      note:           s.note ?? "",
     }))
   );
 
@@ -70,6 +97,42 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"ok" | "error">("ok");
+
+  const [isPublic, setIsPublic] = useState(service?.is_public ?? false);
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // URL pública del culto (se construye en el cliente con el origen actual).
+  const [publicUrl, setPublicUrl] = useState("");
+  useEffect(() => {
+    if (service?.public_token) {
+      setPublicUrl(`${window.location.origin}/s/${service.public_token}`);
+    }
+  }, [service?.public_token]);
+
+  async function toggleShare() {
+    if (!service) return;
+    setSharing(true);
+    const res = await setServiceShareAction(service.id, !isPublic);
+    setSharing(false);
+    if (res.ok) {
+      setIsPublic(!isPublic);
+    } else {
+      setMessage(res.error ?? "No se pudo cambiar el enlace.");
+      setMessageType("error");
+    }
+  }
+
+  async function copyLink() {
+    if (!publicUrl) return;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* sin portapapeles: el usuario puede copiar manualmente */
+    }
+  }
 
   const usedIds = useMemo(() => new Set(songs.map((s) => s.sheet_id)), [songs]);
 
@@ -90,12 +153,14 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     setSongs((prev) => [
       ...prev,
       {
-        sheet_id:      c.id,
-        title:         c.title,
-        composer:      c.composer,
-        key_signature: c.key_signature,
-        key_override:  "",
-        note:          "",
+        sheet_id:       c.id,
+        title:          c.title,
+        composer:       c.composer,
+        key_signature:  c.key_signature,
+        category_name:  c.category_name,
+        category_color: c.category_color,
+        key_override:   "",
+        note:           "",
       },
     ]);
     setQuery("");
@@ -176,13 +241,21 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     }
   }
 
+  const meta = SERVICE_TYPE_META[serviceType] ?? SERVICE_TYPE_META.otro;
+  const dateText = formatServiceDate(serviceDate || null);
+
+  // Canciones con su tono efectivo (override o el original) para el PDF.
+  const pdfSongs = songs.map((s) => ({
+    title: s.title,
+    composer: s.composer,
+    key: s.key_override || s.key_signature,
+  }));
+
   // ── Vista de solo lectura (no admin) ───────────────────────
   if (!canEdit) {
-    const meta = SERVICE_TYPE_META[serviceType] ?? SERVICE_TYPE_META.otro;
-    const dateText = formatServiceDate(serviceDate || null);
     return (
       <div className="mx-auto w-full max-w-3xl p-4 md:p-8">
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           <span
             className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
             style={{ backgroundColor: meta.color }}
@@ -194,6 +267,18 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
               <CalendarDays className="h-3.5 w-3.5" />
               {dateText}
             </span>
+          )}
+          {service && songs.length > 0 && (
+            <div className="ml-auto flex items-center gap-2">
+              <Link
+                href={`/services/${service.id}/present`}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+              >
+                <Play className="h-4 w-4" />
+                Presentar
+              </Link>
+              <ServicePdfButton name={name} typeLabel={meta.label} dateText={dateText} songs={pdfSongs} />
+            </div>
           )}
         </div>
         {notes && (
@@ -215,9 +300,12 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                   <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
                     {s.title}
                   </span>
-                  {s.composer && (
-                    <span className="block truncate text-xs text-slate-400">{s.composer}</span>
-                  )}
+                  <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                    <CategoryBadge name={s.category_name} color={s.category_color} />
+                    {s.composer && (
+                      <span className="truncate text-xs text-slate-400">{s.composer}</span>
+                    )}
+                  </span>
                 </span>
                 {(s.key_override || s.key_signature) && (
                   <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-300">
@@ -333,9 +421,12 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                       <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
                         {c.title}
                       </span>
-                      {c.composer && (
-                        <span className="block truncate text-xs text-slate-400">{c.composer}</span>
-                      )}
+                      <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                        <CategoryBadge name={c.category_name} color={c.category_color} />
+                        {c.composer && (
+                          <span className="truncate text-xs text-slate-400">{c.composer}</span>
+                        )}
+                      </span>
                     </span>
                     {c.key_signature && (
                       <span className="text-xs text-slate-400">{c.key_signature}</span>
@@ -362,17 +453,26 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
               <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
                 {s.title}
               </span>
-              {s.composer && (
-                <span className="block truncate text-xs text-slate-400">{s.composer}</span>
-              )}
+              <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                <CategoryBadge name={s.category_name} color={s.category_color} />
+                {s.composer && (
+                  <span className="truncate text-xs text-slate-400">{s.composer}</span>
+                )}
+              </span>
             </span>
-            <input
+            <select
               value={s.key_override}
               onChange={(e) => patchSong(s.sheet_id, { key_override: e.target.value })}
-              placeholder={s.key_signature ?? "Tono"}
-              className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              title="Tono para este culto"
-            />
+              className="w-20 rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              title="Tono para este culto (transpone la presentación)"
+            >
+              <option value="">{s.key_signature ? `Orig. ${s.key_signature}` : "Tono"}</option>
+              {KEY_OPTIONS.map((k) => (
+                <option key={k.value} value={k.value}>
+                  {k.value}
+                </option>
+              ))}
+            </select>
             <div className="flex items-center gap-1">
               <button
                 type="button"
@@ -410,6 +510,76 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
           </li>
         )}
       </ol>
+
+      {/* Presentar / exportar (solo cultos ya guardados con canciones) */}
+      {!isNew && songs.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <Link
+            href={`/services/${service!.id}/present`}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            <Play className="h-4 w-4" />
+            Modo presentacion
+          </Link>
+          <ServicePdfButton name={name} typeLabel={meta.label} dateText={dateText} songs={pdfSongs} />
+        </div>
+      )}
+
+      {/* Compartir: enlace público de solo lectura */}
+      {!isNew && (
+        <div className="mb-6 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Share2 className="h-4 w-4 text-slate-500" />
+              <div>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  Enlace público
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Comparte el culto (solo lectura) con quien no tiene cuenta.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={toggleShare}
+              disabled={sharing}
+              role="switch"
+              aria-checked={isPublic}
+              className={
+                "relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 " +
+                (isPublic ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-600")
+              }
+            >
+              <span
+                className={
+                  "inline-block h-4 w-4 transform rounded-full bg-white transition-transform " +
+                  (isPublic ? "translate-x-6" : "translate-x-1")
+                }
+              />
+            </button>
+          </div>
+
+          {isPublic && publicUrl && (
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                readOnly
+                value={publicUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              />
+              <button
+                type="button"
+                onClick={copyLink}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Acciones */}
       <div className="flex flex-wrap items-center gap-3">

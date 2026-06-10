@@ -1,4 +1,4 @@
-import type { ServiceType } from "@/types";
+import type { PresentSong, ServiceType } from "@/types";
 
 // Etiquetas y colores por tipo de culto (compartido entre lista y editor).
 export const SERVICE_TYPE_META: Record<ServiceType, { label: string; color: string }> = {
@@ -10,6 +10,21 @@ export const SERVICE_TYPE_META: Record<ServiceType, { label: string; color: stri
 };
 
 export const SERVICE_TYPES: ServiceType[] = ["viernes", "domingo", "ayuno", "santa_cena", "otro"];
+
+/** Convierte las filas embebidas service_songs(...sheet) en canciones de presentación. */
+export function mapPresentSongs(rows: any[]): PresentSong[] {
+  return (rows ?? [])
+    .filter((r) => r.sheet) // ignora canciones eliminadas
+    .sort((a, b) => a.position - b.position)
+    .map((r) => ({
+      title:        r.sheet.title,
+      composer:     r.sheet.composer ?? null,
+      original_key: r.sheet.key_signature ?? null,
+      target_key:   r.key_override ?? null,
+      content:      r.sheet.content ?? null,
+      editor_type:  r.sheet.editor_type,
+    }));
+}
 
 /** Formatea una fecha ISO (YYYY-MM-DD) a texto legible en español. */
 export function formatServiceDate(date: string | null): string | null {

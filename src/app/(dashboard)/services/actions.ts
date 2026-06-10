@@ -145,6 +145,23 @@ export async function updateServiceAction(id: string, input: ServiceInput): Prom
   }
 }
 
+/** Activa o desactiva el enlace público de solo lectura de un culto. */
+export async function setServiceShareAction(id: string, enabled: boolean): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const { error } = await supabase
+      .from("services")
+      .update({ is_public: enabled })
+      .eq("id", id);
+    if (error) throw error;
+
+    revalidatePath(`/services/${id}`);
+    return { ok: true, message: enabled ? "Enlace público activado." : "Enlace público desactivado." };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
 /** Elimina un culto (sus canciones se borran en cascada). */
 export async function deleteServiceAction(id: string): Promise<ActionResult> {
   try {

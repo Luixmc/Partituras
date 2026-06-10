@@ -16,7 +16,7 @@ export default async function ServiceDetailPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "*, service_songs(sheet_id, position, key_override, note, sheet:sheets(title, composer, key_signature))"
+      "*, service_songs(sheet_id, position, key_override, note, sheet:sheets(title, composer, key_signature, category:categories!category_id(name, color)))"
     )
     .eq("id", params.id)
     .single();
@@ -34,13 +34,15 @@ export default async function ServiceDetailPage({
   // Normaliza las canciones embebidas y las ordena por posicion.
   const songs = (service.service_songs ?? [])
     .map((row: any) => ({
-      sheet_id:      row.sheet_id,
-      position:      row.position,
-      key_override:  row.key_override,
-      note:          row.note,
-      title:         row.sheet?.title ?? "(cancion eliminada)",
-      composer:      row.sheet?.composer ?? null,
-      key_signature: row.sheet?.key_signature ?? null,
+      sheet_id:       row.sheet_id,
+      position:       row.position,
+      key_override:   row.key_override,
+      note:           row.note,
+      title:          row.sheet?.title ?? "(cancion eliminada)",
+      composer:       row.sheet?.composer ?? null,
+      key_signature:  row.sheet?.key_signature ?? null,
+      category_name:  row.sheet?.category?.name ?? null,
+      category_color: row.sheet?.category?.color ?? null,
     }))
     .sort((a: any, b: any) => a.position - b.position);
 
@@ -50,6 +52,8 @@ export default async function ServiceDetailPage({
     service_type: service.service_type,
     service_date: service.service_date,
     notes:        service.notes,
+    is_public:    service.is_public,
+    public_token: service.public_token,
     created_by:   service.created_by,
     created_at:   service.created_at,
     updated_at:   service.updated_at,
@@ -57,12 +61,21 @@ export default async function ServiceDetailPage({
   };
 
   // El catalogo solo se necesita para editar (admin).
-  const { data: catalog } = canEdit
+  const { data: catalogRows } = canEdit
     ? await supabase
         .from("sheets")
-        .select("id, title, composer, key_signature")
+        .select("id, title, composer, key_signature, category:categories!category_id(name, color)")
         .order("title", { ascending: true })
     : { data: [] };
+
+  const catalog = (catalogRows ?? []).map((c: any) => ({
+    id: c.id,
+    title: c.title,
+    composer: c.composer,
+    key_signature: c.key_signature,
+    category_name: c.category?.name ?? null,
+    category_color: c.category?.color ?? null,
+  }));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -88,7 +101,7 @@ export default async function ServiceDetailPage({
 
       <ServiceEditor
         service={serviceWithSongs}
-        catalog={(catalog ?? []) as CatalogSong[]}
+        catalog={catalog as CatalogSong[]}
         canEdit={canEdit}
       />
     </div>

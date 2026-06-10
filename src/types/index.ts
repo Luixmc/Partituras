@@ -77,9 +77,21 @@ export interface Service {
   service_type: ServiceType;
   service_date: string | null;   // ISO date (YYYY-MM-DD)
   notes:        string | null;
+  is_public:    boolean;
+  public_token: string;
   created_by:   string;
   created_at:   string;
   updated_at:   string;
+}
+
+// Canción lista para el modo presentación (incluye el contenido de acordes).
+export interface PresentSong {
+  title:        string;
+  composer:     string | null;
+  original_key: string | null;   // tonalidad original (sheet.key_signature)
+  target_key:   string | null;   // tono elegido para el culto (key_override)
+  content:      string | null;
+  editor_type:  EditorType;
 }
 
 export interface ServiceSong {
@@ -92,13 +104,15 @@ export interface ServiceSong {
 
 // Canción dentro de un culto, ya enriquecida con datos de la partitura.
 export interface ServiceSongItem {
-  sheet_id:      string;
-  position:      number;
-  key_override:  string | null;
-  note:          string | null;
-  title:         string;
-  composer:      string | null;
-  key_signature: string | null;
+  sheet_id:       string;
+  position:       number;
+  key_override:   string | null;
+  note:           string | null;
+  title:          string;
+  composer:       string | null;
+  key_signature:  string | null;
+  category_name:  string | null;
+  category_color: string | null;
 }
 
 export interface ServiceWithSongs extends Service {
