@@ -20,11 +20,13 @@ const DURATIONS = [":0.25", ":0.5", ":1", ":1.5", ":2", ":3", ":4"];
 // Silencios: token de la notación → tiempos que muestra la figura.
 const RESTS: { token: string; beats: number; label: string }[] = [
   { token: "Z:4", beats: 4, label: "4" },
+  { token: "Z:3", beats: 3, label: "2." },
   { token: "Z:2", beats: 2, label: "2" },
   { token: "Z:1.5", beats: 1.5, label: "1." },
   { token: "Z:1", beats: 1, label: "1" },
 ];
-const SECTIONS = ["<Intro>", "<Verso>", "<Coro>", "<Puente>", "<Final>"];
+// Secciones de la estructura: "[...]". ("<...>" es texto centrado de la canción.)
+const SECTIONS = ["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"];
 
 export default function ChordToolbar({ onInsert, onDelete }: Props) {
   return (
@@ -73,7 +75,7 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             onClick={() => onInsert(alt)}
             className="h-7 rounded border border-brand-100 bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 transition-colors hover:bg-brand-100 dark:border-brand-900 dark:bg-brand-950/50 dark:text-brand-200"
           >
-            {alt}
+            {alt === "maj7" ? "Δ" : alt}
           </button>
         ))}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Dur:</span>
@@ -148,7 +150,7 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             onClick={() => onInsert(s + "\n")}
             className="rounded-md bg-brand-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-700 transition-colors hover:bg-brand-100 dark:bg-brand-950/50 dark:text-brand-200 dark:hover:bg-brand-900"
           >
-            {s.replace(/[<>]/g, "")}
+            {s.replace(/[[\]]/g, "")}
           </button>
         ))}
         <div className="flex-1" />

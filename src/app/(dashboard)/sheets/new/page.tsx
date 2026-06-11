@@ -336,7 +336,7 @@ export default function NewSheetPage() {
             onClick={rememberSelection}
             onKeyUp={rememberSelection}
             onFocus={rememberSelection}
-            placeholder="Escribe notas o usa los botones. Ejemplo: <Intro>\nC Am F G"
+            placeholder="Escribe notas o usa los botones. Ejemplo: [Intro]\nC Am F G  ·  texto centrado con <...>"
             rows={6}
             spellCheck={false}
             style={{ overflow: "hidden", resize: "none" }}

@@ -200,7 +200,13 @@ function parseMeasures(value: string): Measure[] {
   return measures;
 }
 
-function NoteCell({ token }: { token: NoteToken }) {
+// Reemplaza "maj7" (en cualquier capitalización) por el triángulo Δ en el
+// sufijo del acorde. Ej.: "Cmaj7" → "CΔ", "Gmaj7/B" → "GΔ/B".
+function formatSuffix(suffix: string): string {
+  return suffix.replace(/maj7/gi, "Δ");
+}
+
+function NoteCell({ token, beamed = false }: { token: NoteToken; beamed?: boolean }) {
   // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
   const noteColor = "text-slate-950 dark:text-slate-50";
 
@@ -236,7 +242,7 @@ function NoteCell({ token }: { token: NoteToken }) {
     content = (
       <span className={cn("whitespace-nowrap font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
         {token.root}
-        {token.suffix}
+        {formatSuffix(token.suffix)}
       </span>
     );
   } else if (token.chordLabel) {
@@ -275,7 +281,7 @@ function NoteCell({ token }: { token: NoteToken }) {
           className="absolute inset-x-0 top-0 flex justify-center text-slate-400 dark:text-slate-300"
           style={{ fontSize: "0.85em", height: "0.95em" }}
         >
-          {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} />}
+          {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} beamed={beamed} />}
         </span>
       )}
       {/* Ligadura: arco que sale de este acorde hacia el siguiente, por arriba. */}
@@ -311,6 +317,66 @@ function RepeatGlyph({ side }: { side: "start" | "end" }) {
   );
 }
 
+// Segmento de acordes dentro de un compás: nota suelta o grupo unido por viga.
+type ChordSeg =
+  | { type: "single"; token: NoteToken }
+  | { type: "beam"; tokens: NoteToken[]; beats: number };
+
+// Una nota se puede unir por viga si es un acorde de corchea (0.5) o
+// semicorchea (0.25) y no lleva calderón.
+function isBeamable(t: NoteToken): boolean {
+  return !!t.root && !t.fermata && (t.duration === 0.5 || t.duration === 0.25);
+}
+
+// Agrupa corcheas/semicorcheas consecutivas de IGUAL duración (mínimo 2) en
+// grupos con viga; el resto quedan como notas sueltas (con su corchete).
+function beamSegments(chords: NoteToken[]): ChordSeg[] {
+  const out: ChordSeg[] = [];
+  let i = 0;
+  while (i < chords.length) {
+    const t = chords[i];
+    if (isBeamable(t)) {
+      let j = i + 1;
+      while (j < chords.length && isBeamable(chords[j]) && chords[j].duration === t.duration) j++;
+      if (j - i >= 2) {
+        out.push({ type: "beam", tokens: chords.slice(i, j), beats: t.duration! });
+        i = j;
+        continue;
+      }
+    }
+    out.push({ type: "single", token: t });
+    i++;
+  }
+  return out;
+}
+
+// Grupo de notas unidas por viga: dibuja las plicas (sin corchete) y la barra
+// horizontal que las conecta por arriba (doble barra para semicorcheas).
+function BeamGroup({ tokens, beats }: { tokens: NoteToken[]; beats: number }) {
+  const n = tokens.length;
+  const inset = `${50 / n}%`; // aproxima el centro del primer/último acorde
+  const doubleBeam = beats <= 0.25;
+  return (
+    <div className="relative flex items-stretch gap-[0.5em]">
+      {tokens.map((t, i) => (
+        <NoteCell key={i} token={t} beamed />
+      ))}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute rounded-[1px] bg-slate-400 dark:bg-slate-300"
+        style={{ top: "0.1em", left: inset, right: inset, height: "0.16em" }}
+      />
+      {doubleBeam && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute rounded-[1px] bg-slate-400 dark:bg-slate-300"
+          style={{ top: "0.34em", left: inset, right: inset, height: "0.16em" }}
+        />
+      )}
+    </div>
+  );
+}
+
 function MeasureBlock({
   measure,
   noBar = false,
@@ -338,10 +404,17 @@ function MeasureBlock({
       {timeSigs.map((token, ti) => (
         <NoteCell key={`ts-${ti}`} token={token} />
       ))}
-      {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre ellos. */}
+      {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre
+          ellos. Las corcheas/semicorcheas consecutivas se unen con viga. */}
       <div className="flex flex-1 items-stretch justify-center gap-[0.5em]">
         {chords.length ? (
-          chords.map((token, ti) => <NoteCell key={ti} token={token} />)
+          beamSegments(chords).map((seg, si) =>
+            seg.type === "single" ? (
+              <NoteCell key={si} token={seg.token} />
+            ) : (
+              <BeamGroup key={si} tokens={seg.tokens} beats={seg.beats} />
+            )
+          )
         ) : (
           <div className="min-w-[1.6em] flex-1" />
         )}

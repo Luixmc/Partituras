@@ -7,9 +7,11 @@ export function parseSections(text: string): { title?: string; content: string }
   let current: { title?: string; content: string } | null = null;
 
   lines.forEach((line) => {
-    const match = line.match(/^\[(.*?)\]|^<(.*?)>/);
+    // Solo "[...]" delimita una sección de la estructura. "<...>" es texto
+    // centrado dentro de la canción (lo dibuja TablaturePreview como un acorde).
+    const match = line.match(/^\s*\[(.*?)\]\s*$/);
     if (match) {
-      const title = match[1] || match[2];
+      const title = match[1];
       if (current) sections.push(current);
       current = { title, content: "" };
     } else {

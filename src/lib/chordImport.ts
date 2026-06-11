@@ -112,7 +112,7 @@ export function convertChordSheet(raw: string): ChordImportResult {
       // Solo es sección si no hay resto, o el resto es una línea de acordes.
       const restChords = rest ? chordLine(rest) : null;
       if (!rest || restChords) {
-        out.push(`<${sectionLabel(sm[1], rest)}>`);
+        out.push(`[${sectionLabel(sm[1], rest)}]`);
         if (restChords) out.push(restChords);
         continue;
       }

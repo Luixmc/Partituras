@@ -12,12 +12,15 @@ type FigureProps = {
 /**
  * Figura de nota según los tiempos:
  *  0.5 = corchea · 1 = negra · 2 = blanca · 3 = blanca con puntillo · 4 = redonda
+ *
+ * `beamed`: la nota va unida por viga a sus vecinas, así que NO dibuja sus
+ * corchetes (la viga la dibuja el contenedor del grupo).
  */
-export function NoteFigure({ beats, className }: FigureProps) {
+export function NoteFigure({ beats, className, beamed = false }: FigureProps & { beamed?: boolean }) {
   const filled = beats <= 1; // negra/corchea/semicorchea con cabeza rellena
   const hasStem = beats !== 4; // la redonda no lleva plica
-  const hasFlag = beats <= 0.5; // corchea (un corchete)
-  const hasDoubleFlag = beats <= 0.25; // semicorchea (dos corchetes)
+  const hasFlag = !beamed && beats <= 0.5; // corchea (un corchete)
+  const hasDoubleFlag = !beamed && beats <= 0.25; // semicorchea (dos corchetes)
   const hasDot = beats === 3 || beats === 1.5 || beats === 0.75; // puntillo
 
   return (
@@ -108,7 +111,7 @@ export function FermataFigure({ className }: { className?: string }) {
 
 /**
  * Figura de silencio según los tiempos:
- *  4 = silencio de redonda · 2 = de blanca · 1 (o menos) = de negra
+ *  4 = de redonda · 3 = de blanca con puntillo · 2 = de blanca · 1 (o menos) = de negra
  */
 export function RestFigure({ beats, className }: FigureProps) {
   return (
@@ -126,10 +129,11 @@ export function RestFigure({ beats, className }: FigureProps) {
           <rect x="8" y="12" width="8" height="5" fill="currentColor" />
         </>
       ) : beats >= 2 ? (
-        // Silencio de blanca: bloque apoyado sobre la línea.
+        // Silencio de blanca: bloque apoyado sobre la línea (con puntillo si beats === 3).
         <>
           <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth="1.6" />
           <rect x="8" y="13" width="8" height="5" fill="currentColor" />
+          {beats === 3 && <circle cx="18.5" cy="15.5" r="1.9" fill="currentColor" />}
         </>
       ) : (
         // Silencio de negra: trazo en zigzag. Con puntillo si beats === 1.5

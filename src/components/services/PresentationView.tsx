@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, RotateCcw, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, Minus, Plus, RotateCcw, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { parseSections } from "@/lib/sections";
@@ -24,8 +24,10 @@ const MAX_SCALE = 2;
 
 export default function PresentationView({ title, songs, backHref }: Props) {
   const [index, setIndex] = useState(0);
-  // El tamaño de letra lo decide el auto-ajuste (sin controles manuales).
+  // El tamaño de letra lo decide el auto-ajuste; el usuario puede ajustarlo a
+  // mano (40%–200%), lo que desactiva el auto-ajuste para esa canción.
   const [fontScale, setFontScale] = useState(1);
+  const [autoFit, setAutoFit] = useState(true);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
 
   // Referencias para medir el espacio disponible vs. el contenido y auto-ajustar.
@@ -45,9 +47,16 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         return next;
       });
       setLiveOffset(0); // reinicia la transposición manual al cambiar de canción
+      setAutoFit(true); // re-ajusta a pantalla en la nueva canción
     },
     [total]
   );
+
+  // Ajuste manual del tamaño (desactiva el auto-ajuste para esta canción).
+  const bumpScale = useCallback((delta: number) => {
+    setAutoFit(false);
+    setFontScale((f) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(f + delta).toFixed(2))));
+  }, []);
 
   // Navegación con teclado (flechas / espacio).
   useEffect(() => {
@@ -103,6 +112,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   // (el ajuste de fuente cambia el reflujo, pero el lazo tiene realimentación
   // negativa y se detiene al acercarse al objetivo).
   useLayoutEffect(() => {
+    if (!autoFit) return;
     const main = mainRef.current;
     const content = contentRef.current;
     if (!main || !content) return;
@@ -118,7 +128,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
 
     // Solo reajusta si la diferencia es apreciable (evita bucles infinitos).
     if (Math.abs(next - fontScale) > 0.01) setFontScale(next);
-  }, [fontScale, index, viewport, liveOffset]);
+  }, [autoFit, fontScale, index, viewport, liveOffset]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
@@ -207,6 +217,39 @@ export default function PresentationView({ title, songs, backHref }: Props) {
             {liveOffset > 0 ? `+${liveOffset}` : liveOffset}
           </button>
         )}
+
+        {/* Tamaño de letra (40%–200%) + volver al ajuste automático. */}
+        <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+        <button
+          type="button"
+          onClick={() => bumpScale(-0.1)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+          aria-label="Reducir letra"
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => bumpScale(0.1)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+          aria-label="Aumentar letra"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setAutoFit(true)}
+          title="Ajustar a pantalla"
+          aria-label="Ajustar a pantalla"
+          className={
+            "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors " +
+            (autoFit
+              ? "bg-brand-600 text-white ring-brand-600"
+              : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700")
+          }
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>
       </div>
 
       {/* Contenido de la canción */}

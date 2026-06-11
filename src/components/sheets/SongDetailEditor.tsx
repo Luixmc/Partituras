@@ -35,9 +35,10 @@ function parseSections(text: string) {
   let currentSection: { title?: string; content: string } | null = null;
 
   lines.forEach((line) => {
-    const match = line.match(/^\[(.*?)\]|^<(.*?)>/);
+    // Solo "[...]" delimita una sección; "<...>" es texto centrado de la canción.
+    const match = line.match(/^\s*\[(.*?)\]\s*$/);
     if (match) {
-      const title = match[1] || match[2];
+      const title = match[1];
       if (currentSection) sections.push(currentSection);
       currentSection = { title, content: "" };
     } else {
@@ -610,7 +611,7 @@ export default function SongDetailEditor({
               spellCheck={false}
               style={{ overflow: "hidden", resize: "none" }}
               className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-              placeholder="Escribe notas y secciones. Usa los botones o escribe directo. Ejemplo: <Intro>\nC Am F G"
+              placeholder="Escribe notas y secciones. Usa los botones o escribe directo. Ejemplo: [Intro]\nC Am F G  ·  texto centrado con <...>"
             />
 
             {/* Vista previa idéntica al modo lectura: separada por secciones. */}
