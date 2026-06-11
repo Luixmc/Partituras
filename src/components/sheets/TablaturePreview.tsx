@@ -248,12 +248,13 @@ function NoteCell({ token, beamed = false }: { token: NoteToken; beamed?: boolea
       </span>
     );
   } else if (token.chordLabel) {
-    // Texto <...>: mismas características que un acorde pero en amarillo. Si es
-    // largo, su texto se ajusta dentro de la celda (no se desborda ni se solapa).
+    // Texto <...>: mismas características que un acorde pero en amarillo. La celda
+    // se dimensiona a su texto (legible, en una línea); el salto a otra fila lo
+    // hace el compás (que envuelve cuando hay etiquetas) sin partir palabras.
     content = (
       <span
-        className="inline-block text-center font-bold leading-tight text-yellow-500 dark:text-yellow-300"
-        style={{ fontSize: "1.5em", maxWidth: "8em", overflowWrap: "anywhere" }}
+        className="whitespace-nowrap font-bold leading-tight text-yellow-500 dark:text-yellow-300"
+        style={{ fontSize: "1.5em" }}
       >
         {token.chordLabel}
       </span>
@@ -391,6 +392,9 @@ function MeasureBlock({
   // El compás (timeSig) se muestra a la IZQUIERDA; los acordes se centran aparte.
   const timeSigs = measure.notes.filter((n) => n.timeSig);
   const chords = measure.notes.filter((n) => !n.timeSig);
+  // Si el compás incluye etiquetas <...>, permitimos que las celdas envuelvan a
+  // otra línea (las etiquetas son anchas); los acordes normales no envuelven.
+  const hasLabel = chords.some((c) => c.chordLabel);
   return (
     <div
       // Cada compás crece según sus tiempos; los compases se reparten la fila.
@@ -408,8 +412,14 @@ function MeasureBlock({
         <NoteCell key={`ts-${ti}`} token={token} />
       ))}
       {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre
-          ellos. Las corcheas/semicorcheas consecutivas se unen con viga. */}
-      <div className="flex flex-1 items-stretch justify-center gap-[0.5em]">
+          ellos. Las corcheas/semicorcheas consecutivas se unen con viga. Con
+          etiquetas <...>, las celdas pueden envolver a otra línea. */}
+      <div
+        className={cn(
+          "flex flex-1 items-stretch justify-center gap-[0.5em]",
+          hasLabel && "flex-wrap gap-y-1"
+        )}
+      >
         {chords.length ? (
           beamSegments(chords).map((seg, si) =>
             seg.type === "single" ? (
