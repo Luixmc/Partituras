@@ -22,8 +22,8 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const STORAGE_KEY = "reading-prefs";
-const MIN_SCALE = 0.8;
-const MAX_SCALE = 1.6;
+const MIN_SCALE = 0.4;
+const MAX_SCALE = 2;
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [dark, setDarkState] = useState(false);

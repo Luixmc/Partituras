@@ -32,6 +32,8 @@ type Measure = {
   notes: NoteToken[];
   repeatStart: boolean;
   repeatEnd: boolean;
+  // Texto <...>: ocupa su propia fila (centrado, con salto de línea), no es un compás.
+  isLabel?: boolean;
   // Recuadro (casilla / final 1 ó 2): compases con el mismo boxId van juntos
   // dentro de un recuadro, con boxLabel encima.
   boxId?: number;
@@ -145,12 +147,14 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
-    // Texto <...>: se dibuja como un acorde (mismo tamaño, centrado) en amarillo.
+    // Texto <...>: ocupa su PROPIA fila (centrado, amarillo, con salto de línea
+    // si es largo). Cierra el compás anterior y empieza/cierra una fila aparte.
     if (core.length > 2 && core.startsWith("<") && core.endsWith(">")) {
       const labelText = core.slice(1, -1).split(SP).join(" ");
-      current.notes.push({
-        root: "", suffix: "", duration: null, chordLabel: labelText, fermata, tieNext, raw: part,
-      });
+      flush();
+      current.notes.push({ root: "", suffix: "", duration: null, chordLabel: labelText, raw: part });
+      current.isLabel = true;
+      flush();
       continue;
     }
 
@@ -486,7 +490,21 @@ export default function TablaturePreview({
             segments.map((seg, si) => {
               // Compás suelto (sin recuadro): item flexible directo.
               if (seg.boxId == null) {
-                return <MeasureBlock key={si} measure={seg.items[0]} />;
+                const m = seg.items[0];
+                // Texto <...>: fila completa, centrado, con salto de línea.
+                if (m.isLabel && m.notes[0]?.chordLabel) {
+                  return (
+                    <div key={si} className="w-full px-2 py-0.5 text-center">
+                      <span
+                        className="font-bold leading-tight text-yellow-500 dark:text-yellow-300"
+                        style={{ fontSize: "1.5em", overflowWrap: "anywhere" }}
+                      >
+                        {m.notes[0].chordLabel}
+                      </span>
+                    </div>
+                  );
+                }
+                return <MeasureBlock key={si} measure={m} />;
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
