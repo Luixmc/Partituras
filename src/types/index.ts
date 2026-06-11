@@ -99,7 +99,15 @@ export interface ServiceSong {
   sheet_id:     string;
   position:     number;
   key_override: string | null;
+  sheet_key_id: string | null;   // versión guardada de la canción (opcional)
   note:         string | null;
+}
+
+// Versión por tono disponible para elegir al armar un culto.
+export interface SheetKeyOption {
+  id:            string;
+  key_signature: string;
+  label:         string | null;
 }
 
 // Canción dentro de un culto, ya enriquecida con datos de la partitura.
@@ -107,16 +115,31 @@ export interface ServiceSongItem {
   sheet_id:       string;
   position:       number;
   key_override:   string | null;
+  sheet_key_id:   string | null;
   note:           string | null;
   title:          string;
   composer:       string | null;
   key_signature:  string | null;
   category_name:  string | null;
   category_color: string | null;
+  available_keys: SheetKeyOption[];   // versiones guardadas de esta canción
 }
 
 export interface ServiceWithSongs extends Service {
   songs: ServiceSongItem[];
+}
+
+// Versión de una canción en otra tonalidad (acordes editables).
+export interface SheetKey {
+  id:            string;
+  sheet_id:      string;
+  key_signature: string;
+  content:       string | null;
+  label:         string | null;
+  sort_order:    number;
+  created_by:    string;
+  created_at:    string;
+  updated_at:    string;
 }
 
 export interface SheetVersion {

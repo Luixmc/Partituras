@@ -14,7 +14,7 @@ export default async function ServicePresentPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "id, name, service_songs(position, key_override, sheet:sheets(title, composer, key_signature, content, editor_type))"
+      "id, name, service_songs(position, key_override, sheet_key_id, sheet_key:sheet_keys(key_signature, content), sheet:sheets(title, composer, key_signature, content, editor_type))"
     )
     .eq("id", params.id)
     .single();

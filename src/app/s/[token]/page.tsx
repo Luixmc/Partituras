@@ -16,7 +16,7 @@ export default async function PublicServicePage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "id, name, service_type, service_date, notes, public_token, service_songs(position, key_override, sheet:sheets(title, composer, key_signature))"
+      "id, name, service_type, service_date, notes, public_token, service_songs(position, key_override, sheet_key:sheet_keys(key_signature), sheet:sheets(title, composer, key_signature))"
     )
     .eq("public_token", params.token)
     .eq("is_public", true)
@@ -33,7 +33,7 @@ export default async function PublicServicePage({
     .map((r: any) => ({
       title:    r.sheet.title,
       composer: r.sheet.composer ?? null,
-      key:      r.key_override || r.sheet.key_signature || null,
+      key:      r.sheet_key?.key_signature || r.key_override || r.sheet.key_signature || null,
     }));
 
   return (

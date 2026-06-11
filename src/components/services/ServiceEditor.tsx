@@ -29,7 +29,7 @@ import {
 import ServicePdfButton from "@/components/services/ServicePdfButton";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
 import { KEY_OPTIONS } from "@/lib/music";
-import type { ServiceType, ServiceWithSongs } from "@/types";
+import type { ServiceType, ServiceWithSongs, SheetKeyOption } from "@/types";
 
 export interface CatalogSong {
   id:             string;
@@ -38,6 +38,7 @@ export interface CatalogSong {
   key_signature:  string | null;
   category_name:  string | null;
   category_color: string | null;
+  available_keys: SheetKeyOption[];
 }
 
 interface SongRow {
@@ -48,6 +49,8 @@ interface SongRow {
   category_name:  string | null;
   category_color: string | null;
   key_override:   string;
+  sheet_key_id:   string;             // versión guardada elegida (vacío = ninguna)
+  available_keys: SheetKeyOption[];
   note:           string;
 }
 
@@ -88,6 +91,8 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
       category_name:  s.category_name,
       category_color: s.category_color,
       key_override:   s.key_override ?? "",
+      sheet_key_id:   s.sheet_key_id ?? "",
+      available_keys: s.available_keys ?? [],
       note:           s.note ?? "",
     }))
   );
@@ -160,6 +165,8 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
         category_name:  c.category_name,
         category_color: c.category_color,
         key_override:   "",
+        sheet_key_id:   "",
+        available_keys: c.available_keys ?? [],
         note:           "",
       },
     ]);
@@ -200,7 +207,9 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
       notes: notes || null,
       songs: songs.map((s) => ({
         sheet_id:     s.sheet_id,
-        key_override: s.key_override || null,
+        // Si hay versión guardada elegida, ignora el override (mutuamente excl.).
+        key_override: s.sheet_key_id ? null : s.key_override || null,
+        sheet_key_id: s.sheet_key_id || null,
         note:         s.note || null,
       })),
     };
@@ -244,12 +253,17 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const meta = SERVICE_TYPE_META[serviceType] ?? SERVICE_TYPE_META.otro;
   const dateText = formatServiceDate(serviceDate || null);
 
-  // Canciones con su tono efectivo (override o el original) para el PDF.
-  const pdfSongs = songs.map((s) => ({
-    title: s.title,
-    composer: s.composer,
-    key: s.key_override || s.key_signature,
-  }));
+  // Canciones con su tono efectivo (versión guardada, override o el original).
+  const pdfSongs = songs.map((s) => {
+    const savedKey = s.sheet_key_id
+      ? s.available_keys.find((k) => k.id === s.sheet_key_id)?.key_signature
+      : null;
+    return {
+      title: s.title,
+      composer: s.composer,
+      key: savedKey || s.key_override || s.key_signature,
+    };
+  });
 
   // ── Vista de solo lectura (no admin) ───────────────────────
   if (!canEdit) {
@@ -307,11 +321,17 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                     )}
                   </span>
                 </span>
-                {(s.key_override || s.key_signature) && (
-                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-300">
-                    {s.key_override || s.key_signature}
-                  </span>
-                )}
+                {(() => {
+                  const savedKey = s.sheet_key_id
+                    ? s.available_keys.find((k) => k.id === s.sheet_key_id)?.key_signature
+                    : null;
+                  const key = savedKey || s.key_override || s.key_signature;
+                  return key ? (
+                    <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+                      {key}
+                    </span>
+                  ) : null;
+                })()}
               </Link>
               {s.note && <p className="mt-1 pl-10 text-xs text-slate-400">{s.note}</p>}
             </li>
@@ -461,17 +481,34 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
               </span>
             </span>
             <select
-              value={s.key_override}
-              onChange={(e) => patchSong(s.sheet_id, { key_override: e.target.value })}
-              className="w-20 rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              title="Tono para este culto (transpone la presentación)"
+              value={s.sheet_key_id ? `k:${s.sheet_key_id}` : s.key_override ? `t:${s.key_override}` : ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v.startsWith("k:")) patchSong(s.sheet_id, { sheet_key_id: v.slice(2), key_override: "" });
+                else if (v.startsWith("t:")) patchSong(s.sheet_id, { sheet_key_id: "", key_override: v.slice(2) });
+                else patchSong(s.sheet_id, { sheet_key_id: "", key_override: "" });
+              }}
+              className="min-w-[6rem] max-w-[11rem] rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              title="Tono para este culto: versión guardada de la canción o transposición al vuelo"
             >
-              <option value="">{s.key_signature ? `Orig. ${s.key_signature}` : "Tono"}</option>
-              {KEY_OPTIONS.map((k) => (
-                <option key={k.value} value={k.value}>
-                  {k.value}
-                </option>
-              ))}
+              <option value="">{s.key_signature ? `Orig. ${s.key_signature}` : "Tono original"}</option>
+              {s.available_keys.length > 0 && (
+                <optgroup label="Versiones guardadas">
+                  {s.available_keys.map((k) => (
+                    <option key={k.id} value={`k:${k.id}`}>
+                      {k.key_signature}
+                      {k.label ? ` · ${k.label}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              <optgroup label="Transponer al vuelo">
+                {KEY_OPTIONS.map((k) => (
+                  <option key={k.value} value={`t:${k.value}`}>
+                    {k.value}
+                  </option>
+                ))}
+              </optgroup>
             </select>
             <div className="flex items-center gap-1">
               <button

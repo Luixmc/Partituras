@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import SongDetailEditor from "@/components/sheets/SongDetailEditor";
 import { createClient } from "@/lib/supabase/server";
-import type { Category, Sheet } from "@/types";
+import type { Category, Sheet, SheetKey } from "@/types";
 
 type SheetWithCategory = Sheet & {
   category?: {
@@ -56,6 +56,14 @@ export default async function SheetDetailPage({
         ? [sheet.category_id]
         : [];
 
+  // Versiones guardadas en otras tonalidades. Si la migración 014 no está
+  // aplicada, la consulta falla en silencio y caemos en lista vacía.
+  const { data: keyRows } = await supabase
+    .from("sheet_keys")
+    .select("*")
+    .eq("sheet_id", params.id)
+    .order("sort_order");
+
   // Solo los administradores pueden editar; músicos y lectores solo ven.
   const canEdit = profile?.role === "admin";
 
@@ -85,6 +93,7 @@ export default async function SheetDetailPage({
         sheet={sheet as SheetWithCategory}
         categories={(categories ?? []) as Category[]}
         initialCategoryIds={initialCategoryIds}
+        initialKeys={(keyRows ?? []) as SheetKey[]}
         canEdit={canEdit}
       />
     </div>

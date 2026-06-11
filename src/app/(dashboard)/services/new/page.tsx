@@ -20,7 +20,7 @@ export default async function NewServicePage() {
 
   const { data: catalogRows } = await supabase
     .from("sheets")
-    .select("id, title, composer, key_signature, category:categories!category_id(name, color)")
+    .select("id, title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)")
     .order("title", { ascending: true });
 
   const catalog = (catalogRows ?? []).map((c: any) => ({
@@ -30,6 +30,11 @@ export default async function NewServicePage() {
     key_signature: c.key_signature,
     category_name: c.category?.name ?? null,
     category_color: c.category?.color ?? null,
+    available_keys: (c.sheet_keys ?? []).map((k: any) => ({
+      id: k.id,
+      key_signature: k.key_signature,
+      label: k.label ?? null,
+    })),
   }));
 
   return (

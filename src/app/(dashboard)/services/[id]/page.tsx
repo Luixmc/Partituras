@@ -16,7 +16,7 @@ export default async function ServiceDetailPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "*, service_songs(sheet_id, position, key_override, note, sheet:sheets(title, composer, key_signature, category:categories!category_id(name, color)))"
+      "*, service_songs(sheet_id, position, key_override, sheet_key_id, note, sheet:sheets(title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)))"
     )
     .eq("id", params.id)
     .single();
@@ -37,12 +37,18 @@ export default async function ServiceDetailPage({
       sheet_id:       row.sheet_id,
       position:       row.position,
       key_override:   row.key_override,
+      sheet_key_id:   row.sheet_key_id ?? null,
       note:           row.note,
       title:          row.sheet?.title ?? "(cancion eliminada)",
       composer:       row.sheet?.composer ?? null,
       key_signature:  row.sheet?.key_signature ?? null,
       category_name:  row.sheet?.category?.name ?? null,
       category_color: row.sheet?.category?.color ?? null,
+      available_keys: (row.sheet?.sheet_keys ?? []).map((k: any) => ({
+        id: k.id,
+        key_signature: k.key_signature,
+        label: k.label ?? null,
+      })),
     }))
     .sort((a: any, b: any) => a.position - b.position);
 
@@ -64,7 +70,7 @@ export default async function ServiceDetailPage({
   const { data: catalogRows } = canEdit
     ? await supabase
         .from("sheets")
-        .select("id, title, composer, key_signature, category:categories!category_id(name, color)")
+        .select("id, title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)")
         .order("title", { ascending: true })
     : { data: [] };
 
@@ -75,6 +81,11 @@ export default async function ServiceDetailPage({
     key_signature: c.key_signature,
     category_name: c.category?.name ?? null,
     category_color: c.category?.color ?? null,
+    available_keys: (c.sheet_keys ?? []).map((k: any) => ({
+      id: k.id,
+      key_signature: k.key_signature,
+      label: k.label ?? null,
+    })),
   }));
 
   return (

@@ -17,6 +17,7 @@ export interface ServiceInput {
   songs: {
     sheet_id:     string;
     key_override: string | null;
+    sheet_key_id: string | null;
     note:         string | null;
   }[];
 }
@@ -58,7 +59,9 @@ function cleanInput(input: ServiceInput) {
     .map((s, i) => ({
       sheet_id:     s.sheet_id,
       position:     i,
-      key_override: s.key_override?.trim() || null,
+      sheet_key_id: s.sheet_key_id || null,
+      // Versión guardada y override son mutuamente excluyentes.
+      key_override: s.sheet_key_id ? null : s.key_override?.trim() || null,
       note:         s.note?.trim() || null,
     }));
 

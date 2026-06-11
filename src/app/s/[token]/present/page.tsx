@@ -14,7 +14,7 @@ export default async function PublicServicePresentPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "name, public_token, service_songs(position, key_override, sheet:sheets(title, composer, key_signature, content, editor_type))"
+      "name, public_token, service_songs(position, key_override, sheet_key_id, sheet_key:sheet_keys(key_signature, content), sheet:sheets(title, composer, key_signature, content, editor_type))"
     )
     .eq("public_token", params.token)
     .eq("is_public", true)

@@ -8,9 +8,10 @@ import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
+import SongKeyVersions from "@/components/sheets/SongKeyVersions";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
-import type { Category, Sheet, SheetStatus } from "@/types";
+import type { Category, Sheet, SheetKey, SheetStatus } from "@/types";
 
 type SheetWithCategory = Sheet & {
   category?: {
@@ -23,6 +24,7 @@ type Props = {
   sheet: SheetWithCategory;
   categories: Category[];
   initialCategoryIds?: string[];
+  initialKeys?: SheetKey[];
   canEdit: boolean;
 };
 
@@ -46,7 +48,13 @@ function parseSections(text: string) {
   return sections;
 }
 
-export default function SongDetailEditor({ sheet, categories, initialCategoryIds, canEdit }: Props) {
+export default function SongDetailEditor({
+  sheet,
+  categories,
+  initialCategoryIds,
+  initialKeys = [],
+  canEdit,
+}: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -69,6 +77,12 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
   const [categoryIds, setCategoryIds] = useState<string[]>(startCategoryIds);
   const [status, setStatus] = useState<SheetStatus>(sheet.status);
   const [content, setContent] = useState(sheet.content ?? "");
+
+  // Tono mostrado en modo lectura: "" = original; o el id de una versión guardada.
+  const [viewKey, setViewKey] = useState<string>("");
+  const activeVersion = viewKey ? initialKeys.find((k) => k.id === viewKey) ?? null : null;
+  const viewContent = activeVersion ? activeVersion.content ?? "" : content;
+  const viewKeyLabel = activeVersion ? activeVersion.key_signature : keySignature;
 
   const toggleCategory = (id: string) =>
     setCategoryIds((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
@@ -373,14 +387,47 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
               )}
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
                 {sheet.category && <span>{sheet.category.name}</span>}
-                {keySignature && <span>Tono: {keySignature}</span>}
+                {viewKeyLabel && <span>Tono: {viewKeyLabel}</span>}
                 {timeSignature && <span>Compas: {timeSignature}</span>}
               </div>
+
+              {/* Selector de tonalidad: original + versiones guardadas */}
+              {initialKeys.length > 0 && (
+                <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewKey("")}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                      viewKey === ""
+                        ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"
+                        : "border-slate-200 text-slate-500 hover:border-slate-300 dark:border-slate-600 dark:text-slate-400"
+                    }`}
+                  >
+                    {keySignature ? `Original (${keySignature})` : "Original"}
+                  </button>
+                  {initialKeys.map((k) => (
+                    <button
+                      key={k.id}
+                      type="button"
+                      onClick={() => setViewKey(k.id)}
+                      title={k.label ?? undefined}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                        viewKey === k.id
+                          ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300 dark:border-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      {k.key_signature}
+                      {k.label ? ` · ${k.label}` : ""}
+                    </button>
+                  ))}
+                </div>
+              )}
             </header>
 
-            {content.trim() ? (
+            {viewContent.trim() ? (
               <div className="space-y-8">
-                {parseSections(content).map((section, idx) => (
+                {parseSections(viewContent).map((section, idx) => (
                   <TablaturePreview
                     key={idx}
                     notes={section.content}
@@ -589,6 +636,17 @@ export default function SongDetailEditor({ sheet, categories, initialCategoryIds
               {saving ? "Guardando..." : "Guardar cambios"}
             </button>
           </section>
+
+          {/* Versiones en otras tonalidades (ancho completo) */}
+          <div className="md:col-span-2">
+            <SongKeyVersions
+              sheetId={sheet.id}
+              baseKey={keySignature || null}
+              baseContent={content}
+              initialVersions={initialKeys}
+              canEdit={canEdit}
+            />
+          </div>
         </div>
       )}
     </div>

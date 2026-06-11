@@ -16,14 +16,30 @@ export function mapPresentSongs(rows: any[]): PresentSong[] {
   return (rows ?? [])
     .filter((r) => r.sheet) // ignora canciones eliminadas
     .sort((a, b) => a.position - b.position)
-    .map((r) => ({
-      title:        r.sheet.title,
-      composer:     r.sheet.composer ?? null,
-      original_key: r.sheet.key_signature ?? null,
-      target_key:   r.key_override ?? null,
-      content:      r.sheet.content ?? null,
-      editor_type:  r.sheet.editor_type,
-    }));
+    .map((r) => {
+      // Si hay una versión guardada (sheet_key), se presenta tal cual: sus
+      // acordes ya están en su tonalidad, así que original = target = ese tono
+      // para que PresentationView NO vuelva a transponer.
+      if (r.sheet_key && r.sheet_key.content != null) {
+        const k = r.sheet_key.key_signature ?? null;
+        return {
+          title:        r.sheet.title,
+          composer:     r.sheet.composer ?? null,
+          original_key: k,
+          target_key:   k,
+          content:      r.sheet_key.content,
+          editor_type:  r.sheet.editor_type,
+        };
+      }
+      return {
+        title:        r.sheet.title,
+        composer:     r.sheet.composer ?? null,
+        original_key: r.sheet.key_signature ?? null,
+        target_key:   r.key_override ?? null,
+        content:      r.sheet.content ?? null,
+        editor_type:  r.sheet.editor_type,
+      };
+    });
 }
 
 /** Formatea una fecha ISO (YYYY-MM-DD) a texto legible en español. */
