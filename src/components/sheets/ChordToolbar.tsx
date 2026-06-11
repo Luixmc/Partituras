@@ -177,6 +177,14 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
         >
           | Barra
         </button>
+        <button
+          type="button"
+          onClick={() => onInsert(";")}
+          className="rounded-md border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-300"
+          title="Salto de línea (nueva fila)"
+        >
+          ↵ Nueva línea
+        </button>
       </div>
 
       {/* Fila 4: recuadros / casillas (final 1 y 2) */}
