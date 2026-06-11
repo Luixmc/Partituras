@@ -1,15 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Minus,
-  Plus,
-  RotateCcw,
-  X,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { parseSections } from "@/lib/sections";
@@ -25,10 +18,21 @@ type Props = {
   backHref: string;
 };
 
+// Límites del tamaño de letra: 40% – 200%.
+const MIN_SCALE = 0.4;
+const MAX_SCALE = 2;
+
 export default function PresentationView({ title, songs, backHref }: Props) {
   const [index, setIndex] = useState(0);
-  const [fontScale, setFontScale] = useState(1.5);
+  // El tamaño de letra lo decide el auto-ajuste (sin controles manuales).
+  const [fontScale, setFontScale] = useState(1);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
+
+  // Referencias para medir el espacio disponible vs. el contenido y auto-ajustar.
+  const mainRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  // Tamaño de ventana: re-dispara el auto-ajuste al rotar/redimensionar.
+  const [viewport, setViewport] = useState({ w: 0, h: 0 });
 
   const song = songs[index];
   const total = songs.length;
@@ -82,6 +86,40 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
   };
 
+  // Re-dispara el auto-ajuste cuando cambia el tamaño de la ventana.
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, []);
+
+  // Auto-ajuste: escala la letra para que la canción ocupe toda la pantalla
+  // disponible sin necesidad de hacer scroll. Converge en pocos repintados
+  // (el ajuste de fuente cambia el reflujo, pero el lazo tiene realimentación
+  // negativa y se detiene al acercarse al objetivo).
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    const content = contentRef.current;
+    if (!main || !content) return;
+
+    const cs = getComputedStyle(main);
+    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const availH = main.clientHeight - padY;
+    const contentH = content.scrollHeight;
+    if (availH <= 0 || contentH <= 0) return;
+
+    const ratio = (availH / contentH) * 0.985; // pequeño margen para no rozar
+    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(fontScale * ratio).toFixed(3)));
+
+    // Solo reajusta si la diferencia es apreciable (evita bucles infinitos).
+    if (Math.abs(next - fontScale) > 0.01) setFontScale(next);
+  }, [fontScale, index, viewport, liveOffset]);
+
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
   const totalSemitones = (((baseSemitones + liveOffset) % 12) + 12) % 12;
@@ -133,25 +171,8 @@ export default function PresentationView({ title, songs, backHref }: Props) {
           </p>
         </div>
 
-        {/* Tamaño de letra */}
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setFontScale((f) => Math.max(0.8, +(f - 0.15).toFixed(2)))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
-            aria-label="Reducir letra"
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setFontScale((f) => Math.min(3, +(f + 0.15).toFixed(2)))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
-            aria-label="Aumentar letra"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
+        {/* Botón de salida a la derecha para equilibrar la barra (ancho fijo). */}
+        <span className="h-9 w-9 flex-shrink-0" aria-hidden />
       </header>
 
       {/* Sub-barra: tono y transposición manual */}
@@ -189,19 +210,21 @@ export default function PresentationView({ title, songs, backHref }: Props) {
       </div>
 
       {/* Contenido de la canción */}
-      <main className="flex-1 overflow-auto px-3 py-5 md:px-8">
-        {song.composer && (
-          <p className="mb-4 text-center text-sm text-slate-400">{song.composer}</p>
-        )}
-        {sections.length > 0 ? (
-          <div className="mx-auto max-w-5xl space-y-6">
-            {sections.map((sec, i) => (
-              <TablaturePreview key={i} notes={sec.content} label={sec.title} fontScale={fontScale} />
-            ))}
-          </div>
-        ) : (
-          <p className="py-16 text-center text-slate-400">Esta cancion no tiene acordes para mostrar.</p>
-        )}
+      <main ref={mainRef} className="flex-1 overflow-auto px-3 py-3 md:px-8">
+        <div ref={contentRef}>
+          {song.composer && (
+            <p className="mb-3 text-center text-sm text-slate-400">{song.composer}</p>
+          )}
+          {sections.length > 0 ? (
+            <div className="mx-auto max-w-5xl space-y-4">
+              {sections.map((sec, i) => (
+                <TablaturePreview key={i} notes={sec.content} label={sec.title} fontScale={fontScale} />
+              ))}
+            </div>
+          ) : (
+            <p className="py-16 text-center text-slate-400">Esta cancion no tiene acordes para mostrar.</p>
+          )}
+        </div>
       </main>
 
       {/* Navegación inferior */}

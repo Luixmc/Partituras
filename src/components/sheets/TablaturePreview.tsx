@@ -24,6 +24,7 @@ type NoteToken = {
   fermata?: boolean; // calderón: acorde de pausa/alargación
   timeSig?: string; // cambio de compás inline (ej. "6/8")
   lyric?: string; // texto entre paréntesis, se muestra debajo del acorde
+  chordLabel?: string; // texto <...>: se dibuja como un acorde pero en amarillo
   raw: string;
 };
 
@@ -49,7 +50,9 @@ function parseMeasures(value: string): Measure[] {
   //    interprete cada palabra (p. ej. "Dios") como un acorde.
   const withParens = value
     .replace(/[\n\r\t]/g, " ")
-    .replace(/\(([^)]*)\)/g, (_m, inner: string) => ` (${inner.trim().split(/\s+/).join(SP)}) `);
+    .replace(/\(([^)]*)\)/g, (_m, inner: string) => ` (${inner.trim().split(/\s+/).join(SP)}) `)
+    // Texto entre <...>: se trata como un solo token (sus espacios se protegen).
+    .replace(/<([^>]*)>/g, (_m, inner: string) => ` <${inner.trim().split(/\s+/).join(SP)}> `);
 
   // 2) Protegemos signos de repetición y llaves antes de separar las barras.
   const spaced = withParens
@@ -142,6 +145,15 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
+    // Texto <...>: se dibuja como un acorde (mismo tamaño, centrado) en amarillo.
+    if (core.length > 2 && core.startsWith("<") && core.endsWith(">")) {
+      const labelText = core.slice(1, -1).split(SP).join(" ");
+      current.notes.push({
+        root: "", suffix: "", duration: null, chordLabel: labelText, fermata, tieNext, raw: part,
+      });
+      continue;
+    }
+
     const isText = core.startsWith("(") && core.endsWith(")");
     if (isText) {
       const lyric = core.slice(1, -1).split(SP).join(" ");
@@ -225,6 +237,16 @@ function NoteCell({ token }: { token: NoteToken }) {
       <span className={cn("whitespace-nowrap font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
         {token.root}
         {token.suffix}
+      </span>
+    );
+  } else if (token.chordLabel) {
+    // Texto <...>: mismas características que un acorde pero en amarillo.
+    content = (
+      <span
+        className="whitespace-nowrap font-bold leading-none text-yellow-500 dark:text-yellow-300"
+        style={{ fontSize: "1.5em" }}
+      >
+        {token.chordLabel}
       </span>
     );
   } else if (token.text) {

@@ -27,8 +27,9 @@ import {
   type ServiceInput,
 } from "@/app/(dashboard)/services/actions";
 import ServicePdfButton from "@/components/services/ServicePdfButton";
+import AutoTextarea from "@/components/ui/AutoTextarea";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
-import { KEY_OPTIONS } from "@/lib/music";
+import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
 import type { ServiceType, ServiceWithSongs, SheetKeyOption } from "@/types";
 
 export interface CatalogSong {
@@ -139,6 +140,97 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     }
   }
 
+  // ── Detección de cambios sin guardar ───────────────────────
+  // Guardamos el estado de referencia (último guardado) para comparar.
+  type SavedState = {
+    name: string;
+    serviceType: ServiceType;
+    serviceDate: string;
+    notes: string;
+    songs: SongRow[];
+  };
+  const serializeState = (st: SavedState) =>
+    JSON.stringify({
+      name: st.name,
+      serviceType: st.serviceType,
+      serviceDate: st.serviceDate,
+      notes: st.notes,
+      songs: st.songs.map((s) => ({
+        sheet_id: s.sheet_id,
+        key_override: s.key_override,
+        sheet_key_id: s.sheet_key_id,
+        note: s.note,
+      })),
+    });
+
+  const [saved, setSaved] = useState<SavedState>(() => ({
+    name,
+    serviceType,
+    serviceDate,
+    notes,
+    songs,
+  }));
+  const [leavePrompt, setLeavePrompt] = useState<{ proceed: () => void } | null>(null);
+
+  const currentSnapshot = serializeState({ name, serviceType, serviceDate, notes, songs });
+  const isDirty = canEdit && currentSnapshot !== serializeState(saved);
+
+  const restoreSaved = () => {
+    setName(saved.name);
+    setServiceType(saved.serviceType);
+    setServiceDate(saved.serviceDate);
+    setNotes(saved.notes);
+    setSongs(saved.songs);
+  };
+
+  // Aviso del navegador al cerrar/recargar la pestaña con cambios sin guardar.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // Intercepta la navegación interna (menú, "volver", "presentar"...) para
+  // mostrar el diálogo de guardar/descartar en vez de salir sin avisar.
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || anchor.target === "_blank") return;
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setLeavePrompt({ proceed: () => router.push(url.pathname + url.search) });
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [isDirty, router]);
+
+  const handleDiscardAndLeave = () => {
+    const proceed = leavePrompt?.proceed;
+    restoreSaved();
+    setLeavePrompt(null);
+    proceed?.();
+  };
+
+  const handleSaveAndLeave = async () => {
+    const proceed = leavePrompt?.proceed;
+    const ok = await handleSave();
+    if (!ok) return; // si falla, no salimos (se muestra el error)
+    setLeavePrompt(null);
+    proceed?.();
+  };
+
   const usedIds = useMemo(() => new Set(songs.map((s) => s.sheet_id)), [songs]);
 
   const results = useMemo(() => {
@@ -191,11 +283,11 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     setSongs((prev) => prev.map((s) => (s.sheet_id === id ? { ...s, ...patch } : s)));
   }
 
-  async function handleSave() {
+  async function handleSave(): Promise<boolean> {
     if (!name.trim()) {
       setMessage("El nombre del culto es obligatorio.");
       setMessageType("error");
-      return;
+      return false;
     }
     setSaving(true);
     setMessage(null);
@@ -221,18 +313,21 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     setSaving(false);
 
     if (res.ok) {
+      // Estado de referencia actualizado: ya no hay cambios pendientes.
+      setSaved({ name, serviceType, serviceDate, notes, songs });
       if (isNew && res.id) {
         router.push(`/services/${res.id}`);
         router.refresh();
-        return;
+        return true;
       }
       setMessage(res.message ?? "Guardado.");
       setMessageType("ok");
       router.refresh();
-    } else {
-      setMessage(res.error ?? "No se pudo guardar.");
-      setMessageType("error");
+      return true;
     }
+    setMessage(res.error ?? "No se pudo guardar.");
+    setMessageType("error");
+    return false;
   }
 
   async function handleDelete() {
@@ -347,6 +442,44 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   // ── Editor (admin) ─────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-3xl p-4 md:p-8">
+      {/* Diálogo: guardar o descartar cambios al salir */}
+      {leavePrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-slate-800">
+            <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-50">Cambios sin guardar</h3>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Tienes cambios sin guardar en el culto. ¿Quieres guardarlos antes de salir?
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleSaveAndLeave}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? "Guardando..." : "Guardar y salir"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDiscardAndLeave}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              >
+                Descartar cambios
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeavePrompt(null)}
+                disabled={saving}
+                className="inline-flex w-full items-center justify-center rounded-lg py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {message && (
         <div
           className={
@@ -404,12 +537,12 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Notas (opcional)
           </label>
-          <textarea
+          <AutoTextarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Observaciones, responsables, etc."
-            className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           />
         </div>
       </div>
@@ -502,8 +635,15 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                   ))}
                 </optgroup>
               )}
-              <optgroup label="Transponer al vuelo">
+              <optgroup label="Transponer · mayores">
                 {KEY_OPTIONS.map((k) => (
+                  <option key={k.value} value={`t:${k.value}`}>
+                    {k.value}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Transponer · menores">
+                {KEY_OPTIONS_MINOR.map((k) => (
                   <option key={k.value} value={`t:${k.value}`}>
                     {k.value}
                   </option>

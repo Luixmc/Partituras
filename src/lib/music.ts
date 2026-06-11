@@ -41,6 +41,27 @@ export const KEY_OPTIONS: { value: string; pitch: number; flats: boolean }[] = [
   { value: "B",  pitch: 11, flats: false },
 ];
 
+// Centros tonales menores (Am, Em...). La transposición funciona igual (movemos
+// las raíces N semitonos); `flats` define la ortografía de la salida según la
+// armadura relativa de cada tono menor.
+export const KEY_OPTIONS_MINOR: { value: string; pitch: number; flats: boolean }[] = [
+  { value: "Am",  pitch: 9,  flats: false },
+  { value: "Bbm", pitch: 10, flats: true  },
+  { value: "Bm",  pitch: 11, flats: false },
+  { value: "Cm",  pitch: 0,  flats: true  },
+  { value: "C#m", pitch: 1,  flats: false },
+  { value: "Dm",  pitch: 2,  flats: true  },
+  { value: "D#m", pitch: 3,  flats: false },
+  { value: "Em",  pitch: 4,  flats: false },
+  { value: "Fm",  pitch: 5,  flats: true  },
+  { value: "F#m", pitch: 6,  flats: false },
+  { value: "Gm",  pitch: 7,  flats: true  },
+  { value: "G#m", pitch: 8,  flats: false },
+];
+
+// Todas las opciones (mayores + menores) para buscar ortografía/altura.
+export const ALL_KEY_OPTIONS = [...KEY_OPTIONS, ...KEY_OPTIONS_MINOR];
+
 export const KEY_VALUES = KEY_OPTIONS.map((k) => k.value);
 
 /** Extrae la clase de altura (0–11) de un nombre de tono o tonalidad. */
@@ -53,10 +74,10 @@ export function keyToPitch(key: string | null | undefined): number | null {
   return pitch === undefined ? null : pitch;
 }
 
-/** ¿El tono destino prefiere bemoles? (Eb, F, Ab, Bb...) */
+/** ¿El tono destino prefiere bemoles? (Eb, F, Ab, Bb, Dm, Cm...) */
 export function prefersFlats(targetKey: string | null | undefined): boolean {
   if (!targetKey) return false;
-  const opt = KEY_OPTIONS.find((k) => k.value === targetKey);
+  const opt = ALL_KEY_OPTIONS.find((k) => k.value === targetKey);
   if (opt) return opt.flats;
   return /b/.test(targetKey); // tono libre con bemol
 }

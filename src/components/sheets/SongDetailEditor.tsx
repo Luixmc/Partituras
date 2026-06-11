@@ -9,6 +9,7 @@ import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import SongKeyVersions from "@/components/sheets/SongKeyVersions";
+import { autoGrow } from "@/components/ui/AutoTextarea";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetKey, SheetStatus } from "@/types";
@@ -190,6 +191,11 @@ export default function SongDetailEditor({
     const ta = textareaRef.current;
     if (ta) selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
   };
+
+  // El textarea de contenido crece a lo alto según el texto (sin scroll interno).
+  useEffect(() => {
+    autoGrow(textareaRef.current);
+  }, [content, mode]);
 
   // Tras actualizar el contenido, restauramos el foco y el cursor.
   useEffect(() => {
@@ -593,6 +599,7 @@ export default function SongDetailEditor({
               value={content}
               onChange={(e) => {
                 setContent(e.target.value);
+                autoGrow(e.currentTarget);
                 rememberSelection();
               }}
               onSelect={rememberSelection}
@@ -601,6 +608,7 @@ export default function SongDetailEditor({
               onFocus={rememberSelection}
               rows={7}
               spellCheck={false}
+              style={{ overflow: "hidden", resize: "none" }}
               className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               placeholder="Escribe notas y secciones. Usa los botones o escribe directo. Ejemplo: <Intro>\nC Am F G"
             />

@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import { Music4, Plus, Save, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import AutoTextarea from "@/components/ui/AutoTextarea";
 import { parseSections } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/client";
 import {
   KEY_OPTIONS,
+  KEY_OPTIONS_MINOR,
   semitonesBetween,
   prefersFlats,
   transposeContent,
@@ -210,7 +212,7 @@ export default function SongKeyVersions({
                   )}
 
                   {canEdit ? (
-                    <textarea
+                    <AutoTextarea
                       value={v.content ?? ""}
                       onChange={(e) => patchLocal(v.id, { content: e.target.value })}
                       rows={5}
@@ -272,12 +274,22 @@ export default function SongKeyVersions({
               className="mt-1 block w-28 rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             >
               <option value="">Elegir...</option>
-              {KEY_OPTIONS.map((k) => (
-                <option key={k.value} value={k.value} disabled={usedKeys.has(k.value)}>
-                  {k.value}
-                  {usedKeys.has(k.value) ? " ✓" : ""}
-                </option>
-              ))}
+              <optgroup label="Mayores">
+                {KEY_OPTIONS.map((k) => (
+                  <option key={k.value} value={k.value} disabled={usedKeys.has(k.value)}>
+                    {k.value}
+                    {usedKeys.has(k.value) ? " ✓" : ""}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Menores">
+                {KEY_OPTIONS_MINOR.map((k) => (
+                  <option key={k.value} value={k.value} disabled={usedKeys.has(k.value)}>
+                    {k.value}
+                    {usedKeys.has(k.value) ? " ✓" : ""}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </label>
           <button
