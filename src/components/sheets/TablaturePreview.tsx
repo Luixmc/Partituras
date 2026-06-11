@@ -32,6 +32,8 @@ type Measure = {
   notes: NoteToken[];
   repeatStart: boolean;
   repeatEnd: boolean;
+  // Salto de línea manual (";"): fuerza una nueva fila en la cuadrícula.
+  isBreak?: boolean;
   // Recuadro (casilla / final 1 ó 2): compases con el mismo boxId van juntos
   // dentro de un recuadro, con boxLabel encima.
   boxId?: number;
@@ -60,7 +62,8 @@ function parseMeasures(value: string): Measure[] {
     .replace(/:\|/g, " §RE§ ")
     .replace(/\|/g, " §BAR§ ")
     .replace(/\{/g, " { ")
-    .replace(/\}(\d*)/g, " }$1 ");
+    .replace(/\}(\d*)/g, " }$1 ")
+    .replace(/;/g, " ; "); // salto de línea: siempre token suelto
 
   const parts = spaced
     .split(/\s+/)
@@ -112,6 +115,13 @@ function parseMeasures(value: string): Measure[] {
     }
     if (part === "§BAR§") {
       flush();
+      continue;
+    }
+
+    // Salto de línea manual: ";" (suelto) fuerza una nueva fila.
+    if (part === ";") {
+      flush();
+      measures.push({ notes: [], repeatStart: false, repeatEnd: false, isBreak: true });
       continue;
     }
 
@@ -499,7 +509,13 @@ export default function TablaturePreview({
             segments.map((seg, si) => {
               // Compás suelto (sin recuadro): item flexible directo.
               if (seg.boxId == null) {
-                return <MeasureBlock key={si} measure={seg.items[0]} />;
+                const m = seg.items[0];
+                // Salto de línea manual (";"): item de ancho completo y alto 0
+                // que obliga a los compases siguientes a bajar a otra fila.
+                if (m.isBreak) {
+                  return <div key={si} aria-hidden style={{ flexBasis: "100%", flexShrink: 0, height: 0 }} />;
+                }
+                return <MeasureBlock key={si} measure={m} />;
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
