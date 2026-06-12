@@ -10,6 +10,7 @@ import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import SongKeyVersions from "@/components/sheets/SongKeyVersions";
 import { autoGrow } from "@/components/ui/AutoTextarea";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Sheet, SheetKey, SheetStatus } from "@/types";
@@ -59,6 +60,10 @@ export default function SongDetailEditor({
 }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+
+  // Con zoom ≤ 90% mostramos 2 secciones por fila y aprovechamos la hoja ancha.
+  const { fontScale } = useTheme();
+  const twoCols = fontScale <= 0.9;
 
   const startCategoryIds =
     initialCategoryIds && initialCategoryIds.length
@@ -383,8 +388,8 @@ export default function SongDetailEditor({
 
       {/* ── MODO VISTA ── */}
       {mode === "view" ? (
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
-          <article className="mx-auto min-h-[72vh] w-full max-w-[900px] px-8 py-12 shadow-sm ring-1 md:px-12 bg-white ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-8">
+          <article className="mx-auto min-h-[72vh] w-full max-w-none px-8 py-12 shadow-sm ring-1 md:px-12 bg-white ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
             <header className="mb-8 border-b pb-5 border-slate-200 dark:border-slate-700">
               <h1 className="font-display text-3xl font-bold text-slate-950 dark:text-slate-50">
                 {title}
@@ -433,7 +438,13 @@ export default function SongDetailEditor({
             </header>
 
             {viewContent.trim() ? (
-              <div className="space-y-8">
+              <div
+                className={
+                  twoCols
+                    ? "grid grid-cols-2 items-start gap-x-6 gap-y-8"
+                    : "space-y-8"
+                }
+              >
                 {parseSections(viewContent).map((section, idx) => (
                   <TablaturePreview
                     key={idx}
