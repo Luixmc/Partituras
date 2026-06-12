@@ -33,6 +33,11 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   // Referencias para medir el espacio disponible vs. el contenido y auto-ajustar.
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  // Espejo del tamaño actual para el lazo de auto-ajuste (sin re-disparar efecto).
+  const scaleRef = useRef(fontScale);
+  useEffect(() => {
+    scaleRef.current = fontScale;
+  }, [fontScale]);
   // Tamaño de ventana: re-dispara el auto-ajuste al rotar/redimensionar.
   const [viewport, setViewport] = useState({ w: 0, h: 0 });
 
@@ -107,28 +112,40 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     };
   }, []);
 
-  // Auto-ajuste: escala la letra para que la canción ocupe toda la pantalla
-  // disponible sin necesidad de hacer scroll. Converge en pocos repintados
-  // (el ajuste de fuente cambia el reflujo, pero el lazo tiene realimentación
-  // negativa y se detiene al acercarse al objetivo).
+  // Auto-ajuste: escala la letra para que la canción ocupe toda la pantalla sin
+  // scroll. La iteración se hace con requestAnimationFrame y un TOPE de pasos —
+  // NO depende de `fontScale` (evita el bucle de re-render / React #185), y se
+  // detiene al converger o tras unos pocos cuadros (el reflujo al envolver hace
+  // que el ajuste no sea monótono, así que el tope garantiza terminar).
   useLayoutEffect(() => {
     if (!autoFit) return;
-    const main = mainRef.current;
-    const content = contentRef.current;
-    if (!main || !content) return;
+    let raf = 0;
+    let steps = 0;
+    const step = () => {
+      const main = mainRef.current;
+      const content = contentRef.current;
+      if (!main || !content) return;
 
-    const cs = getComputedStyle(main);
-    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    const availH = main.clientHeight - padY;
-    const contentH = content.scrollHeight;
-    if (availH <= 0 || contentH <= 0) return;
+      const cs = getComputedStyle(main);
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const availH = main.clientHeight - padY;
+      const contentH = content.scrollHeight;
+      if (availH <= 0 || contentH <= 0) return;
 
-    const ratio = (availH / contentH) * 0.985; // pequeño margen para no rozar
-    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(fontScale * ratio).toFixed(3)));
+      const prev = scaleRef.current;
+      const ratio = (availH / contentH) * 0.985; // pequeño margen para no rozar
+      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(prev * ratio).toFixed(3)));
 
-    // Solo reajusta si la diferencia es apreciable (evita bucles infinitos).
-    if (Math.abs(next - fontScale) > 0.01) setFontScale(next);
-  }, [autoFit, fontScale, index, viewport, liveOffset]);
+      if (Math.abs(next - prev) > 0.015 && steps < 10) {
+        steps += 1;
+        scaleRef.current = next;
+        setFontScale(next);
+        raf = requestAnimationFrame(step); // mide de nuevo tras repintar
+      }
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [autoFit, index, viewport, liveOffset]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
