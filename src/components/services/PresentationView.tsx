@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Columns2, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Columns3, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,11 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   const [fontScale, setFontScale] = useState(1);
   const [autoFit, setAutoFit] = useState(true);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
-  const [columns, setColumns] = useState<1 | 2>(2); // 1 ó 2 columnas (en ≥md)
+  const [columns, setColumns] = useState<1 | 2 | 3>(2); // 1, 2 ó 3 columnas
+  // Auto-ocultar la cabecera/tono/navegación en pantalla completa (reaparecen
+  // al mover el ratón o tocar) para ganar espacio.
+  const [chromeVisible, setChromeVisible] = useState(true);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pantalla completa real (Fullscreen API) sobre el contenedor de la
   // presentación: al pedir fullscreen sobre la raíz de este componente, el
@@ -82,20 +86,39 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     }
   }, []);
 
+  // Muestra los controles y programa su auto-ocultado (solo en pantalla
+  // completa). Se llama al mover el ratón, tocar o pulsar una tecla.
+  const pokeChrome = useCallback(() => {
+    setChromeVisible(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    const doc = document as any;
+    if (document.fullscreenElement || doc.webkitFullscreenElement) {
+      hideTimer.current = setTimeout(() => setChromeVisible(false), 2500);
+    }
+  }, []);
+
   // Mantener el estado sincronizado con el navegador (ESC, gestos, etc.).
   useEffect(() => {
     const onChange = () => {
       const doc = document as any;
-      setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+      const fs = Boolean(document.fullscreenElement || doc.webkitFullscreenElement);
+      setIsFullscreen(fs);
       setAutoFit(true); // re-ajusta los acordes al nuevo espacio disponible
+      if (fs) {
+        pokeChrome(); // muestra los controles un momento y luego los oculta
+      } else {
+        if (hideTimer.current) clearTimeout(hideTimer.current);
+        setChromeVisible(true);
+      }
     };
     document.addEventListener("fullscreenchange", onChange);
     document.addEventListener("webkitfullscreenchange", onChange);
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
       document.removeEventListener("webkitfullscreenchange", onChange);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
     };
-  }, []);
+  }, [pokeChrome]);
 
   // Ajuste manual del tamaño (desactiva el auto-ajuste para esta canción).
   const bumpScale = useCallback((delta: number) => {
@@ -106,13 +129,14 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   // Navegación con teclado (flechas / espacio).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      pokeChrome();
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
       else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, toggleFullscreen]);
+  }, [go, toggleFullscreen, pokeChrome]);
 
   // Mantener la pantalla encendida durante el servicio (best-effort).
   useEffect(() => {
@@ -133,7 +157,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
 
   // Swipe en móvil/tablet.
   const touchX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => { touchX.current = e.touches[0].clientX; };
+  const onTouchStart = (e: React.TouchEvent) => { pokeChrome(); touchX.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchX.current;
@@ -222,11 +246,18 @@ export default function PresentationView({ title, songs, backHref }: Props) {
       className="relative flex min-h-dvh flex-col bg-white dark:bg-slate-950"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onMouseMove={pokeChrome}
     >
       {/* Cabecera + sub-barra. En pantalla completa flotan (absolute) sobre el
-          contenido y se vuelven translúcidas, para que los acordes usen toda la
-          altura de la pantalla. */}
-      <div className={cn(isFullscreen && "absolute inset-x-0 top-0 z-30")}>
+          contenido y se auto-ocultan tras unos segundos (reaparecen al mover el
+          ratón o tocar), para que los acordes usen toda la pantalla. */}
+      <div
+        className={cn(
+          "transition-opacity duration-300",
+          isFullscreen && "absolute inset-x-0 top-0 z-30",
+          isFullscreen && !chromeVisible && "pointer-events-none opacity-0"
+        )}
+      >
       {/* Barra superior */}
       <header className={cn(
         "sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 px-3 py-2 backdrop-blur dark:border-slate-800",
@@ -328,15 +359,15 @@ export default function PresentationView({ title, songs, backHref }: Props) {
           <Maximize2 className="h-4 w-4" />
         </button>
 
-        {/* Alternar 1 / 2 columnas (2 columnas solo en pantallas ≥ md). */}
+        {/* Alternar columnas: 1 → 2 → 3 → 1. */}
         <button
           type="button"
-          onClick={() => { setColumns((c) => (c === 2 ? 1 : 2)); setAutoFit(true); }}
-          title={columns === 2 ? "Ver en una columna" : "Ver en dos columnas"}
-          aria-label={columns === 2 ? "Ver en una columna" : "Ver en dos columnas"}
-          className="hidden h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 md:flex"
+          onClick={() => { setColumns((c) => (c === 3 ? 1 : ((c + 1) as 1 | 2 | 3))); setAutoFit(true); }}
+          title={`Columnas: ${columns} (cambiar)`}
+          aria-label={`Columnas: ${columns}. Pulsa para cambiar`}
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
         >
-          {columns === 2 ? <Square className="h-4 w-4" /> : <Columns2 className="h-4 w-4" />}
+          {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
         </button>
       </div>
       </div>
@@ -356,14 +387,18 @@ export default function PresentationView({ title, songs, backHref }: Props) {
             </p>
           )}
           {sections.length > 0 ? (
-            // 2 columnas = grid (se llena por FILAS: Intro | A, luego B | C…).
-            // 1 columna = pila vertical. En pantalla completa se compactan los huecos.
+            // Multi-columna = CSS grid: se llena por FILAS, de IZQUIERDA a DERECHA
+            // y luego baja (A, B, C…). 1 columna = pila vertical.
             <div
               className={cn(
                 "mx-auto",
-                columns === 2
-                  ? cn("grid max-w-6xl grid-cols-1 items-start gap-x-8 md:grid-cols-2", isFullscreen ? "gap-y-1.5" : "gap-y-4")
-                  : cn("flex max-w-5xl flex-col", isFullscreen ? "gap-1.5" : "gap-4")
+                columns === 1
+                  ? cn("flex max-w-5xl flex-col", isFullscreen ? "gap-1.5" : "gap-4")
+                  : cn(
+                      "grid items-start gap-x-6",
+                      columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
+                      isFullscreen ? "gap-y-1.5" : "gap-y-4"
+                    )
               )}
             >
               {sections.map((sec, i) => (
@@ -372,7 +407,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
                   notes={sec.content}
                   label={sec.title}
                   fontScale={fontScale}
-                  dense={isFullscreen}
+                  dense
                 />
               ))}
             </div>
@@ -382,13 +417,14 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         </div>
       </main>
 
-      {/* Navegación inferior. En pantalla completa flota (absolute) sobre el
-          contenido y se vuelve translúcida para no robar altura a los acordes. */}
+      {/* Navegación inferior. En pantalla completa flota (absolute) y se
+          auto-oculta para no robar altura a los acordes. */}
       <footer className={cn(
-        "flex items-center gap-3 border-t border-slate-200 px-3 py-2.5 dark:border-slate-800",
+        "flex items-center gap-3 border-t border-slate-200 px-3 py-2.5 transition-opacity duration-300 dark:border-slate-800",
         isFullscreen
           ? "absolute inset-x-0 bottom-0 z-30 bg-white/70 backdrop-blur dark:bg-slate-950/70"
-          : "sticky bottom-0 bg-white dark:bg-slate-950"
+          : "sticky bottom-0 bg-white dark:bg-slate-950",
+        isFullscreen && !chromeVisible && "pointer-events-none opacity-0"
       )}>
         <button
           type="button"

@@ -220,7 +220,7 @@ function formatSuffix(suffix: string): string {
   return suffix.replace(/maj7/gi, "Δ");
 }
 
-function NoteCell({ token, beamed = false }: { token: NoteToken; beamed?: boolean }) {
+function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; beamed?: boolean; dense?: boolean }) {
   // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
   const noteColor = "text-slate-950 dark:text-slate-50";
 
@@ -290,7 +290,7 @@ function NoteCell({ token, beamed = false }: { token: NoteToken; beamed?: boolea
       // grupo de acordes y un gap los separa. El padding vertical centra y deja
       // sitio arriba para el calderón/figura. La letra (paréntesis) va debajo.
       className="relative flex flex-col items-center justify-center text-center"
-      style={{ minWidth: "1.3em", padding: "0.95em 0.15em" }}
+      style={{ minWidth: dense ? "1em" : "1.3em", padding: dense ? "0.6em 0.08em" : "0.95em 0.15em" }}
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
@@ -368,14 +368,14 @@ function beamSegments(chords: NoteToken[]): ChordSeg[] {
 
 // Grupo de notas unidas por viga: dibuja las plicas (sin corchete) y la barra
 // horizontal que las conecta por arriba (doble barra para semicorcheas).
-function BeamGroup({ tokens, beats }: { tokens: NoteToken[]; beats: number }) {
+function BeamGroup({ tokens, beats, dense = false }: { tokens: NoteToken[]; beats: number; dense?: boolean }) {
   const n = tokens.length;
   const inset = `${50 / n}%`; // aproxima el centro del primer/último acorde
   const doubleBeam = beats <= 0.25;
   return (
-    <div className="relative flex items-stretch gap-[0.5em]">
+    <div className={cn("relative flex items-stretch", dense ? "gap-[0.3em]" : "gap-[0.5em]")}>
       {tokens.map((t, i) => (
-        <NoteCell key={i} token={t} beamed />
+        <NoteCell key={i} token={t} beamed dense={dense} />
       ))}
       <span
         aria-hidden
@@ -396,9 +396,11 @@ function BeamGroup({ tokens, beats }: { tokens: NoteToken[]; beats: number }) {
 function MeasureBlock({
   measure,
   noBar = false,
+  dense = false,
 }: {
   measure: Measure;
   noBar?: boolean;
+  dense?: boolean;
 }) {
   const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
   // El compás (timeSig) se muestra a la IZQUIERDA; los acordes se centran aparte.
@@ -414,30 +416,32 @@ function MeasureBlock({
       className={cn("flex items-stretch", !noBar && "border-r border-slate-300 dark:border-slate-600")}
       style={{
         flexGrow: totalBeats,
-        // De base, el ancho según nº de acordes; crece para llenar la fila.
-        flexBasis: `${Math.max(measure.notes.length, 1) * 3}em`,
+        // De base, el ancho según nº de acordes; crece para llenar la fila. En
+        // modo compacto los compases son más estrechos (acordes más juntos).
+        flexBasis: `${Math.max(measure.notes.length, 1) * (dense ? 1.7 : 3)}em`,
       }}
     >
       {measure.repeatStart && <RepeatGlyph side="start" />}
       {/* Indicación de compás pegada a la izquierda. */}
       {timeSigs.map((token, ti) => (
-        <NoteCell key={`ts-${ti}`} token={token} />
+        <NoteCell key={`ts-${ti}`} token={token} dense={dense} />
       ))}
       {/* Los acordes se agrupan y CENTRAN dentro del compás, con espacio entre
           ellos. Las corcheas/semicorcheas consecutivas se unen con viga. Con
           etiquetas <...>, las celdas pueden envolver a otra línea. */}
       <div
         className={cn(
-          "flex flex-1 items-stretch justify-center gap-[0.5em]",
+          "flex flex-1 items-stretch justify-center",
+          dense ? "gap-[0.3em]" : "gap-[0.5em]",
           hasLabel && "flex-wrap gap-y-1"
         )}
       >
         {chords.length ? (
           beamSegments(chords).map((seg, si) =>
             seg.type === "single" ? (
-              <NoteCell key={si} token={seg.token} />
+              <NoteCell key={si} token={seg.token} dense={dense} />
             ) : (
-              <BeamGroup key={si} tokens={seg.tokens} beats={seg.beats} />
+              <BeamGroup key={si} tokens={seg.tokens} beats={seg.beats} dense={dense} />
             )
           )
         ) : (
@@ -503,7 +507,10 @@ export default function TablaturePreview({
         )}
       >
         <div
-          className="flex flex-wrap items-stretch gap-y-3 rounded-lg bg-white dark:bg-slate-900"
+          className={cn(
+            "flex flex-wrap items-stretch rounded-lg bg-white dark:bg-slate-900",
+            dense ? "gap-y-1" : "gap-y-3"
+          )}
           // Base de la fuente: todo el contenido escala con esto.
           style={{ fontSize: `${16 * fontScale}px` }}
         >
@@ -521,7 +528,7 @@ export default function TablaturePreview({
                 if (m.isBreak) {
                   return <div key={si} aria-hidden style={{ flexBasis: "100%", flexShrink: 0, height: 0 }} />;
                 }
-                return <MeasureBlock key={si} measure={m} />;
+                return <MeasureBlock key={si} measure={m} dense={dense} />;
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
@@ -545,7 +552,7 @@ export default function TablaturePreview({
                   </span>
                   <div className="flex flex-1 items-stretch rounded-md border-2 border-slate-500 dark:border-slate-400">
                     {seg.items.map((m, idx) => (
-                      <MeasureBlock key={idx} measure={m} noBar={idx === seg.items.length - 1} />
+                      <MeasureBlock key={idx} measure={m} noBar={idx === seg.items.length - 1} dense={dense} />
                     ))}
                   </div>
                 </div>
