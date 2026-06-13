@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Columns2, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
 import { keyToPitch, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
 import type { PresentSong } from "@/types";
@@ -86,6 +87,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     const onChange = () => {
       const doc = document as any;
       setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+      setAutoFit(true); // re-ajusta los acordes al nuevo espacio disponible
     };
     document.addEventListener("fullscreenchange", onChange);
     document.addEventListener("webkitfullscreenchange", onChange);
@@ -184,7 +186,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, columns]);
+  }, [autoFit, index, viewport, liveOffset, columns, isFullscreen]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
@@ -217,12 +219,19 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   return (
     <div
       ref={rootRef}
-      className="flex min-h-dvh flex-col bg-white dark:bg-slate-950"
+      className="relative flex min-h-dvh flex-col bg-white dark:bg-slate-950"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
+      {/* Cabecera + sub-barra. En pantalla completa flotan (absolute) sobre el
+          contenido y se vuelven translúcidas, para que los acordes usen toda la
+          altura de la pantalla. */}
+      <div className={cn(isFullscreen && "absolute inset-x-0 top-0 z-30")}>
       {/* Barra superior */}
-      <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+      <header className={cn(
+        "sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 px-3 py-2 backdrop-blur dark:border-slate-800",
+        isFullscreen ? "bg-white/70 dark:bg-slate-950/70" : "bg-white/95 dark:bg-slate-950/95"
+      )}>
         <Link
           href={backHref}
           className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
@@ -251,7 +260,10 @@ export default function PresentationView({ title, songs, backHref }: Props) {
       </header>
 
       {/* Sub-barra: tono y transposición manual */}
-      <div className="flex items-center justify-center gap-2 border-b border-slate-100 bg-slate-50 px-3 py-1.5 text-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className={cn(
+        "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
+        isFullscreen ? "bg-slate-50/70 backdrop-blur dark:bg-slate-900/70" : "bg-slate-50 dark:bg-slate-900"
+      )}>
         <span className="text-slate-500 dark:text-slate-400">Tono</span>
         <span className="rounded-md bg-brand-600 px-2 py-0.5 font-bold text-white">
           {keyLabel ?? "—"}
@@ -327,25 +339,41 @@ export default function PresentationView({ title, songs, backHref }: Props) {
           {columns === 2 ? <Square className="h-4 w-4" /> : <Columns2 className="h-4 w-4" />}
         </button>
       </div>
+      </div>
 
       {/* Contenido de la canción */}
-      <main ref={mainRef} className="flex-1 overflow-auto px-3 py-3 md:px-8">
+      <main
+        ref={mainRef}
+        className={cn(
+          "flex-1 overflow-auto px-3 md:px-8",
+          isFullscreen ? "py-1" : "py-3"
+        )}
+      >
         <div ref={contentRef}>
           {song.composer && (
-            <p className="mb-3 text-center text-sm text-slate-400">{song.composer}</p>
+            <p className={cn("text-center text-sm text-slate-400", isFullscreen ? "mb-1" : "mb-3")}>
+              {song.composer}
+            </p>
           )}
           {sections.length > 0 ? (
+            // 2 columnas = grid (se llena por FILAS: Intro | A, luego B | C…).
+            // 1 columna = pila vertical. En pantalla completa se compactan los huecos.
             <div
-              className={
+              className={cn(
+                "mx-auto",
                 columns === 2
-                  ? "mx-auto max-w-6xl gap-x-8 [column-fill:balance] md:columns-2"
-                  : "mx-auto max-w-5xl"
-              }
+                  ? cn("grid max-w-6xl grid-cols-1 items-start gap-x-8 md:grid-cols-2", isFullscreen ? "gap-y-1.5" : "gap-y-4")
+                  : cn("flex max-w-5xl flex-col", isFullscreen ? "gap-1.5" : "gap-4")
+              )}
             >
               {sections.map((sec, i) => (
-                <div key={i} className="mb-4 break-inside-avoid">
-                  <TablaturePreview notes={sec.content} label={sec.title} fontScale={fontScale} />
-                </div>
+                <TablaturePreview
+                  key={i}
+                  notes={sec.content}
+                  label={sec.title}
+                  fontScale={fontScale}
+                  dense={isFullscreen}
+                />
               ))}
             </div>
           ) : (
@@ -354,8 +382,14 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         </div>
       </main>
 
-      {/* Navegación inferior */}
-      <footer className="sticky bottom-0 flex items-center gap-3 border-t border-slate-200 bg-white px-3 py-2.5 dark:border-slate-800 dark:bg-slate-950">
+      {/* Navegación inferior. En pantalla completa flota (absolute) sobre el
+          contenido y se vuelve translúcida para no robar altura a los acordes. */}
+      <footer className={cn(
+        "flex items-center gap-3 border-t border-slate-200 px-3 py-2.5 dark:border-slate-800",
+        isFullscreen
+          ? "absolute inset-x-0 bottom-0 z-30 bg-white/70 backdrop-blur dark:bg-slate-950/70"
+          : "sticky bottom-0 bg-white dark:bg-slate-950"
+      )}>
         <button
           type="button"
           onClick={() => go(-1)}

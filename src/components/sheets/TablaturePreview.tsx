@@ -11,6 +11,8 @@ type Props = {
   label?: string;
   /** Escala de la letra (1 = normal). */
   fontScale?: number;
+  /** Compacta los márgenes (título de sección y contenido) para ganar espacio. */
+  dense?: boolean;
 };
 
 type NoteToken = {
@@ -469,6 +471,7 @@ export default function TablaturePreview({
   compact = false,
   label,
   fontScale = 1,
+  dense = false,
 }: Props) {
   const measures = parseMeasures(notes);
   const segments = groupSegments(measures);
@@ -481,7 +484,10 @@ export default function TablaturePreview({
       )}
     >
       {(label || !compact) && (
-        <div className="flex items-center justify-between border-b px-4 py-2 border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60">
+        <div className={cn(
+          "flex items-center justify-between border-b border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60",
+          dense ? "px-3 py-0.5" : "px-4 py-2"
+        )}>
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
             <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
             {label || "Notas"}
@@ -492,7 +498,7 @@ export default function TablaturePreview({
       <div
         className={cn(
           "w-full",
-          compact ? "p-0" : "p-4",
+          compact ? "p-0" : dense ? "p-1.5" : "p-4",
           compact ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-900"
         )}
       >
