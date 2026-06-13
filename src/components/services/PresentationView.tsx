@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Maximize2, Minus, Plus, RotateCcw, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { parseSections } from "@/lib/sections";
@@ -29,6 +29,13 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   const [fontScale, setFontScale] = useState(1);
   const [autoFit, setAutoFit] = useState(true);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
+
+  // Pantalla completa real (Fullscreen API) sobre el contenedor de la
+  // presentación: al pedir fullscreen sobre la raíz de este componente, el
+  // navegador muestra SOLO la presentación y deja la navbar/sidebar del layout
+  // fuera por completo.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Referencias para medir el espacio disponible vs. el contenido y auto-ajustar.
   const mainRef = useRef<HTMLElement>(null);
@@ -57,6 +64,36 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     [total]
   );
 
+  // Entrar/salir de pantalla completa (con prefijos para Safari/iOS antiguos).
+  const toggleFullscreen = useCallback(() => {
+    const el = rootRef.current as any;
+    const doc = document as any;
+    const fsElement =
+      document.fullscreenElement || doc.webkitFullscreenElement || null;
+    if (!fsElement) {
+      const req =
+        el?.requestFullscreen || el?.webkitRequestFullscreen || el?.webkitEnterFullscreen;
+      req?.call(el);
+    } else {
+      const exit = document.exitFullscreen || doc.webkitExitFullscreen;
+      exit?.call(document);
+    }
+  }, []);
+
+  // Mantener el estado sincronizado con el navegador (ESC, gestos, etc.).
+  useEffect(() => {
+    const onChange = () => {
+      const doc = document as any;
+      setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
+
   // Ajuste manual del tamaño (desactiva el auto-ajuste para esta canción).
   const bumpScale = useCallback((delta: number) => {
     setAutoFit(false);
@@ -68,10 +105,11 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+      else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, toggleFullscreen]);
 
   // Mantener la pantalla encendida durante el servicio (best-effort).
   useEffect(() => {
@@ -177,6 +215,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
 
   return (
     <div
+      ref={rootRef}
       className="flex min-h-dvh flex-col bg-white dark:bg-slate-950"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -198,8 +237,16 @@ export default function PresentationView({ title, songs, backHref }: Props) {
           </p>
         </div>
 
-        {/* Botón de salida a la derecha para equilibrar la barra (ancho fijo). */}
-        <span className="h-9 w-9 flex-shrink-0" aria-hidden />
+        {/* Pantalla completa real: oculta por completo la navbar del layout. */}
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+          aria-label={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+          title={isFullscreen ? "Salir de pantalla completa (F)" : "Pantalla completa (F)"}
+        >
+          {isFullscreen ? <Shrink className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
+        </button>
       </header>
 
       {/* Sub-barra: tono y transposición manual */}
