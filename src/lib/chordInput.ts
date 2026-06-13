@@ -13,9 +13,10 @@ export const MODIFIERS = new Set([
   "^", // calderón: se pega al acorde anterior (E^)
 ]);
 
-// Las secciones (<...> o [...]) empiezan en su propia línea.
+// Solo las secciones "[...]" empiezan en su propia línea. Las notas de texto
+// "<...>" se comportan como un acorde: fluyen inline dentro de la cuadrícula.
 function startsNewLine(text: string) {
-  return text.startsWith("<") || text.startsWith("[");
+  return text.startsWith("[");
 }
 
 /** Añade un token al final del contenido respetando los espacios de la notación. */
