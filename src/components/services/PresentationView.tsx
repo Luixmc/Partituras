@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { parseSections } from "@/lib/sections";
@@ -29,6 +29,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   const [fontScale, setFontScale] = useState(1);
   const [autoFit, setAutoFit] = useState(true);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
+  const [columns, setColumns] = useState<1 | 2>(2); // 1 ó 2 columnas (en ≥md)
 
   // Pantalla completa real (Fullscreen API) sobre el contenedor de la
   // presentación: al pedir fullscreen sobre la raíz de este componente, el
@@ -183,7 +184,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset]);
+  }, [autoFit, index, viewport, liveOffset, columns]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
@@ -314,6 +315,17 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         >
           <Maximize2 className="h-4 w-4" />
         </button>
+
+        {/* Alternar 1 / 2 columnas (2 columnas solo en pantallas ≥ md). */}
+        <button
+          type="button"
+          onClick={() => { setColumns((c) => (c === 2 ? 1 : 2)); setAutoFit(true); }}
+          title={columns === 2 ? "Ver en una columna" : "Ver en dos columnas"}
+          aria-label={columns === 2 ? "Ver en una columna" : "Ver en dos columnas"}
+          className="hidden h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 md:flex"
+        >
+          {columns === 2 ? <Square className="h-4 w-4" /> : <Columns2 className="h-4 w-4" />}
+        </button>
       </div>
 
       {/* Contenido de la canción */}
@@ -323,9 +335,17 @@ export default function PresentationView({ title, songs, backHref }: Props) {
             <p className="mb-3 text-center text-sm text-slate-400">{song.composer}</p>
           )}
           {sections.length > 0 ? (
-            <div className="mx-auto max-w-5xl space-y-4">
+            <div
+              className={
+                columns === 2
+                  ? "mx-auto max-w-6xl gap-x-8 [column-fill:balance] md:columns-2"
+                  : "mx-auto max-w-5xl"
+              }
+            >
               {sections.map((sec, i) => (
-                <TablaturePreview key={i} notes={sec.content} label={sec.title} fontScale={fontScale} />
+                <div key={i} className="mb-4 break-inside-avoid">
+                  <TablaturePreview notes={sec.content} label={sec.title} fontScale={fontScale} />
+                </div>
               ))}
             </div>
           ) : (

@@ -27,6 +27,9 @@ const RESTS: { token: string; beats: number; label: string }[] = [
 ];
 // Secciones de la estructura: "[...]". ("<...>" es texto centrado de la canción.)
 const SECTIONS = ["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"];
+// Notas amarillas "<...>": etiquetas que se dibujan como una celda de acorde en
+// amarillo, fluyendo con los acordes (partes A–G y secciones).
+const LABELS = ["A", "B", "C", "D", "E", "F", "G", "Coro", "Intro", "Puente"];
 
 export default function ChordToolbar({ onInsert, onDelete }: Props) {
   return (
@@ -185,6 +188,22 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
         >
           ↵ Nueva línea
         </button>
+      </div>
+
+      {/* Notas de texto amarillas "<...>": se insertan como celda amarilla. */}
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-100 pb-2 dark:border-slate-700">
+        <span className="mr-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Nota:</span>
+        {LABELS.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => onInsert(`<${l}>`)}
+            className="h-7 min-w-[28px] rounded border border-yellow-300 bg-yellow-50 px-1.5 text-[11px] font-bold text-yellow-700 transition-colors hover:bg-yellow-100 dark:border-yellow-700/60 dark:bg-yellow-950/40 dark:text-yellow-300"
+            title={`Insertar nota de texto <${l}>`}
+          >
+            {l}
+          </button>
+        ))}
       </div>
 
       {/* Fila 4: recuadros / casillas (final 1 y 2) */}
