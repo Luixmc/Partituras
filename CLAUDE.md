@@ -352,6 +352,32 @@ cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
 
+**T-08 · Un servidor de desarrollo viejo se queda con el puerto y el nuevo se va a otro, callado.**
+*Síntoma:* la página devuelve **HTTP 500** en `localhost:3000` justo después de un cambio, y
+parece que el cambio la rompió.
+*Causa:* el servidor anterior seguía vivo. Next ve el puerto ocupado, avisa **en su propio
+registro** —`Port 3000 is in use, trying 3001 instead`— y arranca en el **3001**. Como en el 3000
+sigue el viejo, lo que se está mirando es **la versión de antes**, a veces con la carpeta de
+compilación a medias.
+*Cómo se resuelve:* **matar todos los procesos de Node antes de arrancar**, y **comprobar en qué
+puerto quedó** leyendo la línea `Local:` del registro. Si además se compiló por el medio, borrar
+`.next` (T-04).
+*Pasó dos veces el 2026-08-20.*
+
+**T-07 · Borrar una columna que el código PUBLICADO todavía usa rompe la página al instante.**
+*Síntoma:* el catálogo en producción se quedó **vacío** —«Sin resultados», 0 canciones—, sin
+ningún error visible. La página respondía 200.
+*Causa:* se ejecutó la migración que borra `hymn_number` **antes** de publicar el código que
+había dejado de pedirla. Producción seguía con el código anterior, que la incluía en el `select`,
+así que la consulta fallaba entera y devolvía cero filas. **La base estaba bien; el que no
+encajaba era el código que había arriba.**
+*Cómo se resolvió:* publicar de inmediato el código nuevo. **Duró unos 3 minutos.** No se perdió
+ningún dato.
+*Cómo se evita, y es una regla de orden:* **primero se publica el código que deja de usar la
+columna, y DESPUÉS se borra de la base.** Nunca al revés. Añadir es seguro en cualquier orden;
+**quitar solo es seguro cuando ya nadie lo pide** (L-103).
+*Pasó el 2026-08-20.*
+
 **T-06 · Una canción en tono menor mostraba mal su tonalidad en la presentación.**
 *Síntoma:* en pantalla completa, una canción en **`Bm`** salía como **`B`** en la barra de
 arriba, junto a los botones de subir y bajar tono. Pasaba en el culto y en el catálogo.
@@ -683,7 +709,7 @@ coherente: las mismas teclas hacen lo mismo en las dos pantallas.
 → ⚠️ Mismo cuidado que O-20: en un campo de escritura, `+` y `−` tienen que escribir su
 carácter, no cambiar el tamaño.
 
-#### La idea de avisar por WhatsApp (O-22) — `[PROPUESTA, sin decidir]`
+#### O-22 · Avisar por WhatsApp — ✅ **ELEGIDA LA OPCIÓN (a) e IMPLEMENTADA**
 
 Isaac trasladó el 2026-08-20 una idea que le había mandado a su primo:
 
@@ -709,13 +735,61 @@ músicos —datos personales— y que cada uno acepte recibirlos. Y el aviso sal
 se guarde** el culto, así que habría que decidir qué pasa si se guarda cinco veces seguidas
 mientras se arma el repertorio.
 
-→ 💡 **RECOMENDACIÓN: la (a).** Resuelve lo que él quiere —que los músicos se enteren de que el
+✅ **DECISIÓN DE ISAAC (2026-08-20): la (a), el botón.** Y su motivo es el que la hace mejor,
+no solo más barata: *«para cerciorarme que lo estoy enviando bien al grupo que es»*. Con un envío
+automático **no vería a dónde va**; con el botón, WhatsApp le enseña el destinatario antes de
+enviar. → **Hecho:** botón **«Avisar»** junto a «Copiar», en el bloque del enlace público del
+culto. Solo aparece si el enlace público está activado, que es lo único que hace falta para que
+el mensaje sirva de algo.
+
+→ 💡 **La recomendación era la (a).** Resuelve lo que él quiere —que los músicos se enteren de que el
 repertorio está— sin cuentas, sin permisos y sin gastar un peso. Si un día se queda corta, la
 (b) sigue estando ahí.
 → ❓ **PREGUNTAR:** ¿le vale con pulsar un botón, o quiere de verdad que salga solo?
 → Alternativas más baratas que la (b) si lo quiere automático: **Telegram** (API gratis y
 sencilla) o los **avisos del propio navegador** — la app ya es instalable, así que podría avisar
 sin depender de nadie.
+
+#### Las 2 nuevas (dictadas el 2026-08-20, tras probar el botón de WhatsApp)
+
+**O-23 · Que el enlace compartido distinga a quien TIENE cuenta de quien no.**
+Isaac: *«ese link sirve, como se lee al copiarlo, para "compartir el culto con quien no tiene
+cuenta"… no sé si para los que tienen cuenta no solamente les permita llegar por el link, sino
+que le muestre el resto»*.
+→ Hoy `/s/<token>` enseña **la misma página a todo el mundo**: la lista de canciones y ya. Quien
+tiene cuenta llega ahí y **se queda encallado**, aunque podría ver el culto entero y abrir cada
+canción.
+→ **Se puede** porque esa página, aunque sea pública, puede mirar si hay sesión.
+→ ❓ **PREGUNTAR, porque hay dos maneras y cambian bastante:**
+  **(a)** Que al abrir el enlace con sesión **lleve directamente** al culto completo
+  (`/services/<id>`). Más directo, pero se pierde el «me han compartido esto» y, si alguien
+  quería enseñarle la vista pública a otro, no la ve.
+  **(b)** Que se quede en la misma página **pero con más cosas**: un botón «Abrir el culto
+  completo» y las canciones **pinchables** hacia el catálogo. No le quita nada a nadie.
+✅ **RESPUESTA (2026-08-20): la (b)**, y confirmada después de probarla: *«de hecho está mejor de
+lo que pensaba»*. El enlace sigue siendo **el mismo para todos**; quien tiene cuenta ve además un
+botón «Abrir el culto completo» y **las canciones pinchables**. Al invitado no le cambia nada.
+
+**O-25 · Que el invitado también pueda cambiar el tema y el tamaño de letra.** `[del mismo día]`
+Isaac, al probar la (b): *«para el modo invitado quiero que le dejes la opción de modo claro y
+modo oscuro, y así mismo el tamaño»*.
+→ **Por qué falta:** la página compartida vive **fuera** del grupo `(dashboard)`, que es donde se
+monta el sistema de tema. Hereda el tema guardado —el guion del layout raíz lo aplica antes de
+pintar— pero **no tiene los controles para cambiarlo**.
+→ ⚠️ **Solo en la lista, no en la presentación:** el modo presentación **ya tiene su propio
+ajuste de tamaño** (O-06), y meterle otro encima se pisarían.
+
+**O-24 · ~~Que los demás puedan compartir el enlace~~** — ❌ **DESCARTADA POR ISAAC el mismo día.**
+Lo pidió creyendo que los músicos **ya veían** el enlace. Al comprobarlo resultó que **no**: su
+vista de solo lectura nunca lo ha enseñado. Con ese dato cambió de idea en el momento: *«no, pero
+si no les salía déjalo así, pensé que les salía; es mejor así, mejor que a ellos no les aparezca,
+solo al admin»*.
+→ **Queda como está: el enlace público es cosa del administrador y solo él lo ve.** Se llegó a
+implementar y **se deshizo**; en `ShareBox` queda escrito para que nadie lo «arregle» otra vez
+pensando que es un olvido.
+→ 📌 **Lo que enseña:** la petición nacía de una suposición sobre cómo funcionaba la app, no de
+una molestia real. **Comprobar el comportamiento actual antes de programar** convirtió una
+funcionalidad nueva en un descarte de dos minutos.
 
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
@@ -730,7 +804,7 @@ sin depender de nadie.
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
 | **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
-| **E** | 🟡 **CÓDIGO HECHO (2026-08-20), migración SIN EJECUTAR** — O-09 | ⚠️ **Falta lo que toca producción.** El código compila; la migración `20240015` está escrita pero **no se ha ejecutado**: necesita el OK expreso de Isaac (D-04) |
+| **E** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-09 · migración `20240015` aplicada | Commit `21575e2` (r36). Las 9 filas del repertorio intactas y la clave ya es `id` |
 | **F** | O-08 (impresión horizontal, D-10) | Medio. Hay que probarla **en teléfono** además de en PC |
 | **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
 | **H** | ✅ **HECHA (2026-08-20), sin publicar** — O-20 · O-21 | Verificada con datos reales (§7). **Falta que Isaac la mire y dé permiso** |
@@ -933,6 +1007,80 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 24 — El enlace compartido distingue quién lo abre (O-23, O-25)
+
+- ✅ **O-23 (b) hecha y confirmada por Isaac**: *«de hecho está mejor de lo que pensaba»*. El
+  **mismo** enlace enseña ahora dos cosas distintas según quién entre: al invitado, lo de
+  siempre; a quien tiene su cuenta iniciada, además un botón **«Abrir el culto completo»** y las
+  **canciones pinchables**. Comprobado: **0 canciones pinchables sin cuenta, 7 con cuenta**.
+- ✅ **O-25 · El invitado ya puede elegir claro/oscuro y el tamaño de letra.** La página
+  compartida vive fuera del panel, que es donde se monta el tema, así que se monta ahí mismo.
+  **Solo en la lista**: el modo presentación tiene su propio ajuste (O-06) y dos controles sobre
+  el mismo texto se estorban. Comprobado que la presentación **no** lleva el control nuevo.
+
+🔧 **Dos veces seguidas salió HTTP 500 y NO era el código (T-08):** quedaban servidores de
+desarrollo viejos ocupando el puerto 3000, así que el nuevo arrancaba **en el 3001, en silencio**,
+y se estaba midiendo el viejo.
+
+📌 **Y un detector mío que mentía:** para comprobar que la presentación NO llevaba el control
+nuevo se buscaba el texto «Reducir letra»… que **el propio modo presentación ya usaba** en su
+botón. Se distinguió buscando «Modo oscuro/claro», que solo tiene el control de lectura.
+
+### 2026-08-20 · Tanda 23 — O-22 confirmada · O-24 pedida y descartada en el momento
+
+- ✅ **O-22 funciona**: Isaac mandó el aviso y enseñó la captura del mensaje recibido. Se dio
+  cuenta él solo de que el enlace salía con `localhost` **porque lo probó en su equipo**.
+- ❌ **O-24 descartada por él** al ver que partía de una suposición equivocada (ver §9.2).
+  Se implementó y se deshizo en la misma tanda.
+- 🧹 **Queda de ganancia el componente `ShareBox`**: el bloque del enlace público salió de
+  `ServiceEditor` —que pasa de 800 líneas— a su propio archivo. El comportamiento es **el mismo
+  de antes**: solo lo ve el administrador.
+- 📌 **O-23 registrada y a la espera de respuesta**: si quien abre el enlace compartido tiene
+  cuenta, ¿se le lleva directo al culto completo, o se le deja en la misma página con un botón y
+  las canciones pinchables? Recomendada la segunda.
+
+### 2026-08-20 · Tanda 22 — El botón de avisar por WhatsApp (O-22)
+
+- ✅ **O-09 confirmada por Isaac**: *«lo de repetir canciones está bien, lo probé y funciona»*.
+- ✅ **O-22 · Botón «Avisar»** junto a «Copiar», en el bloque del enlace público. Abre WhatsApp
+  con el aviso ya escrito —nombre del culto, fecha y enlace— y **deja que Isaac elija el grupo**.
+  Sin cuenta de empresa, sin plantillas, sin pagar nada.
+- 🔧 Dos tropiezos al escribirlo, los dos cazados al compilar: un `
+` que se convirtió en salto
+  de línea real al pasar por el guion, y el bloque colocado **antes** de la variable que usa.
+
+📌 **Punto ciego nuevo de la verificación:** el botón **no sale en el HTML del servidor**, porque
+la dirección pública se arma en el navegador (`window.location.origin`). **«Copiar», que lleva
+ahí desde antes, tampoco sale.** Así que ninguno de los dos se puede comprobar por línea de
+comandos: **hay que mirarlos en el navegador**. Es el tercer punto ciego distinto que aparece
+—los otros dos eran el panel de administración y la botonera del editor—.
+
+### 2026-08-20 · Tanda 21 — Las dos migraciones aplicadas · y rompí el catálogo 3 minutos
+
+Isaac da el OK. Se hizo en este orden: copia fresca → migraciones → publicar.
+
+**Copia previa** (`_RESPALDOS\Partituras-datos-2026-08-20-16h09`), comprobando antes que
+guardaba lo que se iba a perder: **`hv-018` está a salvo**, y los 6 borradores **no se han tocado
+desde el 2 de julio**, así que la copia de la mañana sigue valiendo para ellos.
+
+- ✅ **Migración `20240015`** (repetir canción en un culto). Comprobado: **9 filas de repertorio
+  intactas**, ninguna sin identificador, y la clave primaria ya es `id`.
+- ✅ **Migración `20240016`** (fuera el número de himno). **Falló al primer intento, y sin borrar
+  nada**: la vista `sheet_catalog` dependía de la columna. La vista **no la usa la app**, pero no
+  se borró —eso no lo había pedido nadie—: se rehízo sin ese campo, **devolviéndole sus
+  permisos**, porque `create or replace view` no deja quitar columnas y hay que borrarla y
+  crearla. Comprobado después: **75 canciones**, «Amado de mi Alma» sigue ahí, la columna ya no
+  existe, la vista devuelve sus 69 filas y conserva sus 14 permisos.
+- ✅ **T-06 · Tono menor** publicado y verificado: «Jericó» muestra **`Am`**, no `A`.
+
+🔴 **UN ERROR MÍO, y de los que enseñan (T-07):** ejecuté la migración que borra la columna
+**antes** de publicar el código que dejaba de pedirla. Durante unos **3 minutos** el catálogo
+salió **vacío** en producción —«Sin resultados»— porque el código que había arriba seguía
+pidiendo un campo que ya no existía. Se arregló publicando de inmediato. **No se perdió ningún
+dato**, pero la página estuvo inservible para cualquiera que entrara.
+→ **La regla que faltaba: primero se publica el código, después se borra de la base.** Añadir es
+seguro en cualquier orden; quitar solo es seguro cuando ya nadie lo pide.
 
 ### 2026-08-20 · Tanda 20 — Tono menor arreglado · dos migraciones esperando OK
 

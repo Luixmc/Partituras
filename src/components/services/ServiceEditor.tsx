@@ -17,6 +17,7 @@ import {
   Share2,
   Trash2,
   X,
+  Send,
 } from "lucide-react";
 
 import {
@@ -27,6 +28,7 @@ import {
   type ServiceInput,
 } from "@/app/(dashboard)/services/actions";
 import ServicePdfButton from "@/components/services/ServicePdfButton";
+import ShareBox from "@/components/services/ShareBox";
 import AutoTextarea from "@/components/ui/AutoTextarea";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
 import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
@@ -114,16 +116,11 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [messageType, setMessageType] = useState<"ok" | "error">("ok");
 
   const [isPublic, setIsPublic] = useState(service?.is_public ?? false);
-  const [sharing, setSharing] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  // URL pública del culto (se construye en el cliente con el origen actual).
-  const [publicUrl, setPublicUrl] = useState("");
-  useEffect(() => {
-    if (service?.public_token) {
-      setPublicUrl(`${window.location.origin}/s/${service.public_token}`);
-    }
-  }, [service?.public_token]);
+  const [sharing, setSharing] = useState(false);
+
+
+
 
   async function toggleShare() {
     if (!service) return;
@@ -135,17 +132,6 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     } else {
       setMessage(res.error ?? "No se pudo cambiar el enlace.");
       setMessageType("error");
-    }
-  }
-
-  async function copyLink() {
-    if (!publicUrl) return;
-    try {
-      await navigator.clipboard.writeText(publicUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* sin portapapeles: el usuario puede copiar manualmente */
     }
   }
 
@@ -411,6 +397,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
             {notes}
           </p>
         )}
+
         <ol className="space-y-2">
           {songs.map((s, i) => (
             <li key={s.uid}>
@@ -725,61 +712,16 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
         </div>
       )}
 
-      {/* Compartir: enlace público de solo lectura */}
-      {!isNew && (
-        <div className="mb-6 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Share2 className="h-4 w-4 text-slate-500" />
-              <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  Enlace público
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Comparte el culto (solo lectura) con quien no tiene cuenta.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={toggleShare}
-              disabled={sharing}
-              role="switch"
-              aria-checked={isPublic}
-              className={
-                "relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 " +
-                (isPublic ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-600")
-              }
-            >
-              <span
-                className={
-                  "inline-block h-4 w-4 transform rounded-full bg-white transition-transform " +
-                  (isPublic ? "translate-x-6" : "translate-x-1")
-                }
-              />
-            </button>
-          </div>
-
-          {isPublic && publicUrl && (
-            <div className="mt-3 flex items-center gap-2">
-              <input
-                readOnly
-                value={publicUrl}
-                onFocus={(e) => e.currentTarget.select()}
-                className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-              />
-              <button
-                type="button"
-                onClick={copyLink}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-              >
-                {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copiado" : "Copiar"}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Compartir: enlace público de solo lectura (O-24) */}
+      <ShareBox
+        publicToken={service?.public_token ?? null}
+        isPublic={isPublic}
+        canEdit={canEdit}
+        serviceName={name}
+        serviceDate={serviceDate || null}
+        onToggle={toggleShare}
+        toggling={sharing}
+      />
 
       {/* Acciones */}
       <div className="flex flex-wrap items-center gap-3">

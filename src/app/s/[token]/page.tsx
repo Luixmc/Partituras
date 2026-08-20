@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
-import { CalendarDays, Music2, Play } from "lucide-react";
+import { CalendarDays, LogIn, Music2, Play } from "lucide-react";
 import Link from "next/link";
 
 import ServicePdfButton from "@/components/services/ServicePdfButton";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import ContentScale from "@/components/theme/ContentScale";
+import ReadingControls from "@/components/theme/ReadingControls";
 import { createClient } from "@/lib/supabase/server";
 import { SERVICE_TYPE_META, formatServiceDate } from "@/lib/services";
 
@@ -16,13 +19,23 @@ export default async function PublicServicePage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "id, name, service_type, service_date, notes, public_token, service_songs(position, key_override, sheet_key:sheet_keys(key_signature), sheet:sheets(title, composer, key_signature))"
+      "id, name, service_type, service_date, notes, public_token, service_songs(sheet_id, position, key_override, sheet_key:sheet_keys(key_signature), sheet:sheets(title, composer, key_signature))"
     )
     .eq("public_token", params.token)
     .eq("is_public", true)
     .single();
 
   if (!service) notFound();
+
+  // Esta página es pública, pero eso no quiere decir que quien la abre sea un
+  // desconocido: puede ser un músico con su cuenta iniciada que ha recibido el
+  // enlace por WhatsApp. A ese no hay por qué dejarlo encallado en la lista
+  // —puede abrir el culto entero y cada canción—, así que se mira si hay sesión
+  // y se le enseña la puerta (O-23). Al que no tiene cuenta no le cambia nada.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const tieneCuenta = Boolean(user);
 
   const meta = SERVICE_TYPE_META[service.service_type] ?? SERVICE_TYPE_META.otro;
   const dateText = formatServiceDate(service.service_date);
@@ -31,13 +44,22 @@ export default async function PublicServicePage({
     .filter((r: any) => r.sheet)
     .sort((a: any, b: any) => a.position - b.position)
     .map((r: any) => ({
+      sheet_id: r.sheet_id,
       title:    r.sheet.title,
       composer: r.sheet.composer ?? null,
       key:      r.sheet_key?.key_signature || r.key_override || r.sheet.key_signature || null,
     }));
 
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950">
+    // El invitado también puede elegir claro/oscuro y el tamaño de letra
+    // (O-25). Esta página vive fuera del panel, que es donde normalmente se
+    // monta el tema, así que se monta aquí.
+    //
+    // Va solo en la LISTA: el modo presentación tiene su propio ajuste de
+    // tamaño (O-06) y dos ajustes encima del mismo texto se estorban.
+    <ThemeProvider>
+      <div className="flex min-h-dvh flex-col bg-slate-50 dark:bg-slate-950">
+        <ContentScale>
       <div className="mx-auto w-full max-w-2xl px-4 py-8">
         <div className="mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -64,6 +86,24 @@ export default async function PublicServicePage({
           )}
         </div>
 
+        {/* Quien llega con su cuenta iniciada puede ir más allá de la lista
+            (O-23). Al que no tiene cuenta no le sale nada de esto. */}
+        {tieneCuenta && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-200 bg-brand-50 p-3 dark:border-brand-900 dark:bg-brand-950/40">
+            <p className="text-sm text-brand-800 dark:text-brand-200">
+              Tienes tu cuenta iniciada, asi que puedes ver el culto completo y abrir
+              cada cancion.
+            </p>
+            <Link
+              href={`/services/${service.id}`}
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+            >
+              <LogIn className="h-4 w-4" />
+              Abrir el culto completo
+            </Link>
+          </div>
+        )}
+
         {songs.length > 0 && (
           <div className="mb-6 flex items-center gap-2">
             <Link
@@ -78,10 +118,21 @@ export default async function PublicServicePage({
         )}
 
         <ol className="space-y-2">
-          {songs.map((s: any, i: number) => (
-            <li
+          {songs.map((s: any, i: number) => {
+            // Con cuenta, cada canción lleva a su página; sin cuenta se queda en
+            // texto, porque el catálogo pediría iniciar sesión (O-23).
+            const Fila: any = tieneCuenta ? Link : "li";
+            const propsFila = tieneCuenta
+              ? { href: `/catalog/${s.sheet_id}` }
+              : {};
+            return (
+            <Fila
               key={i}
-              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
+              {...propsFila}
+              className={
+                "flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900" +
+                (tieneCuenta ? " transition-colors hover:border-brand-400" : "")
+              }
             >
               <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                 {i + 1}
@@ -99,8 +150,9 @@ export default async function PublicServicePage({
                   {s.key}
                 </span>
               )}
-            </li>
-          ))}
+            </Fila>
+            );
+          })}
           {songs.length === 0 && (
             <li className="flex flex-col items-center justify-center py-12 text-center text-sm text-slate-400">
               <Music2 className="mb-2 h-6 w-6 text-slate-300" />
@@ -113,6 +165,13 @@ export default async function PublicServicePage({
           La Casa de mi Padre · Cancionero
         </p>
       </div>
-    </div>
+        </ContentScale>
+
+        {/* Controles flotantes: tamaño de letra y claro/oscuro. */}
+        <div className="fixed bottom-4 right-4 z-30">
+          <ReadingControls className="shadow-lg" />
+        </div>
+      </div>
+    </ThemeProvider>
   );
 }
