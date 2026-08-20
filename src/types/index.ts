@@ -157,6 +157,12 @@ export interface SheetVersion {
 // ─────────────────────────────────────────────
 // Enriched / view types
 // ─────────────────────────────────────────────
+// Una categoría tal como se pinta en la tarjeta del catálogo.
+export interface CategoryBadge {
+  name:  string;
+  color: string;
+}
+
 export interface SheetCatalogItem {
   id:              string;
   title:           string;
@@ -167,6 +173,9 @@ export interface SheetCatalogItem {
   editor_type:     EditorType;
   content?:        string | null;
   status:          SheetStatus;
+  // TODAS las categorías de la canción, con la principal primero. El catálogo
+  // ya no enseña solo una (O-07).
+  categories:      CategoryBadge[];
   category_name:   string | null;
   category_color:  string | null;
   category_icon:   string | null;

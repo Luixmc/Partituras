@@ -37,12 +37,16 @@ export default async function CatalogPage({
   let sheetsQuery = supabase
     .from("sheets")
     .select(
-      // Desambiguamos el embed con !category_id: ahora hay 2 relaciones entre
-      // sheets y categories (la FK directa y la tabla de unión sheet_categories).
-      "id, title, composer, hymn_number, key_signature, time_signature, editor_type, content, status, thumbnail_path, drive_file_id, page_count, created_at, category:categories!category_id(name, color, icon)"
+      // Desambiguamos el embed con !category_id: hay 2 relaciones entre sheets
+      // y categories (la FK directa y la tabla de unión sheet_categories).
+      // `sheet_categories(...)` trae TODAS las categorías de cada canción (O-07).
+      // Ya NO se pide `content`: la tarjeta dejó de enseñar la miniatura de
+      // acordes (O-05), y ese texto era lo que obligaba a limitar la consulta.
+      "id, title, composer, hymn_number, key_signature, time_signature, editor_type, status, thumbnail_path, drive_file_id, page_count, created_at, category:categories!category_id(name, color, icon), sheet_categories(category:categories(name, color))"
     )
-    .order("title", { ascending: true })
-    .limit(50);
+    .order("title", { ascending: true });
+  // Sin `.limit()`: salen todas. Antes había un tope de 50 y ya hay más
+  // canciones que eso, así que faltaban sin que nada lo avisara (O-10).
 
   if (selectedIds.length) {
     // Una canción coincide si su categoría principal está seleccionada O si
@@ -74,15 +78,29 @@ export default async function CatalogPage({
 
   const { data: sheetsData } = await sheetsQuery;
 
-  const sheets = (sheetsData ?? []).map((sheet: any) => ({
-    ...sheet,
-    category_name: sheet.category?.name ?? null,
-    category_color: sheet.category?.color ?? null,
-    category_icon: sheet.category?.icon ?? null,
-    tags: null,
-    created_by_name: null,
-    published_at: null,
-  })) as SheetCatalogItem[];
+  const sheets = (sheetsData ?? []).map((sheet: any) => {
+    // Todas las categorías de la canción, con la principal delante y sin
+    // repetir (la principal también está en la tabla de unión).
+    const principal = sheet.category
+      ? { name: sheet.category.name as string, color: sheet.category.color as string }
+      : null;
+    const resto = (sheet.sheet_categories ?? [])
+      .map((fila: any) => fila.category)
+      .filter((c: any) => c && c.name !== principal?.name)
+      .map((c: any) => ({ name: c.name as string, color: c.color as string }))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name, "es"));
+
+    return {
+      ...sheet,
+      categories: principal ? [principal, ...resto] : resto,
+      category_name: sheet.category?.name ?? null,
+      category_color: sheet.category?.color ?? null,
+      category_icon: sheet.category?.icon ?? null,
+      tags: null,
+      created_by_name: null,
+      published_at: null,
+    };
+  }) as SheetCatalogItem[];
 
   return (
     <div className="flex min-h-full flex-col">

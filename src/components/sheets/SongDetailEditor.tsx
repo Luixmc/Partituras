@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Edit3, Eye, Save, Grid2X2 } from "lucide-react";
+import Link from "next/link";
+import { Edit3, Eye, Save, Grid2X2, Maximize2 } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
@@ -381,6 +382,19 @@ export default function SongDetailEditor({
                 <Edit3 className="h-4 w-4" />
                 Edicion
               </button>
+            )}
+            {/* Pantalla completa: al lado de Vista (y de Edicion si es admin).
+                Disponible para los tres roles (O-11). Solo tiene sentido si la
+                cancion tiene acordes escritos. */}
+            {viewContent.trim() && (
+              <Link
+                href={`/catalog/${sheet.id}/present`}
+                title="Ver a pantalla completa"
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                <Maximize2 className="h-4 w-4" />
+                Pantalla completa
+              </Link>
             )}
           </div>
         </div>

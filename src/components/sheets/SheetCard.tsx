@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Eye, Music2, Layout } from "lucide-react";
+import { Eye, Music2 } from "lucide-react";
 
-import TablaturePreview from "@/components/sheets/TablaturePreview";
 import type { SheetCatalogItem, SheetStatus } from "@/types";
 import { categoryStyle, formatKey } from "@/lib/utils";
 
@@ -12,35 +11,23 @@ const STATUS_BADGE: Record<SheetStatus, { label: string; className: string }> = 
 };
 
 export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
-  const hasNotes = Boolean(sheet.content?.trim());
-  // Secciones marcadas con [..] o <..>.
-  const sectionCount = sheet.content?.match(/\[.*?\]|<.*?>/g)?.length ?? 0;
   const badge = STATUS_BADGE[sheet.status] ?? STATUS_BADGE.draft;
 
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
       <Link href={`/catalog/${sheet.id}`} className="block">
-        <div className="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700">
-              <Music2 className="h-3.5 w-3.5" />
-              Cancion
-            </span>
-            <span className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>
-              {badge.label}
-            </span>
-          </div>
-
-          {hasNotes ? (
-            // Mini-vista con el mismo render que el visor (acordes, figuras, etc.).
-            <div className="max-h-[80px] overflow-hidden rounded bg-white dark:bg-slate-900">
-              <TablaturePreview notes={sheet.content ?? ""} compact fontScale={0.7} />
-            </div>
-          ) : (
-            <div className="flex h-[72px] items-center justify-center border border-dashed border-slate-300 bg-white text-xs text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-500">
-              Sin notas
-            </div>
-          )}
+        {/* Cabecera: tipo de contenido y estado. La miniatura de acordes se
+            quitó a propósito (O-05): la tarjeta dice QUÉ es la canción, y los
+            acordes se ven al abrirla. Quitarla también permitió dejar de traer
+            el texto de cada canción, que era lo que obligaba a topar la lista. */}
+        <div className="flex items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800/60">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-300">
+            <Music2 className="h-3.5 w-3.5" />
+            Cancion
+          </span>
+          <span className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${badge.className}`}>
+            {badge.label}
+          </span>
         </div>
 
         <div className="space-y-3 p-4">
@@ -56,14 +43,12 @@ export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {sheet.category_name && (
-              <span
-                className="category-badge border"
-                style={categoryStyle(sheet.category_color ?? "#6b7280")}
-              >
-                {sheet.category_name}
+            {/* TODAS las categorías de la canción, no solo la principal (O-07). */}
+            {sheet.categories?.map((cat) => (
+              <span key={cat.name} className="category-badge border" style={categoryStyle(cat.color)}>
+                {cat.name}
               </span>
-            )}
+            ))}
             {sheet.key_signature && (
               <span className="text-[11px] font-medium text-slate-500">
                 {formatKey(sheet.key_signature)}
@@ -74,10 +59,9 @@ export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
                 {sheet.time_signature}
               </span>
             )}
-            {sectionCount > 0 && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400">
-                <Layout className="h-3 w-3" />
-                {sectionCount} {sectionCount === 1 ? "parte" : "partes"}
+            {sheet.hymn_number && (
+              <span className="text-[11px] text-slate-400">
+                Nº {sheet.hymn_number}
               </span>
             )}
           </div>
