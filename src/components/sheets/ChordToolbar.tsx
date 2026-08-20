@@ -1,6 +1,7 @@
 "use client";
 
 import { RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
+import { formatSuffix } from "@/components/sheets/TablaturePreview";
 
 // Barra de botones compartida para insertar acordes, alteraciones, duraciones,
 // silencios, secciones y signos de repetición. La usan el editor y la página
@@ -78,7 +79,10 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             onClick={() => onInsert(alt)}
             className="h-7 rounded border border-brand-100 bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 transition-colors hover:bg-brand-100 dark:border-brand-900 dark:bg-brand-950/50 dark:text-brand-200"
           >
-            {alt === "maj7" ? "Δ" : alt}
+            {/* El botón enseña el MISMO símbolo que se verá en la cuadrícula
+                (Δ, °, °7), reusando la función del visor para que no se
+                separen el día que se añada otro símbolo. */}
+            {formatSuffix(alt)}
           </button>
         ))}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Dur:</span>

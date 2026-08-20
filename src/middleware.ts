@@ -56,6 +56,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // manifest.json y sw.js quedan FUERA a propósito: el navegador los pide sin
+    // sesión al instalar la aplicación, y si el middleware los redirige a
+    // /login, la app instalada se queda sin manifiesto — y por tanto sin icono
+    // ni nombre. Se descubrió al poner el logo de la iglesia (O-15).
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

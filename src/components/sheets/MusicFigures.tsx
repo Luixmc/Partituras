@@ -17,9 +17,14 @@ type FigureProps = {
  * corchetes (la viga la dibuja el contenedor del grupo).
  */
 export function NoteFigure({ beats, className, beamed = false }: FigureProps & { beamed?: boolean }) {
-  const filled = beats <= 1; // negra/corchea/semicorchea con cabeza rellena
+  // La cabeza va rellena hasta la NEGRA CON PUNTILLO (1.5): el puntillo alarga
+  // la figura pero no la convierte en blanca. Con el corte en 1 la negra con
+  // puntillo salía hueca y se leía como una blanca con puntillo (O-02).
+  const filled = beats <= 1.5;
   const hasStem = beats !== 4; // la redonda no lleva plica
-  const hasFlag = !beamed && beats <= 0.5; // corchea (un corchete)
+  // Corchea (0.5) y corchea con puntillo (0.75) llevan corchete. Con el corte
+  // en 0.5 la corchea con puntillo salía sin él (mismo fallo que arriba).
+  const hasFlag = !beamed && beats <= 0.75;
   const hasDoubleFlag = !beamed && beats <= 0.25; // semicorchea (dos corchetes)
   const hasDot = beats === 3 || beats === 1.5 || beats === 0.75; // puntillo
 

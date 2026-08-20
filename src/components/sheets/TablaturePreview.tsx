@@ -214,10 +214,14 @@ function parseMeasures(value: string): Measure[] {
   return measures;
 }
 
-// Reemplaza "maj7" (en cualquier capitalización) por el triángulo Δ en el
-// sufijo del acorde. Ej.: "Cmaj7" → "CΔ", "Gmaj7/B" → "GΔ/B".
-function formatSuffix(suffix: string): string {
-  return suffix.replace(/maj7/gi, "Δ");
+// Sustituye los nombres largos por su símbolo musical en el sufijo del acorde.
+// Solo cambia CÓMO SE VE: el texto guardado sigue diciendo "maj7" y "dim", así
+// que las canciones ya escritas no se tocan.
+//   "Cmaj7" → "CΔ"   ·   "Gmaj7/B" → "GΔ/B"
+//   "Cdim"  → "C°"   ·   "Cdim7"   → "C°7"
+// "m7b5" (semidisminuido) se deja tal cual, por decisión de Isaac (O-04).
+export function formatSuffix(suffix: string): string {
+  return suffix.replace(/maj7/gi, "Δ").replace(/dim/gi, "°");
 }
 
 function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; beamed?: boolean; dense?: boolean }) {
