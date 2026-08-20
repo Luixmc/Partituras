@@ -2,47 +2,68 @@ import { notFound } from "next/navigation";
 
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
+import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { PresentSong } from "@/types";
 
 /**
- * Una canción suelta a pantalla completa, con el mismo visor que los cultos
- * (O-11). PresentationView recibe una LISTA de canciones: aquí se le pasa una
- * sola, así que las flechas y el deslizar no llevan a ninguna parte, pero el
- * resto —pantalla completa, columnas, tamaño, transposición en vivo— funciona
- * igual que en el culto.
+ * Una canción del catálogo a pantalla completa, con el mismo visor que los
+ * cultos (O-11).
+ *
+ * Se le pasa TODA la lista que el músico estaba viendo —respetando su filtro de
+ * categoría y su búsqueda— y se empieza en la canción que abrió, para que las
+ * flechas y el deslizar lleven a la siguiente de ESA lista y no del catálogo
+ * entero (O-16, D-15).
  */
 export default async function SongPresentPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams: FiltrosCatalogo;
 }) {
   const supabase = await createClient();
 
-  const { data: sheet } = await supabase
+  // La misma consulta que el catálogo, con los mismos filtros y el mismo orden.
+  const lista = await buscarCanciones(supabase, searchParams);
+  const posicion = lista.findIndex((c) => c.id === params.id);
+
+  // El contenido de acordes no viene en la lista del catálogo (se dejó de pedir
+  // en O-05 para aligerarla), así que se trae aparte solo el de estas canciones.
+  const ids = posicion >= 0 ? lista.map((c) => c.id) : [params.id];
+  const { data: contenidos } = await supabase
     .from("sheets")
-    .select("title, composer, key_signature, content, editor_type")
-    .eq("id", params.id)
-    .single();
+    .select("id, title, composer, key_signature, content, editor_type")
+    .in("id", ids);
 
-  if (!sheet) notFound();
+  if (!contenidos?.length) notFound();
 
-  // Sin tono de destino: se presenta en su tonalidad original y el músico la
-  // mueve con los botones de ± si le hace falta.
-  const song: PresentSong = {
-    id:           params.id,
-    title:        sheet.title,
-    composer:     sheet.composer ?? null,
-    original_key: sheet.key_signature ?? null,
-    target_key:   null,
-    content:      sheet.content ?? null,
-    editor_type:  sheet.editor_type,
-  };
+  const porId = new Map(contenidos.map((c: any) => [c.id, c]));
+
+  // Se respeta el orden de la lista del catálogo (por título).
+  const songs: PresentSong[] = ids
+    .map((id) => porId.get(id))
+    .filter(Boolean)
+    .map((c: any) => ({
+      id:           c.id,
+      title:        c.title,
+      composer:     c.composer ?? null,
+      // Sin tono de destino: se presenta en su tonalidad y el músico la mueve
+      // con los botones de ± si le hace falta.
+      original_key: c.key_signature ?? null,
+      target_key:   null,
+      content:      c.content ?? null,
+      editor_type:  c.editor_type,
+    }));
+
+  const inicio = Math.max(0, songs.findIndex((s) => s.id === params.id));
+  if (!songs.length) notFound();
 
   return (
     <PresentationView
-      title={sheet.title}
-      songs={[song]}
-      backHref={`/catalog/${params.id}`}
+      title={songs[inicio]?.title ?? ""}
+      songs={songs}
+      startIndex={inicio}
+      backHref={`/catalog/${params.id}${filtrosAQuery(searchParams)}`}
     />
   );
 }

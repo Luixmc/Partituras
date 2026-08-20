@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import SongDetailEditor from "@/components/sheets/SongDetailEditor";
 import { createClient } from "@/lib/supabase/server";
+import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category, Sheet, SheetKey } from "@/types";
 
 type SheetWithCategory = Sheet & {
@@ -15,8 +16,10 @@ type SheetWithCategory = Sheet & {
 
 export default async function SheetDetailPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams: FiltrosCatalogo;
 }) {
   const supabase = await createClient();
 
@@ -67,12 +70,25 @@ export default async function SheetDetailPage({
   // Solo los administradores pueden editar; músicos y lectores solo ven.
   const canEdit = profile?.role === "admin";
 
+  // El filtro con el que se llegó hasta aquí sigue viaje a la pantalla
+  // completa, para que «la siguiente» sea la siguiente de lo que se estaba
+  // viendo y no del catálogo entero (O-16, D-15).
+  const filtro = filtrosAQuery(searchParams);
+
+  // Vecinas dentro de la lista que el músico estaba viendo, para poder pasar de
+  // canción sin volver al catálogo (O-20). Misma lista y mismo orden que allí.
+  const lista = await buscarCanciones(supabase, searchParams);
+  const posicion = lista.findIndex((c) => c.id === params.id);
+  const anterior = posicion > 0 ? lista[posicion - 1] : null;
+  const siguiente = posicion >= 0 && posicion < lista.length - 1 ? lista[posicion + 1] : null;
+  const hrefDe = (c: { id: string } | null) => (c ? `/catalog/${c.id}${filtro}` : null);
+
   return (
     <div className="flex min-h-full flex-col">
       <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <Link
-            href="/catalog"
+            href={`/catalog${filtro}`}
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
             aria-label="Volver al catalogo"
           >
@@ -95,6 +111,13 @@ export default async function SheetDetailPage({
         initialCategoryIds={initialCategoryIds}
         initialKeys={(keyRows ?? []) as SheetKey[]}
         canEdit={canEdit}
+        filtro={filtro}
+        prevHref={hrefDe(anterior)}
+        nextHref={hrefDe(siguiente)}
+        prevTitle={anterior?.title ?? null}
+        nextTitle={siguiente?.title ?? null}
+        posicion={posicion >= 0 ? posicion + 1 : null}
+        total={lista.length}
       />
     </div>
   );

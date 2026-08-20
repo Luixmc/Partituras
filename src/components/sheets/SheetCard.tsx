@@ -10,12 +10,20 @@ const STATUS_BADGE: Record<SheetStatus, { label: string; className: string }> = 
   archived: { label: "Archivada", className: "bg-amber-50 text-amber-700" },
 };
 
-export default function SheetCard({ sheet }: { sheet: SheetCatalogItem }) {
+export default function SheetCard({
+  sheet,
+  filtro = "",
+}: {
+  sheet: SheetCatalogItem;
+  /** Filtro activo del catálogo; viaja con el enlace para saber, al poner la
+      canción a pantalla completa, cuál es «la siguiente» (O-16). */
+  filtro?: string;
+}) {
   const badge = STATUS_BADGE[sheet.status] ?? STATUS_BADGE.draft;
 
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
-      <Link href={`/catalog/${sheet.id}`} className="block">
+      <Link href={`/catalog/${sheet.id}${filtro}`} className="block">
         {/* Cabecera: tipo de contenido y estado. La miniatura de acordes se
             quitó a propósito (O-05): la tarjeta dice QUÉ es la canción, y los
             acordes se ven al abrirla. Quitarla también permitió dejar de traer

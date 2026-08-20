@@ -225,6 +225,9 @@ repo/
 | **D-09b** | **El tamaño de presentación se guarda POR MÚSICO Y POR CANCIÓN, en el navegador** (`localStorage`) | Isaac aclaró: *«quería que cada músico pudiese guardar a su manera el tamaño»*. Al ser de cada uno, **ya no hace falta migración ni tocar producción**, y funciona para lectores y músicos, que no tienen permiso de escritura. Además el tamaño ideal depende de la **pantalla** (tablet, móvil, PC), así que guardarlo por aparato es más correcto que sincronizarlo | 2026-08-20 |
 | **D-11** | **La exportación de datos se guarda en JSON**, un archivo por tabla más uno completo | Isaac lo delegó (*«guárdalo como lo veas mejor y para compatibilidad»*) y aclaró que el JSON de sus otros proyectos venía heredado, no elegido. JSON porque se lee sin herramientas, permite volver a cargar los datos y cumple su regla de «que no quede atrapado» | 2026-08-20 |
 | **D-12** | **El icono es el `.ico` sin fondo para la pestaña y el `.png` de 500×500 transparente para la app del móvil** | De los cuatro archivos que pasó Isaac, el `.ico` «removebg» trae **6 tamaños con transparencia** (16, 32, 48, 64, 128, 256) generados a medida → pestaña nítida. **Descartados:** el `.jpeg` (compresión con pérdida y **esquinas negras**) y el `.ico` con fondo negro (se vería un cuadrado negro en pestañas de tema oscuro) | 2026-08-20 |
+| **D-13** | **Isaac maneja la página él solo.** Los 6 borradores los puso él; nadie más toca el contenido | Lo aclaró el 2026-08-20: *«yo soy el que puso las canciones en borradores, nadie más, yo soy el que maneja la página totalmente»*. → **No suponer que hay otras manos**: si aparece algo raro en los datos, es suyo y tendrá su motivo. Preguntarle antes de «corregir» nada | 2026-08-20 |
+| **D-14** | **La cuenta de prueba se queda en ADMINISTRADORA**, para ver lo mismo que ve Isaac | Decisión suya del 2026-08-20: *«te voy a dejar la cuenta en administrador... cuando necesites algo en lector o músico me dices»*. Sigue en pie: **con esa cuenta solo se MIRA**, no se tocan datos sin permiso | 2026-08-20 |
+| **D-15** | **En la pantalla completa, «la siguiente» respeta el filtro de categoría** | Isaac, 2026-08-20: *«teniendo filtrada la categoría, la siguiente que debe mostrar es la que estaba viendo en la categoría, no del catálogo entero»* (O-16) | 2026-08-20 |
 | **D-10** | **El PDF del culto se hace con la impresión del navegador**, no rehaciendo el dibujo | Reutiliza el render que ya existe, sale idéntico a la pantalla y no crea un segundo motor de dibujo que mantener (O-08) | 2026-08-20 |
 
 ---
@@ -266,7 +269,7 @@ cambiar variables de entorno, forzar un redespliegue o revertir.
 | Panel `/admin` | **Sí** | No | No | No |
 
 ⚠️ **`musician` y `viewer` hacen hoy exactamente lo mismo**: el rol de músico no sirve de
-nada desde la migración 011.
+nada desde la migración 011. **Confirmado por Isaac el 2026-08-20**: *«los dos son lo mismo»*.
 
 ⚠️ **Eso es lo que hace la INTERFAZ. La base de datos es más permisiva** — ver P-02 y P-03.
 
@@ -306,6 +309,12 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | **Fase A · CI estrenado** | ✅ **verde a la primera**, 1 min 10 s (`Comprobar que compila`) |
 | **Fase B · consulta del catálogo** | ✅ **69 canciones** (antes el tope dejaba **50**) · **13** enseñan dos categorías · 0 sin categoría · 0 repetidas · **ya no se pide `content`** |
 | **Fase B · peso de la pantalla** | El catálogo bajó de **108 kB a 97,1 kB** de JavaScript, y dejó de traer el texto de acordes de las 69 canciones |
+| **Fase H · pasar de canción en modo vista** | ✅ Con filtro **Ofrenda**: «Bendecido» sale **2/4**, con Amigo De Dios detrás y Canta Y Danza delante · la primera muestra **1/4** y el botón «anterior» **deshabilitado** · sin filtro, **12/75** con Babel y Cada Vez de vecinas |
+| **Fase H · atajos** | ✅ Enganchados en las dos pantallas, y **protegidos**: no actúan si el foco está en un campo de escritura |
+| **Fase G · «la siguiente» respeta el filtro** | ✅ Filtrando por **Ofrenda** (4 canciones), abrir «Bendecido» a pantalla completa da **2/4**, con las 4 de la categoría y **ninguna de fuera**. Sin filtro, la misma canción da **12/75** |
+| **Fase G · el filtro viaja** | ✅ El enlace de la tarjeta y el botón de pantalla completa llevan `?categories=…` |
+| **Fase C · en PRODUCCIÓN** | ✅ Vercel `success` · culto compartido y canción suelta con sus acordes, sin errores · catálogo bien |
+| **Fase C · panel de administración** | ✅ **Verificado en producción**: `/admin` responde **200**, están los **7 usuarios**, **el lápiz de O-14 aparece**, y el aviso de la clave **no** sale (allí sí la hay) |
 | **Fase C · lógica del tamaño guardado** | ✅ **10 de 10 casos**: guarda por canción sin pisar otras · el botón «ajustar» borra solo la suya · valor fuera de rango se ignora · almacén corrupto no rompe nada |
 | **Fase C · las 3 pantallas de presentación** | ✅ Culto con sesión, culto compartido y canción suelta: **HTTP 200, sin errores**, con sus acordes · **los 7 ids de canción del culto llegan al visor** por las dos vías |
 | **Fase B · CON SESIÓN (la pantalla de verdad)** | ✅ **69 tarjetas** y el contador dice «69 canciones encontradas» · **56 tarjetas con 1 categoría y 13 con 2** (`Amigo De Dios` → Ofrenda + Alabanzas) · **0 miniaturas de acordes** · **0 contadores de «partes»** |
@@ -414,6 +423,11 @@ compila. Pasó el 2026-08-20, y el que se lo encontró en pantalla fue Isaac mie
       base de datos.
 - [x] ~~Dónde va el botón de pantalla completa~~ → **junto a «Vista / Edición»** dentro de cada
       canción, para los tres roles (O-11).
+- [ ] 🔴 **La cuenta `pruebaclaude@gmail.com` es ADMINISTRADORA desde el 2026-08-20.** Isaac se
+      lo cambió en producción para que se pudieran verificar el panel y el editor. Con ese rol se
+      pueden **borrar canciones, cambiar roles y desactivar usuarios**. → **Bajarla a lector, o
+      cerrarla, en cuanto no haga falta.** Mientras tanto: **no se toca ningún dato con ella sin
+      permiso expreso de Isaac**; solo se usa para MIRAR pantallas.
 - [ ] ⚠️ **Desactivar la cuenta `pruebaclaude@gmail.com` cuando ya no haga falta** (Admin →
       Desactivar). Tiene una contraseña sencilla y es una cuenta real en un sitio abierto a
       internet. **Recordatorio: hoy desactivar un usuario NO le impide entrar** (P-01) — hasta
@@ -594,11 +608,12 @@ para que la app instalada en el móvil use el mismo logo.
 Hoy `catalog/[id]/present` le pasa al visor **una sola canción**, así que las flechas y el
 deslizar no llevan a ninguna parte. `PresentationView` ya sabe manejar una lista —es lo que hace
 en los cultos—, así que se trata de darle **todo el catálogo** y decirle por cuál empezar.
-→ ❓ **PREGUNTAR:** ¿en qué orden? El catálogo se ordena por título, pero si el músico venía de
-**filtrar por categoría o de una búsqueda**, lo natural es que «la siguiente» sea la siguiente
-**de lo que estaba viendo**, no de la lista completa. Eso obliga a arrastrar el filtro hasta la
-pantalla de presentación.
-→ Coste: bajo si es siempre el catálogo entero por título; medio si tiene que respetar el filtro.
+✅ **RESPUESTA (2026-08-20): respeta el filtro** (D-15). Si el músico estaba viendo «Alabanzas»,
+la siguiente es la siguiente **de Alabanzas**, no del catálogo entero.
+→ **Lo que obliga a hacer:** arrastrar el filtro y la búsqueda desde el catálogo hasta la
+pantalla completa, pasando por la tarjeta y por la vista de la canción. Y como esa pantalla
+tiene que repetir **la misma consulta** que el catálogo, la búsqueda se saca a un sitio común en
+vez de copiarla (si no, serían dos consultas que se separan con el tiempo, P-09).
 
 **O-17 · Al tocar un acorde, ver cómo se toca en piano, bajo, guitarra y trompeta.**
 Isaac ya avisó: *«esto último si ves que es muy complicado puedes dejarlo en pendiente»*.
@@ -633,6 +648,29 @@ hay entre paréntesis? Son dos proyectos distintos.
 ¿su línea de notas?, ¿solo su parte del arreglo?, ¿la misma canción transpuesta a su tono? Va de
 la mano de la duda de O-17 sobre el instrumento transpositor.
 
+#### Las 2 nuevas (dictadas el 2026-08-20, tras probar O-16)
+
+**O-20 · Pasar de canción también en MODO VISTA, con las flechas ← →.**
+Isaac: *«algo parecido a lo de pasar las canciones en pantalla completa, es que lo pueda hacer
+también en modo vista, y que pueda permitirlo hacerlo usando las flechas tanto izquierda como
+derecha»*.
+→ Es O-16 llevada a `/catalog/[id]`: la página ya recibe el filtro, así que puede calcular
+**cuál es la anterior y cuál la siguiente** dentro de la lista que se estaba viendo.
+→ ⚠️ **Cuidado con el teclado:** en **modo edición** las flechas mueven el cursor dentro del
+texto de los acordes. Los atajos solo pueden actuar en **modo vista** y **nunca** cuando el foco
+está en un campo de escritura.
+
+**O-21 · Las teclas `+` y `−` cambian el tamaño de letra.**
+Isaac: *«sería bueno que las teclas + y − permitan configurar el tamaño de las letras en pantalla
+completa, pero no sé si para modo vista pueda servir»*.
+→ **En pantalla completa** es directo: ya existe el ajuste (y ya guarda por canción, O-06); solo
+hay que engancharlo al teclado, donde ya se escuchan las flechas y la `F`.
+→ **En modo vista SÍ sirve, y conviene**: esa pantalla ya tiene su propio control de tamaño —el
+del `90%` de la esquina—, así que las mismas teclas harían lo mismo que ese control. Queda
+coherente: las mismas teclas hacen lo mismo en las dos pantallas.
+→ ⚠️ Mismo cuidado que O-20: en un campo de escritura, `+` y `−` tienen que escribir su
+carácter, no cambiar el tamaño.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -644,11 +682,12 @@ la mano de la duda de O-17 sobre el instrumento transpositor.
 | **0** | ✅ ~~respaldar las 75 canciones~~ · ✅ ~~exportador a JSON (D-11)~~ · ⬜ clave `service_role` · ⬜ cuenta propia de Supabase · ⬜ acceso a Vercel | Ninguno, y **quita el riesgo de todo lo demás**. **Lo crítico ya está hecho** (§12.1) |
 | **A** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-02 · O-04 · O-15 · +P-14 · +P-10 | Salió limpia. Commits `1bdf61e` (r31) y `76f571b`. Verificada en producción |
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
-| **C** | ✅ **HECHA (2026-08-20), sin publicar** — O-14 · O-06 | Bajo, no toca la base de datos. Compila y la lógica está probada (§7). **Falta que Isaac la mire y dé permiso** |
+| **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
 | **E** | O-09 (repetir canción en un culto) | ⚠️ **La única que toca la base de datos de producción.** Migración nueva, aviso previo |
 | **F** | O-08 (impresión horizontal, D-10) | Medio. Hay que probarla **en teléfono** además de en PC |
-| **G** | O-16 (pasar a la siguiente canción desde el catálogo) | Bajo, salvo que tenga que respetar el filtro |
+| **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
+| **H** | ✅ **HECHA (2026-08-20), sin publicar** — O-20 · O-21 | Verificada con datos reales (§7). **Falta que Isaac la mire y dé permiso** |
 | **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | **Sin fase asignada: pendientes.** Los tres son grandes y tienen preguntas abiertas |
 
 **Antes de la fase D es obligatorio** guardar el `content` de las 75 canciones y comparar el
@@ -848,6 +887,64 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 18 — FASE H hecha (sin publicar): navegar y ampliar con el teclado
+
+Isaac confirma O-16 (*«funciona bien... tanto sin filtro como con filtro»*) y pide llevar la
+misma idea al modo vista.
+
+- ✅ **O-20 · Pasar de canción en modo vista.** Botones **‹ ›** con el contador (`2/4`) junto a
+  Vista/Edición, y las flechas **← →** del teclado. Respeta el filtro igual que O-16: las
+  vecinas son las de la lista que se estaba viendo.
+- ✅ **O-21 · Teclas `+` y `−` para el tamaño de letra.** En pantalla completa mueven el tamaño
+  de la canción (y por tanto **lo guardan**, O-06). En modo vista mueven el zoom de lectura, el
+  mismo que el control del `90%` de la esquina — así **las mismas teclas hacen lo mismo en las
+  dos pantallas**. Se aceptan `+`, `=` y las del pad numérico.
+- ⚠️ **Los atajos NO actúan si se está escribiendo** (input, textarea, select o campo editable),
+  ni con Ctrl/Cmd/Alt. En modo edición las flechas siguen moviendo el cursor por los acordes y
+  el `+` se escribe, como debe ser.
+
+📌 **Coste que conviene tener presente:** la vista de una canción hace ahora **una consulta más**
+—la lista del catálogo— para saber cuáles son sus vecinas. Es ligera (sin el texto de los
+acordes, O-05), pero está ahí.
+
+### 2026-08-20 · Tanda 17 — O-14 confirmada · FASE G hecha (sin publicar)
+
+- ✅ **O-14 confirmada por Isaac en producción**: *«ahora sí me dejó cambiar el nombre»*, con el
+  mensaje «Nombre actualizado». **T-05 queda demostrada de las dos caras**: falla en local por
+  falta de clave, funciona publicada.
+- ✅ **D-13, D-14, D-15 anotadas** (ver §5). La más importante para no meter la pata: **la página
+  la maneja Isaac él solo**; los 6 borradores los puso él.
+- ✅ **FASE G · O-16 hecha**: desde la pantalla completa de una canción se pasa a la siguiente
+  **de la lista que el músico estaba viendo**, respetando su filtro de categoría y su búsqueda.
+  - El filtro viaja del catálogo → tarjeta → vista de la canción → pantalla completa.
+  - `PresentationView` acepta ahora `startIndex`, para empezar en la canción que se abrió.
+  - El enlace de «volver al catálogo» también conserva el filtro.
+- 🧹 **La consulta del catálogo se sacó a `src/lib/catalogo.ts`**, porque ahora la necesitan
+  **dos** pantallas y tienen que devolver **la misma lista en el mismo orden**. Copiarla habría
+  garantizado que con el tiempo «la siguiente» dejara de coincidir con la lista (P-09).
+
+### 2026-08-20 · Tanda 16 — FASE C PUBLICADA · y se cierra el punto ciego del panel
+
+**Publicada:** commit `73bb508` (**r34**). Vercel `success`.
+
+**Verificado en producción:** el culto compartido y la canción suelta siguen dibujando sus
+acordes sin errores, el catálogo bien, y **`/admin` responde 200 con los 7 usuarios y el lápiz
+de O-14 en su sitio**.
+
+🔑 **El punto ciego del panel se cerró, pero por una razón que hay que vigilar:** Isaac subió la
+cuenta de prueba a **administradora** —lo hizo en producción, porque en local no podía (T-05)—.
+Gracias a eso se pudo comprobar `/admin`. **Pero esa cuenta ahora puede borrar canciones y
+cambiar roles**, así que queda anotado en §9.1: **solo se usa para mirar**, y hay que bajarla a
+lector cuando no haga falta.
+
+📌 **Dato que se aclaró de paso:** con esa cuenta el catálogo enseña **75** canciones y no 69,
+porque **un administrador ve también los 6 borradores**. Para los músicos y lectores siguen
+siendo **69**. Los borradores **siguen sin publicar**.
+
+🔧 **Y un fallo mío de proceso, el segundo del mismo tipo:** paré el servidor de desarrollo para
+compilar (T-04) y **no lo volví a levantar**, así que Isaac se lo encontró caído. **Regla: después
+de compilar, relanzarlo siempre.**
 
 ### 2026-08-20 · Tanda 15 — Isaac prueba la Fase C y dicta 4 órdenes nuevas
 

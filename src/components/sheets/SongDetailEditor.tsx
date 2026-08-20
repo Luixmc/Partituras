@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Edit3, Eye, Save, Grid2X2, Maximize2 } from "lucide-react";
+import { Edit3, Eye, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
@@ -29,6 +29,17 @@ type Props = {
   initialCategoryIds?: string[];
   initialKeys?: SheetKey[];
   canEdit: boolean;
+  /** Filtro activo del catálogo, para que la pantalla completa sepa dentro de
+      qué lista está esta canción (O-16). */
+  filtro?: string;
+  // Vecinas dentro de la lista que se estaba viendo, para pasar de canción sin
+  // volver al catálogo (O-20).
+  prevHref?: string | null;
+  nextHref?: string | null;
+  prevTitle?: string | null;
+  nextTitle?: string | null;
+  posicion?: number | null;
+  total?: number;
 };
 
 function parseSections(text: string) {
@@ -58,12 +69,19 @@ export default function SongDetailEditor({
   initialCategoryIds,
   initialKeys = [],
   canEdit,
+  filtro = "",
+  prevHref = null,
+  nextHref = null,
+  prevTitle = null,
+  nextTitle = null,
+  posicion = null,
+  total = 0,
 }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
   // Con zoom ≤ 90% mostramos 2 secciones por fila y aprovechamos la hoja ancha.
-  const { fontScale } = useTheme();
+  const { fontScale, incFont, decFont } = useTheme();
   const twoCols = fontScale <= 0.9;
 
   const startCategoryIds =
@@ -188,6 +206,40 @@ export default function SongDetailEditor({
     setLeavePrompt(null);
     proceed?.();
   };
+
+  // Atajos de teclado en MODO VISTA: flechas para pasar de canción (O-20) y
+  // + / − para el tamaño de letra (O-21).
+  //
+  // Solo actúan en modo vista y NUNCA cuando se está escribiendo: en edición las
+  // flechas mueven el cursor por los acordes y el "+" tiene que escribirse.
+  useEffect(() => {
+    if (mode !== "view") return;
+    const onKey = (e: KeyboardEvent) => {
+      const destino = e.target as HTMLElement | null;
+      const escribiendo =
+        destino?.tagName === "INPUT" ||
+        destino?.tagName === "TEXTAREA" ||
+        destino?.tagName === "SELECT" ||
+        destino?.isContentEditable;
+      if (escribiendo || e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key === "ArrowRight" && nextHref) {
+        e.preventDefault();
+        router.push(nextHref);
+      } else if (e.key === "ArrowLeft" && prevHref) {
+        e.preventDefault();
+        router.push(prevHref);
+      } else if (e.key === "+" || e.key === "=" || e.key === "Add") {
+        e.preventDefault();
+        incFont();
+      } else if (e.key === "-" || e.key === "_" || e.key === "Subtract") {
+        e.preventDefault();
+        decFont();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mode, nextHref, prevHref, router, incFont, decFont]);
 
   // Inserción/borrado en la posición del cursor del textarea.
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -356,6 +408,44 @@ export default function SongDetailEditor({
             </p>
           </div>
 
+          {/* Pasar de canción sin volver al catálogo, dentro de la lista que se
+              estaba viendo. También con las flechas ← → (O-20). */}
+          {(prevHref || nextHref) && (
+            <div className="flex items-center gap-1">
+              <Link
+                href={prevHref ?? "#"}
+                aria-disabled={!prevHref}
+                title={prevTitle ? `Anterior: ${prevTitle}  (←)` : "No hay anterior"}
+                className={
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-colors dark:border-slate-700 " +
+                  (prevHref
+                    ? "bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300"
+                    : "pointer-events-none bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700")
+                }
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Link>
+              {posicion !== null && total > 0 && (
+                <span className="px-1 text-xs tabular-nums text-slate-400 dark:text-slate-500">
+                  {posicion}/{total}
+                </span>
+              )}
+              <Link
+                href={nextHref ?? "#"}
+                aria-disabled={!nextHref}
+                title={nextTitle ? `Siguiente: ${nextTitle}  (→)` : "No hay siguiente"}
+                className={
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-colors dark:border-slate-700 " +
+                  (nextHref
+                    ? "bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300"
+                    : "pointer-events-none bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700")
+                }
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
+
           <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
             <button
               type="button"
@@ -388,7 +478,7 @@ export default function SongDetailEditor({
                 cancion tiene acordes escritos. */}
             {viewContent.trim() && (
               <Link
-                href={`/catalog/${sheet.id}/present`}
+                href={`/catalog/${sheet.id}/present${filtro}`}
                 title="Ver a pantalla completa"
                 className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >

@@ -17,6 +17,10 @@ type Props = {
   title:    string;
   songs:    PresentSong[];
   backHref: string;
+  /** Canción por la que se empieza. Se usa al abrir una canción concreta del
+      catálogo: la lista es la que el músico estaba viendo, pero se arranca en
+      la que abrió (O-16). */
+  startIndex?: number;
 };
 
 // Límites del tamaño de letra: 40% – 200%.
@@ -57,8 +61,8 @@ function guardarTamano(songId: string, escala: number | null) {
   }
 }
 
-export default function PresentationView({ title, songs, backHref }: Props) {
-  const [index, setIndex] = useState(0);
+export default function PresentationView({ title, songs, backHref, startIndex = 0 }: Props) {
+  const [index, setIndex] = useState(startIndex);
   // El tamaño de letra lo decide el auto-ajuste; el usuario puede ajustarlo a
   // mano (40%–200%), lo que desactiva el auto-ajuste para esa canción.
   const [fontScale, setFontScale] = useState(1);
@@ -192,13 +196,26 @@ export default function PresentationView({ title, songs, backHref }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       pokeChrome();
+      // No robar las teclas si se está escribiendo en algún campo.
+      const destino = e.target as HTMLElement | null;
+      if (
+        destino?.tagName === "INPUT" ||
+        destino?.tagName === "TEXTAREA" ||
+        destino?.isContentEditable
+      ) return;
+
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
       else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
+      // + y − ajustan el tamaño de letra, igual que los botones (O-21). Se
+      // aceptan las variantes del teclado: "=" es el "+" sin Shift, y el pad
+      // numérico manda "Add"/"Subtract" en algunos navegadores.
+      else if (e.key === "+" || e.key === "=" || e.key === "Add") { e.preventDefault(); bumpScale(0.1); }
+      else if (e.key === "-" || e.key === "_" || e.key === "Subtract") { e.preventDefault(); bumpScale(-0.1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, toggleFullscreen, pokeChrome]);
+  }, [go, toggleFullscreen, pokeChrome, bumpScale]);
 
   // Mantener la pantalla encendida durante el servicio (best-effort).
   useEffect(() => {

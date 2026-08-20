@@ -3,30 +3,15 @@ import { Filter, Search } from "lucide-react";
 import SheetCard from "@/components/sheets/SheetCard";
 import CatalogFilters from "@/components/sheets/CatalogFilters";
 import { createClient } from "@/lib/supabase/server";
-import type { Category, SheetCatalogItem } from "@/types";
-
-interface SearchParams {
-  q?: string;
-  categories?: string;
-  // legacy single-category param
-  category?: string;
-}
+import { buscarCanciones, categoriasElegidas, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
+import type { Category } from "@/types";
 
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: FiltrosCatalogo;
 }) {
   const supabase = await createClient();
-  const { q, categories: categoriesParam, category: legacyCategory } = searchParams;
-
-  // Soporte para múltiples categorías separadas por coma. Validamos que sean
-  // UUIDs para poder usarlas con seguridad en el filtro in() de PostgREST.
-  const UUID_RE = /^[0-9a-fA-F-]{36}$/;
-  const rawCategories = categoriesParam ?? legacyCategory ?? "";
-  const selectedIds = rawCategories
-    ? rawCategories.split(",").map((s) => s.trim()).filter((s) => UUID_RE.test(s))
-    : [];
 
   const { data: categories } = await supabase
     .from("categories")
@@ -34,73 +19,14 @@ export default async function CatalogPage({
     .eq("active", true)
     .order("sort_order");
 
-  let sheetsQuery = supabase
-    .from("sheets")
-    .select(
-      // Desambiguamos el embed con !category_id: hay 2 relaciones entre sheets
-      // y categories (la FK directa y la tabla de unión sheet_categories).
-      // `sheet_categories(...)` trae TODAS las categorías de cada canción (O-07).
-      // Ya NO se pide `content`: la tarjeta dejó de enseñar la miniatura de
-      // acordes (O-05), y ese texto era lo que obligaba a limitar la consulta.
-      "id, title, composer, hymn_number, key_signature, time_signature, editor_type, status, thumbnail_path, drive_file_id, page_count, created_at, category:categories!category_id(name, color, icon), sheet_categories(category:categories(name, color))"
-    )
-    .order("title", { ascending: true });
-  // Sin `.limit()`: salen todas. Antes había un tope de 50 y ya hay más
-  // canciones que eso, así que faltaban sin que nada lo avisara (O-10).
-
-  if (selectedIds.length) {
-    // Una canción coincide si su categoría principal está seleccionada O si
-    // está vinculada a alguna de ellas en la tabla de unión (varias categorías).
-    const { data: links } = await supabase
-      .from("sheet_categories")
-      .select("sheet_id")
-      .in("category_id", selectedIds);
-    const linkedIds = Array.from(new Set((links ?? []).map((l) => l.sheet_id as string)));
-
-    const orParts = [`category_id.in.(${selectedIds.join(",")})`];
-    if (linkedIds.length) orParts.push(`id.in.(${linkedIds.join(",")})`);
-    sheetsQuery = sheetsQuery.or(orParts.join(","));
-  }
-
-  if (q) {
-    // Saneamos la búsqueda: las comas y paréntesis rompen la sintaxis del filtro
-    // .or() de PostgREST, y %/_ son comodines de ilike. Los neutralizamos.
-    const safeQ = q
-      .replace(/[,()]/g, " ")
-      .replace(/[%_]/g, "\\$&")
-      .trim();
-    if (safeQ) {
-      sheetsQuery = sheetsQuery.or(
-        `title.ilike.%${safeQ}%,composer.ilike.%${safeQ}%,hymn_number.ilike.%${safeQ}%`
-      );
-    }
-  }
-
-  const { data: sheetsData } = await sheetsQuery;
-
-  const sheets = (sheetsData ?? []).map((sheet: any) => {
-    // Todas las categorías de la canción, con la principal delante y sin
-    // repetir (la principal también está en la tabla de unión).
-    const principal = sheet.category
-      ? { name: sheet.category.name as string, color: sheet.category.color as string }
-      : null;
-    const resto = (sheet.sheet_categories ?? [])
-      .map((fila: any) => fila.category)
-      .filter((c: any) => c && c.name !== principal?.name)
-      .map((c: any) => ({ name: c.name as string, color: c.color as string }))
-      .sort((a: any, b: any) => a.name.localeCompare(b.name, "es"));
-
-    return {
-      ...sheet,
-      categories: principal ? [principal, ...resto] : resto,
-      category_name: sheet.category?.name ?? null,
-      category_color: sheet.category?.color ?? null,
-      category_icon: sheet.category?.icon ?? null,
-      tags: null,
-      created_by_name: null,
-      published_at: null,
-    };
-  }) as SheetCatalogItem[];
+  // La consulta vive en lib/catalogo para que la pantalla completa de una
+  // canción devuelva EXACTAMENTE esta misma lista (O-16).
+  const sheets = await buscarCanciones(supabase, searchParams);
+  const selectedIds = categoriasElegidas(searchParams);
+  const q = searchParams.q;
+  // El filtro viaja con cada canción, para que al abrirla y ponerla a pantalla
+  // completa se sepa dentro de qué lista está.
+  const filtro = filtrosAQuery(searchParams);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -142,7 +68,7 @@ export default async function CatalogPage({
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sheets.map((sheet) => (
-                <SheetCard key={sheet.id} sheet={sheet} />
+                <SheetCard key={sheet.id} sheet={sheet} filtro={filtro} />
               ))}
             </div>
           </>
