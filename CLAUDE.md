@@ -11,6 +11,11 @@
 > descarte, aunque sea una corrección a una respuesta mía. Lo que quede **pendiente va a §9,
 > nunca solo a §13**. Si la conversación se corta, lo escrito es lo único que sobrevive.
 >
+> **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md`**, en la
+> sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la página, no qué archivo
+> se tocó. Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
+> cambiando. Es un documento **para leer**, no un historial técnico — ese es §13 de aquí.
+>
 > **REGLA DE LA CARPETA COMPARTIDA — se repasa CADA tanda y se dice cuáles de los cuatro
 > archivos se tocaron**, o que no había nada que tocar. Callarse no vale.
 > `C:\Users\TECSISTEMAS\Documents\_CLAUDE-COMPARTIDO\` → `LECCIONES.md`, `PROYECTOS.md`,
@@ -225,6 +230,7 @@ repo/
 | **D-09b** | **El tamaño de presentación se guarda POR MÚSICO Y POR CANCIÓN, en el navegador** (`localStorage`) | Isaac aclaró: *«quería que cada músico pudiese guardar a su manera el tamaño»*. Al ser de cada uno, **ya no hace falta migración ni tocar producción**, y funciona para lectores y músicos, que no tienen permiso de escritura. Además el tamaño ideal depende de la **pantalla** (tablet, móvil, PC), así que guardarlo por aparato es más correcto que sincronizarlo | 2026-08-20 |
 | **D-11** | **La exportación de datos se guarda en JSON**, un archivo por tabla más uno completo | Isaac lo delegó (*«guárdalo como lo veas mejor y para compatibilidad»*) y aclaró que el JSON de sus otros proyectos venía heredado, no elegido. JSON porque se lee sin herramientas, permite volver a cargar los datos y cumple su regla de «que no quede atrapado» | 2026-08-20 |
 | **D-12** | **El icono es el `.ico` sin fondo para la pestaña y el `.png` de 500×500 transparente para la app del móvil** | De los cuatro archivos que pasó Isaac, el `.ico` «removebg» trae **6 tamaños con transparencia** (16, 32, 48, 64, 128, 256) generados a medida → pestaña nítida. **Descartados:** el `.jpeg` (compresión con pérdida y **esquinas negras**) y el `.ico` con fondo negro (se vería un cuadrado negro en pestañas de tema oscuro) | 2026-08-20 |
+| **D-18** | **Se mantiene `CAMBIOS.md`**, un comunicado en lenguaje de usuario con lo que va cambiando en la página | Isaac, 2026-08-20: *«ve anotando todos los cambios que se están haciendo desde el día de hoy, ya que quiero hacerle como un comunicado… en la que notifique los cambios que se han hecho de la página»*. → Se escribe **para los músicos**, no para programadores: nada de nombres de archivo ni de migraciones. Lo de dentro va en un apartado aparte y corto | 2026-08-20 |
 | **D-16** | **El número de himno NO se muestra ni se busca en ninguna pantalla** | Isaac, 2026-08-20: *«quiero quitarle a las tarjetas el Nº, borra todo rastro, que no salga en la información de las canciones»*. **Ampliado ese mismo día: también se borra de la BASE** (*«bórrala de todo, pero que quede la canción claro está»*). Migración `20240016`. ⚠️ **Se pierde un dato**: «Amado de mi Alma» tenía `hv-018`. La canción no se toca | 2026-08-20 |
 | **D-17** | **Los 6 borradores NO se publican** | Isaac, 2026-08-20: *«se van a dejar así, hasta que algo lo necesite, por ahora no»*. → **No tocar su estado.** Siguen invisibles para músicos y lectores, y visibles para administradores | 2026-08-20 |
 | **D-13** | **Isaac maneja la página él solo.** Los 6 borradores los puso él; nadie más toca el contenido | Lo aclaró el 2026-08-20: *«yo soy el que puso las canciones en borradores, nadie más, yo soy el que maneja la página totalmente»*. → **No suponer que hay otras manos**: si aparece algo raro en los datos, es suyo y tendrá su motivo. Preguntarle antes de «corregir» nada | 2026-08-20 |
@@ -1007,6 +1013,20 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 25 — Se crea el comunicado de cambios (D-18)
+
+Isaac quiere avisar a la gente de la iglesia de lo que va cambiando, así que se crea
+**`CAMBIOS.md`**: lo mismo que el historial de aquí, pero **contado para quien usa la página**.
+
+- Agrupado por **dónde se nota** (canciones, acordes, cultos, cuentas, móvil), no por fases.
+- Sin nombres de archivo, sin migraciones, sin fases: eso vive en este documento.
+- Con **las cifras que se entienden solas**: «salían 50 de 69», «afectaba a 17 de las 75».
+- Lo de dentro —copia de seguridad, comprobación automática— va en un apartado corto al final,
+  porque a él sí le interesa aunque no se vea.
+
+**A partir de ahora se actualiza en cada publicación**, como el `CLAUDE.md`. Ver la regla nueva
+en la cabecera.
 
 ### 2026-08-20 · Tanda 24 — El enlace compartido distingue quién lo abre (O-23, O-25)
 
