@@ -76,6 +76,9 @@ npm start            # sirve el build de producción en local
 npm run export       # copia de seguridad de los datos a JSON (§12.1)
 ```
 
+⚠️ **`npm run dev` y `npm run build` NO se ejecutan a la vez**: comparten la carpeta `.next` y
+el build deja al servidor de desarrollo roto (T-04). Parar uno antes de lanzar el otro.
+
 No hay `npm test`: **no existe ninguna prueba** (P-11).
 
 ### 2.2 El `.env.local` (no se sube: `.gitignore:9`)
@@ -91,7 +94,29 @@ SUPABASE_SERVICE_ROLE_KEY=<clave maestra — FALTA, ver §9>
   Settings → API. Solo la usa `/admin` para crear usuarios
   (`src/lib/supabase/server.ts:32-38`). Sin ella el resto de la app funciona.
 
-### 2.3 El contrato del despliegue (aquí no hay `.exe`)
+### 2.3 Cómo VER una página protegida sin navegador (para verificar de verdad)
+
+Casi todo el proyecto exige sesión, así que `curl` a pelo siempre devuelve el login y no se
+puede comprobar nada. Existe **una cuenta de prueba creada por Isaac el 2026-08-20**
+(`pruebaclaude@gmail.com`, rol **lector**; la contraseña la tiene él y **no se escribe aquí**,
+porque este archivo va a un repositorio **público**).
+
+Con ella se puede entrar por línea de comandos:
+
+1. `POST /auth/v1/token?grant_type=password` contra Supabase con el correo y la contraseña →
+   devuelve la sesión en JSON.
+2. `@supabase/ssr` guarda esa sesión en una cookie llamada `sb-<ref>-auth-token`, con el JSON
+   **codificado en base64 y con el prefijo `base64-`** (si pasa de ~3180 caracteres, se parte en
+   `.0`, `.1`…).
+3. Con esa cookie, `curl -b cookies.txt http://localhost:3000/catalog` ya devuelve la página
+   real y se puede contar lo que haya que contar.
+
+⚠️ **Al comprobar si una página falló, NO buscar `404: This page could not be found`**: ese
+texto está en el HTML de **todas** las páginas del App Router —es la plantilla de «no
+encontrado» que Next incluye siempre— y da un **falso positivo**. Pasó en la Fase B. Buscar
+`Application error`, o mejor, comprobar que **sí está** lo que se espera ver.
+
+### 2.4 El contrato del despliegue (aquí no hay `.exe`)
 
 Este proyecto **no genera un ejecutable**: el entregable es el sitio web. La regla de
 verificación en el `.exe` de los otros proyectos de Isaac se traduce aquí a:
@@ -165,6 +190,7 @@ repo/
 | Elemento | Sintaxis | Dónde se implementa |
 |---|---|---|
 | Acorde | `C`, `Dm7`, `Gsus4`, `C/G` | `TablaturePreview.tsx:192` |
+| Disminuido | se escribe **`dim`** / **`dim7`** · se dibuja **`°`** / **`°7`** (D-08b) | `ChordToolbar.tsx` · `formatSuffix` |
 | Duración | `:0.25` `:0.5` `:1` `:1.5` `:2` `:3` `:4` | `TablaturePreview.tsx:196` |
 | Silencio | `Z:4`, `Z:2`… | `TablaturePreview.tsx:185` |
 | Barra de compás | `\|` | `TablaturePreview.tsx:118` |
@@ -195,6 +221,7 @@ repo/
 | **D-07** | La rama de trabajo se llama **`isaac/arranque`** | Deja claro de quién es y que no toca lo del primo | 2026-08-19 |
 | **D-08** | **El staccato se escribe con `!` pegado al token** (`C:1!`) | Isaac delegó la elección. **El punto `.` queda DESCARTADO**: chocaría con `:1.5` y `:0.25` y volvería ambiguas las 75 canciones ya escritas. `!` no se usa hoy para nada y sigue el patrón del calderón `^` (O-03) | 2026-08-20 |
 | ~~**D-09**~~ | ~~El tamaño de presentación se guarda en la base de datos, por canción~~ | **SUPERADA el 2026-08-20 por D-09b.** Se había entendido «para todos los que abran ese culto» como un valor único compartido | 2026-08-20 |
+| **D-08b** | **Se ESCRIBE `dim`, se LEE `°`.** El botón dice «dim», escribe `dim`, y la cuadrícula dibuja `°`. **El símbolo NO se teclea nunca** | Isaac lo pidió así el 2026-08-20: *«que arriba en la edición y donde se escribe a mano diga dim, pero que en la lectura aparezca °»*. Antes se había hecho al revés (el botón escribía `°`) y **dejó de reconocer el botón**, porque lo busca por su nombre. **Esto supera lo que decía D-08 sobre el disminuido**; lo del staccato con `!` sigue en pie | 2026-08-20 |
 | **D-09b** | **El tamaño de presentación se guarda POR MÚSICO Y POR CANCIÓN, en el navegador** (`localStorage`) | Isaac aclaró: *«quería que cada músico pudiese guardar a su manera el tamaño»*. Al ser de cada uno, **ya no hace falta migración ni tocar producción**, y funciona para lectores y músicos, que no tienen permiso de escritura. Además el tamaño ideal depende de la **pantalla** (tablet, móvil, PC), así que guardarlo por aparato es más correcto que sincronizarlo | 2026-08-20 |
 | **D-11** | **La exportación de datos se guarda en JSON**, un archivo por tabla más uno completo | Isaac lo delegó (*«guárdalo como lo veas mejor y para compatibilidad»*) y aclaró que el JSON de sus otros proyectos venía heredado, no elegido. JSON porque se lee sin herramientas, permite volver a cargar los datos y cumple su regla de «que no quede atrapado» | 2026-08-20 |
 | **D-12** | **El icono es el `.ico` sin fondo para la pestaña y el `.png` de 500×500 transparente para la app del móvil** | De los cuatro archivos que pasó Isaac, el `.ico` «removebg» trae **6 tamaños con transparencia** (16, 32, 48, 64, 128, 256) generados a medida → pestaña nítida. **Descartados:** el `.jpeg` (compresión con pérdida y **esquinas negras**) y el `.ico` con fondo negro (se vería un cuadrado negro en pestañas de tema oscuro) | 2026-08-20 |
@@ -275,6 +302,14 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | **Fase A · iconos (local)** | ✅ `/favicon.ico` 200 · `/icon-192.png` 200 · `/icon-512.png` 200 · `/manifest.json` **200 tras arreglar P-14** (antes 307) |
 | Canciones afectadas por O-04 | **1** (`Babel`, la única con `dim`) |
 | Canciones afectadas por O-02 | **2** (`Es Por Fe`, `Tu Bondad`, las únicas con `:1.5`) |
+| **Fase A · PUBLICADA** | push `30aef42..76f571b` → **Vercel: `success`** · despliegue creado **~70 s después** del push |
+| **Fase A · CI estrenado** | ✅ **verde a la primera**, 1 min 10 s (`Comprobar que compila`) |
+| **Fase B · consulta del catálogo** | ✅ **69 canciones** (antes el tope dejaba **50**) · **13** enseñan dos categorías · 0 sin categoría · 0 repetidas · **ya no se pide `content`** |
+| **Fase B · peso de la pantalla** | El catálogo bajó de **108 kB a 97,1 kB** de JavaScript, y dejó de traer el texto de acordes de las 69 canciones |
+| **Fase B · CON SESIÓN (la pantalla de verdad)** | ✅ **69 tarjetas** y el contador dice «69 canciones encontradas» · **56 tarjetas con 1 categoría y 13 con 2** (`Amigo De Dios` → Ofrenda + Alabanzas) · **0 miniaturas de acordes** · **0 contadores de «partes»** |
+| **Fase B · botón y pantalla completa** | ✅ Botón presente con su enlace · `/catalog/[id]/present` abre la canción con título, compositor, secciones y acordes · como el usuario de prueba es **lector**, ve `Vista · Pantalla completa` **sin Edición**, que es lo correcto |
+| **Fase B · rutas** | ✅ `/catalog/[id]/present` montada en el build · las cuatro rutas responden 307 a `/login` sin sesión, como debe ser |
+| **Fase A · producción** | `/login` 200 · culto público 200 y **renderiza igual que en local** (3 rellenas, 11 huecas, sin errores) · `/favicon.ico` 200 · `/manifest.json` **200** (antes 307) · iconos 192 y 512 servidos |
 
 ✅ **Corregido el 2026-08-20: estas cifras ya son un recuento real**, no estimaciones. Las
 anteriores venían de las estadísticas de Postgres y **eran muy malas**: decían «1 categoría»
@@ -303,6 +338,17 @@ dijo el primo a Isaac.
 cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
+
+**T-04 · `npm run build` con el servidor de desarrollo abierto rompe el servidor.**
+*Síntoma:* la página deja de cargar y sale un **Server Error** rojo diciendo
+`Cannot find module './vendor-chunks/@supabase.js'`, con una lista de rutas de `.next/server`.
+Asusta, pero **no es el código**: el repositorio está intacto y producción no se entera.
+*Causa:* `npm run dev` y `npm run build` **escriben en la misma carpeta `.next`**. El build de
+producción sustituye los archivos que el servidor de desarrollo tenía cargados, y este se queda
+buscando piezas que ya no existen.
+*Cómo se resuelve:* parar el servidor, **borrar `.next`** y volver a lanzar `npm run dev`.
+*Cómo se evita:* **no compilar mientras el servidor está abierto.** Primero se para, después se
+compila. Pasó el 2026-08-20, y el que se lo encontró en pantalla fue Isaac mientras probaba.
 
 **T-03 · `partituras.vercel.app` no es esta app.**
 *Síntoma:* comprobar un cambio y ver «Welcome to Next.js!».
@@ -352,6 +398,10 @@ worker en cada despliegue — **pendiente, ver §9**.
       base de datos.
 - [x] ~~Dónde va el botón de pantalla completa~~ → **junto a «Vista / Edición»** dentro de cada
       canción, para los tres roles (O-11).
+- [ ] ⚠️ **Desactivar la cuenta `pruebaclaude@gmail.com` cuando ya no haga falta** (Admin →
+      Desactivar). Tiene una contraseña sencilla y es una cuenta real en un sitio abierto a
+      internet. **Recordatorio: hoy desactivar un usuario NO le impide entrar** (P-01) — hasta
+      que P-01 esté arreglado, para cerrarla de verdad hay que **cambiarle la contraseña**.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -531,8 +581,8 @@ para que la app instalada en el móvil use el mismo logo.
 | Fase | Qué | Riesgo |
 |---|---|---|
 | **0** | ✅ ~~respaldar las 75 canciones~~ · ✅ ~~exportador a JSON (D-11)~~ · ⬜ clave `service_role` · ⬜ cuenta propia de Supabase · ⬜ acceso a Vercel | Ninguno, y **quita el riesgo de todo lo demás**. **Lo crítico ya está hecho** (§12.1) |
-| **A** | ✅ **HECHA (2026-08-20), sin publicar** — O-02 · O-04 · O-15 · +P-14 | Ninguno. Compila, verificada la lógica y probada en el navegador (§7). **Falta el permiso de Isaac para publicar** |
-| **B** | O-05 (quitar miniatura) → O-10 (todas las canciones) · O-07 (todas las categorías) · O-11 (pantalla completa) | Bajo. Todo es la misma pantalla y O-05 abarata las demás |
+| **A** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-02 · O-04 · O-15 · +P-14 · +P-10 | Salió limpia. Commits `1bdf61e` (r31) y `76f571b`. Verificada en producción |
+| **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
 | **C** | O-14 (cambiar nombre de cuenta) · **O-06 (tamaño guardado)** | Bajo. ⬅ **O-06 bajó aquí desde la fase E** al aclararse que es por músico (D-09b): ya no toca la base de datos |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
 | **E** | O-09 (repetir canción en un culto) | ⚠️ **La única que toca la base de datos de producción.** Migración nueva, aviso previo |
@@ -581,7 +631,9 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-09 · `parseSections` está duplicado** en `lib/sections.ts:4` y
       `SongDetailEditor.tsx:33`. El día que cambie una, el editor y la presentación dejarán de
       enseñar lo mismo.
-- [ ] **P-10 · Higiene:** `tsconfig.tsbuildinfo` (112 KB) commiteado y cambiando en casi cada
+- [~] **P-10 · Higiene** — ✅ **`tsconfig.tsbuildinfo` RESUELTO en la Fase A**: añadido a
+      `.gitignore` y sacado del control de versiones. Era la fuente número uno de conflictos al
+      trabajar dos personas. **Queda pendiente el resto:** `tsconfig.tsbuildinfo` (112 KB) commiteado y cambiando en casi cada
       commit; `layout.tsx` huérfano en la raíz; `"strict": false` en `tsconfig.json`; y el
       CORS de `next.config.js:6-9` fija `Allow-Origin` a su propio dominio con
       `Allow-Credentials: true` sobre `/catalog/*` y `/sheets/*`, que son páginas HTML, no una
@@ -701,12 +753,12 @@ otra persona y compartido con un proyecto ajeno.
 
 Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas:
 
-- **① Un CI mínimo en GitHub Actions que corra `npm run build` en cada push.** Es **la pieza
-  que más falta**: hoy, si alguien rompe el build, el sitio se queda con la versión anterior y
+- ✅ **① HECHO (2026-08-20) — CI en GitHub Actions** (`.github/workflows/build.yml`), verde a
+  la primera en 1 min 10 s. Era **la pieza que más faltaba**: hoy, si alguien rompe el build, el sitio se queda con la versión anterior y
   no hay ningún aviso. Con un archivo de unas 15 líneas, GitHub pone un ✅ o un ❌ en cada
   commit — y eso funciona **aunque no se tenga acceso al panel de Vercel**, así que resuelve
   la mitad del problema del acceso 12.2-1.
-- **② Sacar `tsconfig.tsbuildinfo` del repositorio** (P-10). Son 112 KB **generados** que
+- ✅ **② HECHO (2026-08-20) — `tsconfig.tsbuildinfo` fuera del repositorio** (P-10). Son 112 KB **generados** que
   cambian en casi cada commit. Con dos personas trabajando, **va a dar conflicto de merge una y
   otra vez**, siempre en un archivo que a nadie le importa. Se añade a `.gitignore` y se quita
   del seguimiento. Es la fricción número uno entre Isaac y su primo, y cuesta dos minutos.
@@ -733,6 +785,181 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 13b — La carpeta compartida la escriben dos conversaciones a la vez
+
+Al corregir la lección del disminuido apareció un lío en `LECCIONES.md`: **había lecciones que no
+eran mías** —una marcada `[GDT]`—, así que **otra conversación de Isaac, en otro proyecto,
+estuvo escribiendo en la carpeta compartida mientras trabajábamos aquí**. Sus números
+(L-96, L-97, L-98) chocaron con los míos, y al sustituir mi lección cortando «hasta la siguiente
+L-98» el corte **duplicó un bloque suyo**, porque esa L-98 estaba *antes*, no después.
+
+**Reparado sin perder nada de la otra conversación:** quitado el bloque duplicado, quitada mi
+versión errónea de L-97, y **mis tres lecciones renumeradas a L-99, L-100 y L-101**. Las suyas
+intactas. Copia del estado roto en `_RESPALDOS\LECCIONES-roto-2026-08-20.md` por si acaso.
+
+📌 De aquí sale **L-102**, que es la de fondo: la carpeta compartida **cambia mientras trabajas**,
+así que hay que releerla justo antes de escribir, calcular el máximo real —no el del final, que
+no está ordenada— y comprobar que no quedan duplicados.
+
+### 2026-08-20 · Tanda 13 — El disminuido, bien entendido esta vez (D-08b)
+
+Isaac aclara lo que quería desde el principio: **«que arriba en la edición y donde se escribe a
+mano diga dim, pero que en la lectura aparezca °»**. Es decir, lo contrario de lo que se hizo en
+la tanda 11.
+
+**Dónde estuvo mi error, y no fue el que creí:** en la Fase A cambié también **la etiqueta del
+botón** a `°`. Isaac busca ese botón por su nombre —«dim»—, así que al cambiarlo **dejó de
+encontrarlo**, y eso es lo que reportaba con *«no me sale lo del dim»*. Lo interpreté como que
+el botón escribía algo distinto de lo que enseñaba, y «arreglé» haciendo que escribiera `°`:
+me alejé más.
+
+**Cómo queda (D-08b):**
+- El botón **dice `dim`** y **escribe `dim`** (igual que antes de la Fase A).
+- La cuadrícula **dibuja `°`**, que es la única parte que él pidió cambiar.
+- `maj7` sigue como venía del primo: botón `Δ`, escribe `maj7`, dibuja `Δ`.
+- Se quitaron `°` y `°7` de los modificadores: ya no hay botón que los inserte.
+
+**Verificado sobre el código real:** botón `dim` → escribe `Bdim` → se lee `B°`; `dim7` →
+`Bdim7` → `B°7`; `Δ` → `Cmaj7` → `CΔ`; `m7b5` y `sus4` intactos; y escrito a mano `Bdim:2` se
+lee `B°:2` sin tocar la duración. **«Jericó», que tiene `°` a mano, se sigue viendo igual.**
+
+⚠️ **Compilado con el servidor de desarrollo parado**, aplicando T-04.
+
+### 2026-08-20 · Tanda 12 — Servidor de desarrollo roto por compilar encima (T-04)
+
+Isaac abre Jericó en `localhost` para comprobar la botonera y le sale un **Server Error**:
+`Cannot find module './vendor-chunks/@supabase.js'`.
+
+**No era el código.** Al verificar el arreglo del `°` se lanzó `npm run build` **con el servidor
+de desarrollo abierto**; los dos escriben en `.next`, y el build dejó al servidor buscando
+archivos que ya no estaban. Documentado como **T-04**, con el síntoma exacto para reconocerlo, y
+avisado junto a los comandos de §2.1.
+
+**Resuelto:** servidor parado, `.next` borrada, servidor relanzado. Comprobado: Jericó carga
+(HTTP 200), **`B°` se dibuja** y **no queda rastro de «dim»**. El repositorio no se tocó y
+producción nunca se enteró.
+
+📌 El aviso de *«Next.js 14.2.35 is outdated»* de esa pantalla es un recordatorio del propio
+Next, no tiene que ver con el fallo. Actualizar Next es una decisión aparte y no urgente.
+
+### 2026-08-20 · Tanda 11 — El botón del disminuido decía una cosa y escribía otra
+
+Isaac, usando el editor en «Jericó», avisa de que **el `°` no le sale «como las otras
+opciones»**. Tenía razón, y era un fallo mío de la Fase A: **la O-04 se hizo a medias**.
+
+**El fallo:** se cambió cómo se DIBUJA el acorde (`dim` → `°`) y también la etiqueta del botón,
+pero **no lo que el botón ESCRIBE**. Al pulsarlo se tecleaba la palabra `dim`, así que en el
+editor aparecía `Bdim` mientras al lado, en la misma canción, ya había `B°` escrito a mano. En
+la cuadrícula las dos se veían igual — el fallo **solo se notaba escribiendo**, que es
+justamente lo que yo no podía probar.
+
+**Arreglado:** el botón escribe ahora el símbolo `°` (y `°7`) directamente
+(`ChordToolbar.tsx`), y se añadieron `°` y `°7` a los modificadores que se pegan al acorde sin
+espacio (`chordInput.ts`) — sin eso habría salido `B °` en vez de `B°`. **`dim` se mantiene
+aceptado**: hay una canción (`Babel`) que lo usa y se sigue viendo `°`.
+
+**Verificado:** pulsar `[B] [°] [:2]` produce exactamente `B°:2` — probado sobre la función real
+del archivo, con 8 casos, todos correctos. `formatSuffix`: `°`→`°`, `dim`→`°`, `dim7`→`°7`,
+`m7b5` intacto. En la pantalla de «Jericó», `B°` se dibuja y **ya no aparece «dim» por ningún
+lado**.
+
+⚠️ **Lo que sigue sin poderse verificar aquí: la botonera.** Solo existe en modo edición, y el
+usuario de prueba es **lector**. Para comprobarla hace falta una cuenta de administrador, o
+mirarlo en `localhost`.
+
+**Las dos formas conviven a propósito:** `°` es lo que se escribe de ahora en adelante, y `dim`
+se sigue entendiendo para lo ya escrito. **Ninguna canción hubo que tocarla.**
+
+### 2026-08-20 · Tanda 10 — FASE B PUBLICADA · y por fin se puede verificar la pantalla
+
+Isaac avisa de que no ve los cambios. **No era el caché: la Fase B no estaba publicada** —le
+había pedido permiso y quedamos ahí—. Se comprueba con evidencia (el `catalog/page.tsx` de
+`origin/main` aún tenía `.limit(50)`), y **crea una cuenta de prueba** para que se pueda
+verificar la interfaz.
+
+- ✅ **Publicada la Fase B**: commit `36ba65d` (**r32**).
+- ✅ **Verificada la pantalla de verdad, con sesión** (§7): 69 tarjetas, 13 con dos categorías,
+  cero miniaturas, el botón en su sitio y la pantalla completa abriendo la canción.
+- ✅ **Documentado cómo entrar por línea de comandos** para verificar páginas protegidas (§2.3).
+  Hasta ahora **eso era el agujero de todas las verificaciones**: se comprobaban datos, rutas y
+  compilación, pero nunca la pantalla.
+- 🔧 **Falso positivo detectado y anotado:** `404: This page could not be found` aparece en el
+  HTML de **todas** las páginas de Next, así que no sirve para detectar errores. Casi se reporta
+  como fallo la pantalla completa, que funcionaba bien.
+- 📌 **Isaac preguntó cómo ver los cambios ANTES de publicar.** Respuesta: **`npm run dev` y
+  `localhost:3000`**. Queda como el orden de trabajo a partir de ahora: cambio → él lo mira en
+  local → publicar. Las vistas previas de Vercel **no sirven** porque están protegidas y él no
+  tiene acceso al panel.
+
+### 2026-08-20 · Tanda 9 — FASE B hecha (sin publicar)
+
+Isaac autoriza la Fase B y pide **una copia antes, por si algo sale mal**. Hecha:
+`_RESPALDOS\Partituras-antes-faseB-2026-08-20.bundle` (1,3 MB, historial completo con r31
+dentro) y `.zip` (2,4 MB, el código sin `node_modules`).
+
+- ✅ **O-05 · Fuera la miniatura de acordes de la tarjeta.** `SheetCard.tsx` reescrito: se
+  quitaron el `TablaturePreview` en miniatura **y el contador de «N partes»**, como pidió. La
+  tarjeta se queda con **título, compositor, categorías, tonalidad, compás y estado**.
+  → Se añadió también el **número de himno** cuando existe («Nº …»), por lo de *«y demás cosas
+  para saber las características»*. **Si no lo quiere, se quita en una línea.**
+- ✅ **O-10 · Salen todas.** Fuera el `.limit(50)` de `catalog/page.tsx`. **Comprobado contra la
+  base: la consulta devuelve 69**, que son las publicadas. ⚠️ **Las 6 en borrador siguen sin
+  aparecer**, y es correcto: están sin publicar. Para que salgan hay que marcarlas como
+  publicadas una a una en su editor — **decisión de Isaac, no se ha tocado ninguna**.
+- ✅ **O-07 · Todas las categorías.** El catálogo trae ahora
+  `sheet_categories(category:categories(...))` en la misma consulta —sin viajes extra— y la
+  tarjeta las pinta todas, con **la principal primero** y sin repetir. **13 canciones publicadas
+  enseñan dos categorías** (19 contando las de borrador).
+- ✅ **O-11 · Pantalla completa por canción.** Ruta nueva `catalog/[id]/present/page.tsx` que
+  reutiliza `PresentationView` con **una sola canción**, y botón **«Pantalla completa»** junto a
+  Vista/Edición (`SongDetailEditor.tsx`), **para los tres roles**, solo si la canción tiene
+  acordes. Se presenta en su tonalidad original; el músico la mueve con los ± de siempre.
+
+**Efecto secundario bueno:** quitar la miniatura dejó de cargar el visor de acordes en el
+catálogo — **de 108 kB a 97,1 kB** de JavaScript— y de traer el texto de las 69 canciones. Ese
+texto era justo lo que obligaba al tope de 50: **O-05 es lo que hizo barata a O-10**.
+
+⚠️ **Lo que NO se ha podido verificar aquí:** la pantalla en sí. `/catalog` exige sesión y no
+hay usuario de prueba, así que **la tarjeta nueva y el botón no se han visto con los ojos**.
+Verificado: que compila, que la ruta existe en el build, que las rutas responden, y **la
+consulta contra los datos reales**. Lo visual tiene que mirarlo Isaac.
+
+📌 **Observación para más adelante (no urgente):** el filtro por categorías sigue haciendo una
+consulta aparte a `sheet_categories` y metiendo los ids en un `id.in.(...)`
+(`catalog/page.tsx`). Con 94 vínculos la URL ya ronda los 3.000 caracteres; si el repertorio
+crece mucho puede llegar a estorbar. Ahora que las categorías vienen en la consulta principal,
+ese filtro **se podría hacer sin la consulta extra**. No se tocó para no cambiar de golpe algo
+que funciona.
+
+### 2026-08-20 · Tanda 8 — FASE A PUBLICADA · primer despliegue de Isaac
+
+Isaac autoriza el push. **Es el primer cambio que publica él en este proyecto**, y el primero
+de cualquiera desde el 12 de junio.
+
+**Publicado:** `30aef42..76f571b` en `main`, dos commits:
+- `1bdf61e` **r31** — la app (O-02, O-04, O-15, P-14). Sigue la numeración `rXX` del primo.
+- `76f571b` — notas, exportador y CI.
+
+**Verificado en producción** (§3 y §7): Vercel `success`, despliegue **~70 segundos** después del
+push · `/login` 200 · el culto público renderiza **idéntico a local**, sin errores ·
+`/manifest.json` pasó de **307 a 200** · los tres iconos se sirven.
+
+**De propina, dos mejoras de §12.4 que ya no hacen falta pedir:**
+- ✅ **CI de GitHub Actions**, verde a la primera en **1 min 10 s**. A partir de ahora, si
+  alguien rompe el build, sale una ✗ en el commit — **y eso se ve sin entrar a Vercel**, que es
+  justo lo que Isaac no puede hacer.
+- ✅ **`tsconfig.tsbuildinfo` fuera del repositorio**: era la fuente número uno de conflictos.
+
+⚠️ **Un detalle del reparto de commits, para que nadie se despiste al leer el historial:** el
+borrado de `tsconfig.tsbuildinfo` acabó **dentro del commit r31**, no en el segundo, porque el
+`git rm --cached` ya estaba en el índice al hacer el primer commit. El contenido es correcto y
+**no se reescribió el historial para arreglarlo** (D-02): la explicación está en el commit
+siguiente y aquí.
+
+⚠️ **Vercel: la invitación probablemente no sea posible** — ver §9.1. El plan gratuito **no
+tiene funciones de equipo**; invitar cuesta **20 USD/persona al mes**. Por eso el CI pasó de
+«mejora recomendable» a **la vía principal** para saber si un despliegue falló.
 
 ### 2026-08-20 · Tanda 7 — FASE A hecha (sin publicar)
 
@@ -823,8 +1050,9 @@ acceso a Vercel. **Lo crítico ya no bloquea: se puede empezar la Fase A cuando 
   era heredado, no una preferencia, y delegó el formato.
 - ✅ **O-11 ubicado**: junto a «Vista / Edición» dentro de cada canción, para los tres roles.
 - ✅ **O-10 confirmada**: el catálogo las muestra todas; «una canción por página» era del PDF.
-- 🔧 **Corregido un error propio en `LECCIONES.md`**: las lecciones nuevas se habían numerado
-  L-62…L-68 y **esos números ya estaban usados**. Renumeradas a **L-86…L-92**, con las
+- 🔧 **Corregido un error propio en `LECCIONES.md`** (le volvió a pasar en la tanda 13, ver
+  L-102): las lecciones nuevas se habían numerado L-62…L-68 y **esos números ya estaban
+  usados**. Renumeradas a **L-86…L-92**, con las
   referencias arregladas en `PROYECTOS.md`, `NUEVO-PROYECTO.md` y este archivo. De paso se
   detectaron **18 duplicados preexistentes** (L-46…L-61, L-78, L-79) que **no** se han tocado:
   son de otros proyectos y renumerarlos afectaría referencias en cuatro sitios. Decisión de

@@ -1,7 +1,6 @@
 "use client";
 
 import { RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
-import { formatSuffix } from "@/components/sheets/TablaturePreview";
 
 // Barra de botones compartida para insertar acordes, alteraciones, duraciones,
 // silencios, secciones y signos de repetición. La usan el editor y la página
@@ -14,6 +13,10 @@ type Props = {
 
 const ROOT_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 const BASIC_ALT = ["#", "b", "m", "7"];
+// Los botones dicen y escriben el nombre del acorde ("dim", "dim7"), que es
+// como Isaac los busca y como los teclea a mano. El símbolo "°" es cosa de la
+// LECTURA: lo pone formatSuffix al dibujar la cuadrícula. Se escribe "dim", se
+// lee "°" — decisión suya del 2026-08-20, ver D-08b.
 const EXT_ALT = ["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"];
 // Duraciones: :0.25 = semicorchea · :0.5 = corchea · :1 = negra · :1.5 = negra
 // con puntillo · :2 = blanca · :3 = blanca con puntillo · :4 = redonda.
@@ -79,10 +82,9 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             onClick={() => onInsert(alt)}
             className="h-7 rounded border border-brand-100 bg-brand-50 px-1.5 text-[9px] font-semibold text-brand-700 transition-colors hover:bg-brand-100 dark:border-brand-900 dark:bg-brand-950/50 dark:text-brand-200"
           >
-            {/* El botón enseña el MISMO símbolo que se verá en la cuadrícula
-                (Δ, °, °7), reusando la función del visor para que no se
-                separen el día que se añada otro símbolo. */}
-            {formatSuffix(alt)}
+            {/* El botón enseña el NOMBRE del acorde, no el símbolo: es como se
+                busca y como se escribe a mano. (La Δ del maj7 ya venía así.) */}
+            {alt === "maj7" ? "Δ" : alt}
           </button>
         ))}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Dur:</span>
