@@ -86,6 +86,8 @@ export interface Service {
 
 // Canción lista para el modo presentación (incluye el contenido de acordes).
 export interface PresentSong {
+  // Id de la canción: es la clave con la que se guarda su tamaño de letra.
+  id:           string;
   title:        string;
   composer:     string | null;
   original_key: string | null;   // tonalidad original (sheet.key_signature)

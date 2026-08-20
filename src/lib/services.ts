@@ -23,6 +23,7 @@ export function mapPresentSongs(rows: any[]): PresentSong[] {
       if (r.sheet_key && r.sheet_key.content != null) {
         const k = r.sheet_key.key_signature ?? null;
         return {
+          id:           r.sheet_id,
           title:        r.sheet.title,
           composer:     r.sheet.composer ?? null,
           original_key: k,
@@ -32,6 +33,7 @@ export function mapPresentSongs(rows: any[]): PresentSong[] {
         };
       }
       return {
+        id:           r.sheet_id,
         title:        r.sheet.title,
         composer:     r.sheet.composer ?? null,
         original_key: r.sheet.key_signature ?? null,

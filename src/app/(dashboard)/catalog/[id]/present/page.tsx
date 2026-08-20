@@ -29,6 +29,7 @@ export default async function SongPresentPage({
   // Sin tono de destino: se presenta en su tonalidad original y el músico la
   // mueve con los botones de ± si le hace falta.
   const song: PresentSong = {
+    id:           params.id,
     title:        sheet.title,
     composer:     sheet.composer ?? null,
     original_key: sheet.key_signature ?? null,

@@ -23,6 +23,40 @@ type Props = {
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 2;
 
+// ─────────────────────────────────────────────────────────────
+// Tamaño de letra guardado, POR CANCIÓN y POR MÚSICO.
+//
+// Se guarda en el navegador de cada uno (no en la base de datos) por dos
+// motivos: cada músico lo quiere a su manera, y el tamaño que hace falta
+// depende de la pantalla —no es lo mismo una tablet que un móvil que un PC—.
+// Así también funciona para lectores y músicos, que no tienen permiso para
+// escribir en las canciones.
+// ─────────────────────────────────────────────────────────────
+const CLAVE_TAMANOS = "presentacion-tamanos";
+
+function leerTamanos(): Record<string, number> {
+  if (typeof window === "undefined") return {};
+  try {
+    const guardado = JSON.parse(localStorage.getItem(CLAVE_TAMANOS) || "{}");
+    return guardado && typeof guardado === "object" ? guardado : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Guarda el tamaño de una canción; con `null` lo borra (vuelve al automático). */
+function guardarTamano(songId: string, escala: number | null) {
+  if (typeof window === "undefined") return;
+  try {
+    const todos = leerTamanos();
+    if (escala === null) delete todos[songId];
+    else todos[songId] = escala;
+    localStorage.setItem(CLAVE_TAMANOS, JSON.stringify(todos));
+  } catch {
+    /* almacenamiento lleno o bloqueado: se sigue sin guardar */
+  }
+}
+
 export default function PresentationView({ title, songs, backHref }: Props) {
   const [index, setIndex] = useState(0);
   // El tamaño de letra lo decide el auto-ajuste; el usuario puede ajustarlo a
@@ -65,7 +99,8 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         return next;
       });
       setLiveOffset(0); // reinicia la transposición manual al cambiar de canción
-      setAutoFit(true); // re-ajusta a pantalla en la nueva canción
+      // El tamaño lo decide el efecto de más abajo: si la canción nueva tiene
+      // uno guardado se respeta, y si no, se vuelve al ajuste automático.
     },
     [total]
   );
@@ -103,7 +138,8 @@ export default function PresentationView({ title, songs, backHref }: Props) {
       const doc = document as any;
       const fs = Boolean(document.fullscreenElement || doc.webkitFullscreenElement);
       setIsFullscreen(fs);
-      setAutoFit(true); // re-ajusta los acordes al nuevo espacio disponible
+      // No se toca el tamaño: si el músico fijó uno, manda el suyo. Si está en
+      // automático, el propio auto-ajuste se re-dispara al cambiar el espacio.
       if (fs) {
         pokeChrome(); // muestra los controles un momento y luego los oculta
       } else {
@@ -120,11 +156,37 @@ export default function PresentationView({ title, songs, backHref }: Props) {
     };
   }, [pokeChrome]);
 
-  // Ajuste manual del tamaño (desactiva el auto-ajuste para esta canción).
-  const bumpScale = useCallback((delta: number) => {
-    setAutoFit(false);
-    setFontScale((f) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(f + delta).toFixed(2))));
-  }, []);
+  // Ajuste manual del tamaño: desactiva el auto-ajuste para esta canción y
+  // GUARDA la elección, para que la próxima vez se abra así (O-06).
+  const bumpScale = useCallback(
+    (delta: number) => {
+      setAutoFit(false);
+      const nuevo = Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(scaleRef.current + delta).toFixed(2)));
+      scaleRef.current = nuevo;
+      setFontScale(nuevo);
+      if (song?.id) guardarTamano(song.id, nuevo);
+    },
+    [song?.id]
+  );
+
+  // Al abrir una canción (y al pasar a la siguiente): si el músico le guardó un
+  // tamaño, se usa ese; si no, se deja que el auto-ajuste haga su trabajo.
+  //
+  // Va en useLayoutEffect y ANTES del auto-ajuste a propósito: así se decide el
+  // tamaño antes de pintar. Con un useEffect normal se vería un parpadeo — la
+  // canción aparecería un instante con el tamaño calculado y saltaría al
+  // guardado.
+  useLayoutEffect(() => {
+    if (!song?.id) return;
+    const guardado = leerTamanos()[song.id];
+    if (typeof guardado === "number" && guardado >= MIN_SCALE && guardado <= MAX_SCALE) {
+      scaleRef.current = guardado;
+      setFontScale(guardado);
+      setAutoFit(false);
+    } else {
+      setAutoFit(true);
+    }
+  }, [song?.id]);
 
   // Navegación con teclado (flechas / espacio).
   useEffect(() => {
@@ -346,8 +408,11 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         </button>
         <button
           type="button"
-          onClick={() => setAutoFit(true)}
-          title="Ajustar a pantalla"
+          onClick={() => {
+            setAutoFit(true);
+            if (song?.id) guardarTamano(song.id, null); // olvida el tamaño fijado
+          }}
+          title="Ajustar a pantalla (olvida el tamaño guardado de esta canción)"
           aria-label="Ajustar a pantalla"
           className={
             "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors " +
@@ -362,7 +427,7 @@ export default function PresentationView({ title, songs, backHref }: Props) {
         {/* Alternar columnas: 1 → 2 → 3 → 1. */}
         <button
           type="button"
-          onClick={() => { setColumns((c) => (c === 3 ? 1 : ((c + 1) as 1 | 2 | 3))); setAutoFit(true); }}
+          onClick={() => setColumns((c) => (c === 3 ? 1 : ((c + 1) as 1 | 2 | 3)))}
           title={`Columnas: ${columns} (cambiar)`}
           aria-label={`Columnas: ${columns}. Pulsa para cambiar`}
           className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"

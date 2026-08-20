@@ -306,6 +306,8 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | **Fase A · CI estrenado** | ✅ **verde a la primera**, 1 min 10 s (`Comprobar que compila`) |
 | **Fase B · consulta del catálogo** | ✅ **69 canciones** (antes el tope dejaba **50**) · **13** enseñan dos categorías · 0 sin categoría · 0 repetidas · **ya no se pide `content`** |
 | **Fase B · peso de la pantalla** | El catálogo bajó de **108 kB a 97,1 kB** de JavaScript, y dejó de traer el texto de acordes de las 69 canciones |
+| **Fase C · lógica del tamaño guardado** | ✅ **10 de 10 casos**: guarda por canción sin pisar otras · el botón «ajustar» borra solo la suya · valor fuera de rango se ignora · almacén corrupto no rompe nada |
+| **Fase C · las 3 pantallas de presentación** | ✅ Culto con sesión, culto compartido y canción suelta: **HTTP 200, sin errores**, con sus acordes · **los 7 ids de canción del culto llegan al visor** por las dos vías |
 | **Fase B · CON SESIÓN (la pantalla de verdad)** | ✅ **69 tarjetas** y el contador dice «69 canciones encontradas» · **56 tarjetas con 1 categoría y 13 con 2** (`Amigo De Dios` → Ofrenda + Alabanzas) · **0 miniaturas de acordes** · **0 contadores de «partes»** |
 | **Fase B · botón y pantalla completa** | ✅ Botón presente con su enlace · `/catalog/[id]/present` abre la canción con título, compositor, secciones y acordes · como el usuario de prueba es **lector**, ve `Vista · Pantalla completa` **sin Edición**, que es lo correcto |
 | **Fase B · rutas** | ✅ `/catalog/[id]/present` montada en el build · las cuatro rutas responden 307 a `/login` sin sesión, como debe ser |
@@ -338,6 +340,17 @@ dijo el primo a Isaac.
 cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
+
+**T-05 · «supabaseKey is required» en el panel de administración, solo en el equipo de casa.**
+*Síntoma:* en `localhost`, cualquier acción de `/admin` —crear usuario, cambiar nombre, rol,
+contraseña o activar— falla con `supabaseKey is required`. **En la página publicada funciona.**
+*Causa:* `SUPABASE_SERVICE_ROLE_KEY` está **vacía** en el `.env.local`, y **las cinco acciones
+del panel** pasan por `createAdminClient()`. En Vercel la clave sí está configurada, de ahí que
+allí no pase.
+*Cómo se resuelve:* poner la clave en `.env.local` (§9.1). **No hay nada que arreglar en el
+código.**
+*Mejorado el 2026-08-20:* ahora el mensaje explica qué falta y de dónde se saca, en vez del
+`supabaseKey is required` de la librería, que no dice nada.
 
 **T-04 · `npm run build` con el servidor de desarrollo abierto rompe el servidor.**
 *Síntoma:* la página deja de cargar y sale un **Server Error** rojo diciendo
@@ -375,8 +388,11 @@ compila. Pasó el 2026-08-20, y el que se lo encontró en pantalla fue Isaac mie
       ⚠️ **Antes de intentarlo hay que averiguar si el dominio `partituras-blush.vercel.app`
       sobrevive a la transferencia**: si cambia, los músicos pierden el enlace que ya usan.
       **(c) dejarlo como está** y pedirle al primo que mire cuando algo falle.
-- [ ] **Conseguir la clave `service_role`** del panel de Supabase → Settings → API, y
-      ponerla en `.env.local`. Sin ella, `/admin` no puede crear usuarios en local.
+- [ ] 🔴 **Conseguir la clave `service_role`** (solo puede sacarla el primo, hasta que invite a
+      Isaac a su organización). **Subió de prioridad el 2026-08-20:** sin ella, **NINGUNA acción
+      del panel de administración funciona en el equipo de Isaac** —ni crear usuarios, ni cambiar
+      nombres, roles o contraseñas— y por tanto **O-14 no se puede probar en local** (T-05).
+      En la página publicada sí funciona.
 - [x] ~~Aclarar con qué cuenta está conectado Supabase~~ → ✅ **RESUELTO y CONFIRMADO el
       2026-08-20 por el propio Isaac: «yo Supabase ni siquiera tengo una cuenta».** La sesión
       conectada a Claude es **la de su primo**, sin lugar a dudas. Encaja con la evidencia: veía
@@ -572,6 +588,51 @@ están generados uno a uno en vez de encogidos al vuelo.
 lo sirve como icono de pestaña, sin configurar nada. Conviene cambiar también `public/icon.svg`
 para que la app instalada en el móvil use el mismo logo.
 
+#### Las 4 nuevas (dictadas el 2026-08-20, después de probar la Fase C)
+
+**O-16 · Desde la pantalla completa de una canción, poder pasar a la SIGUIENTE del catálogo.**
+Hoy `catalog/[id]/present` le pasa al visor **una sola canción**, así que las flechas y el
+deslizar no llevan a ninguna parte. `PresentationView` ya sabe manejar una lista —es lo que hace
+en los cultos—, así que se trata de darle **todo el catálogo** y decirle por cuál empezar.
+→ ❓ **PREGUNTAR:** ¿en qué orden? El catálogo se ordena por título, pero si el músico venía de
+**filtrar por categoría o de una búsqueda**, lo natural es que «la siguiente» sea la siguiente
+**de lo que estaba viendo**, no de la lista completa. Eso obliga a arrastrar el filtro hasta la
+pantalla de presentación.
+→ Coste: bajo si es siempre el catálogo entero por título; medio si tiene que respetar el filtro.
+
+**O-17 · Al tocar un acorde, ver cómo se toca en piano, bajo, guitarra y trompeta.**
+Isaac ya avisó: *«esto último si ves que es muy complicado puedes dejarlo en pendiente»*.
+→ **Es complicado, y conviene decir por qué antes de prometer nada.** No es un trabajo, son
+cuatro, y solo dos se parecen:
+- **Piano** — el más asequible: las notas del acorde **se calculan** a partir de la raíz y la
+  calidad, y se pintan sobre un teclado. Sin datos externos.
+- **Bajo** — asequible: normalmente basta la fundamental (y quizá quinta y octava) sobre un
+  mástil de 4 cuerdas.
+- **Guitarra** — el más pesado: hace falta una **tabla de digitaciones** (qué dedo en qué
+  traste) para cada acorde, y el proyecto no la tiene. Son decenas de formas, y para acordes
+  como `B°` o `Dm7` hay varias posiciones válidas: **hay que elegir cuál se enseña**.
+- **Trompeta** — ⚠️ **el que hay que hablar antes de programar**: la trompeta **toca una nota a
+  la vez, no acordes**, así que «el acorde en trompeta» no significa nada por sí solo. Y encima
+  **es un instrumento transpositor (en Si♭)**: lo que el trompetista lee está **un tono por
+  encima** de lo que suena. Si se le enseña la digitación sin tener eso en cuenta, **estaría mal
+  y sonaría mal en el culto**.
+→ Además hay que hacer que **los acordes respondan al clic**, y eso toca `TablaturePreview`, que
+es el corazón del proyecto (§4).
+→ 💡 **RECOMENDACIÓN: por fases, y empezando por piano y bajo**, que se calculan solos y sirven
+para ver si de verdad se usa. Guitarra después. Trompeta, solo tras aclarar qué debe mostrar.
+→ **PENDIENTE, sin empezar.**
+
+**O-18 · Una sección de LETRAS de las canciones, para las cantantes.** `[PENDIENTE]`
+→ ❓ Hoy la letra vive suelta dentro de los acordes, entre paréntesis y recortada
+(`(Dios le dijo a-)`), y existe una columna `sheets.lyrics` **que está sin usar y a 0**. Habría
+que decidir **de dónde sale la letra**: ¿se escribe aparte en esa columna, o se saca de lo que ya
+hay entre paréntesis? Son dos proyectos distintos.
+
+**O-19 · Una sección para TROMPETAS.** `[PENDIENTE]`
+→ ❓ Hay que preguntar qué necesita ver un trompetista que no le sirva del cancionero actual:
+¿su línea de notas?, ¿solo su parte del arreglo?, ¿la misma canción transpuesta a su tono? Va de
+la mano de la duda de O-17 sobre el instrumento transpositor.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -583,10 +644,12 @@ para que la app instalada en el móvil use el mismo logo.
 | **0** | ✅ ~~respaldar las 75 canciones~~ · ✅ ~~exportador a JSON (D-11)~~ · ⬜ clave `service_role` · ⬜ cuenta propia de Supabase · ⬜ acceso a Vercel | Ninguno, y **quita el riesgo de todo lo demás**. **Lo crítico ya está hecho** (§12.1) |
 | **A** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-02 · O-04 · O-15 · +P-14 · +P-10 | Salió limpia. Commits `1bdf61e` (r31) y `76f571b`. Verificada en producción |
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
-| **C** | O-14 (cambiar nombre de cuenta) · **O-06 (tamaño guardado)** | Bajo. ⬅ **O-06 bajó aquí desde la fase E** al aclararse que es por músico (D-09b): ya no toca la base de datos |
+| **C** | ✅ **HECHA (2026-08-20), sin publicar** — O-14 · O-06 | Bajo, no toca la base de datos. Compila y la lógica está probada (§7). **Falta que Isaac la mire y dé permiso** |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
 | **E** | O-09 (repetir canción en un culto) | ⚠️ **La única que toca la base de datos de producción.** Migración nueva, aviso previo |
 | **F** | O-08 (impresión horizontal, D-10) | Medio. Hay que probarla **en teléfono** además de en PC |
+| **G** | O-16 (pasar a la siguiente canción desde el catálogo) | Bajo, salvo que tenga que respetar el filtro |
+| **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | **Sin fase asignada: pendientes.** Los tres son grandes y tienen preguntas abiertas |
 
 **Antes de la fase D es obligatorio** guardar el `content` de las 75 canciones y comparar el
 render antes y después (§12.5). **La fase 0 cubre eso de paso.**
@@ -785,6 +848,56 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 15 — Isaac prueba la Fase C y dicta 4 órdenes nuevas
+
+**Lo que probó:**
+- ✅ **O-06 funciona**, confirmado por él en el culto **y** en el catálogo, probando las cuatro
+  maneras: *«lo del tamaño de letra y guardado va súper»*.
+- ⚠️ **O-14 le dio `supabaseKey is required`** en local. **No es un fallo del código:** falta la
+  clave `service_role` en su `.env.local` → documentado como **T-05**. Él mismo dio con la
+  pista buena: *«en la página que está subido sí pude cambiar el rol»*, porque allí Vercel sí la
+  tiene. **O-14 se queda sin probar hasta que haya clave, o hasta publicarlo.**
+- 🔧 **Mejorado el mensaje de error** (`supabase/server.ts`): ahora dice qué clave falta, para
+  qué sirve y de dónde se saca.
+
+**Lo que dictó (§9.2, «Las 4 nuevas»):** **O-16** (pasar a la siguiente canción desde la pantalla
+completa del catálogo), **O-17** (ver el acorde en piano, bajo, guitarra y trompeta), **O-18**
+(sección de letras para las cantantes) y **O-19** (sección para trompetas). Las tres últimas
+quedan **pendientes**, como él mismo propuso para O-17.
+
+📌 **De O-17 salió una duda musical que hay que resolver antes de programar nada:** la trompeta
+**no toca acordes** y **es un instrumento transpositor en Si♭** —lee un tono por encima de lo
+que suena—. Enseñarle una digitación sin tener eso en cuenta sería enseñarle algo **incorrecto**.
+La misma duda afecta a O-19.
+
+### 2026-08-20 · Tanda 14 — FASE C hecha (sin publicar)
+
+- ✅ **O-14 · Cambiar el nombre de una cuenta.** `setNameAction` nueva en `admin/actions.ts`
+  (con `requireAdmin`), y en `AdminUsers.tsx` un lápiz junto a cada nombre que abre dos campos
+  —nombre y apellido— con Guardar y Cancelar. **No cierra la sesión de nadie**: el nombre vive en
+  `profiles` y la sesión en `auth.users` + la cookie.
+- ✅ **O-06 · El tamaño de letra se guarda por canción y por músico** (D-09b), en el navegador
+  de cada uno.
+  - Ajustar con **+/−** guarda el tamaño de esa canción.
+  - El botón **«Ajustar a pantalla»** lo borra y devuelve la canción al automático.
+  - Al abrir una canción, si tiene tamaño guardado se usa; si no, se auto-ajusta.
+  - **Cambiar de columnas o entrar en pantalla completa ya NO pisan el tamaño fijado**: antes
+    forzaban el automático. Si el músico fijó un tamaño, manda el suyo.
+  - Vale en las **tres** pantallas de presentación: culto, culto compartido y canción suelta.
+
+**Para poder guardarlo hizo falta que la canción llevara su id hasta el visor:** `PresentSong`
+tiene ahora `id`, `mapPresentSongs` lo rellena y las dos consultas de presentación piden
+`sheet_id`. **Comprobado que los 7 ids del culto llegan por las dos vías.**
+
+📌 **Detalle de acabado:** el efecto que aplica el tamaño guardado va en `useLayoutEffect` y
+**antes** del auto-ajuste. Con un efecto normal se veía un parpadeo: la canción aparecía un
+instante con el tamaño calculado y saltaba al guardado.
+
+⚠️ **Punto ciego, otra vez el mismo:** `/admin` es solo para administradores y la cuenta de
+prueba es **lectora** —comprobado: rebota a `/catalog`—, así que **O-14 no se ha visto
+funcionando**. La acción existe, compila y comprueba permisos; el resto lo tiene que mirar
+Isaac. Es el mismo hueco que con la botonera (L-100).
 
 ### 2026-08-20 · Tanda 13b — La carpeta compartida la escriben dos conversaciones a la vez
 

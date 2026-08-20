@@ -97,6 +97,38 @@ export async function setPasswordAction(userId: string, password: string): Promi
   }
 }
 
+/**
+ * Cambia el nombre y el apellido de un usuario.
+ *
+ * NO cierra la sesión de nadie: el nombre vive en la tabla `profiles`, mientras
+ * que la sesión vive en `auth.users` y en la cookie del navegador. Lo que sí
+ * cerraría sesión sería cambiar el correo o la contraseña, y aquí no se tocan.
+ */
+export async function setNameAction(
+  userId: string,
+  firstName: string,
+  lastName?: string
+): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+
+    const nombre = firstName.trim();
+    if (!nombre) throw new Error("El nombre es obligatorio.");
+
+    const admin = await createAdminClient();
+    const { error } = await admin
+      .from("profiles")
+      .update({ first_name: nombre, last_name: lastName?.trim() || null })
+      .eq("id", userId);
+    if (error) throw error;
+
+    revalidatePath("/admin");
+    return { ok: true, message: "Nombre actualizado." };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
 /** Cambia el rol de un usuario. No permite que el admin se quite su propio rol. */
 export async function setRoleAction(userId: string, role: UserRole): Promise<ActionResult> {
   try {
