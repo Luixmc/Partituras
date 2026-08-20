@@ -1,0 +1,41 @@
+# Comprueba que el proyecto COMPILA en cada subida.
+#
+# Para qué sirve: si un cambio rompe el build, Vercel no publica y el sitio se
+# queda con la versión anterior SIN AVISAR A NADIE. Como no tenemos acceso al
+# panel de Vercel, esto es lo que da la señal: GitHub pone un ✓ o una ✗ al lado
+# de cada commit, y eso sí se ve desde cualquier parte.
+#
+# NO publica nada: de publicar se encarga Vercel por su cuenta. Esto solo avisa.
+#
+# No necesita ninguna clave: se comprobó que `next build` compila sin las
+# variables de Supabase (las páginas que hablan con la base son dinámicas y no
+# se ejecutan al compilar).
+
+name: Comprobar que compila
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  build:
+    name: npm run build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar
+        run: npm run build

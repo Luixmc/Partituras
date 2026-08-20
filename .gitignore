@@ -17,3 +17,6 @@ node_modules/
 *.log
 .vercel
 *.zip
+
+# Generado por TypeScript: no debe versionarse (daba conflicto en cada commit)
+tsconfig.tsbuildinfo
