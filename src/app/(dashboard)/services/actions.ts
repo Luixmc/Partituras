@@ -52,10 +52,12 @@ function cleanInput(input: ServiceInput) {
 
   const service_date = input.service_date && input.service_date.trim() ? input.service_date : null;
 
-  // De-duplica canciones conservando el primer orden y reasigna position.
-  const seen = new Set<string>();
+  // Se conserva el orden y se renumera la posición. Ya NO se quitan las
+  // repetidas: una misma canción puede ir varias veces en el culto (O-09), y
+  // cada aparición lleva su propio tono y su propia nota. Antes se borraban en
+  // silencio, sin avisar de nada.
   const songs = (input.songs ?? [])
-    .filter((s) => s.sheet_id && !seen.has(s.sheet_id) && seen.add(s.sheet_id))
+    .filter((s) => s.sheet_id)
     .map((s, i) => ({
       sheet_id:     s.sheet_id,
       position:     i,

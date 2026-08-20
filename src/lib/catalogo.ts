@@ -40,9 +40,10 @@ export function categoriasElegidas(filtros: FiltrosCatalogo): string[] {
 
 // Campos que necesita la tarjeta del catálogo. No se pide `content`: la tarjeta
 // dejó de enseñar la miniatura de acordes (O-05) y ese texto era lo que obligaba
-// a limitar la lista.
+// a limitar la lista. Tampoco `hymn_number`: Isaac no lo quiere ver en ningún
+// sitio (D-16), así que ni se muestra ni se busca por él.
 const CAMPOS =
-  "id, title, composer, hymn_number, key_signature, time_signature, editor_type, status, " +
+  "id, title, composer, key_signature, time_signature, editor_type, status, " +
   "thumbnail_path, drive_file_id, page_count, created_at, " +
   "category:categories!category_id(name, color, icon), " +
   "sheet_categories(category:categories(name, color))";
@@ -82,7 +83,7 @@ export async function buscarCanciones(
       .trim();
     if (seguro) {
       consulta = consulta.or(
-        `title.ilike.%${seguro}%,composer.ilike.%${seguro}%,hymn_number.ilike.%${seguro}%`
+        `title.ilike.%${seguro}%,composer.ilike.%${seguro}%`
       );
     }
   }

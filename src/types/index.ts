@@ -45,6 +45,8 @@ export interface Sheet {
   composer:        string | null;
   arranger:        string | null;
   lyricist:        string | null;
+  // La columna existe en la base y una canción la tiene rellena, pero NO se
+  // muestra ni se busca por ella en ninguna pantalla (D-16).
   hymn_number:     string | null;
   key_signature:   string | null;
   time_signature:  string | null;
@@ -169,7 +171,6 @@ export interface SheetCatalogItem {
   id:              string;
   title:           string;
   composer:        string | null;
-  hymn_number:     string | null;
   key_signature:   string | null;
   time_signature:  string | null;
   editor_type:     EditorType;

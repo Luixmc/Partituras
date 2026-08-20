@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Columns2, Columns3, Expand, Maximize2, Minus
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
-import { keyToPitch, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
+import { esMenor, keyToPitch, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
 import type { PresentSong } from "@/types";
 
 const PITCH_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -303,12 +303,18 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
   const sections = useMemo(() => (content ? parseSections(content) : []), [content]);
 
-  // Etiqueta del tono mostrado (original transpuesto).
+  // Etiqueta del tono mostrado (el original, ya transpuesto).
+  //
+  // Se conserva el MODO: al transponer solo se mueve la nota, así que una
+  // canción en "Bm" salía como "B" a secas — otra tonalidad distinta. El modo
+  // se lleva aparte y se vuelve a pegar al final.
   const keyLabel = useMemo(() => {
+    const tonoBase = song?.target_key || song?.original_key;
     const base = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
-    if (base === null) return song?.target_key || song?.original_key || null;
+    if (base === null) return tonoBase || null;
     const eff = (((base + liveOffset) % 12) + 12) % 12;
-    return (flats ? PITCH_FLAT : PITCH_SHARP)[eff];
+    const nota = (flats ? PITCH_FLAT : PITCH_SHARP)[eff];
+    return esMenor(tonoBase) ? `${nota}m` : nota;
   }, [song?.target_key, song?.original_key, liveOffset, flats]);
 
   if (!song) {

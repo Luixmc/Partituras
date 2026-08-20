@@ -67,11 +67,6 @@ export default function SheetCard({
                 {sheet.time_signature}
               </span>
             )}
-            {sheet.hymn_number && (
-              <span className="text-[11px] text-slate-400">
-                Nº {sheet.hymn_number}
-              </span>
-            )}
           </div>
 
           <div className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-50 py-2 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-100 dark:bg-brand-950/60 dark:text-brand-200 dark:hover:bg-brand-900">

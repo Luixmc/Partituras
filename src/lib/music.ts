@@ -74,6 +74,20 @@ export function keyToPitch(key: string | null | undefined): number | null {
   return pitch === undefined ? null : pitch;
 }
 
+/**
+ * ¿El tono es MENOR? Reconoce "Am", "Bbm", "C#m" y también "A minor".
+ *
+ * Hace falta porque al transponer solo se mueve la NOTA: `keyToPitch("Bm")`
+ * devuelve la altura de si, y al volver a escribirla salía "B" a secas. El modo
+ * hay que llevarlo aparte y devolverlo al final, o "Bm" se lee como "B" y son
+ * dos tonalidades distintas.
+ */
+export function esMenor(key: string | null | undefined): boolean {
+  if (!key) return false;
+  const t = key.trim();
+  return /minor$/i.test(t) || /^[A-G][#b]?m$/i.test(t);
+}
+
 /** ¿El tono destino prefiere bemoles? (Eb, F, Ab, Bb, Dm, Cm...) */
 export function prefersFlats(targetKey: string | null | undefined): boolean {
   if (!targetKey) return false;

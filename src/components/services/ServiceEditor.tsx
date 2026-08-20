@@ -43,6 +43,9 @@ export interface CatalogSong {
 }
 
 interface SongRow {
+  /** Clave de ESTA fila. No es la canción: una misma canción puede estar varias
+      veces en el culto (O-09), así que sheet_id ya no vale para identificarla. */
+  uid:            string;
   sheet_id:       string;
   title:          string;
   composer:       string | null;
@@ -75,6 +78,11 @@ function CategoryBadge({ name, color }: { name: string | null; color: string | n
   );
 }
 
+/** Clave única para una fila del culto. Solo vive en el navegador: la base
+    genera la suya al guardar. */
+let contadorFilas = 0;
+const nuevaFila = () => `fila-${Date.now()}-${contadorFilas++}`;
+
 export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const router = useRouter();
   const isNew = !service;
@@ -85,6 +93,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [notes, setNotes] = useState(service?.notes ?? "");
   const [songs, setSongs] = useState<SongRow[]>(
     (service?.songs ?? []).map((s) => ({
+      uid:            nuevaFila(),
       sheet_id:       s.sheet_id,
       title:          s.title,
       composer:       s.composer,
@@ -231,25 +240,32 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     proceed?.();
   };
 
-  const usedIds = useMemo(() => new Set(songs.map((s) => s.sheet_id)), [songs]);
+  // Cuántas veces está ya cada canción en el culto. NO se usa para esconderla
+  // del buscador —ahora se puede repetir a propósito (O-09)—, solo para avisar
+  // de que ya está puesta.
+  const vecesPuesta = useMemo(() => {
+    const cuenta = new Map<string, number>();
+    for (const s of songs) cuenta.set(s.sheet_id, (cuenta.get(s.sheet_id) ?? 0) + 1);
+    return cuenta;
+  }, [songs]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
     return catalog
-      .filter((c) => !usedIds.has(c.id))
       .filter(
         (c) =>
           c.title.toLowerCase().includes(q) ||
           (c.composer ?? "").toLowerCase().includes(q)
       )
       .slice(0, 8);
-  }, [query, catalog, usedIds]);
+  }, [query, catalog]);
 
   function addSong(c: CatalogSong) {
     setSongs((prev) => [
       ...prev,
       {
+        uid:            nuevaFila(),
         sheet_id:       c.id,
         title:          c.title,
         composer:       c.composer,
@@ -265,8 +281,8 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     setQuery("");
   }
 
-  function removeSong(id: string) {
-    setSongs((prev) => prev.filter((s) => s.sheet_id !== id));
+  function removeSong(uid: string) {
+    setSongs((prev) => prev.filter((s) => s.uid !== uid));
   }
 
   function move(index: number, dir: -1 | 1) {
@@ -279,8 +295,8 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     });
   }
 
-  function patchSong(id: string, patch: Partial<SongRow>) {
-    setSongs((prev) => prev.map((s) => (s.sheet_id === id ? { ...s, ...patch } : s)));
+  function patchSong(uid: string, patch: Partial<SongRow>) {
+    setSongs((prev) => prev.map((s) => (s.uid === uid ? { ...s, ...patch } : s)));
   }
 
   async function handleSave(): Promise<boolean> {
@@ -397,7 +413,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
         )}
         <ol className="space-y-2">
           {songs.map((s, i) => (
-            <li key={s.sheet_id}>
+            <li key={s.uid}>
               <Link
                 href={`/catalog/${s.sheet_id}`}
                 className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900"
@@ -573,6 +589,13 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
                         {c.title}
+                        {/* Ya está en el culto: se avisa, pero NO se impide
+                            volver a añadirla (O-09). */}
+                        {(vecesPuesta.get(c.id) ?? 0) > 0 && (
+                          <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                            ya está{(vecesPuesta.get(c.id) ?? 0) > 1 ? ` ×${vecesPuesta.get(c.id)}` : ""}
+                          </span>
+                        )}
                       </span>
                       <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
                         <CategoryBadge name={c.category_name} color={c.category_color} />
@@ -596,7 +619,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
       <ol className="mb-6 space-y-2">
         {songs.map((s, i) => (
           <li
-            key={s.sheet_id}
+            key={s.uid}
             className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-900"
           >
             <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
@@ -617,9 +640,9 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
               value={s.sheet_key_id ? `k:${s.sheet_key_id}` : s.key_override ? `t:${s.key_override}` : ""}
               onChange={(e) => {
                 const v = e.target.value;
-                if (v.startsWith("k:")) patchSong(s.sheet_id, { sheet_key_id: v.slice(2), key_override: "" });
-                else if (v.startsWith("t:")) patchSong(s.sheet_id, { sheet_key_id: "", key_override: v.slice(2) });
-                else patchSong(s.sheet_id, { sheet_key_id: "", key_override: "" });
+                if (v.startsWith("k:")) patchSong(s.uid, { sheet_key_id: v.slice(2), key_override: "" });
+                else if (v.startsWith("t:")) patchSong(s.uid, { sheet_key_id: "", key_override: v.slice(2) });
+                else patchSong(s.uid, { sheet_key_id: "", key_override: "" });
               }}
               className="min-w-[6rem] max-w-[11rem] rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               title="Tono para este culto: versión guardada de la canción o transposición al vuelo"
@@ -671,7 +694,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => removeSong(s.sheet_id)}
+                onClick={() => removeSong(s.uid)}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
                 aria-label="Quitar"
               >

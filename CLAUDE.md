@@ -225,6 +225,8 @@ repo/
 | **D-09b** | **El tamaño de presentación se guarda POR MÚSICO Y POR CANCIÓN, en el navegador** (`localStorage`) | Isaac aclaró: *«quería que cada músico pudiese guardar a su manera el tamaño»*. Al ser de cada uno, **ya no hace falta migración ni tocar producción**, y funciona para lectores y músicos, que no tienen permiso de escritura. Además el tamaño ideal depende de la **pantalla** (tablet, móvil, PC), así que guardarlo por aparato es más correcto que sincronizarlo | 2026-08-20 |
 | **D-11** | **La exportación de datos se guarda en JSON**, un archivo por tabla más uno completo | Isaac lo delegó (*«guárdalo como lo veas mejor y para compatibilidad»*) y aclaró que el JSON de sus otros proyectos venía heredado, no elegido. JSON porque se lee sin herramientas, permite volver a cargar los datos y cumple su regla de «que no quede atrapado» | 2026-08-20 |
 | **D-12** | **El icono es el `.ico` sin fondo para la pestaña y el `.png` de 500×500 transparente para la app del móvil** | De los cuatro archivos que pasó Isaac, el `.ico` «removebg» trae **6 tamaños con transparencia** (16, 32, 48, 64, 128, 256) generados a medida → pestaña nítida. **Descartados:** el `.jpeg` (compresión con pérdida y **esquinas negras**) y el `.ico` con fondo negro (se vería un cuadrado negro en pestañas de tema oscuro) | 2026-08-20 |
+| **D-16** | **El número de himno NO se muestra ni se busca en ninguna pantalla** | Isaac, 2026-08-20: *«quiero quitarle a las tarjetas el Nº, borra todo rastro, que no salga en la información de las canciones»*. **Ampliado ese mismo día: también se borra de la BASE** (*«bórrala de todo, pero que quede la canción claro está»*). Migración `20240016`. ⚠️ **Se pierde un dato**: «Amado de mi Alma» tenía `hv-018`. La canción no se toca | 2026-08-20 |
+| **D-17** | **Los 6 borradores NO se publican** | Isaac, 2026-08-20: *«se van a dejar así, hasta que algo lo necesite, por ahora no»*. → **No tocar su estado.** Siguen invisibles para músicos y lectores, y visibles para administradores | 2026-08-20 |
 | **D-13** | **Isaac maneja la página él solo.** Los 6 borradores los puso él; nadie más toca el contenido | Lo aclaró el 2026-08-20: *«yo soy el que puso las canciones en borradores, nadie más, yo soy el que maneja la página totalmente»*. → **No suponer que hay otras manos**: si aparece algo raro en los datos, es suyo y tendrá su motivo. Preguntarle antes de «corregir» nada | 2026-08-20 |
 | **D-14** | **La cuenta de prueba se queda en ADMINISTRADORA**, para ver lo mismo que ve Isaac | Decisión suya del 2026-08-20: *«te voy a dejar la cuenta en administrador... cuando necesites algo en lector o músico me dices»*. Sigue en pie: **con esa cuenta solo se MIRA**, no se tocan datos sin permiso | 2026-08-20 |
 | **D-15** | **En la pantalla completa, «la siguiente» respeta el filtro de categoría** | Isaac, 2026-08-20: *«teniendo filtrada la categoría, la siguiente que debe mostrar es la que estaba viendo en la categoría, no del catálogo entero»* (O-16) | 2026-08-20 |
@@ -349,6 +351,16 @@ dijo el primo a Isaac.
 cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
+
+**T-06 · Una canción en tono menor mostraba mal su tonalidad en la presentación.**
+*Síntoma:* en pantalla completa, una canción en **`Bm`** salía como **`B`** en la barra de
+arriba, junto a los botones de subir y bajar tono. Pasaba en el culto y en el catálogo.
+*Causa:* al transponer solo se mueve **la nota**. `keyToPitch("Bm")` devuelve la altura de si, y
+al volver a escribirla se perdía la `m`. **`B` y `Bm` son tonalidades distintas**, así que lo que
+se leía estaba mal.
+*Cómo se resuelve:* el modo se lleva aparte (`esMenor` en `music.ts`) y se vuelve a pegar al
+final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
+*Encontrado por Isaac usando la app el 2026-08-20.*
 
 **T-05 · «supabaseKey is required» en el panel de administración, solo en el equipo de casa.**
 *Síntoma:* en `localhost`, cualquier acción de `/admin` —crear usuario, cambiar nombre, rol,
@@ -671,6 +683,40 @@ coherente: las mismas teclas hacen lo mismo en las dos pantallas.
 → ⚠️ Mismo cuidado que O-20: en un campo de escritura, `+` y `−` tienen que escribir su
 carácter, no cambiar el tamaño.
 
+#### La idea de avisar por WhatsApp (O-22) — `[PROPUESTA, sin decidir]`
+
+Isaac trasladó el 2026-08-20 una idea que le había mandado a su primo:
+
+> *«que tal que haya una manera en la que cuando por ejemplo se actualice el repertorio en la
+> sección de culto le llegue un mensaje por ejemplo por WhatsApp que ya está el repertorio nuevo
+> en la página de la iglesia»*
+
+**Se puede, pero hay dos caminos y se parecen poco. La diferencia importa porque uno cuesta
+dinero y el otro no:**
+
+**(a) Un botón «Avisar por WhatsApp» en el culto — GRATIS, y se hace en un rato.**
+El botón abre WhatsApp con el mensaje ya escrito y el enlace público del culto
+(`/s/<token>`, que **ya existe**), e Isaac elige a quién se lo manda: el grupo de músicos, una
+persona, lo que sea. Es un enlace `wa.me`, no hace falta ni servidor ni cuenta de empresa ni
+permisos. **Coste: 0.** Lo único «manual» es que él pulse el botón y elija el grupo — que es
+justo el momento en el que sabe que el repertorio ya está listo.
+
+**(b) Que el mensaje salga SOLO, sin que nadie pulse nada — es otro proyecto.**
+Necesita la **API de WhatsApp Business** de Meta: cuenta de empresa verificada, plantillas de
+mensaje aprobadas por ellos una a una, y **facturación por conversación** (hay un tramo gratis
+mensual, pero es una cuenta que hay que vigilar). Además hay que guardar los teléfonos de los
+músicos —datos personales— y que cada uno acepte recibirlos. Y el aviso saldría **cada vez que
+se guarde** el culto, así que habría que decidir qué pasa si se guarda cinco veces seguidas
+mientras se arma el repertorio.
+
+→ 💡 **RECOMENDACIÓN: la (a).** Resuelve lo que él quiere —que los músicos se enteren de que el
+repertorio está— sin cuentas, sin permisos y sin gastar un peso. Si un día se queda corta, la
+(b) sigue estando ahí.
+→ ❓ **PREGUNTAR:** ¿le vale con pulsar un botón, o quiere de verdad que salga solo?
+→ Alternativas más baratas que la (b) si lo quiere automático: **Telegram** (API gratis y
+sencilla) o los **avisos del propio navegador** — la app ya es instalable, así que podría avisar
+sin depender de nadie.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -684,7 +730,7 @@ carácter, no cambiar el tamaño.
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
 | **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
-| **E** | O-09 (repetir canción en un culto) | ⚠️ **La única que toca la base de datos de producción.** Migración nueva, aviso previo |
+| **E** | 🟡 **CÓDIGO HECHO (2026-08-20), migración SIN EJECUTAR** — O-09 | ⚠️ **Falta lo que toca producción.** El código compila; la migración `20240015` está escrita pero **no se ha ejecutado**: necesita el OK expreso de Isaac (D-04) |
 | **F** | O-08 (impresión horizontal, D-10) | Medio. Hay que probarla **en teléfono** además de en PC |
 | **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
 | **H** | ✅ **HECHA (2026-08-20), sin publicar** — O-20 · O-21 | Verificada con datos reales (§7). **Falta que Isaac la mire y dé permiso** |
@@ -887,6 +933,41 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 20 — Tono menor arreglado · dos migraciones esperando OK
+
+- ✅ **T-06 · Arreglado el tono menor.** `Bm` salía como `B` en la barra de la presentación —y
+  son tonalidades distintas—. El modo se lleva aparte y se devuelve al final (`esMenor` en
+  `music.ts`). **Afectaba a 17 de las 75 canciones.** Probado con las tonalidades reales del
+  cancionero: 12 casos, todos correctos. Se arregla en un solo sitio, así que vale para el culto
+  **y** para el catálogo, como pidió.
+- ✅ **Migración `20240016` escrita** para quitar `hymn_number` de la base (D-16 ampliada).
+- 📌 **O-22 · La idea de avisar por WhatsApp, registrada con sus dos caminos y sus costes.**
+  Resumen: **con un botón sale gratis y hoy mismo**; que salga solo necesita la API de empresa de
+  Meta, con verificación, plantillas aprobadas y **facturación por conversación**.
+
+⛔ **DOS MIGRACIONES ESCRITAS Y SIN EJECUTAR**, las dos esperando el OK expreso de Isaac (D-04):
+`20240015` (repetir canción en un culto) y `20240016` (quitar el número de himno). Antes de
+ejecutarlas: **`npm run export` fresco**.
+
+### 2026-08-20 · Tanda 19 — Fuera el Nº · FASE E a medias (falta la migración)
+
+- ✅ **D-16 · Fuera el número de himno.** Quitado de la tarjeta, del `select` del catálogo y de
+  la búsqueda. ⚠️ **La columna se queda en la base**: «Amado de mi Alma» la tiene rellena y
+  borrarla perdería ese dato. Está fuera de la vista, no de la base.
+- ✅ **D-17 · Los 6 borradores no se publican.** Anotado para no tocarlos.
+- 🟡 **FASE E · O-09 · código hecho, migración pendiente de ejecutar:**
+  - **Migración nueva `20240015_service_songs_repetidas.sql`**: la clave primaria de
+    `service_songs` deja de ser `(service_id, sheet_id)` y pasa a ser un **identificador propio
+    de cada fila**. Eso es lo que impedía repetir una canción.
+  - **El editor identifica cada fila por una clave suya (`uid`)**, no por `sheet_id`. Era lo que
+    hacía falta para que dos filas de la misma canción no se pisaran: cada aparición conserva
+    **su posición, su tono y su nota**.
+  - **El buscador ya no esconde las canciones que están puestas**: ahora avisa con un «ya está»
+    (y «ya está ×2»…) pero **deja añadirlas otra vez**.
+  - **La acción de guardar deja de borrar las repetidas en silencio**, que era lo que hacía.
+  - ⚠️ **La migración NO se ha ejecutado.** Toca la base de producción y necesita el OK expreso
+    de Isaac (D-04). Antes conviene un `npm run export` fresco.
 
 ### 2026-08-20 · Tanda 18 — FASE H hecha (sin publicar): navegar y ampliar con el teclado
 
