@@ -30,6 +30,12 @@ No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
   **Publicado · Borrador · Archivado**, y se combina con las categorías. **A los músicos y lectores
   no les cambia nada.**
 
+### 📣 Una página con las novedades
+
+- **`/novedades`** — el comunicado de lo que va cambiando, **contado para los músicos**. Es
+  **pública**: la abre cualquiera sin cuenta, así que el enlace se puede mandar al grupo.
+  El texto vive en `src/lib/novedades.ts`; añadir una tanda es escribir una entrada ahí.
+
 ### 🔧 Por dentro (no se ve, pero importa)
 
 - **Arreglado un texto en blanco sobre blanco.** En modo oscuro, al desplegar una lista —el rol de

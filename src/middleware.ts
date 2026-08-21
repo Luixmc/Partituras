@@ -31,8 +31,10 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Public routes (incluye los cultos compartidos: /s/<token>)
-  const publicRoutes = ["/login", "/signup", "/s/"];
+  // Rutas públicas: los cultos compartidos (/s/<token>) y el comunicado de
+  // cambios (/novedades), que se manda al grupo de la iglesia y tiene que
+  // abrirse SIN cuenta — es justo el motivo por el que existe (O-29).
+  const publicRoutes = ["/login", "/signup", "/s/", "/novedades"];
   const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
 
   // Los enlaces compartidos son accesibles aunque haya sesión iniciada;

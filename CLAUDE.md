@@ -1038,6 +1038,62 @@ ignora `color-scheme`.
 HTML**. Lo verificado es que `color-scheme: light` y `dark` **llegan a la hoja que sirve la
 página y al CSS compilado de producción**. Verlo abierto le toca a Isaac.
 
+**O-29 · Una página PÚBLICA con el comunicado de cambios, en el propio dominio.** ✅ **HECHA el
+2026-08-21** — `/novedades`. Isaac: *«está bien, súbelo»*.
+Isaac pidió el 2026-08-21 un texto con lo cambiado desde que se retomó la página, **sin nada de
+administración** —*«no lo van a usar ellos»*— para avisar a los músicos.
+
+🔴 **Lo primero que se intentó NO SIRVE, y lo comprobó él:** se publicó como artefacto de Claude
+(`claude.ai/code/artifact/…`). **En una ventana de incógnito sale «Page not found» y un botón de
+iniciar sesión.** → **Un enlace de Claude no vale para gente sin cuenta de Claude.** Para avisar a
+un grupo de WhatsApp de la iglesia, eso lo descarta por completo.
+📌 Yo no podía comprobarlo desde aquí: sin sesión, la dirección devuelve **HTTP 200** y una página
+vacía que carga el contenido después. **Parecía pública y no lo era.** Lo resolvió él en dos
+minutos abriendo incógnito. *(Otra vez lo mismo: hay cosas que solo se ven en un navegador de
+verdad — como T-12.)*
+
+**La propuesta que sí funciona:** una ruta **`/novedades`** en la propia página, pública como
+`/s/<token>`.
+- **La abre cualquiera**, sin cuenta y sin instalar nada. Es el dominio que los músicos ya conocen.
+- **No caduca ni depende de un servicio de fuera**; vive en el repositorio con el resto.
+- Cuando haya más cambios, se añaden ahí y **el enlace de siempre sigue valiendo**.
+- Es una página de solo texto: **sin base de datos y sin migración**. Hay que añadirla a las rutas
+  públicas del middleware, igual que se hizo con `/manifest.json` (P-14).
+
+**Lo decidido:** dirección **`/novedades`** · **sin enlace desde dentro** de la página, solo el que
+Isaac mande · **pública del todo**, sin token.
+
+**Cómo quedó montada:**
+- `src/lib/novedades.ts` — **el contenido**, aparte del dibujo. Añadir una tanda es escribir una
+  entrada ahí: fecha, secciones, y cada cambio con su etiqueta. **La página no se toca.**
+- `src/app/novedades/page.tsx` — el dibujo. Apila las tandas por fecha, así que **el enlace que se
+  mande hoy sigue valiendo dentro de un año**.
+- `middleware.ts` — `/novedades` en las rutas públicas, junto a `/s/`.
+- **Metadatos de `openGraph`**, para que al pegar el enlace en WhatsApp salga «Qué cambió en
+  Partituras» y no la dirección pelada.
+
+**Cada cambio lleva etiqueta de NUEVO o ARREGLADO**, y no es adorno: al músico le dice lo único
+que necesita de un vistazo — si tiene que buscar un botón nuevo, o si algo que fallaba ya no falla.
+
+🔴 **DOS CORRECCIONES DE ISAAC, y las dos son la misma:** el texto estaba escrito **como si todo se
+leyera en el teléfono**.
+1. *«aquí deberías aclarar que es también para PC, porque hace creer que es solamente en
+   teléfono»* — por el título «En el teléfono».
+2. *«el icono también funciona en el PC, porque antes la pestaña salía el mundo ese gris… y en la
+   sección del PDF mencionas solo el teléfono también. Los cambios se hicieron pensados tanto para
+   PC como para teléfono, modifícalo en las secciones que sean pertinentes.»*
+→ **Repasado entero**, no solo donde él señaló. Quedó **9 menciones al teléfono y 9 al computador**
+—medido—, más una **nota arriba que lo dice una sola vez**: *«todo lo de aquí vale igual en el
+teléfono, en la tablet y en el computador; donde algo cambie según el aparato, se dice»*.
+→ El peor era **el PDF**: contado entero desde el móvil, cuando se baja igual desde el computador
+y ahí la hoja horizontal sale sola. Se separó lo que depende del aparato (horizontal/vertical) de
+lo que depende del uso (claro para papel, oscuro para pantalla).
+📌 **Y su detalle del «mundito gris» entró tal cual.** Nadie recuerda «no había favicon»; **todos
+se acuerdan del globo gris**. El usuario nombra las cosas como se reconocen.
+
+**El texto ya está escrito**, en `Documents\Partituras\comunicado-musicos.md` — **fuera del
+repositorio a propósito**, para que no se publique sin querer. De ahí sale el contenido de la ruta.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
