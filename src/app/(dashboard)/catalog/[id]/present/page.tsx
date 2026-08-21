@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
+import { puedeVerLetras } from "@/lib/letras";
 import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { PresentSong } from "@/types";
 
@@ -32,7 +33,7 @@ export default async function SongPresentPage({
   const ids = posicion >= 0 ? lista.map((c) => c.id) : [params.id];
   const { data: contenidos } = await supabase
     .from("sheets")
-    .select("id, title, composer, key_signature, content, editor_type")
+    .select("id, title, composer, key_signature, content, editor_type, lyrics")
     .in("id", ids);
 
   if (!contenidos?.length) notFound();
@@ -40,6 +41,14 @@ export default async function SongPresentPage({
   const porId = new Map(contenidos.map((c: any) => [c.id, c]));
 
   // Se respeta el orden de la lista del catálogo (por título).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: perfil } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  const verLetras = puedeVerLetras(perfil?.role);
+
   const songs: PresentSong[] = ids
     .map((id) => porId.get(id))
     .filter(Boolean)
@@ -53,6 +62,8 @@ export default async function SongPresentPage({
       target_key:   null,
       content:      c.content ?? null,
       editor_type:  c.editor_type,
+      // La letra solo viaja si a este rol le toca verla (ROLES_LETRAS).
+      lyrics:       verLetras ? c.lyrics ?? null : null,
     }));
 
   const inicio = Math.max(0, songs.findIndex((s) => s.id === params.id));

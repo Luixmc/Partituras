@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Edit3, Eye, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit3, Eye, Mic2, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
+import LetraPanel from "@/components/sheets/LetraPanel";
+import { puedeVerLetras } from "@/lib/letras";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
@@ -15,7 +17,7 @@ import { autoGrow } from "@/components/ui/AutoTextarea";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
-import type { Category, Sheet, SheetKey, SheetStatus } from "@/types";
+import type { Category, Sheet, SheetKey, SheetStatus, UserRole } from "@/types";
 
 type SheetWithCategory = Sheet & {
   category?: {
@@ -30,6 +32,10 @@ type Props = {
   initialCategoryIds?: string[];
   initialKeys?: SheetKey[];
   canEdit: boolean;
+  /** El rol de quien mira. Hace falta aparte de `canEdit` porque quién ve
+      las letras y quién puede editar son dos cosas distintas, y van a
+      separarse en cuanto Isaac abra las letras a todos (ROLES_LETRAS). */
+  rol: UserRole | null;
   /** Filtro activo del catálogo, para que la pantalla completa sepa dentro de
       qué lista está esta canción (O-16). */
   filtro?: string;
@@ -70,6 +76,7 @@ export default function SongDetailEditor({
   initialCategoryIds,
   initialKeys = [],
   canEdit,
+  rol,
   filtro = "",
   prevHref = null,
   nextHref = null,
@@ -92,7 +99,14 @@ export default function SongDetailEditor({
         ? [sheet.category_id]
         : [];
 
-  const [mode, setMode] = useState<"view" | "edit">("view");
+  // `?ver=letra` abre la canción directamente en su letra: es como llega
+  // quien viene de la sección «Letras» (J.2).
+  const parametros = useSearchParams();
+  // ¿A este usuario le toca ver las letras? Lo decide ROLES_LETRAS.
+  const verLetras = puedeVerLetras(rol);
+  const [mode, setMode] = useState<"view" | "edit" | "letra">(
+    parametros.get("ver") === "letra" ? "letra" : "view"
+  );
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"ok" | "error">("ok");
@@ -104,6 +118,9 @@ export default function SongDetailEditor({
   const [categoryIds, setCategoryIds] = useState<string[]>(startCategoryIds);
   const [status, setStatus] = useState<SheetStatus>(sheet.status);
   const [content, setContent] = useState(sheet.content ?? "");
+  // La letra (O-18). Se guarda en la misma columna de siempre, con las
+  // mismas etiquetas de sección que los acordes (D-20).
+  const [lyrics, setLyrics] = useState(sheet.lyrics ?? "");
 
   // Tono mostrado en modo lectura: "" = original; o el id de una versión guardada.
   const [viewKey, setViewKey] = useState<string>("");
@@ -124,6 +141,7 @@ export default function SongDetailEditor({
       categoryIds: [...startCategoryIds].sort(),
       status: sheet.status,
       content: sheet.content ?? "",
+      lyrics: sheet.lyrics ?? "",
     })
   );
 
@@ -135,6 +153,7 @@ export default function SongDetailEditor({
     categoryIds: [...categoryIds].sort(),
     status,
     content,
+    lyrics,
   });
   const isDirty = currentSnapshot !== savedSnapshot;
 
@@ -319,6 +338,9 @@ export default function SongDetailEditor({
         status,
         editor_type: "abc",
         content,
+        // Vacío se guarda como NULL, no como cadena vacía: así «no tiene
+        // letra» es una sola cosa en la base y no dos.
+        lyrics: lyrics.trim() || null,
       })
       .eq("id", sheet.id);
 
@@ -474,6 +496,23 @@ export default function SongDetailEditor({
                 Edicion
               </button>
             )}
+            {/* Letra (O-18). Quién la ve sale de ROLES_LETRAS: hoy solo el
+                admin, mientras Isaac escribe las 75. Cuando estén, esa
+                constante se abre y aparece para todos sin tocar esto. */}
+            {verLetras && (
+            <button
+              type="button"
+              onClick={() => setMode("letra")}
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+                mode === "letra"
+                  ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              <Mic2 className="h-4 w-4" />
+              Letra
+            </button>
+            )}
             {/* Pantalla completa: al lado de Vista (y de Edicion si es admin).
                 Disponible para los tres roles (O-11). Solo tiene sentido si la
                 cancion tiene acordes escritos. */}
@@ -491,8 +530,19 @@ export default function SongDetailEditor({
         </div>
       </div>
 
-      {/* ── MODO VISTA ── */}
-      {mode === "view" ? (
+      {/* ── MODO LETRA (O-18) ── */}
+      {mode === "letra" ? (
+        <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-8">
+          <LetraPanel
+            lyrics={lyrics}
+            setLyrics={setLyrics}
+            contenidoAcordes={viewContent}
+            puedeEscribir={canEdit}
+            saving={saving}
+            onGuardar={handleSave}
+          />
+        </div>
+      ) : mode === "view" ? (
         <div className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-8">
           <article className="mx-auto min-h-[72vh] w-full max-w-none px-8 py-12 shadow-sm ring-1 md:px-12 bg-white ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
             <header className="mb-8 border-b pb-5 border-slate-200 dark:border-slate-700">

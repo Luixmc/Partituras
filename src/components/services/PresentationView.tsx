@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Mic2, Minus, Music2, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
+
+import { estrofasDe } from "@/lib/letras";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
@@ -96,6 +98,18 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Se arranca en "filas" y se lee el guardado ya en el navegador: leerlo en el
   // estado inicial rompería el render del servidor (no hay localStorage allí).
   const [recorrido, setRecorrido] = useState<Recorrido>("filas");
+  // Acordes o letra (J.4).
+  //
+  // 🔴 SE MANTIENE al pasar de canción. Primero se reiniciaba a acordes
+  // para no dejar una pantalla vacía si la siguiente no tenía letra, y era
+  // el arreglo equivocado: Isaac lo vio cantando un culto entero —«paso a
+  // la otra canción y me muestra los acordes, tengo que darle otra vez al
+  // botón»—. Quien canta, canta TODO el repertorio.
+  //
+  // El caso vacío se resuelve abajo, sin perder su elección: si la canción
+  // no tiene letra se enseñan los acordes, y en cuanto llega una que sí la
+  // tiene, vuelve a salir la letra sola.
+  const [verLetra, setVerLetra] = useState(false);
   useEffect(() => setRecorrido(leerRecorrido()), []);
   // Auto-ocultar la cabecera/tono/navegación en pantalla completa (reaparecen
   // al mover el ratón o tocar) para ganar espacio.
@@ -317,7 +331,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, columns, recorrido, isFullscreen]);
+  }, [autoFit, index, viewport, liveOffset, columns, recorrido, verLetra, isFullscreen]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
@@ -333,6 +347,16 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   );
 
   const sections = useMemo(() => (content ? parseSections(content) : []), [content]);
+
+  // Las estrofas que se cantan de esta canción. Las vacías son las
+  // instrumentales y no se enseñan.
+  const estrofas = useMemo(
+    () => estrofasDe(song?.lyrics ?? "").filter((e) => e.texto),
+    [song?.lyrics]
+  );
+  // Lo que se enseña de verdad: si él eligió letra pero esta canción no la
+  // tiene, salen los acordes — sin perder su elección para la siguiente.
+  const mostrandoLetra = verLetra && estrofas.length > 0;
 
   // Etiqueta del tono mostrado (el original, ya transpuesto).
   //
@@ -495,6 +519,26 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
           {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
         </button>
 
+        {/* Acordes ↔ letra (J.4). Solo si esa canción tiene letra escrita:
+            un botón que lleva a una pantalla vacía es peor que no tenerlo. */}
+        {estrofas.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setVerLetra((v) => !v)}
+            title={verLetra ? "Ver los acordes" : "Ver la letra"}
+            aria-label={verLetra ? "Ver los acordes" : "Ver la letra"}
+            aria-pressed={verLetra}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors",
+              verLetra
+                ? "bg-brand-600 text-white ring-brand-600"
+                : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            )}
+          >
+            {verLetra ? <Music2 className="h-4 w-4" /> : <Mic2 className="h-4 w-4" />}
+          </button>
+        )}
+
         {/* Cómo se recorren las secciones (O-26). Con una sola columna no hay
             nada que elegir, así que el botón no aparece. */}
         {columns > 1 && (
@@ -537,7 +581,70 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
               {song.composer}
             </p>
           )}
-          {sections.length > 0 ? (
+          {mostrandoLetra ? (
+            // ── LA LETRA (J.4) ──
+            //
+            // Reparte las estrofas EXACTAMENTE igual que los acordes: una,
+            // dos o tres columnas, y por FILAS o por COLUMNAS (O-26). Al
+            // principio se dibujaba siempre en multi-columna, así que el
+            // recorrido por filas no hacía nada — lo vio Isaac usándolo.
+            // Quien canta ajusta la lectura igual que quien toca.
+            <div
+              className={cn(
+                "mx-auto",
+                columns === 1
+                  ? cn("flex max-w-4xl flex-col", isFullscreen ? "gap-3" : "gap-5")
+                  : recorrido === "columnas"
+                    ? cn(columns === 2 ? "max-w-6xl" : "max-w-7xl")
+                    : cn(
+                        "grid items-start gap-x-8",
+                        columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
+                        isFullscreen ? "gap-y-3" : "gap-y-5"
+                      )
+              )}
+              style={
+                columns > 1 && recorrido === "columnas"
+                  ? { columnCount: columns, columnGap: "2rem" }
+                  : undefined
+              }
+            >
+              {estrofas.map((e, i) => {
+                const bloque = (
+                  <>
+                    {e.titulo && (
+                      <h3
+                        className="mb-1 font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400"
+                        style={{ fontSize: `${0.75 * fontScale}rem` }}
+                      >
+                        {e.titulo}
+                      </h3>
+                    )}
+                    {/* Los saltos de línea SON el contenido de una letra. */}
+                    <p
+                      className="whitespace-pre-line leading-snug text-slate-900 dark:text-slate-50"
+                      style={{ fontSize: `${1.35 * fontScale}rem` }}
+                    >
+                      {e.texto}
+                    </p>
+                  </>
+                );
+                // En multi-columna hace falta el envoltorio con
+                // `break-inside: avoid`, o una estrofa se parte por la mitad
+                // entre dos columnas. En rejilla cada hijo ya es una celda.
+                return columns > 1 && recorrido === "columnas" ? (
+                  <div
+                    key={i}
+                    className={cn("break-inside-avoid", isFullscreen ? "mb-4" : "mb-6")}
+                    style={{ breakInside: "avoid" }}
+                  >
+                    {bloque}
+                  </div>
+                ) : (
+                  <section key={i}>{bloque}</section>
+                );
+              })}
+            </div>
+          ) : sections.length > 0 ? (
             // Los acordes se pueden pulsar para ver cómo se tocan (fase I).
             // `bemoles` viene de la tonalidad, o un `Cm7` se dibujaría con
             // «D# A#» en vez de «Eb Bb» y a un músico le chirría.

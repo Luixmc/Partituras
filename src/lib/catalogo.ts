@@ -105,8 +105,16 @@ export async function buscarCanciones(
       .replace(/[%_]/g, "\\$&")
       .trim();
     if (seguro) {
+      // También por LETRA (J.3). Es la pregunta que más se hace en un grupo
+      // de alabanza: «¿cómo se llama la que dice...?». La columna `lyrics`
+      // existía desde la primera migración y no la usaba nadie.
+      //
+      // Se usa `ilike` y no el índice de texto completo a propósito: con 75
+      // canciones la diferencia no se nota, y `ilike` encuentra trozos de
+      // palabra —«naveg» encuentra «navegaré»—, que es como se busca cuando
+      // uno se acuerda a medias de una frase.
       consulta = consulta.or(
-        `title.ilike.%${seguro}%,composer.ilike.%${seguro}%`
+        `title.ilike.%${seguro}%,composer.ilike.%${seguro}%,lyrics.ilike.%${seguro}%`
       );
     }
   }

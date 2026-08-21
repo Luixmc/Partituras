@@ -96,6 +96,10 @@ export interface PresentSong {
   target_key:   string | null;   // tono elegido para el culto (key_override)
   content:      string | null;
   editor_type:  EditorType;
+  /** La letra, para alternar acordes ↔ letra a pantalla completa (J.4).
+      Solo se rellena donde hay sesión: el enlace público del culto NO la
+      lleva, porque Isaac la quiso solo para quien tenga cuenta. */
+  lyrics?:      string | null;
 }
 
 export interface ServiceSong {

@@ -30,6 +30,13 @@ No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
   **Publicado · Borrador · Archivado**, y se combina con las categorías. **A los músicos y lectores
   no les cambia nada.**
 
+### 🎤 Las letras (en preparación)
+
+- Se montó toda la parte de **letras de las canciones**: escribirlas, leerlas, buscarlas y verlas
+  a pantalla completa en vez de los acordes.
+- **Todavía no está abierta**: aparece solo para quien administra, mientras se escriben las 75.
+  Cuando estén, se abre para todos.
+
 ### 📣 Una página con las novedades
 
 - **`/novedades`** — el comunicado de lo que va cambiando, **contado para los músicos**. Es

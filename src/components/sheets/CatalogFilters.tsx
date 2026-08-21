@@ -12,9 +12,20 @@ type Props = {
   estado?: string | null;
   /** Enseña la fila de estados. **A músicos y lectores no les aparece.** */
   esAdmin?: boolean;
+  /** A qué pantalla vuelve al filtrar. `/letras` reutiliza este mismo
+      componente en vez de tener su propia copia: dos filtros que hacen lo
+      mismo acaban separándose (P-09). */
+  base?: string;
 };
 
-export default function CatalogFilters({ categories, selectedIds, q, estado = null, esAdmin = false }: Props) {
+export default function CatalogFilters({
+  categories,
+  selectedIds,
+  q,
+  estado = null,
+  esAdmin = false,
+  base = "/catalog",
+}: Props) {
   const router = useRouter();
 
   function buildUrl(newSelectedIds: string[], nuevoEstado: string | null = estado) {
@@ -25,7 +36,7 @@ export default function CatalogFilters({ categories, selectedIds, q, estado = nu
     // filtros que se combinan, no uno que sustituye al otro.
     if (nuevoEstado) params.set("estado", nuevoEstado);
     const query = params.toString();
-    return `/catalog${query ? `?${query}` : ""}`;
+    return `${base}${query ? `?${query}` : ""}`;
   }
 
   function toggleCategory(id: string) {

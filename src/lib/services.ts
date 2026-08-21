@@ -12,7 +12,14 @@ export const SERVICE_TYPE_META: Record<ServiceType, { label: string; color: stri
 export const SERVICE_TYPES: ServiceType[] = ["viernes", "domingo", "ayuno", "santa_cena", "otro"];
 
 /** Convierte las filas embebidas service_songs(...sheet) en canciones de presentación. */
-export function mapPresentSongs(rows: any[]): PresentSong[] {
+/**
+ * @param conLetra  Incluir la letra de cada canción. **Va apagado por
+ *   defecto a propósito:** esta función la usan también el enlace público
+ *   del culto y su PDF, y ahí la letra NO debe salir — Isaac la quiso
+ *   solo para quien tenga cuenta (J.4). Encenderlo es una decisión de
+ *   cada pantalla, no el descuido de olvidarse de apagarlo.
+ */
+export function mapPresentSongs(rows: any[], conLetra = false): PresentSong[] {
   return (rows ?? [])
     .filter((r) => r.sheet) // ignora canciones eliminadas
     .sort((a, b) => a.position - b.position)
@@ -30,6 +37,7 @@ export function mapPresentSongs(rows: any[]): PresentSong[] {
           target_key:   k,
           content:      r.sheet_key.content,
           editor_type:  r.sheet.editor_type,
+          lyrics:       conLetra ? r.sheet.lyrics ?? null : null,
         };
       }
       return {
@@ -40,6 +48,7 @@ export function mapPresentSongs(rows: any[]): PresentSong[] {
         target_key:   r.key_override ?? null,
         content:      r.sheet.content ?? null,
         editor_type:  r.sheet.editor_type,
+        lyrics:       conLetra ? r.sheet.lyrics ?? null : null,
       };
     });
 }

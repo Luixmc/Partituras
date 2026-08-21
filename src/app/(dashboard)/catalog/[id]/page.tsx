@@ -111,6 +111,7 @@ export default async function SheetDetailPage({
         initialCategoryIds={initialCategoryIds}
         initialKeys={(keyRows ?? []) as SheetKey[]}
         canEdit={canEdit}
+        rol={profile?.role ?? null}
         filtro={filtro}
         prevHref={hrefDe(anterior)}
         nextHref={hrefDe(siguiente)}

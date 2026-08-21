@@ -1094,6 +1094,171 @@ se acuerdan del globo gris**. El usuario nombra las cosas como se reconocen.
 **El texto ya está escrito**, en `Documents\Partituras\comunicado-musicos.md` — **fuera del
 repositorio a propósito**, para que no se publique sin querer. De ahí sale el contenido de la ruta.
 
+### 9.2-quinquies · FASE J — O-18, la sección de LETRAS · ⬜ PROPUESTA, a la espera del visto bueno
+
+Isaac dijo *«vamos con lo de O-18»* el **2026-08-21**. Antes de proponer nada se midieron los
+datos reales, y salieron **tres cosas que cambian el planteamiento**:
+
+**① El trabajo de teclear es la MITAD de lo que parecía.** No son las 574 secciones:
+
+| | |
+|---|---|
+| Secciones que **se cantan** (traen la pista entre paréntesis) | **284** |
+| Secciones **instrumentales** (Intro, Final, Coda, vacías) | **252** — no llevan letra |
+| Secciones **a decidir** (`A`, `B`, `C`… sin pista) | **38** — ❓ pregunta para Isaac |
+
+→ Son **unas 4 estrofas por canción**, no 8.
+
+**② Cada sección cantable YA TRAE su primera frase.** Las 284 pistas —«(Mueve el estanque...)»,
+«(Ven señor...)»— son **el andamio**: la pantalla de escritura puede venir **rellena** con las
+etiquetas y el arranque de cada estrofa, y él solo continúa. **Eso es lo que hace barato el
+trabajo**, y es la razón de que O-18 sea viable ahora y no antes.
+
+**③ La columna `sheets.lyrics` YA ESTÁ INDEXADA para búsqueda en español**
+(`20240004_sheets.sql:85` y `20240007_search_views.sql:49`). Existe desde el principio y **nadie
+la usa**. 🔴 **Pero el buscador del catálogo NO la aprovecha:** `lib/catalogo.ts` solo hace
+`title.ilike` y `composer.ilike`. → **Buscar por letra es un cambio aparte**, y es lo que le da
+sentido a teclear: *«¿cómo se llama la que dice…?»* es la pregunta que más se hace en un grupo de
+alabanza.
+
+#### El diseño
+
+**Dónde se guarda: en `sheets.lyrics`, texto plano, CON LAS MISMAS ETIQUETAS DE SECCIÓN que los
+acordes** (`[A]`, `[Coro]`…). Tres motivos, y los tres pesan:
+- **No hace falta migración**: la columna existe. Ninguna trampa de esquema (T-07).
+- **Ya está en el índice de búsqueda**, así que buscar por letra no exige nada nuevo en la base.
+- **`parseSections` ya existe**, así que emparejar cada estrofa con su sección de acordes
+  **sale gratis** — el que canta ve la letra del coro donde está el coro.
+
+| Sub | Qué | Riesgo |
+|---|---|---|
+| **J.1** | **Escribir.** Pestaña «Letra» en el editor, solo admin, **rellenada con el andamio** (etiquetas + la pista de cada estrofa) | Bajo: pantalla nueva, no toca el editor de acordes |
+| **J.2** | **Leer.** Pestaña «Letra» en la vista de la canción, para todos. Sin acordes, letra grande | Bajo |
+| **J.3** | **Buscar por letra.** El buscador del catálogo mira también la letra | Medio: toca la consulta compartida (`lib/catalogo.ts`), que usan dos pantallas |
+| **J.4** | *(opcional)* La letra en la presentación y en el PDF del culto | A decidir |
+
+#### ✅ Las 4 respuestas de Isaac (2026-08-21)
+
+**1. Las 38 secciones sin pista NO se pueden clasificar.** Sus palabras: *«a veces se repiten
+estrofas a cantar, a veces son instrumentales, a veces solos de guitarra, etc., no es algo fijo»*.
+→ 🔴 **Consecuencia de diseño, y es la importante:** el andamio **NO decide** cuáles llevan letra.
+Se ofrecen **todas** las secciones, y **la que se quede vacía es que no se canta**. El dato lo pone
+él al escribir, no una regla que yo me invente. *(Es la regla del `-` otra vez: no adivinar sobre
+sus datos.)*
+
+**2. La letra la ven SOLO quienes tengan cuenta**, con cualquiera de los tres roles.
+→ **No sale en el enlace compartido del culto** (`/s/<token>`), que lo abre gente sin cuenta.
+→ Sale gratis: el panel ya exige sesión, y la barra lateral ya filtra por rol.
+
+**3. Sección propia en la barra lateral**, como «Canciones», «Cultos» o «Administrar» — idea suya,
+y **es la correcta**: *quien canta no quiere acordes nunca*. Si la letra fuera solo una pestaña
+dentro de la canción, aterrizaría en los acordes cada vez y tendría que cambiar. Con entrada
+propia, empieza donde le toca. **Y también la pestaña dentro de la canción**, para quien ya está
+ahí — él dijo las dos, y las dos tienen usuario distinto.
+
+**4. Alternar acordes ↔ letra a pantalla completa: sí** (J.4).
+
+#### D-20 · La letra se guarda en `sheets.lyrics`, con las mismas etiquetas de sección
+
+Sin migración (la columna existe desde `20240004`), ya está en el índice de búsqueda en español, y
+`parseSections` la parte gratis para emparejar cada estrofa con su sección de acordes.
+
+#### D-21 · `/letras` reutiliza la consulta del catálogo, NO se copia
+
+🔴 **El riesgo de la sección propia es acabar con DOS catálogos que se separan con el tiempo** —es
+exactamente P-09, y ya se pagó dos veces en este proyecto (`parseSections` duplicado, y la consulta
+del catálogo que hubo que sacar a `lib/catalogo.ts` en la fase G)—.
+→ `/letras` usa **`buscarCanciones` de `lib/catalogo.ts`**, la misma que `/catalog` y que la
+pantalla completa. Lo único suyo es **a dónde llevan las tarjetas** y **qué se enseña**.
+
+#### El plan, ya con las respuestas
+
+| Sub | Qué | Toca |
+|---|---|---|
+| **J.1** | **Escribir** — pestaña «Letra» en el editor (solo admin), rellenada con el andamio de secciones + la pista de cada una | `SongDetailEditor`, pantalla nueva |
+| **J.2** | **Leer** — entrada **«Letras»** en la barra lateral (los 3 roles) + pestaña dentro de la canción | `Sidebar`, ruta `/letras` nueva |
+| **J.3** | **Buscar por letra** en el catálogo | `lib/catalogo.ts` — la comparten dos pantallas |
+| **J.4** | **Alternar acordes ↔ letra** a pantalla completa | `PresentationView` |
+
+#### ~~Lo que había que preguntarle antes de empezar~~ — CONTESTADO
+
+1. **Las 38 secciones `A`, `B`, `C` sin pista: ¿se cantan o son instrumentales?** Él lo sabe de
+   memoria; adivinarlo sería inventar.
+2. **¿La letra la ve todo el mundo, o solo quien tenga cuenta?** ¿Y en el enlace compartido del
+   culto, que lo abre gente sin cuenta?
+3. **¿La letra en pantalla aparte, o junto a los acordes?** Para quien canta, aparte y grande.
+   Para quien toca y canta a la vez, junta. **Puede que hagan falta las dos.**
+4. **¿En la presentación a pantalla completa, poder alternar acordes ↔ letra?**
+
+#### ✅ FASE J HECHA (2026-08-21) — O-18, las letras
+
+| Sub | Qué | Estado |
+|---|---|---|
+| **J.1** | Escribir la letra, con el **andamio** | ✅ |
+| **J.2** | Sección **«Letras»** + pestaña dentro de la canción | ✅ |
+| **J.3** | **Buscar por letra** | ✅ **probado con datos reales** |
+| **J.4** | Alternar **acordes ↔ letra** a pantalla completa | ✅ |
+
+**J.3 verificado de verdad**, en cuanto Isaac escribió dos letras:
+`?q=temporada` → **Aceleración** (está en la letra, no en el título) · `?q=aleluya` → **Agnus Dei**
+y **Aleluya** · `?q=aceler` → por título y con trozo de palabra · `?q=xyzynoexiste` → ninguna.
+
+#### 🔴 Dos fallos que Isaac encontró USANDO la pantalla completa
+
+**① El modo letra se perdía al pasar de canción.** *«Paso a la otra canción y me muestra los
+acordes, tengo que darle otra vez al botón.»* → **Era una decisión mía, y equivocada**: puse que
+volviera a acordes para no dejar una pantalla vacía si la siguiente no tenía letra. Pero **quien
+canta, canta el repertorio entero**.
+→ Ahora **se mantiene**, y el caso vacío se resuelve sin perder su elección: si una canción no
+tiene letra salen sus acordes, y **en cuanto llega otra que sí la tiene, vuelve sola a la letra**.
+📌 **La lección:** el caso raro —una canción sin letra— me llevó a estropear el caso normal. Se
+arregla **degradando**, no reiniciando.
+
+**② La letra no respetaba las columnas ni el recorrido.** Estaba siempre en multi-columna, así que
+«por filas» (O-26) no hacía nada. → Ahora usa **exactamente la misma lógica que los acordes**.
+
+#### 🔴 El andamio metía anotaciones de arreglo como si fueran versos
+
+Isaac probó en «Aceleración» y el andamio le puso **«Brass x4» como un verso**, bajo la Intro. Entre
+paréntesis hay **dos cosas mezcladas**, y se midió sobre las 75 canciones:
+
+| | |
+|---|---|
+| Paréntesis que **acaban en puntos suspensivos** | **276** — son frases CORTADAS: el arranque de la letra |
+| Los que **no** | **8** — `Brass`, `Brass x4`, `Voces`… y 4 que sí son letra corta |
+
+→ **Solo se rellena si acaba en puntos.** ⚠️ **El precio, asumido a propósito: 4 secciones pierden
+su relleno** («El señor está sentado», «Su gloria está aquí», «Pedimos gracias», «Jeeee»).
+**Contenido equivocado que parece escrito es peor que un hueco vacío**, porque el hueco se ve y el
+error no — y además contaba como estrofa cantada y le salía a quien canta.
+
+#### D-22 · Las letras son SOLO DEL ADMIN hasta que estén todas escritas
+
+Isaac, 2026-08-21: *«quiero primero montar las letras y luego que todo el panel de la letra se haga
+público… mientras tanto que aparezca solo al admin, como la sección de ajustes»*. Tiene razón: una
+sección donde 73 de 75 dicen «sin escribir» no ayuda, y hace dudar de la página.
+
+🔴 **UN INTERRUPTOR ÚNICO, en `lib/letras.ts`:**
+
+```ts
+export const ROLES_LETRAS: UserRole[] = ["admin"];
+//  para abrirlo:  ["admin", "musician", "viewer"]
+```
+
+**Los CUATRO sitios miran ahí** —barra lateral, pestaña de la canción, pantalla `/letras` y botón
+de la presentación—, así que abrirlo es **cambiar esa línea y nada más**.
+
+⚠️ **Y no es solo esconder botones:**
+- `/letras` **lo comprueba en el SERVIDOR** y redirige. Esconder el botón del menú no es un
+  permiso — es **L-87 `[PART]`**, que aquí ya se pagó con el botón de «desactivar usuario».
+- **La letra ni siquiera sale del servidor** para quien no debe verla: las dos pantallas de
+  presentación solo la piden y la pasan si el rol la ve. No es que el botón no aparezca; **el texto
+  no viaja**.
+
+**Probado por las dos caras**, aprovechando que Isaac cambió el rol de la cuenta de prueba:
+- **Con LECTOR:** `/letras` **307**, sin entrada en el menú, sin pestaña, sin botón.
+- **Con ADMIN:** `/letras` **200**, entrada, pestaña y botón, los tres presentes.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
