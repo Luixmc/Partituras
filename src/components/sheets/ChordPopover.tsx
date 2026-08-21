@@ -91,7 +91,7 @@ function Panel({
   useEffect(() => setMontado(true), []);
   if (!montado) return null;
 
-  const acorde = leerAcorde(escrito, bemoles);
+  const acorde = leerAcorde(escrito);
   if (!acorde) return null;
 
   // Se coloca debajo del acorde y centrado en él, pero sin salirse por los

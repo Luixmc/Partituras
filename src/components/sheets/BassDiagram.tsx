@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Acorde } from "@/lib/acordes";
+import { semitonoDe, type Acorde } from "@/lib/acordes";
 
 // ─────────────────────────────────────────────────────────────
 // El mástil de un bajo de 4 cuerdas, con los trastes 0 a 7.
@@ -30,11 +30,6 @@ const ALTO_CUERDA = 15;
 const MARGEN_IZQ = 16;
 const MARGEN_SUP = 8;
 
-const PITCH: Record<string, number> = {
-  C: 0, "C#": 1, Db: 1, D: 2, "D#": 3, Eb: 3, E: 4, "E#": 5, Fb: 4,
-  F: 5, "F#": 6, Gb: 6, G: 7, "G#": 8, Ab: 8, A: 9, "A#": 10, Bb: 10,
-  B: 11, "B#": 0, Cb: 11,
-};
 
 export default function BassDiagram({
   acorde,
@@ -47,11 +42,11 @@ export default function BassDiagram({
       esto el dibujo no se entiende solo (2026-08-21). */
   leyenda?: boolean;
 }) {
-  const bajo = PITCH[acorde.bajo];
+  const bajo = semitonoDe(acorde.bajo);
   const resto = new Set<number>();
   for (const n of acorde.notas) {
-    const p = PITCH[n];
-    if (p !== undefined && p !== bajo) resto.add(p);
+    const p = semitonoDe(n);
+    if (p !== null && p !== bajo) resto.add(p);
   }
 
   const ancho = MARGEN_IZQ + ANCHO_TRASTE * TRASTES + 8;

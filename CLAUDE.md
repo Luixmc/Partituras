@@ -1147,7 +1147,7 @@ alternativa si se complicaba —**no hizo falta**—.
 | **Con un PORTAL al `body`** | Los compases llevan `overflow: hidden` para recortar lo que sobra. Dentro de ahí el desplegable **saldría cortado** |
 | **Se apaga solo donde no toca** | `useAbrirAcorde()` devuelve `null` si no hay proveedor → **en edición y al imprimir el acorde se dibuja exactamente como antes.** Es opt-in: montar el proveedor es lo que lo enciende |
 | **Solo el acorde es pulsable** | Ni silencios, ni `%`, ni los textos amarillos, ni las etiquetas: no son acordes |
-| **`bemoles` se pasa desde la tonalidad** | Sin eso, `Cm7` saldría «C D# G A#» en vez de «C Eb G Bb». En presentación sale de `flats`; en la vista, del tono de la versión que se esté mirando |
+| ~~`bemoles` se pasa desde la tonalidad~~ | **SUPERADO por T-13:** el parámetro se quitó. El nombre de las notas sale del propio acorde |
 | Se cierra con Escape, al tocar fuera, al rodar la página y al redimensionar | Va anclado a una posición **medida**: si la página se mueve, dejaría de apuntar a su acorde |
 | La capa de cerrar es **transparente** | Oscurecer taparía la canción, que es lo que el músico está leyendo |
 
@@ -1183,9 +1183,9 @@ proyecto. **Nunca llegó a producción.**
 mano izquierda y la leyenda del bajo. Enseñar una pantalla desechable **antes** de integrar salió
 mucho más barato que integrarlo y rehacerlo.
 
-📌 **Un detalle que hay que respetar en I.3:** `leerAcorde(escrito, bemoles)` recibe si la canción
-va en bemoles. Sin pasarlo, un `Cm7` se dibujaría como «C D# G A#» en vez de «C Eb G Bb» — las
-notas serían las mismas pero **a un músico le chirría**. El dato ya existe (`prefersFlats`).
+📌 ~~`leerAcorde(escrito, bemoles)` recibe si la canción va en bemoles~~ → **SUPERADO por T-13
+el 2026-08-21.** El parámetro **ya no existe**: el nombre de cada nota lo decide la fundamental
+del propio acorde, no la tonalidad de la canción.
 
 #### Lo que corrigió Isaac al VER los dibujos (2026-08-21)
 
@@ -1282,6 +1282,61 @@ Costó tres vueltas, y las tres las corrigió Isaac mirando el dibujo. **Así qu
   abajo. Al quitarla, la mano izquierda hace `G#·D#·G#`, que suena igual en mayor o en menor.
   ⬜ **Sin confirmar:** él dijo «no metas tercera» de forma general, y se aplicó a los dos casos.
   **Si quería la regla solo para el bajo suelto**, `A/G#m` recupera su `B` cambiando una línea.
+
+#### 🔴 T-13 · Las notas se nombran POR GRADOS, no por semitonos (2026-08-21)
+
+*Síntoma:* el desplegable de un acorde `Bb` decía **«A# · D · F»**. Isaac: *«está mal, tiene que
+ser `Bb D F`»*. Pasaba igual en `Gm` (`G · A# · D`) y en todo lo que llevara bemol.
+*Causa:* las notas se calculaban **sumando semitonos** y se escribían con una tabla de
+sostenidos. Contando semitonos hay que **elegir** entre `A#` y `Bb`, y esa elección no se puede
+acertar sin saber de dónde viene la nota.
+*Diagnóstico de Isaac, y acertó:* *«parece que solamente pasa con los acordes y centros tonales
+bemoles»*. **Sí, exactamente eso.**
+
+**Cómo se resuelve — y la respuesta a su pregunta.** Él preguntó si había que mirar el **centro
+tonal** de la canción. **No hace falta: el propio acorde ya lo dice.** Un acorde no es una lista
+de semitonos, es una fundamental y unos **GRADOS** sobre ella:
+
+> La tercera de `Bb` es un `D` **porque está dos letras más arriba** (si→do→re), y la quinta es
+> un `F`. Primero se elige LA LETRA, y solo después la alteración que hace falta para caer en el
+> semitono justo.
+
+Por eso cada grado guarda **dos números**: cuántos semitonos sube y **cuántas letras** sube. Los
+dos hacen falta: la tercera mayor y la cuarta disminuida son el mismo salto en semitonos (4) y
+notas distintas (`C→E` sube dos letras, `C→Fb` sube tres).
+
+**Y es mejor que mirar el centro tonal**, no solo más simple: si Isaac escribe un `A#` a
+propósito dentro de una canción en `Dm`, sale `A# · C## · E#` — **respeta lo que él escribió**,
+no lo que dictaría la tonalidad. *(Es otra vez la regla de T-11: un dato que el usuario escribió
+no se deduce.)*
+
+→ **`bemoles` desapareció como parámetro.** `leerAcorde(escrito)` ya no recibe la tonalidad, y
+los llamantes dejaron de pasarla. **Menos código y sin manera de equivocarse.**
+→ Los dos dibujos tenían **su propia copia** de la tabla de notas; ahora usan `semitonoDe` de
+`acordes.ts`, que además entiende **dobles alteraciones** (`F##`, `Cb`).
+
+**Comprobado con los 1.894 acordes reales** (`scratchpad/notas.mjs`):
+
+| Acorde | Antes | Ahora |
+|---|---|---|
+| `Bb` | `A# · D · F` | **`Bb · D · F`** |
+| `Gm` | `G · A# · D` | **`G · Bb · D`** |
+| `Cm7` | `C · D# · G · A#` | **`C · Eb · G · Bb`** |
+| `Ebmaj7` | `D# · G · A# · D` | **`Eb · G · Bb · D`** |
+| `E#m2/b5` | — | **`E# · F## · G# · B`** ← igual que la fuente que trajo Isaac, `Fx` incluido |
+
+⚠️ **DOS COSAS QUE PARECEN FALLOS Y NO LO SON. Confirmadas por Isaac: *«está bien así, déjalos»*.**
+
+1. **`Bbmaj7/#9` → `Bb · D · F · A · C#`**, con un sostenido dentro de un acorde de bemoles. Mi
+   propio detector lo marcó como incoherencia y **el equivocado era el detector**: la novena de
+   `Bb` es `C`, y *aumentada* es `C#`. Un `Db` ahí estaría **mal**.
+2. **`Dbm` → `Db · Fb · Ab`** y **`Dbm7` → `Db · Fb · Ab · Cb`**. Es lo correcto —la tercera
+   menor de `Db` es `Fb`— aunque `Fb` sea un `E` y `Cb` un `B`, y leyendo rápido despiste.
+   Aparecen en **«Cristo Es Mi Roca»** y **«Casa De Mi Padre»**. Se le ofreció el nombre fácil
+   (`E`, `B`) y **eligió dejarlo correcto**.
+
+📌 **El único sitio donde SÍ se afloja:** si una nota necesitara **más de dos** alteraciones
+(`C###`), se cae al nombre corto. Eso no lo escribe nadie.
 
 **Decisiones tomadas de antemano:**
 - **Sin base de datos.** Todo se calcula. **Ni migración, ni columna nueva** — y por tanto

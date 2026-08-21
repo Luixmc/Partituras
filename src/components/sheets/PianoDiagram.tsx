@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Acorde } from "@/lib/acordes";
+import { semitonoDe, type Acorde } from "@/lib/acordes";
 
 // ─────────────────────────────────────────────────────────────
 // El acorde marcado sobre un teclado.
@@ -39,13 +39,8 @@ const ALTO_BLANCA = 58;
 const ANCHO_NEGRA = 9;
 const ALTO_NEGRA = 36;
 
-const PITCH: Record<string, number> = {
-  C: 0, "C#": 1, Db: 1, D: 2, "D#": 3, Eb: 3, E: 4, "E#": 5, Fb: 4,
-  F: 5, "F#": 6, Gb: 6, G: 7, "G#": 8, Ab: 8, A: 9, "A#": 10, Bb: 10,
-  B: 11, "B#": 0, Cb: 11,
-};
 
-const semi = (n: string) => PITCH[n];
+const semi = semitonoDe;
 
 /**
  * Coloca las notas en el teclado de verdad, con su octava.
@@ -57,7 +52,7 @@ const semi = (n: string) => PITCH[n];
 function colocar(acorde: Acorde): { derecha: Set<number>; izquierda: Set<number>; bajo: number | null; octavas: 1 | 3 } {
   const raiz = semi(acorde.notas[0]);
   const notaBajo = semi(acorde.bajo);
-  const hayOtroBajo = notaBajo !== undefined && notaBajo !== raiz;
+  const hayOtroBajo = notaBajo !== null && notaBajo !== raiz;
 
   // Sin bajo distinto: todo cabe en una octava y se deja tal cual, que es
   // como Isaac lo aprobó el 2026-08-21.
@@ -65,9 +60,9 @@ function colocar(acorde: Acorde): { derecha: Set<number>; izquierda: Set<number>
     const derecha = new Set<number>();
     for (const n of acorde.notas) {
       const p = semi(n);
-      if (p !== undefined) derecha.add(p);
+      if (p !== null) derecha.add(p);
     }
-    return { derecha, izquierda: new Set(), bajo: raiz ?? null, octavas: 1 };
+    return { derecha, izquierda: new Set(), bajo: raiz, octavas: 1 };
   }
 
   // ───────────────────────────────────────────────────────────
@@ -93,7 +88,7 @@ function colocar(acorde: Acorde): { derecha: Set<number>; izquierda: Set<number>
   // del acorde de abajo, así que `A/G#m` deja de enseñar su «m» en la mano
   // izquierda. Queda dicho para que nadie lo «arregle» creyéndolo un olvido.
   const izquierda = new Set<number>();
-  const abajo = notaBajo!;
+  const abajo = notaBajo as number;
   izquierda.add(abajo);
   izquierda.add(abajo + 7);
   izquierda.add(abajo + 12);
@@ -104,7 +99,7 @@ function colocar(acorde: Acorde): { derecha: Set<number>; izquierda: Set<number>
   const derecha = new Set<number>();
   for (const n of acorde.notas) {
     const p = semi(n);
-    if (p !== undefined) derecha.add(24 + p);
+    if (p !== null) derecha.add(24 + p);
   }
 
   return { derecha, izquierda, bajo: abajo, octavas: 3 };

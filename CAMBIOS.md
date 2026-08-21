@@ -19,6 +19,8 @@ en la vista normal y a pantalla completa.
 - Cuando el acorde lleva un bajo distinto —`F/A`, `A/G#m`— se ven **las dos manos**: la izquierda
   hace fundamental, quinta y octava.
 - **Se dibujan los 1.894 acordes del cancionero**, incluidos los raros.
+- **Las notas salen bien escritas.** Un `Bb` dice **`Bb · D · F`**, no `A# · D · F`; un `Cm7`
+  dice **`C · Eb · G · Bb`**. Antes todo lo que llevaba bemol salía con sostenidos.
 
 No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
 
