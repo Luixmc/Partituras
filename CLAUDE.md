@@ -297,7 +297,7 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | Pruebas automáticas | **0** |
 | Migraciones en el repositorio | **14** |
 | Migraciones registradas en la BD | **18**, y **no coinciden** con las del repo (T-01) |
-| **Canciones (CONTADAS, 2026-08-20)** | **75 = 69 publicadas + 6 en borrador** |
+| **Canciones (CONTADAS, 2026-08-21)** | **75 = 67 publicadas + 8 en borrador** ⚠️ el 2026-08-20 eran 69 + 6: Isaac pasó dos a borrador, así que **el respaldo de ese día está desfasado** |
 | **Caracteres de acordes transcritos** | **28.203** — el trabajo que hay que proteger |
 | **Categorías (CONTADAS)** | **14** |
 | **Vínculos canción↔categoría** | **94** |
@@ -401,7 +401,7 @@ encajaba era el código que había arriba.**
 ningún dato.
 *Cómo se evita, y es una regla de orden:* **primero se publica el código que deja de usar la
 columna, y DESPUÉS se borra de la base.** Nunca al revés. Añadir es seguro en cualquier orden;
-**quitar solo es seguro cuando ya nadie lo pide** (L-103).
+**quitar solo es seguro cuando ya nadie lo pide** (L-103 `[PART]`).
 *Pasó el 2026-08-20.*
 
 **T-06 · Una canción en tono menor mostraba mal su tonalidad en la presentación.**
@@ -776,7 +776,68 @@ es el corazón del proyecto (§4).
 para ver si de verdad se usa. Guitarra después. Trompeta, solo tras aclarar qué debe mostrar.
 → **PENDIENTE, sin empezar.**
 
+#### 📊 Medido el 2026-08-21, antes de proponer nada (O-17 / O-18)
+
+Con `scratchpad/inventario.mjs` y `letras.mjs`, sobre las **75 canciones reales**:
+
+| Dato | Número | Qué significa |
+|---|---|---|
+| Acordes escritos | **1.894** | |
+| **Calidades distintas** | **solo 32** | Y **5 cubren el 94 %**: mayor (873), `m7` (378), `7` (287), `m` (181), `maj7` (68) |
+| Acordes con bajo (`/`) | **~91** | Justo lo que le importa al bajista |
+| Secciones con etiqueta | 574 | |
+| …con un trozo de letra `(...)` | **284**, de **17 caracteres de media** | Son **pistas** —«(Mi orgullo...)»—, **no la letra** |
+| Canciones con la columna `lyrics` | **0 de 75** | **No existe ninguna letra escrita** |
+
+**Lo que esto decide:**
+- **O-17 (piano y bajo) es MUCHO más pequeño de lo que parecía.** No hay que cubrir «todos los
+  acordes posibles»: hay que cubrir **32**, y con **5** ya funcionan 9 de cada 10. Se calculan a
+  partir de la raíz y la calidad, **sin datos externos**.
+- 🔴 **O-18 no es un trabajo de programar, es de TECLEAR.** La letra **no existe en ninguna
+  parte**: ni en la columna, ni en el contenido. Los 284 paréntesis son la primera frase de cada
+  sección, para reconocerla. Programar la pantalla son horas; **escribir la letra de 75 canciones
+  lo tiene que hacer una persona**, y hay que decidir quién y cuándo. **Decirlo antes de empezar,
+  no después.**
+
+#### ✅ Los 8 acordes raros — RESUELTOS por Isaac el 2026-08-21
+
+**Ninguno era una errata.** Todos significan algo, y lo importante es que **la barra `/` NO
+siempre quiere decir bajo**:
+
+| Escrito | Qué significa | Qué toca el BAJO | Qué toca el PIANO |
+|---|---|---|---|
+| `F#m7/b5` · `Bm7/b5` · `E#m2/b5` | La `b` de `b5` es **bemol de quinta**. Es el **semidisminuido** | **la fundamental** (`F#`) | **el acorde completo**, con la quinta bemol |
+| `A4` | **`Asus4`** | `A` | `Asus4` |
+| `Bbmaj7/#9` | **`Bbmaj7` más la novena sostenida (aumentada)** | `Bb` | `Bbmaj7` + `#9` |
+| `A/G#m` | **Acorde de transición, dos manos:** derecha `A`, izquierda `G#m` **en octavas** | **`G#`** | `A` arriba + `G#m` abajo |
+| `B°` (Jericó) | Correcto. **Isaac lo cambiará él a `dim`** para igualarlo al resto (D-08b). **No tocar el dato** | | |
+
+🔴 **LA REGLA QUE SALE DE AQUÍ, y hace falta para dibujar los acordes (fase I):**
+**lo que va detrás de `/` puede ser dos cosas distintas**, y hay que distinguirlas:
+
+1. **Un nombre de nota** (`F/A`, `Bb/F`, `A/G#m`) → **es el bajo**. Puede traer modo (`G#m`),
+   y entonces es un **acorde sobre otro acorde**: el bajo toca **solo la fundamental del de
+   abajo** (`G#`), y el piano reparte los dos entre las manos.
+2. **Una alteración** (`b5`, `#9`) → **NO es un bajo, es una nota añadida al acorde**. El bajo
+   toca **la fundamental de siempre**.
+
+Confundirlas hace que el bajista toque una nota que no existe. *(Se comprobó de paso que el
+transpositor **sí** los mueve bien: `b5` y `#9` los deja quietos porque no empiezan por nota, y
+`A/G#m` +1 da `A#/Am`, correcto. **Ahí no hay nada que arreglar.**)*
+
+📌 **Y por segunda vez en dos días, lo mismo:** lo que parecía basura en los datos era notación
+suya sin documentar — como el `-` de «Si Dios Dice Que Si». **En este proyecto, un símbolo raro
+se pregunta. Siempre.**
+
+⚠️ Queda una duda menor, **sin tocar**: en `E#m2/b5` («No Hay Lugar Más Alto») el `m2` no encaja
+con nada; lo normal sería `m7`. Isaac lo metió en el mismo saco que los otros `b5`. **Se dibuja
+la quinta bemol y la calidad `m2` se deja como desconocida, sin inventar.**
+
 **O-18 · Una sección de LETRAS de las canciones, para las cantantes.** `[PENDIENTE]`
+✅ **La duda de «quién la escribe» está resuelta (2026-08-21): LAS ESCRIBE ISAAC.** Sus palabras:
+*«las letras las hago yo, ten en cuenta eso siempre»*. → **O-18 es viable**: se programa la
+pantalla y él va rellenando. Lo que hay que darle es **una forma cómoda de escribirlas**, porque
+son 75 canciones y las teclea una sola persona.
 → ❓ Hoy la letra vive suelta dentro de los acordes, entre paréntesis y recortada
 (`(Dios le dijo a-)`), y existe una columna `sheets.lyrics` **que está sin usar y a 0**. Habría
 que decidir **de dónde sale la letra**: ¿se escribe aparte en esa columna, o se saca de lo que ya
@@ -922,6 +983,61 @@ Isaac: *«que así es como manejamos nosotros el lenguaje»*. Cambiado en el pie
 compartida, en el nombre de la app instalada y en la descripción de la página. **No quedaba
 ningún otro sitio.**
 
+#### La nueva (dictada el 2026-08-21)
+
+**O-28 · Filtrar el catálogo por ESTADO, y solo para administradores.** ✅ **HECHO y VERIFICADO
+el 2026-08-21** (sin publicar). Isaac: *«el filtro está bien, al igual que el estado»*.
+Isaac: *«quiero que haya una opción solamente para las cuentas que son admin, en las que aparezca
+en el catálogo, además de adoraciones, alabanzas y demás, que le salga borrador, archivado y
+publicado»*.
+→ **Va junto a los filtros de categoría que ya hay**, en su propia fila, y **solo lo ve un
+administrador**. A músicos y lectores la pantalla no les cambia en nada.
+→ **Los tres estados YA EXISTEN en la base** (`sheet_status`: `draft`, `published`, `archived`,
+desde la migración `20240001`). **No hace falta migración.** Hoy se usan dos: **69 publicadas y
+6 en borrador**; de `archived` no hay ninguna todavía.
+→ **Sale gratis en la pantalla completa:** la consulta es la compartida de `lib/catalogo.ts`, así
+que «la siguiente canción» respeta el estado igual que respeta la categoría (D-15).
+⚠️ **Esto NO es una barrera de seguridad, es una comodidad.** Que un lector no vea los borradores
+ya lo garantizan las políticas de la base —medido: con la clave pública salen **0 borradores**—.
+El filtro solo le ahorra a Isaac tener que buscarlos a ojo.
+
+**Verificado con datos reales, como ADMINISTRADOR:**
+
+| Filtro | Canciones |
+|---|---|
+| sin filtro | **75** |
+| `?estado=published` | **67** |
+| `?estado=draft` | **8** |
+| `?estado=archived` | **0** (no hay ninguna) |
+| `?estado=inventado` | **75** — se ignora, no rompe |
+
+**Y verificado COMO LECTOR** — Isaac bajó la cuenta de prueba a lector el 2026-08-21 para poder
+comprobarlo, que era el trato:
+- **No ve la fila «Estado».**
+- Escribiendo `?estado=draft` **a mano** en la dirección: **67 canciones, ningún borrador**.
+- `/admin` le **rebota** (307).
+
+🔴 **DATO QUE CAMBIÓ: ya no son 69 publicadas y 6 borradores, son 67 y 8.** Isaac pasó dos
+canciones a borrador después del respaldo del 2026-08-20. → **El respaldo está desfasado**; hace
+falta un `npm run export` nuevo. Las cifras de §7 quedan corregidas.
+
+**T-12 · La lista de un `<select>` sale en blanco sobre blanco en modo oscuro.**
+*Síntoma:* al desplegar el rol de un usuario en `/admin`, **solo se lee la opción señalada**; las
+demás parecen vacías. Isaac lo vio el 2026-08-21 y mandó la captura.
+*Causa:* **esa lista no la dibuja la página, la dibuja el navegador.** El CSS le daba letra clara,
+pero el fondo de la lista lo elige el navegador, y elegía blanco porque nadie le había dicho que
+la página está en oscuro.
+*Cómo se resuelve:* **`color-scheme` en la hoja global** — `light` en `:root` y `dark` en
+`html.dark`. Es la forma de decirle al navegador de qué color va la página.
+→ **Se arregló en la hoja global a propósito, no en ese desplegable:** hay **8 `<select>` en 5
+archivos** (roles, tonalidad, tipo de culto, categoría…) y **todos tenían el mismo problema**. De
+paso arregla las barras de desplazamiento y los selectores de fecha.
+→ Además se le puso color propio a cada `<option>` del selector de roles, por si algún navegador
+ignora `color-scheme`.
+⚠️ **No se puede comprobar desde aquí:** esa lista la pinta el navegador y **no aparece en el
+HTML**. Lo verificado es que `color-scheme: light` y `dark` **llegan a la hoja que sirve la
+página y al CSS compilado de producción**. Verlo abierto le toca a Isaac.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -1004,6 +1120,187 @@ render antes y después (§12.5). **La fase 0 cubre eso de paso.**
 **Y después de la ligadura, O-26** (los dos modos de leer las columnas), que es lo que él pidió
 a continuación, en ese orden.
 
+### 9.2-quater · FASE I — O-17 piano y bajo · ⬜ PROPUESTA, a la espera del visto bueno
+
+Isaac eligió esto el **2026-08-21**, sobre las otras tres opciones (guitarra incluida, letras,
+trompetas). **Guitarra, letras y trompetas siguen pendientes.**
+
+**Qué se verá:** al pulsar un acorde de la cuadrícula, se abre debajo **cómo se toca en el
+teclado y en el mástil del bajo**. Nada más: ni guitarra, ni trompeta.
+
+| Sub | Qué | Toca |
+|---|---|---|
+| **I.1** | ✅ **HECHO** — `src/lib/acordes.ts`: calidad → intervalos, y la regla de la barra `/` | Archivo nuevo. No tocó nada |
+| **I.2** | ✅ **HECHO** — `PianoDiagram.tsx` y `BassDiagram.tsx`, SVG con los dos temas | Archivos nuevos |
+| **I.3** | ✅ **HECHO** — el acorde se pulsa y sale el desplegable | `TablaturePreview.tsx` + `ChordPopover.tsx` nuevo |
+| **I.4** | ✅ **HECHO** — vista de la canción y presentación. **NO al imprimir ni en edición** | Comprobado: 28 · 28 · 0 · 0 |
+
+#### I.3 · El desplegable, como CifraClub (2026-08-21)
+
+Isaac enseñó una captura de **CifraClub** y dijo qué quería: *«que salga el diagrama tanto en modo
+vista como en modo pantalla completa dándole tap o clic al acorde»*. Dio permiso para usar mi
+alternativa si se complicaba —**no hizo falta**—.
+
+| Decisión | Por qué |
+|---|---|
+| **Por CONTEXTO de React**, no por props | El acorde está **seis niveles** dentro de `TablaturePreview` (sección → compás → grupo de ligadura → grupo de vigas → celda). Pasar la función a mano obligaría a tocar todos esos componentes |
+| **Con un PORTAL al `body`** | Los compases llevan `overflow: hidden` para recortar lo que sobra. Dentro de ahí el desplegable **saldría cortado** |
+| **Se apaga solo donde no toca** | `useAbrirAcorde()` devuelve `null` si no hay proveedor → **en edición y al imprimir el acorde se dibuja exactamente como antes.** Es opt-in: montar el proveedor es lo que lo enciende |
+| **Solo el acorde es pulsable** | Ni silencios, ni `%`, ni los textos amarillos, ni las etiquetas: no son acordes |
+| **`bemoles` se pasa desde la tonalidad** | Sin eso, `Cm7` saldría «C D# G A#» en vez de «C Eb G Bb». En presentación sale de `flats`; en la vista, del tono de la versión que se esté mirando |
+| Se cierra con Escape, al tocar fuera, al rodar la página y al redimensionar | Va anclado a una posición **medida**: si la página se mueve, dejaría de apuntar a su acorde |
+| La capa de cerrar es **transparente** | Oscurecer taparía la canción, que es lo que el músico está leyendo |
+
+**Comprobado tras tocar el corazón** — los tres arneses sobre las 75 canciones:
+**0 canciones cambian** de lectura · **20 ligaduras, ninguna perdida** · **0 trozos mal leídos**.
+Y dónde aparece: vista **28** · pantalla completa **28** · **PDF 0** · edición **0**.
+
+#### ✅ `E#m2/b5` resuelto — ya no queda ningún acorde sin dibujar
+
+Isaac trajo la explicación el 2026-08-21: **`m2` es un menor con la segunda añadida** (la 2ª o 9ª),
+y el `b5` es la quinta disminuida. → `E#m2/b5` = **`F` · `G` · `G#` · `B`**.
+**Con eso se dibujan 1.894 de 1.894 acordes: el 100 %.**
+
+🔧 **Y de paso salió un fallo de fondo:** `b5` y `#5` se estaban **añadiendo** encima del acorde en
+vez de **sustituir a la quinta**, así que sonaban la quinta justa y la bemol a la vez. Ahora la
+sustituyen, que es lo que significan.
+⚠️ **Un matiz de la fuente que trajo:** lista fundamental, segunda y quinta disminuida, pero **no
+la tercera menor**, aunque llama al acorde «menor». Se le puso la tercera (`G#`), porque sin ella
+no sería menor. **Dicho a Isaac por si su fuente la omite a propósito.**
+
+
+
+**Medido con los 1.894 acordes reales** (`scratchpad/acordes.mjs`, que compila el `.ts` con el
+TypeScript del proyecto): **1.893 se saben dibujar — el 99,9 %**. El único que no es `E#m2/b5`,
+justo el que Isaac señaló como raro. **91 acordes tienen un bajo distinto de la fundamental**, y
+el único acorde-sobre-acorde sale como él lo describió:
+`A/G#m → arriba A C# E · abajo G# B D# · bajo G#`.
+
+✅ **La página temporal `acordes-prueba` ya está BORRADA** (2026-08-21, antes de publicar). Sirvió
+para que Isaac viera los dibujos y los corrigiera cuatro veces antes de tocar el corazón del
+proyecto. **Nunca llegó a producción.**
+📌 **Y valió la pena:** de esas cuatro pasadas salieron las octavas, el recorte del teclado, la
+mano izquierda y la leyenda del bajo. Enseñar una pantalla desechable **antes** de integrar salió
+mucho más barato que integrarlo y rehacerlo.
+
+📌 **Un detalle que hay que respetar en I.3:** `leerAcorde(escrito, bemoles)` recibe si la canción
+va en bemoles. Sin pasarlo, un `Cm7` se dibujaría como «C D# G A#» en vez de «C Eb G Bb» — las
+notas serían las mismas pero **a un músico le chirría**. El dato ya existe (`prefersFlats`).
+
+#### Lo que corrigió Isaac al VER los dibujos (2026-08-21)
+
+| Qué dijo | Qué se hizo |
+|---|---|
+| *«no es necesario que salga en dos octavas, con que salga nada más el acorde en una octava está bien»* | ✅ **UNA octava por defecto.** Antes se dibujaban dos siempre, y sobraba una en el 95 % de los casos |
+| *«estos mismos aplicarían para los acordes complejos pero que en el bajo no hace otra nota, por ejemplo `E#m2b5`»* | ✅ **Lo que manda no es si el acorde es complicado, sino si el BAJO es otra nota.** `E#m2/b5` va en una octava; `F/A` en dos |
+| *«para lo que tiene una nota diferente en el bajo, por ejemplo `A/G#m`, aquí sí es necesario que salga en dos o tres octavas»* | ✅ **DOS octavas**: la izquierda abajo, la derecha arriba. Con dos ya se ve el reparto de manos; tres solo alargarían el dibujo |
+| *«los círculos rellenos y con huecos, ¿qué significa cada uno?»* | ✅ **Se le puso LEYENDA al mástil.** Relleno = lo que toca el bajo · hueco = el resto del acorde. **Que lo tuviera que preguntar es la prueba de que el dibujo no se explicaba solo** |
+
+**Comprobado en pantalla:** `C`, `Cm`, `Cm7`, `C7`, `Cmaj7`, `F#m7/b5`, `A4`, `Bbmaj7/#9`, `B°` y
+`E#m2/b5` → **una octava**. `F/A`, `Bb/F`, `C/E` y `A/G#m` → **dos**.
+
+✅ **RESUELTA — la mano izquierda de `A/G#m`.** Isaac había escrito *«la quinta que sería
+`C#`»*, y no cuadraba: la quinta de `G#m` es `D#`. **Se le preguntó en vez de adivinar, y era una
+errata suya:** *«el que se equivocó aquí fui yo, la quinta es `D#`… es así como tú dices»*.
+→ **Lo dibujado ya era correcto y no se tocó nada:** `G#` · `B` · `D#` · `G#`.
+📌 **Vale la pena guardarlo porque el resultado fue el contrario del de los otros dos casos.** Con
+el `-` y con la `/`, lo raro era notación suya y el equivocado era yo. Aquí era un desliz suyo.
+**La regla no es «el usuario siempre tiene razón», es PREGUNTAR** — que acierta en los dos casos,
+mientras que suponer falla en uno de cada dos.
+
+#### Teclas de contexto a los lados (2026-08-21)
+
+Isaac: *«quisiera que se muestren más a los lados las teclas del piano, pero que no marque el
+color del acorde sino justo como lo tienes… que salga más teclas a los lados y centrado el
+diagrama»*.
+→ **`RELLENO = 4` teclas blancas a cada lado, sin marcar.** El acorde queda **centrado**: una
+octava pasa de 7 a **15 teclas**, y dos octavas de 14 a **22**.
+→ **Por qué es buena idea, más allá de que se vea mejor:** un acorde sobre siete teclas **no dice
+en qué parte del teclado cae**. Con las de al lado se reconoce el patrón de dos y tres negras.
+→ **Comprobado que el relleno no marca nada por su cuenta:** se contaron las teclas pintadas de
+los 14 teclados contra las notas que debe tener cada acorde — **14 de 14**. `A/G#m` marca 7:
+3 derecha (A C# E) + 4 izquierda (G# B D# G#).
+
+#### Dos correcciones más de Isaac, viendo `F/A` (2026-08-21)
+
+**① *«el bajo del A no está haciendo la octava»*.** Tenía razón, y la causa no se veía en la
+imagen: con **dos** octavas, el `A` de arriba de la mano izquierda y el `A` de la mano derecha
+**eran la misma tecla**, así que una tapaba a la otra y la octava desaparecía.
+→ **Se pasó a TRES octavas** cuando el bajo es otra nota —lo que él mismo había dicho, «dos o
+tres»—: la izquierda ocupa las dos de abajo, la derecha la de arriba. Es como se toca de verdad.
+→ **La mano izquierda cierra siempre con su octava**, tanto si abajo hay un acorde (`A/G#m` →
+`G#` `B` `D#` `G#`) como si es una nota sola (`F/A` → `A` `A`).
+
+🔴 **Y el arnés `scratchpad/piano.mjs` cazó un fallo mío que en la imagen no se habría notado:**
+la mano derecha salía **siempre `C E G`**, fuera cual fuera el acorde. Estaba colocando las notas
+restando la fundamental, y con eso **perdía los nombres reales**: `F/A` dibujaba do-mi-sol en vez
+de fa-la-do. **Los dedos habrían caído en el sitio equivocado.** El arnés se escribió justo para
+poder leer qué teclas marca cada acorde sin abrir el navegador.
+
+**② *«sobran muchas teclas, que no sean tantas, tanto de izquierda como de derecha»*.**
+→ `RELLENO` bajó de **4 a 2** teclas por lado.
+→ Y lo que más sobraba era otra cosa: **se dibujaban octavas enteras**, así que en los acordes
+con bajo quedaba **media octava vacía entre las dos manos**. Ahora el teclado **se recorta a lo
+que se usa**: empieza justo antes de la primera tecla marcada y acaba justo después de la última.
+
+| | Antes | Ahora |
+|---|---|---|
+| Acordes normales | 15 teclas | **9–11** |
+| Con bajo distinto | 29 teclas | **19–22** |
+| `E#m2/b5` (solo la fundamental) | 15 teclas | **5** |
+
+⚠️ **Los de bajo no se pueden apretar más sin quitar algo:** de `A1` a `A3` hay dos octavas, y esa
+es la distancia que ocupan **la octava de la izquierda más el acorde de la derecha**. Si algún día
+parecen demasiado anchos, la única salida es **quitar la octava del bajo** — que es justo lo que
+él pidió que se viera. **Decisión suya, no se toca por cuenta propia.**
+
+#### ✅ La mano izquierda, cerrada: fundamental, quinta y octava (2026-08-21)
+
+Costó tres vueltas, y las tres las corrigió Isaac mirando el dibujo. **Así queda:**
+
+> *«nada más primero, quinta y octava; no importa lo que diga el acorde que se toca en la
+> derecha, que sea así, no metas tercera»*
+
+| Acorde | Izquierda | Derecha |
+|---|---|---|
+| `F/A` | `A` · `E` · `A` | `C` `F` `A` |
+| `Bb/F` | `F` · `C` · `F` | `D` `F` `Bb` |
+| `C/E` | `E` · `B` · `E` | `C` `E` `G` |
+| `A/G#m` | `G#` · `D#` · `G#` | `C#` `E` `A` |
+
+**Las tres vueltas, por si vuelve la duda:**
+1. Primero se dibujaba **solo la nota del bajo** → *«no está haciendo la octava»*.
+2. Luego **fundamental + octava** → *«falta la quinta, para este caso A - E - A»*.
+3. Se probó a meter **la tercera** cuando estaba en el acorde escrito → la quitó: **no va nunca.**
+
+🔴 **DOS COSAS QUE PARECEN FALLOS Y NO LO SON. No las «arregles».**
+- **La quinta se pone aunque NO esté en el acorde de la derecha.** En `F/A` el acorde es `F A C`
+  y el `E` de la izquierda no está ahí —hace sonar un `Fmaj7`—. Se le avisó explícitamente y
+  respondió *«no importa lo que diga el acorde que se toca en la derecha»*. **Es la forma abierta
+  que él toca, y manda.**
+- **`A/G#m` ya no enseña su «m».** La tercera (`B`) era lo que llevaba la calidad del acorde de
+  abajo. Al quitarla, la mano izquierda hace `G#·D#·G#`, que suena igual en mayor o en menor.
+  ⬜ **Sin confirmar:** él dijo «no metas tercera» de forma general, y se aplicó a los dos casos.
+  **Si quería la regla solo para el bajo suelto**, `A/G#m` recupera su `B` cambiando una línea.
+
+**Decisiones tomadas de antemano:**
+- **Sin base de datos.** Todo se calcula. **Ni migración, ni columna nueva** — y por tanto
+  ninguna de las trampas de esquema (T-07).
+- 🔴 **Una calidad que no se sepa dibujar NO se inventa.** Se enseña la fundamental y se dice
+  que esa forma no se conoce. Esto quita de en medio la duda de los **8 acordes raros**: aunque
+  Isaac no conteste qué son, la pantalla **no mentirá** sobre ellos. *(Es la regla del `-`: un
+  símbolo raro del usuario no se limpia ni se adivina.)*
+- **Cubre 32 calidades**; con 5 ya funciona el 94 % (ver la medición de arriba).
+
+**Riesgo, y cómo se controla:** I.3 toca `TablaturePreview`, que es lo que sostiene el catálogo,
+la presentación y el PDF. → **Antes y después de I.3 se pasan los tres arneses**
+(`parser.mjs`, `ligaduras.mjs`, `basura.mjs`) sobre las 75 canciones, y **se compila con
+`npm run verificar`** para no repetir T-04.
+
+⚠️ **Cuidado con el pulsar en MODO EDICIÓN:** ahí la cuadrícula se escribe a mano. El dibujo solo
+puede salir en **modo vista** y en **presentación**, nunca robándole el clic al editor — es el
+mismo cuidado que hizo falta en O-20 con las flechas del teclado.
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:
@@ -1015,7 +1312,7 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 
 - [ ] **P-01 · Desactivar un usuario no lo desactiva.** `admin/actions.ts:121-136` escribe
       `profiles.active`, y **nadie lo lee nunca más**: ni el middleware, ni el layout, ni una
-      sola política RLS. El usuario «desactivado» entra igual. *(Es L-36 de la carpeta
+      sola política RLS. El usuario «desactivado» entra igual. *(Es L-36 `[VM]` de la carpeta
       compartida, en otra pila.)*
 - [ ] **P-02 · Los cultos no compartidos son legibles por cualquiera.**
       `services_select_all` (`20240012:71`) es `using (true)` **sin `to authenticated`**. El
@@ -1251,9 +1548,9 @@ lo desplegado es esto y no lo anterior. `/login` 200, los dos iconos 200.
 **Tres arneses nuevos en el `scratchpad`,** todos sacando el código del archivo real:
 `ligaduras.mjs` (dónde empieza y acaba cada arco), `cadena.mjs` (qué hace encadenar) y
 `tono.mjs` (compila `music.ts` con el TypeScript del proyecto y comprueba la etiqueta de tono).
-🔴 **`ligaduras.mjs` cazó un fallo mío que el arnés viejo no podía ver** — L-104.
+🔴 **`ligaduras.mjs` cazó un fallo mío que el arnés viejo no podía ver** — L-104 `[PART]`.
 
-**Lecciones a la carpeta compartida:** L-104, L-105, L-106, L-107.
+**Lecciones a la carpeta compartida:** L-104 `[PART]`, L-105 `[PART]`, L-106 `[PART]`, L-107 `[PART]`.
 
 ### 2026-08-20 · Tanda 27 — FASE D: staccato y duración suelta (falta la ligadura)
 
@@ -1545,21 +1842,21 @@ instante con el tamaño calculado y saltaba al guardado.
 ⚠️ **Punto ciego, otra vez el mismo:** `/admin` es solo para administradores y la cuenta de
 prueba es **lectora** —comprobado: rebota a `/catalog`—, así que **O-14 no se ha visto
 funcionando**. La acción existe, compila y comprueba permisos; el resto lo tiene que mirar
-Isaac. Es el mismo hueco que con la botonera (L-100).
+Isaac. Es el mismo hueco que con la botonera (L-100 `[PART]`).
 
 ### 2026-08-20 · Tanda 13b — La carpeta compartida la escriben dos conversaciones a la vez
 
 Al corregir la lección del disminuido apareció un lío en `LECCIONES.md`: **había lecciones que no
 eran mías** —una marcada `[GDT]`—, así que **otra conversación de Isaac, en otro proyecto,
 estuvo escribiendo en la carpeta compartida mientras trabajábamos aquí**. Sus números
-(L-96, L-97, L-98) chocaron con los míos, y al sustituir mi lección cortando «hasta la siguiente
-L-98» el corte **duplicó un bloque suyo**, porque esa L-98 estaba *antes*, no después.
+(L-96 `[GDT]`, L-97 `[GDT]`, L-98 `[GDT]`) chocaron con los míos, y al sustituir mi lección cortando «hasta la siguiente
+L-98 `[GDT]`» el corte **duplicó un bloque suyo**, porque esa L-98 `[GDT]` estaba *antes*, no después.
 
 **Reparado sin perder nada de la otra conversación:** quitado el bloque duplicado, quitada mi
-versión errónea de L-97, y **mis tres lecciones renumeradas a L-99, L-100 y L-101**. Las suyas
+versión errónea de L-97 `[GDT]`, y **mis tres lecciones renumeradas a L-99 `[PART]`, L-100 `[PART]` y L-101 `[PART]`**. Las suyas
 intactas. Copia del estado roto en `_RESPALDOS\LECCIONES-roto-2026-08-20.md` por si acaso.
 
-📌 De aquí sale **L-102**, que es la de fondo: la carpeta compartida **cambia mientras trabajas**,
+📌 De aquí sale **L-102 `[PART]`**, que es la de fondo: la carpeta compartida **cambia mientras trabajas**,
 así que hay que releerla justo antes de escribir, calcular el máximo real —no el del final, que
 no está ordenada— y comprobar que no quedan duplicados.
 
@@ -1755,7 +2052,7 @@ que hacer al publicar.
 ### 2026-08-20 · Tanda 6 — Isaac ya tiene cuenta propia de Supabase
 
 - ✅ **Cuenta de Supabase creada**, vinculada a su GitHub, con organización propia **«Quaker»**
-  (Personal, Free). Cierra el riesgo de L-89.
+  (Personal, Free). Cierra el riesgo de L-89 `[PART]`.
 - ✅ **No creó proyecto dentro, a propósito.** Para Partituras no sirve de nada —lo que hace
   falta es la invitación del primo a «Luixmc's Org»— y un proyecto sin usar se pausa solo.
 - ⚠️ Al crear el proyecto se vio la casilla **«Automatically expose new tables»**, marcada por
@@ -1781,7 +2078,7 @@ copia. Se resuelve por otra vía y **se cumple lo más urgente del proyecto**.
   está y avisa por pantalla de lo que se deja si no está.
 - 🔧 **Corregido un fallo del propio exportador nada más aparecer:** escribía en una carpeta con
   el nombre del día, así que al ejecutarlo dos veces **pisó la copia buena**. Ahora, si ya hay
-  una copia de hoy, añade la hora. Un respaldo no puede destruir lo que viene a proteger (L-94).
+  una copia de hoy, añade la hora. Un respaldo no puede destruir lo que viene a proteger (L-94 `[PART]`).
 - ✅ **Cifras de §7 corregidas a recuento real.** Las estimaciones de Postgres eran malas: decían
   «1 categoría» cuando hay **14**, y «~75 canciones» que resultaron ser exactamente 75, pero por
   casualidad.
@@ -1801,7 +2098,7 @@ acceso a Vercel. **Lo crítico ya no bloquea: se puede empezar la Fase A cuando 
 - ⚠️ **D-09 quedó SUPERADA por D-09b**, y es el cambio más importante de la tanda. Isaac aclaró
   que el tamaño de presentación lo quiere **por músico**, no compartido. Con eso **O-06 deja de
   necesitar migración**, sale de la fase E y baja a la C. De paso evita un botón que a músicos y
-  lectores no les habría funcionado (P-01, L-87).
+  lectores no les habría funcionado (P-01, L-87 `[PART]`).
 - ✅ **Corregido el contexto del primo** en §1: **Isaac es quien mantiene la página ahora**; el
   primo le dio el permiso y no va a hacer correcciones. Las reglas de git no cambian.
 - ✅ **Logo recibido y elegido (D-12)**: el `.ico` sin fondo para la pestaña —trae 16/32/48
@@ -1812,8 +2109,8 @@ acceso a Vercel. **Lo crítico ya no bloquea: se puede empezar la Fase A cuando 
 - ✅ **O-11 ubicado**: junto a «Vista / Edición» dentro de cada canción, para los tres roles.
 - ✅ **O-10 confirmada**: el catálogo las muestra todas; «una canción por página» era del PDF.
 - 🔧 **Corregido un error propio en `LECCIONES.md`** (le volvió a pasar en la tanda 13, ver
-  L-102): las lecciones nuevas se habían numerado L-62…L-68 y **esos números ya estaban
-  usados**. Renumeradas a **L-86…L-92**, con las
+  L-102 `[PART]`): las lecciones nuevas se habían numerado L-62…L-68 y **esos números ya estaban
+  usados**. Renumeradas a **L-86 `[PART]`…L-92 `[PART]`**, con las
   referencias arregladas en `PROYECTOS.md`, `NUEVO-PROYECTO.md` y este archivo. De paso se
   detectaron **18 duplicados preexistentes** (L-46…L-61, L-78, L-79) que **no** se han tocado:
   son de otros proyectos y renumerarlos afectaría referencias en cuatro sitios. Decisión de
@@ -1901,7 +2198,9 @@ primo. Orden explícita de **no tocar ni una línea de código** hasta su visto 
   redirecciones. Falta solo la clave `service_role` (§9.1).
 - Documentado P-13 tras revisar las 15 vulnerabilidades de `npm audit`.
 - **Carpeta compartida: se tocaron los CUATRO archivos**, más el `CLAUDE.md` global.
-  `LECCIONES.md` → L-62 a L-65 y sección 7 nueva («Publicar en la web»). `PROYECTOS.md` →
+  `LECCIONES.md` → 4 lecciones nuevas (se escribieron como «L-62 a L-65» y **se renumeraron
+  ese mismo día a L-86 `[PART]`…L-92 `[PART]`**, ver la tanda 21) y sección 7 nueva («Publicar
+  en la web»). `PROYECTOS.md` →
   ficha del proyecto y regla 2 nueva. `CONVENCIONES.md` → en código ajeno manda la convención
   que ya está. `NUEVO-PROYECTO.md` → dos preguntas nuevas («¿de quién es la cuenta?», «¿hay
   alguien más en el repositorio?») y cómo se traduce la regla de verificación en una web.

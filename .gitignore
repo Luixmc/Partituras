@@ -21,3 +21,6 @@ node_modules/
 # Generado por TypeScript: no debe versionarse (daba conflicto en cada commit)
 tsconfig.tsbuildinfo
 .next-verificar/
+
+# Carpetas que usan los arneses del scratchpad para compilar .ts sueltos
+.scratch-*/

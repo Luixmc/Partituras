@@ -179,7 +179,7 @@ export default function AdminUsers({ users, currentUserId }: Props) {
               className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             >
               {ROLE_OPTIONS.map((r) => (
-                <option key={r.value} value={r.value}>
+                <option key={r.value} value={r.value} className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
                   {r.label}
                 </option>
               ))}
@@ -280,7 +280,7 @@ export default function AdminUsers({ users, currentUserId }: Props) {
                       title="Cambiar rol"
                     >
                       {ROLE_OPTIONS.map((r) => (
-                        <option key={r.value} value={r.value}>
+                        <option key={r.value} value={r.value} className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
                           {ROLE_LABEL[r.value]}
                         </option>
                       ))}

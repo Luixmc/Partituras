@@ -3,7 +3,7 @@ import { Filter, Search } from "lucide-react";
 import SheetCard from "@/components/sheets/SheetCard";
 import CatalogFilters from "@/components/sheets/CatalogFilters";
 import { createClient } from "@/lib/supabase/server";
-import { buscarCanciones, categoriasElegidas, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
+import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
 
 export default async function CatalogPage({
@@ -13,6 +13,17 @@ export default async function CatalogPage({
 }) {
   const supabase = await createClient();
 
+  // El filtro por estado es SOLO para administradores (O-28). A los demás ni
+  // se les dibuja, y aunque escribieran `?estado=draft` a mano no verían nada
+  // nuevo: los borradores se los esconden las políticas de la base.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  const esAdmin = profile?.role === "admin";
+
   const { data: categories } = await supabase
     .from("categories")
     .select("id, name, color")
@@ -21,12 +32,14 @@ export default async function CatalogPage({
 
   // La consulta vive en lib/catalogo para que la pantalla completa de una
   // canción devuelva EXACTAMENTE esta misma lista (O-16).
-  const sheets = await buscarCanciones(supabase, searchParams);
+  // Un no-administrador nunca filtra por estado, aunque lo ponga en la dirección.
+  const filtrosUsados: FiltrosCatalogo = esAdmin ? searchParams : { ...searchParams, estado: undefined };
+  const sheets = await buscarCanciones(supabase, filtrosUsados);
   const selectedIds = categoriasElegidas(searchParams);
   const q = searchParams.q;
   // El filtro viaja con cada canción, para que al abrirla y ponerla a pantalla
   // completa se sepa dentro de qué lista está.
-  const filtro = filtrosAQuery(searchParams);
+  const filtro = filtrosAQuery(filtrosUsados);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -52,6 +65,8 @@ export default async function CatalogPage({
           categories={(categories ?? []) as Category[]}
           selectedIds={selectedIds}
           q={q}
+          esAdmin={esAdmin}
+          estado={estadoElegido(filtrosUsados)}
         />
       </div>
 

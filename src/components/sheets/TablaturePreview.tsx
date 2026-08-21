@@ -1,6 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+
+import { useAbrirAcorde } from "@/components/sheets/ChordPopover";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NoteFigure, RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
@@ -251,6 +253,8 @@ export function formatSuffix(suffix: string): string {
 function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; beamed?: boolean; dense?: boolean }) {
   // Color base de notas; bajos y alteraciones usan EXACTAMENTE el mismo.
   const noteColor = "text-slate-950 dark:text-slate-50";
+  // `null` cuando los acordes no son pulsables (edición, impresión).
+  const abrirAcorde = useAbrirAcorde();
 
   let content: ReactNode;
   if (token.timeSig) {
@@ -281,11 +285,34 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
     );
   } else if (token.root) {
     // Acorde completo (raíz + alteraciones + bajo) con un solo tamaño y color.
-    content = (
+    //
+    // Es el ÚNICO elemento que se puede pulsar para ver cómo se toca: los
+    // silencios, los textos y las etiquetas no son acordes. Si `abrirAcorde`
+    // es null —en edición y al imprimir— se dibuja exactamente como antes,
+    // sin botón y sin cambiar nada del aspecto.
+    const texto = (
       <span className={cn("whitespace-nowrap font-bold leading-none", noteColor)} style={{ fontSize: "1.5em" }}>
         {token.root}
         {formatSuffix(token.suffix)}
       </span>
+    );
+    content = abrirAcorde ? (
+      <button
+        type="button"
+        // `rounded`+`hover` es toda la pista de que se puede pulsar: un color
+        // distinto competiría con el amarillo de los textos y con el arco de
+        // las ligaduras, y esto se lee tocando.
+        className="cursor-pointer rounded px-0.5 transition-colors hover:bg-brand-100 dark:hover:bg-brand-900"
+        aria-label={`Ver cómo se toca ${token.root}${token.suffix}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          abrirAcorde(`${token.root}${token.suffix}`, e.currentTarget.getBoundingClientRect());
+        }}
+      >
+        {texto}
+      </button>
+    ) : (
+      texto
     );
   } else if (token.chordLabel) {
     // Texto <...>: mismas características que un acorde pero en amarillo. La celda

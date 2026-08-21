@@ -5,6 +5,17 @@
 @layer base {
   :root {
     --color-brand: 79 99 245;
+    /* Le dice al navegador de qué color es la página, y con eso pinta él
+       solo lo que NO controlamos con CSS: la lista desplegable de un
+       <select>, las barras de desplazamiento, los selectores de fecha.
+       Sin esto, en modo oscuro la lista de roles salía con letra blanca
+       sobre fondo blanco: solo se leía la opción señalada (visto por
+       Isaac el 2026-08-21). */
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   h1, h2, h3, h4, h5, h6 {

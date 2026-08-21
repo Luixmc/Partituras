@@ -5,6 +5,40 @@
 
 ---
 
+## 21 de agosto de 2026
+
+### 🎹 Ver cómo se toca cada acorde
+
+**Pulsa cualquier acorde de una canción y se abre cómo se toca**, en el piano y en el bajo. Funciona
+en la vista normal y a pantalla completa.
+
+- **En el piano** se marcan las teclas del acorde, con unas cuantas teclas alrededor para que se
+  vea en qué parte del teclado cae.
+- **En el bajo** sale el mástil: el círculo relleno es la nota que toca el bajista, y los huecos
+  son el resto del acorde por si quieres caminar.
+- Cuando el acorde lleva un bajo distinto —`F/A`, `A/G#m`— se ven **las dos manos**: la izquierda
+  hace fundamental, quinta y octava.
+- **Se dibujan los 1.894 acordes del cancionero**, incluidos los raros.
+
+No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
+
+### 📖 En las canciones
+
+- **Filtro por estado, solo para administradores.** Debajo de las categorías aparece
+  **Publicado · Borrador · Archivado**, y se combina con las categorías. **A los músicos y lectores
+  no les cambia nada.**
+
+### 🔧 Por dentro (no se ve, pero importa)
+
+- **Arreglado un texto en blanco sobre blanco.** En modo oscuro, al desplegar una lista —el rol de
+  un usuario, la tonalidad, el tipo de culto— **las opciones no se leían**. Afectaba a los 8
+  desplegables de la página.
+- **La copia de seguridad ya se lleva también los borradores.** Antes se dejaba fuera 8 canciones,
+  y había que rescatarlas a mano.
+- **Y una copia ya no puede borrar a otra.** Dos copias seguidas el mismo minuto se pisaban.
+
+---
+
 ## 20 de agosto de 2026
 
 La página llevaba parada desde el 12 de junio. Este día se retomó.

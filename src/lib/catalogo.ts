@@ -16,6 +16,21 @@ export interface FiltrosCatalogo {
   categories?: string;
   /** Nombre antiguo del parámetro, cuando solo se podía elegir una categoría. */
   category?: string;
+  /** Estado de la canción. **Solo lo usan los administradores** (O-28). */
+  estado?: string;
+}
+
+/** Los tres estados que admite la base (`sheet_status`, migración 20240001). */
+export const ESTADOS = [
+  { valor: "published", nombre: "Publicado" },
+  { valor: "draft",     nombre: "Borrador" },
+  { valor: "archived",  nombre: "Archivado" },
+] as const;
+
+/** El estado pedido, si es uno de los tres de verdad. */
+export function estadoElegido(filtros: FiltrosCatalogo): string | null {
+  const v = filtros.estado;
+  return v && ESTADOS.some((e) => e.valor === v) ? v : null;
 }
 
 /** Convierte los filtros en el texto que va detrás de la "?" (sin la "?"). */
@@ -24,6 +39,8 @@ export function filtrosAQuery(filtros: FiltrosCatalogo): string {
   if (filtros.q) p.set("q", filtros.q);
   const cats = filtros.categories ?? filtros.category;
   if (cats) p.set("categories", cats);
+  const est = estadoElegido(filtros);
+  if (est) p.set("estado", est);
   const texto = p.toString();
   return texto ? `?${texto}` : "";
 }
@@ -59,6 +76,12 @@ export async function buscarCanciones(
   const seleccionadas = categoriasElegidas(filtros);
 
   let consulta = supabase.from("sheets").select(CAMPOS).order("title", { ascending: true });
+
+  // Filtro por estado (O-28). Solo la pantalla se lo pasa cuando quien mira es
+  // administrador; y aunque alguien lo escribiera a mano en la dirección, no
+  // vería nada nuevo: las políticas de la base ya le esconden los borradores.
+  const estado = estadoElegido(filtros);
+  if (estado) consulta = consulta.eq("status", estado);
 
   if (seleccionadas.length) {
     // Una canción entra si su categoría principal está elegida O si está

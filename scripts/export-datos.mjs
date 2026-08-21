@@ -37,9 +37,21 @@ if (!URL_BASE || !ANON) {
   process.exit(1);
 }
 
-// Con la clave maestra se ve todo; con la pública, solo lo publicado.
+// ── Con qué permisos se baja ──────────────────────────────────
+//
+// Hay TRES maneras, de mejor a peor:
+//
+//  1. `SUPABASE_SERVICE_ROLE_KEY` — la clave maestra. Se ve todo. No la
+//     tenemos: es del primo (§12.2 del CLAUDE.md).
+//  2. `SUPABASE_ACCESS_TOKEN` — la sesión de un usuario ADMINISTRADOR. Ve lo
+//     mismo que ve él en la página, **incluidos los borradores**. Se saca
+//     entrando y copiando el `access_token`. Añadido el 2026-08-21, cuando se
+//     vio que el respaldo se dejaba fuera 8 canciones.
+//  3. Solo la clave pública — se deja fuera lo que esté en borrador.
+const TOKEN = env.SUPABASE_ACCESS_TOKEN;
 const CLAVE = SERVICE || ANON;
-const COMPLETO = Boolean(SERVICE);
+const AUTORIZACION = SERVICE || TOKEN || ANON;
+const COMPLETO = Boolean(SERVICE || TOKEN);
 
 // `profiles` se deja fuera a propósito: son datos personales de los usuarios y
 // no forman parte del trabajo que hay que proteger.
@@ -60,8 +72,10 @@ async function descargarTabla(tabla) {
   for (let desde = 0; ; desde += PASO) {
     const res = await fetch(`${URL_BASE}/rest/v1/${tabla}?select=*`, {
       headers: {
+        // `apikey` identifica al proyecto; `Authorization` dice QUIÉN pide.
+        // Con una sesión de administrador ahí, la base aplica sus permisos.
         apikey: CLAVE,
-        Authorization: `Bearer ${CLAVE}`,
+        Authorization: `Bearer ${AUTORIZACION}`,
         Range: `${desde}-${desde + PASO - 1}`,
       },
     });
@@ -81,14 +95,27 @@ const fecha = new Date().toISOString().slice(0, 10);
 // Si ya hay una copia de hoy NO se pisa: se le añade la hora. Un respaldo que
 // sobrescribe al anterior puede destruir justo lo que venía a proteger — pasó
 // la primera vez que se ejecutó esto.
+//
+// 🔴 Y volvió a pasar el 2026-08-21: la hora sola NO basta. Dos ejecuciones en
+// el mismo minuto dieron el mismo nombre, y la segunda —incompleta, sin los
+// borradores— **pisó a la primera, que sí los traía**. Ahora se busca el
+// primer nombre LIBRE, así que ninguna copia puede borrar a otra.
 let carpeta = join(destino, `Partituras-datos-${fecha}`);
 if (existsSync(carpeta)) {
-  const hora = new Date().toTimeString().slice(0, 5).replace(":", "h");
+  const hora = new Date().toTimeString().slice(0, 8).replace(/:/g, "h");
   carpeta = join(destino, `Partituras-datos-${fecha}-${hora}`);
+  // Y si aun así coincide, se numera. Nunca se escribe encima de nada.
+  let n = 2;
+  while (existsSync(carpeta)) carpeta = join(destino, `Partituras-datos-${fecha}-${hora}-${n++}`);
 }
 mkdirSync(carpeta, { recursive: true });
 
-console.log(`Exportando ${COMPLETO ? "TODO (clave maestra)" : "solo lo publicado (clave pública)"}\n`);
+const COMO = SERVICE ? "TODO (clave maestra)"
+  : TOKEN ? "TODO (sesion de administrador)"
+  : "solo lo publicado (clave publica)";
+console.log("");
+console.log("Exportando " + COMO);
+console.log("");
 
 const datos = {};
 for (const tabla of TABLAS) {

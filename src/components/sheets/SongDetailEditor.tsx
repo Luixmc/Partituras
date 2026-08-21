@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Edit3, Eye, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
@@ -549,14 +550,17 @@ export default function SongDetailEditor({
                     : "space-y-8"
                 }
               >
-                {parseSections(viewContent).map((section, idx) => (
-                  <TablaturePreview
-                    key={idx}
-                    notes={section.content}
-                    label={section.title}
-                    compact
-                  />
-                ))}
+                {/* Solo en la VISTA: en edición el clic es para escribir. */}
+                <ChordPopoverProvider bemoles={/b/.test(viewKeyLabel || "")}>
+                  {parseSections(viewContent).map((section, idx) => (
+                    <TablaturePreview
+                      key={idx}
+                      notes={section.content}
+                      label={section.title}
+                      compact
+                    />
+                  ))}
+                </ChordPopoverProvider>
               </div>
             ) : (
               <div className="flex h-64 items-center justify-center border border-dashed border-slate-300 text-sm text-slate-400 dark:border-slate-600 dark:text-slate-500">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
 import { esMenor, keyToPitch, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
@@ -537,6 +538,9 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             </p>
           )}
           {sections.length > 0 ? (
+            // Los acordes se pueden pulsar para ver cómo se tocan (fase I).
+            // `bemoles` viene de la tonalidad, o un `Cm7` se dibujaría con
+            // «D# A#» en vez de «Eb Bb» y a un músico le chirría.
             // Dos maneras de repartir las secciones en varias columnas (O-26):
             //
             //   FILAS    → CSS grid. Se llena de izquierda a derecha y luego
@@ -551,6 +555,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             // alinear las filas. Multi-columna reparte por altura y las
             // equilibra sola. `break-inside: avoid` impide lo único malo que
             // podría hacer: partir una sección entre dos columnas.
+            <ChordPopoverProvider bemoles={flats}>
             <div
               className={cn(
                 "mx-auto",
@@ -598,6 +603,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                 )
               )}
             </div>
+            </ChordPopoverProvider>
           ) : (
             <p className="py-16 text-center text-slate-400">Esta cancion no tiene acordes para mostrar.</p>
           )}
