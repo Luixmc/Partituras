@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Columns2, Columns3, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Minus, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,29 @@ const MAX_SCALE = 2;
 // ─────────────────────────────────────────────────────────────
 const CLAVE_TAMANOS = "presentacion-tamanos";
 
+// ─────────────────────────────────────────────────────────────
+// Cómo se recorren las secciones cuando hay más de una columna (O-26).
+//
+//   "filas"    → izquierda, derecha, y luego la fila de abajo  (A B / C D)
+//   "columnas" → la primera columna entera de arriba abajo, y
+//                después la segunda                            (A C / B D)
+//
+// Lo pidió un músico del grupo de alabanza: según cómo esté escrita la canción,
+// una de las dos se lee mucho mejor. Se guarda en el navegador de cada uno,
+// igual que el tamaño de letra: es preferencia de quien lee, no de la canción.
+// ─────────────────────────────────────────────────────────────
+type Recorrido = "filas" | "columnas";
+const CLAVE_RECORRIDO = "presentacion-recorrido";
+
+function leerRecorrido(): Recorrido {
+  if (typeof window === "undefined") return "filas";
+  try {
+    return localStorage.getItem(CLAVE_RECORRIDO) === "columnas" ? "columnas" : "filas";
+  } catch {
+    return "filas";
+  }
+}
+
 function leerTamanos(): Record<string, number> {
   if (typeof window === "undefined") return {};
   try {
@@ -69,6 +92,10 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   const [autoFit, setAutoFit] = useState(true);
   const [liveOffset, setLiveOffset] = useState(0); // semitonos manuales (±)
   const [columns, setColumns] = useState<1 | 2 | 3>(2); // 1, 2 ó 3 columnas
+  // Se arranca en "filas" y se lee el guardado ya en el navegador: leerlo en el
+  // estado inicial rompería el render del servidor (no hay localStorage allí).
+  const [recorrido, setRecorrido] = useState<Recorrido>("filas");
+  useEffect(() => setRecorrido(leerRecorrido()), []);
   // Auto-ocultar la cabecera/tono/navegación en pantalla completa (reaparecen
   // al mover el ratón o tocar) para ganar espacio.
   const [chromeVisible, setChromeVisible] = useState(true);
@@ -289,12 +316,15 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, columns, isFullscreen]);
+  }, [autoFit, index, viewport, liveOffset, columns, recorrido, isFullscreen]);
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
   const totalSemitones = (((baseSemitones + liveOffset) % 12) + 12) % 12;
-  const flats = prefersFlats(song?.target_key) || liveOffset < 0;
+  // ¿Se escribe con bemoles? Manda el tono del culto si lo hay, y si no, EL DE
+  // LA CANCIÓN. Mirar solo el del culto era el fallo: en el catálogo no hay
+  // culto, así que una canción en Bb se dibujaba con la tabla de sostenidos.
+  const flats = prefersFlats(song?.target_key || song?.original_key) || liveOffset < 0;
 
   const content = useMemo(
     () => (song?.content ? transposeContent(song.content, totalSemitones, flats) : ""),
@@ -310,6 +340,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // se lleva aparte y se vuelve a pegar al final.
   const keyLabel = useMemo(() => {
     const tonoBase = song?.target_key || song?.original_key;
+    // Si el músico no ha movido nada, se enseña EL TONO TAL COMO ESTÁ ESCRITO.
+    // No se recalcula: recalcular obliga a elegir entre Bb y A#, y esa elección
+    // ya la tomó quien escribió la canción. Los acordes tampoco se tocan cuando
+    // no hay transposición, así que recalcular solo servía para contradecirlos:
+    // arriba ponía "A#" y debajo estaba "Bb".
+    if (!liveOffset && tonoBase) return tonoBase;
     const base = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
     if (base === null) return tonoBase || null;
     const eff = (((base + liveOffset) % 12) + 12) % 12;
@@ -457,6 +493,32 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         >
           {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
         </button>
+
+        {/* Cómo se recorren las secciones (O-26). Con una sola columna no hay
+            nada que elegir, así que el botón no aparece. */}
+        {columns > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              const otro: Recorrido = recorrido === "filas" ? "columnas" : "filas";
+              setRecorrido(otro);
+              try {
+                localStorage.setItem(CLAVE_RECORRIDO, otro);
+              } catch {
+                /* almacenamiento lleno o bloqueado: se sigue sin guardar */
+              }
+            }}
+            title={
+              recorrido === "filas"
+                ? "Se lee de izquierda a derecha y luego abajo. Pulsa para leer por columnas"
+                : "Se lee la primera columna entera y luego la siguiente. Pulsa para leer por filas"
+            }
+            aria-label={`Lectura ${recorrido === "filas" ? "por filas" : "por columnas"}. Pulsa para cambiar`}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+          >
+            {recorrido === "filas" ? <CornerDownRight className="h-4 w-4" /> : <TextQuote className="h-4 w-4" />}
+          </button>
+        )}
       </div>
       </div>
 
@@ -475,29 +537,66 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             </p>
           )}
           {sections.length > 0 ? (
-            // Multi-columna = CSS grid: se llena por FILAS, de IZQUIERDA a DERECHA
-            // y luego baja (A, B, C…). 1 columna = pila vertical.
+            // Dos maneras de repartir las secciones en varias columnas (O-26):
+            //
+            //   FILAS    → CSS grid. Se llena de izquierda a derecha y luego
+            //              baja: A B / C D. Es lo de siempre.
+            //   COLUMNAS → CSS multi-columna. Se llena la primera columna de
+            //              arriba abajo y luego la siguiente: A C / B D.
+            //
+            // Para "columnas" se usa multi-columna y NO `grid-auto-flow: column`,
+            // que era lo primero que se pensó: el grid por columnas obliga a
+            // fijar cuántas filas hay, y como las secciones miden distinto
+            // (un puente no ocupa lo que un coro) deja huecos grandes al
+            // alinear las filas. Multi-columna reparte por altura y las
+            // equilibra sola. `break-inside: avoid` impide lo único malo que
+            // podría hacer: partir una sección entre dos columnas.
             <div
               className={cn(
                 "mx-auto",
                 columns === 1
                   ? cn("flex max-w-5xl flex-col", isFullscreen ? "gap-1.5" : "gap-4")
-                  : cn(
-                      "grid items-start gap-x-6",
-                      columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
-                      isFullscreen ? "gap-y-1.5" : "gap-y-4"
-                    )
+                  : recorrido === "columnas"
+                    ? cn(columns === 2 ? "max-w-6xl" : "max-w-7xl")
+                    : cn(
+                        "grid items-start gap-x-6",
+                        columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
+                        isFullscreen ? "gap-y-1.5" : "gap-y-4"
+                      )
               )}
+              style={
+                columns > 1 && recorrido === "columnas"
+                  ? { columnCount: columns, columnGap: "1.5rem" }
+                  : undefined
+              }
             >
-              {sections.map((sec, i) => (
-                <TablaturePreview
-                  key={i}
-                  notes={sec.content}
-                  label={sec.title}
-                  fontScale={fontScale}
-                  dense
-                />
-              ))}
+              {sections.map((sec, i) =>
+                columns > 1 && recorrido === "columnas" ? (
+                  // El envoltorio es lo que se mantiene entero dentro de una
+                  // columna; el margen hace de separación entre secciones,
+                  // porque en multi-columna `gap` no aplica.
+                  <div
+                    key={i}
+                    className={cn("break-inside-avoid", isFullscreen ? "mb-1.5" : "mb-4")}
+                    style={{ breakInside: "avoid" }}
+                  >
+                    <TablaturePreview
+                      notes={sec.content}
+                      label={sec.title}
+                      fontScale={fontScale}
+                      dense
+                    />
+                  </div>
+                ) : (
+                  <TablaturePreview
+                    key={i}
+                    notes={sec.content}
+                    label={sec.title}
+                    fontScale={fontScale}
+                    dense
+                  />
+                )
+              )}
             </div>
           ) : (
             <p className="py-16 text-center text-slate-400">Esta cancion no tiene acordes para mostrar.</p>

@@ -20,3 +20,4 @@ node_modules/
 
 # Generado por TypeScript: no debe versionarse (daba conflicto en cada commit)
 tsconfig.tsbuildinfo
+.next-verificar/

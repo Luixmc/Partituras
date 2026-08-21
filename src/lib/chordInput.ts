@@ -11,6 +11,7 @@ export const MODIFIERS = new Set([
   "m7b5",
   ":0.25", ":0.5", ":1", ":1.5", ":2", ":3", ":4",
   "^", // calderón: se pega al acorde anterior (E^)
+  "!", // staccato: se pega al acorde anterior (C:1!)
 ]);
 
 // Solo las secciones "[...]" empiezan en su propia línea. Las notas de texto

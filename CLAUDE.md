@@ -82,7 +82,8 @@ npm run export       # copia de seguridad de los datos a JSON (§12.1)
 ```
 
 ⚠️ **`npm run dev` y `npm run build` NO se ejecutan a la vez**: comparten la carpeta `.next` y
-el build deja al servidor de desarrollo roto (T-04). Parar uno antes de lanzar el otro.
+el build deja al servidor de desarrollo roto (T-04). **Para comprobar que algo compila con el
+servidor encendido: `npm run verificar`**, que compila aparte.
 
 No hay `npm test`: **no existe ninguna prueba** (P-11).
 
@@ -206,8 +207,10 @@ repo/
 | Letra bajo el acorde | `(aleluya)` | `TablaturePreview.tsx:171` |
 | Repetir acorde | `%` | `TablaturePreview.tsx:149` |
 | Ligadura | `~` suelto, o pegado (`C~`) | `TablaturePreview.tsx:131,143` |
+| **Ligadura sobre varios acordes** | **encadenar**: `C~ D~ E` → **UN arco** de `C` a `E`, por encima del `D`. Con los que hagan falta en medio | **D-19** |
 | Calderón | `^` pegado (`E^`) | `TablaturePreview.tsx:138` |
-| **Staccato** *(aprobado, sin implementar)* | **`!` pegado** (`C:1!`) | D-08 · O-03 |
+| **Staccato** | **`!` pegado** (`C:1!`) | D-08 · O-03. ✅ **Hecho** |
+| **Paso por semitonos** | **`-`** entre dos acordes: se va tocando cromático del uno al otro. Ej.: `F# ~ - D` | Isaac, 2026-08-20. **No estaba escrito en ninguna parte** |
 | Salto de fila | `;` | `TablaturePreview.tsx:124` |
 | Cambio de compás | `6/8` inline | `TablaturePreview.tsx:155` |
 
@@ -323,6 +326,8 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | **Fase G · el filtro viaja** | ✅ El enlace de la tarjeta y el botón de pantalla completa llevan `?categories=…` |
 | **Fase C · en PRODUCCIÓN** | ✅ Vercel `success` · culto compartido y canción suelta con sus acordes, sin errores · catálogo bien |
 | **Fase C · panel de administración** | ✅ **Verificado en producción**: `/admin` responde **200**, están los **7 usuarios**, **el lápiz de O-14 aparece**, y el aviso de la clave **no** sale (allí sí la hay) |
+| **Fase D · las 75 canciones, antes y después** | ✅ Se parsearon las **75 canciones (2.524 compases)** con el parser viejo y con el nuevo: **solo cambia 1**, `Renueva Mi Espíritu`, y es justo el arreglo pedido. Las otras 74, idénticas |
+| **Fase D · la botonera** | ✅ `[C] [:1] [!]` → `C:1!` · `[G] [!]` → `G!` · y lo de antes sin tocar (`E^`, `Am7`, `C:1`) |
 | **Fase C · lógica del tamaño guardado** | ✅ **10 de 10 casos**: guarda por canción sin pisar otras · el botón «ajustar» borra solo la suya · valor fuera de rango se ignora · almacén corrupto no rompe nada |
 | **Fase C · las 3 pantallas de presentación** | ✅ Culto con sesión, culto compartido y canción suelta: **HTTP 200, sin errores**, con sus acordes · **los 7 ids de canción del culto llegan al visor** por las dos vías |
 | **Fase B · CON SESIÓN (la pantalla de verdad)** | ✅ **69 tarjetas** y el contador dice «69 canciones encontradas» · **56 tarjetas con 1 categoría y 13 con 2** (`Amigo De Dios` → Ofrenda + Alabanzas) · **0 miniaturas de acordes** · **0 contadores de «partes»** |
@@ -409,6 +414,24 @@ se leía estaba mal.
 final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
 *Encontrado por Isaac usando la app el 2026-08-20.*
 
+**T-11 · El mismo sitio, el mismo día: una canción en `Bb` mostraba `A#`.**
+*Síntoma:* en pantalla completa, «Cristo Es Mi Roca» ponía **`A#` arriba** mientras **debajo
+todos los acordes eran `Bb`, `F7`, `Cm7`** — bemoles. La barra se contradecía con la partitura.
+*Causa:* `flats = prefersFlats(song.target_key)`. `target_key` es **el tono del culto**, y desde
+el catálogo **no hay culto: llega `null`**. Sin él, `prefersFlats` devuelve `false` y la etiqueta
+se reescribía con la tabla de sostenidos: `Bb` → `A#`. Los acordes no cambiaban porque **no hay
+transposición** (0 semitonos), así que solo mentía la etiqueta.
+*Cómo se resuelve, dos cosas:*
+1. Los bemoles se miran en `target_key` **o, si no hay, en el de la canción**.
+2. **Si no se ha movido el tono, se enseña el guardado tal cual, sin recalcular.** Recalcular
+   obliga a elegir entre `Bb` y `A#`, y **esa elección ya la tomó quien escribió la canción**.
+*Afecta a 4 de las 75:* Cristo Es Mi Roca, Canción Feliz, Casa De Mi Padre, Gozo Pegajoso — las
+cuatro en `Bb`. Comprobado con `scratchpad/tono.mjs`, que **compila `music.ts` con el TypeScript
+del proyecto** y pasa las 75 (las 75 tienen tono guardado, ninguna vacío).
+🔴 **Y fíjate en el patrón, que es el mismo que T-06 y ya van dos:** el tono se **recalculaba**
+teniendo el bueno escrito al lado. **Un dato que el usuario ya escribió no se deduce: se enseña.**
+*Encontrado por Isaac usando la app el 2026-08-20.*
+
 **T-05 · «supabaseKey is required» en el panel de administración, solo en el equipo de casa.**
 *Síntoma:* en `localhost`, cualquier acción de `/admin` —crear usuario, cambiar nombre, rol,
 contraseña o activar— falla con `supabaseKey is required`. **En la página publicada funciona.**
@@ -428,14 +451,49 @@ Asusta, pero **no es el código**: el repositorio está intacto y producción no
 producción sustituye los archivos que el servidor de desarrollo tenía cargados, y este se queda
 buscando piezas que ya no existen.
 *Cómo se resuelve:* parar el servidor, **borrar `.next`** y volver a lanzar `npm run dev`.
-*Cómo se evita:* **no compilar mientras el servidor está abierto.** Primero se para, después se
-compila. Pasó el 2026-08-20, y el que se lo encontró en pantalla fue Isaac mientras probaba.
+*Cómo se evita, desde el 2026-08-20:* **`npm run verificar`**, que compila en `.next-verificar`
+y **no toca el `.next` del servidor**. `npm run build` se queda como está —es lo que ejecuta
+Vercel— y ya no hace falta usarlo para comprobar que algo compila.
+🔴 **La regla «acuérdate de parar el servidor» falló TRES veces**, la última el mismo día que se
+escribió esta trampa y a sabiendas de que existía. La tercera fue la que convenció: **una regla
+que depende de acordarse no es una solución, es una deuda.** Se cambió por un script que no
+puede equivocarse. `next.config.js` lee `NEXT_DIST_DIR` solo si está definida, así que el
+despliegue no cambia en nada.
+*Un detalle:* la primera vez que se ejecuta, Next **reformatea `tsconfig.json`** y le añade
+`.next-verificar/types/**/*.ts` al `include`. Se comprobó que **es una sola vez**: a partir de
+ahí no lo vuelve a tocar. El cambio va en el commit, no es basura.
+*Pasó el 2026-08-20*, y el que se lo encontró en pantalla fue Isaac mientras probaba.
 
 **T-03 · `partituras.vercel.app` no es esta app.**
 *Síntoma:* comprobar un cambio y ver «Welcome to Next.js!».
 *Causa:* ese subdominio es de otro proyecto ajeno. El bueno es `partituras-blush`.
 
 ---
+
+### D-19 · La ligadura sobre varios acordes: UN arco largo, no una cadena de arquitos
+
+Isaac, el **2026-08-20**: *«hay canciones de estas que los ligamentos comienza con un acorde,
+pasa por otro acorde y se conecta con el siguiente acorde, ¿hay manera de que esto se pueda
+implementar, o tocaría hacer dos ligamentos uniendo los acordes en cadena?»*.
+
+**No hacía falta programar nada: ya funcionaba.** Se midió con `scratchpad/cadena.mjs`:
+
+| Escribe | Sale |
+|---|---|
+| `C~ D~ E` | **un solo arco** de `C` a `E`, por encima del `D` |
+| `C~ D~ E~ F` | **un solo arco** de `C` a `F`, por encima de `D` y `E` |
+| `C~ D E~ F` | **dos arcos sueltos**: `C⌒D` y `E⌒F` |
+
+O sea: **la cadena se funde en un arco largo**, no dibuja un arquito por pareja. Y vale igual si
+la cadena cruza la barra de compás.
+
+**Se le preguntó** —porque en partitura el arco largo (expresión) y la cadena de arquitos
+(unión) no significan lo mismo, y esto es musical, no técnico— y **eligió el arco largo**, que
+es lo que ya hacía. → **No se toca. Y no se implementa la cadena de arquitos.**
+
+📌 **Por qué está escrito aunque no cambie una línea de código:** la pregunta va a volver. Sin
+esto, el siguiente que la lea se pone a programar algo que ya existe, o peor, cambia el arco
+largo por una cadena creyendo que la arregla.
 
 ## 9 · Pendientes
 
@@ -505,6 +563,11 @@ compila. Pasó el 2026-08-20, y el que se lo encontró en pantalla fue Isaac mie
 #### Las 10 primeras
 
 **O-01 · Que la duración y la ligadura no dependan de que haya un acorde delante.**
+📌 **Dato que apareció al revisar las ligaduras (2026-08-20):** el guion `-` de
+`F# ~ - D`, en «Si Dios Dice Que Si», **no era un resto**: Isaac lo puso para decir que **se
+va tocando por semitonos** de F# hasta D. Es notación suya que no estaba documentada, y por
+poco se borra por creerla basura. → **Un símbolo raro en los datos del usuario se pregunta,
+no se limpia.**
 Hoy una duración suelta (`:1`) **no funciona**: el parser solo la reconoce pegada a un acorde
 (`TablaturePreview.tsx:196`) y un `:1` suelto cae en el `else` y se pinta como texto gris
 (`:203`). La ligadura igual: `~` exige un acorde previo (`:131-135`). Además la botonera pega
@@ -812,6 +875,35 @@ pensando que es un olvido.
 una molestia real. **Comprobar el comportamiento actual antes de programar** convirtió una
 funcionalidad nueva en un descarte de dos minutos.
 
+#### Las 2 nuevas (dictadas el 2026-08-20, probando la Fase D)
+
+**O-26 · Otra forma de leer las columnas en pantalla completa.** ✅ **HECHO el 2026-08-20, sin publicar.**
+`[la pidió un músico del grupo]`
+Isaac: *«que además de una, dos y tres columnas, haya para leer de izquierda, luego derecha,
+luego debajo izquierda… (que es como se venía haciendo), y que la otra sea: si son dos columnas
+se lee primero la primera columna entera de arriba abajo, y luego la segunda»*.
+→ Es decir, **dos maneras de recorrer la misma rejilla**: por FILAS (lo de ahora) o por
+COLUMNAS. En una hoja de acordes las dos tienen sentido según cómo esté escrita la canción, y
+quien lo pidió es alguien que la lee tocando.
+→ **Hecho así:** botón nuevo en la barra de la presentación, **solo visible con 2 ó 3 columnas**
+—con una no hay nada que elegir—. Se guarda en el navegador de cada músico
+(`localStorage: presentacion-recorrido`), igual que el tamaño de letra: es preferencia de quien
+lee, no de la canción, así que **no hay migración**.
+
+🔴 **NO se hizo con `grid-auto-flow: column`, que era el plan escrito aquí.** Al ir a hacerlo se
+vio el problema: el grid por columnas **obliga a fijar cuántas filas hay**, y como las secciones
+miden distinto —un puente no ocupa lo que un coro— alinear las filas deja huecos grandes.
+→ Se usó **multi-columna de CSS** (`column-count`), que reparte por altura y equilibra sola.
+`break-inside: avoid` en cada sección impide lo único malo que podía hacer: **partir una sección
+entre dos columnas**. `column-count` **no está en la fase de impresión**: el PDF sigue con su
+propia rejilla de dos columnas, sin tocar.
+→ El auto-ajuste de tamaño se rehace al cambiar el recorrido: la altura del contenido cambia.
+
+**O-27 · «Cancionero» → «Partituras».** ✅ **HECHO el 2026-08-20.**
+Isaac: *«que así es como manejamos nosotros el lenguaje»*. Cambiado en el pie de la página
+compartida, en el nombre de la app instalada y en la descripción de la página. **No quedaba
+ningún otro sitio.**
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -824,7 +916,7 @@ funcionalidad nueva en un descarte de dos minutos.
 | **A** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-02 · O-04 · O-15 · +P-14 · +P-10 | Salió limpia. Commits `1bdf61e` (r31) y `76f571b`. Verificada en producción |
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
 | **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
-| **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
+| **D** | 🟡 **HECHA, SIN PUBLICAR (2026-08-20)** — ✅ O-03 (staccato) · ✅ duración suelta de O-01 · ✅ **la ligadura, los 3 fallos** (§9.2-ter). **Falta que Isaac la mire** | Compila · parser: solo cambia `Renueva Mi Espíritu` · **20 ligaduras, 0 perdidas** |
 | **E** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-09 · migración `20240015` aplicada | Commit `21575e2` (r36). Las 9 filas del repertorio intactas y la clave ya es `id` |
 | **F** | ✅ **HECHA (2026-08-20)** — O-08 · el PDF completo del culto | Confirmada por Isaac en PC **y en teléfono**: *«todo perfecto»* |
 | **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
@@ -833,6 +925,66 @@ funcionalidad nueva en un descarte de dos minutos.
 
 **Antes de la fase D es obligatorio** guardar el `content` de las 75 canciones y comparar el
 render antes y después (§12.5). **La fase 0 cubre eso de paso.**
+
+### 9.2-ter · 🔴 LA LIGADURA — dónde quedó exactamente (2026-08-20)
+
+> Isaac, el 2026-08-20: *«haz primero lo de las ligaduras y luego el modo de lectura»*.
+> **El código está escrito, pero NO está comprobado. Nada de esto se puede dar por bueno.**
+
+**Los 3 fallos que él vio** (mirando las 8 canciones que llevan `~`):
+
+1. **El arco se quedaba corto cuando los acordes miden distinto** (`F ~ G7`): el arco se
+   colocaba «la mitad del grupo hacia dentro» por porcentaje, y eso solo acierta si todos los
+   acordes son igual de anchos.
+2. **El arco moría en el guion** de `F# ~ - D` («Si Dios Dice Que Si»), en vez de pasar por
+   encima hasta el `D`.
+3. **La ligadura que cruza la barra de compás** (`Ebmaj7 ~ | %`) no se dibujaba: cada compás
+   es su propia caja y el arco no cabe. Pasa en **«Canción Feliz»**, **«Hay Poder En La
+   Alabanza»** y **«Yo Bien Sé Quien Soy»**.
+
+**Lo que se escribió** (todo en `src/components/sheets/TablaturePreview.tsx`):
+
+| Cambio | Qué hace |
+|---|---|
+| `TieGroup` con `useLayoutEffect` + `ResizeObserver` | **Mide** dónde está cada acorde en pantalla y pone el arco del centro del primero al centro del último. Sustituye al cálculo por porcentaje → arregla ① |
+| `data-celda="nota" \| "texto"` en `NoteCell` | Marca qué celda **suena** y cuál solo se lee. El arco solo mide las que suenan → arregla ② |
+| `tieSegments`: `while (j < n-1 && (chords[j].tieNext \|\| !suena(chords[j+1]))) j++` | La cadena **salta los textos intermedios** y llega al siguiente acorde. Con recorte al final para que el arco no cuelgue si el compás acaba en texto |
+| `saleLigado` / `entraLigado` en `MeasureBlock` | **Medio arco** al borde de cada compás, como en la partitura de verdad → arregla ③ |
+| `terminaLigado(m)` | Mira el último elemento que suena de un compás para saber si va ligado al siguiente |
+
+**Lo comprobado (2026-08-20):**
+
+1. ✅ **Compila.** El `npm run build` se había quedado colgado 10 minutos: era el servidor de
+   desarrollo sujetando `.next` (**T-04**). Se mató, se borró `.next` y compiló limpio.
+2. ✅ **Las 75 canciones por el parser:** solo cambia `Renueva Mi Espíritu`, que es el arreglo
+   pedido. Las otras 74, idénticas.
+3. ✅ **Arnés nuevo `scratchpad/ligaduras.mjs`** — 🔴 **hacía falta, y no existía.** El arnés
+   del parser **no cubre `tieSegments`**, que es donde estaba el cambio de verdad: da igual que
+   el parser lea bien si el arco se agrupa mal. El arnés nuevo saca `tieSegments` y
+   `terminaLigado` del `.tsx` y comprueba, canción por canción, **de qué acorde a qué acorde va
+   cada arco**. Resultado: **13 arcos dentro del compás + 7 que cruzan = 20, ninguna perdida.**
+   → **Cazó un fallo mío antes de que Isaac lo viera:** en `F# ~ - D` el arco se quedaba en el
+   `F#` solo. La cadena avanzaba una vez y el recorte la devolvía al principio. Reescrita para
+   que salte al **siguiente que suene** en vez de avanzar-y-recortar.
+4. ⬜ **Que Isaac mire las 8 canciones con `~`** — sobre todo las 3 que cruzan compás.
+5. ⬜ **Pedirle permiso para publicar.** Sigue en pie: **ni un `commit` ni un `push` sin
+   preguntárselo, cada vez.**
+
+**Las 20 ligaduras, para poder revisarlas:**
+
+| Canción | Compás | Arco |
+|---|---|---|
+| Cristo Es Mi Roca | 11 · 12 · 13 | `Cm7⌒F7` · `F/A⌒Gm7` · `Cm7⌒F7` |
+| Fiesta | 1 · 2 · 4 · 5 · 7 · 8 | `Bm⌒D` · `Em7⌒A7` · `Bm7⌒D` · `Em7⌒A7` · `Bm⌒D` · `Em7⌒A7` |
+| Nadie Robará Mi Gozo | 6 | `Dm7:2⌒Bb:2` |
+| Tengo Victoria | 4 · 5 | `Am7:2⌒Em7:2` · `F:2⌒G7:2` |
+| **Si Dios Dice Que Si** | 1 | `F#⌒D` **pasando por encima del `-`** ← el caso raro |
+| **Canción Feliz** | 28 · 30 · 33 · 34 · 35 | **cruzan compás** (33→34→35→36 es una cadena de `%`) |
+| **Yo Bien Sé Quien Soy** | 29 | **cruza compás** (`A:1⌒`) |
+| **Hay Poder En La Alabanza** | 35 | **cruza compás** (`A⌒`) |
+
+**Y después de la ligadura, O-26** (los dos modos de leer las columnas), que es lo que él pidió
+a continuación, en ese orden.
 
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
@@ -981,8 +1133,9 @@ otra persona y compartido con un proyecto ajeno.
 ### 12.3 El procedimiento, cada vez
 
 1. **Nunca trabajar sobre `main`.** Rama aparte (D-03).
-2. **`npm run build` en local antes de publicar.** Es la única red que hay hoy: si falla aquí,
-   habría fallado en Vercel — y allí no se ve.
+2. **Compilar en local antes de publicar.** Es la única red que hay hoy: si falla aquí, habría
+   fallado en Vercel — y allí no se ve. **Con el servidor de desarrollo encendido, `npm run
+   verificar`**, que compila aparte y no lo rompe (T-04).
 3. **Probar el flujo completo en `npm run dev`**, como lo haría un músico.
 4. **Pedirle permiso a Isaac** para el push (D-01). Cada permiso vale para ese trabajo.
 5. Publicar y **esperar un minuto largo**.
@@ -1028,6 +1181,32 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 27 — FASE D: staccato y duración suelta (falta la ligadura)
+
+La fase de más riesgo, la única que podía estropear canciones ya escritas. **La red de
+seguridad valió la pena y cazó un fallo que no se veía de ninguna otra forma.**
+
+**Cómo se hizo, y así hay que hacerlo la próxima vez:** antes de tocar nada, se sacó
+`parseMeasures` del componente y se pasaron por él **las 75 canciones (2.524 compases)**,
+guardando el resultado. Después de cada cambio, se repitió y se comparó.
+
+- 🔴 **Lo que cazó:** «Es Por Fe» tiene la etiqueta `<Conteo 1, 2, 3, Sube!>` — **con signo de
+  exclamación dentro del texto**. El staccato nuevo **se lo comía**. En la cuadrícula se habría
+  visto «Sube» con un punto raro debajo, y nadie lo habría notado hasta un culto. Arreglado: el
+  `!` no se toca dentro de `<…>` ni de `(…)`.
+- ✅ **Hallazgo bonito:** «Renueva Mi Espíritu» ya tenía escrito `Bb:2 :1 z:1`, con una
+  **duración suelta** que **nunca funcionó** —salía como texto gris—. Alguien la escribió
+  esperando que sirviera. Ahora sirve. **Es la única de las 75 que cambia**, y cambia para bien.
+- ✅ **O-03 · Staccato**, con `!` (D-08): punto debajo del acorde, botón propio en la botonera y
+  el `!` pegado al acorde al escribir.
+- ✅ **O-01 · Duración suelta**: `:1` sin acorde delante dibuja su figura sola, en el mismo sitio
+  donde va la de los acordes. Y la ligadura `~` ya engancha también con una duración suelta.
+
+⛔ **PENDIENTE de O-01: qué debe hacer exactamente la ligadura al «unir las duraciones».** Hay
+dos lecturas y no se puede adivinar: (a) dibujar las dos notas con el arco y que el compás
+cuente la suma —que es lo que ya pasa—, o (b) fundirlas en **una sola figura** con la duración
+sumada (negra + negra ligadas = una blanca). Preguntado a Isaac con un ejemplo.
 
 ### 2026-08-20 · Tanda 26 — FASE F: el PDF del culto, con sus acordes
 

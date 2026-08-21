@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NoteFigure, RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
@@ -24,6 +24,8 @@ type NoteToken = {
   repeat?: boolean; // "%": repetición de un acorde (se dibuja como acorde)
   tieNext?: boolean; // ligadura: une este acorde con el siguiente por arriba
   fermata?: boolean; // calderón: acorde de pausa/alargación
+  staccato?: boolean; // staccato: punto debajo de la figura (se escribe "!")
+  soloFigura?: boolean; // duración suelta, sin acorde: se dibuja solo la figura
   timeSig?: string; // cambio de compás inline (ej. "6/8")
   lyric?: string; // texto entre paréntesis, se muestra debajo del acorde
   chordLabel?: string; // texto <...>: se dibuja como un acorde pero en amarillo
@@ -130,13 +132,23 @@ function parseMeasures(value: string): Measure[] {
     // Ligadura / ligado: "~" suelto une el acorde anterior con el siguiente.
     if (part === "~") {
       const prev = current.notes[current.notes.length - 1];
-      if (prev && (prev.root || prev.rest || prev.repeat)) prev.tieNext = true;
+      if (prev && (prev.root || prev.rest || prev.repeat || prev.duration != null)) prev.tieNext = true;
       continue;
     }
 
     // Calderón (fermata): el `^` se quita del token y marca el acorde.
     const fermata = part.includes("^");
     let core = fermata ? part.replace(/\^/g, "") : part;
+
+    // Staccato: "!" pegado al token (C:1!). Se eligió "!" y no el punto porque
+    // el punto ya es el decimal de la duración (:1.5, :0.25) y habría vuelto
+    // ambiguas las canciones ya escritas (D-08).
+    // ⚠️ Dentro de un texto —"<Conteo 1, 2, 3, Sube!>" o "(¡vamos!)"— el "!" es
+    //    parte de lo que se quiere leer, no un staccato. Sin esta comprobación
+    //    se lo comía: lo cazó la comparación contra las 75 canciones.
+    const esTexto = core.startsWith("<") || core.startsWith("(");
+    const staccato = !esTexto && core.includes("!");
+    if (staccato) core = core.replace(/!/g, "");
 
     // Ligadura pegada al final del acorde (p. ej. "C~"): marca el acorde y se quita.
     let tieNext = false;
@@ -145,9 +157,21 @@ function parseMeasures(value: string): Measure[] {
       core = core.slice(0, -1);
     }
 
+    // Duración SUELTA, sin acorde delante (":1", ":0.5"). Se dibuja la figura
+    // sola, en el mismo sitio donde va la de los acordes (O-01). Antes esto
+    // caía en el "si no es nada, píntalo como texto gris".
+    const soloDuracion = core.match(/^:(\d+(?:\.\d+)?)$/);
+    if (soloDuracion) {
+      current.notes.push({
+        root: "", suffix: "", duration: parseFloat(soloDuracion[1]),
+        soloFigura: true, fermata, staccato, tieNext, raw: part,
+      });
+      continue;
+    }
+
     // Repetición de acorde: "%" se dibuja con las mismas características que un acorde.
     if (core === "%") {
-      current.notes.push({ root: "", suffix: "", duration: null, repeat: true, fermata, tieNext, raw: part });
+      current.notes.push({ root: "", suffix: "", duration: null, repeat: true, fermata, staccato, tieNext, raw: part });
       continue;
     }
 
@@ -163,7 +187,7 @@ function parseMeasures(value: string): Measure[] {
     if (core.length > 2 && core.startsWith("<") && core.endsWith(">")) {
       const labelText = core.slice(1, -1).split(SP).join(" ");
       current.notes.push({
-        root: "", suffix: "", duration: null, chordLabel: labelText, fermata, tieNext, raw: part,
+        root: "", suffix: "", duration: null, chordLabel: labelText, fermata, staccato, tieNext, raw: part,
       });
       continue;
     }
@@ -185,7 +209,7 @@ function parseMeasures(value: string): Measure[] {
     const restMatch = core.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
     if (restMatch) {
       const duration = restMatch[1] ? parseFloat(restMatch[1]) : null;
-      current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, tieNext, raw: part });
+      current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, staccato, tieNext, raw: part });
       continue;
     }
 
@@ -198,7 +222,7 @@ function parseMeasures(value: string): Measure[] {
         duration = parseFloat(durMatch[1]);
         rest = rest.slice(0, rest.lastIndexOf(":"));
       }
-      current.notes.push({ root: match[1], suffix: rest, duration, fermata, tieNext, raw: part });
+      current.notes.push({ root: match[1], suffix: rest, duration, fermata, staccato, tieNext, raw: part });
     } else {
       current.notes.push({ root: "", suffix: "", duration: null, text: core, fermata, raw: part });
     }
@@ -275,6 +299,16 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
         {token.chordLabel}
       </span>
     );
+  } else if (token.soloFigura) {
+    // Duración suelta: sigue sonando el acorde anterior, así que NO se repite su
+    // nombre —para eso está el "%"—; solo se marca el golpe con la figura, que
+    // ya se dibuja arriba.
+    //
+    // La celda ocupa lo MISMO que un acorde (misma altura de línea) aunque vaya
+    // vacía: si fuera más estrecha, el compás se descuadraría y la figura
+    // quedaría desalineada de las demás. Es un golpe más del compás y tiene que
+    // ocupar como tal.
+    content = <span className="block leading-none" style={{ fontSize: "1.5em" }}>&nbsp;</span>;
   } else if (token.text) {
     content = (
       <span
@@ -290,11 +324,19 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
 
   return (
     <div
+      // `data-celda` lo usa el arco de ligadura para medir dónde está cada
+      // acorde: "nota" es lo que suena, "texto" es lo que solo se lee.
+      data-celda={token.root || token.rest || token.repeat || token.duration != null ? "nota" : "texto"}
       // Celda del tamaño de su contenido (no se estira). El compás centra el
       // grupo de acordes y un gap los separa. El padding vertical centra y deja
       // sitio arriba para el calderón/figura. La letra (paréntesis) va debajo.
       className="relative flex flex-col items-center justify-center text-center"
-      style={{ minWidth: dense ? "1em" : "1.3em", padding: dense ? "0.6em 0.08em" : "0.95em 0.15em" }}
+      style={{
+        // La duración suelta reserva algo más de ancho: sin texto que la
+        // sostenga, se quedaba pegada al acorde de al lado.
+        minWidth: token.soloFigura ? (dense ? "1.4em" : "1.8em") : dense ? "1em" : "1.3em",
+        padding: dense ? "0.6em 0.08em" : "0.95em 0.15em",
+      }}
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
@@ -304,16 +346,17 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
           {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} beamed={beamed} />}
         </span>
       )}
-      {/* Ligadura: arco que sale de este acorde hacia el siguiente, por arriba. */}
-      {token.tieNext && (
+      {content}
+      {/* Staccato: el punto va DEBAJO de la nota, como en la partitura. */}
+      {token.staccato && (
         <span
-          className="figura pointer-events-none absolute top-0 z-10 text-slate-500 dark:text-slate-300"
-          style={{ left: "50%", width: "calc(100% + 1.1em)", height: "0.55em" }}
+          aria-hidden
+          className="figura block leading-none text-slate-700 dark:text-slate-200"
+          style={{ fontSize: "1.1em", marginTop: "-0.15em" }}
         >
-          <SlurFigure />
+          •
         </span>
       )}
-      {content}
       {token.lyric && (
         <span
           className="etiqueta mt-0.5 whitespace-nowrap italic leading-none text-amber-700 dark:text-amber-300"
@@ -397,11 +440,110 @@ function BeamGroup({ tokens, beats, dense = false }: { tokens: NoteToken[]; beat
   );
 }
 
+/**
+ * Elementos unidos por ligadura, con UN arco que va del centro del primero al
+ * centro del último.
+ *
+ * El arco se coloca MIDIENDO dónde acaba cada celda, no por porcentaje. Antes
+ * se calculaba "la mitad del grupo hacia dentro", y eso solo acierta si todos
+ * los acordes miden lo mismo: en `F ~ G7` el arco se quedaba corto, porque "F"
+ * es mucho más estrecho que "G7".
+ *
+ * Y se mide del primer al último elemento CON SONIDO: si en medio hay un texto
+ * —como el `-` de `F# ~ - D`, que significa "por semitonos"—, el arco pasa por
+ * encima en vez de acabar en él.
+ */
+function TieGroup({ tokens, dense = false }: { tokens: NoteToken[]; dense?: boolean }) {
+  const cajaRef = useRef<HTMLDivElement>(null);
+  const [arco, setArco] = useState<{ left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const caja = cajaRef.current;
+    if (!caja) return;
+
+    const medir = () => {
+      const celdas = Array.from(caja.querySelectorAll<HTMLElement>("[data-celda]"));
+      // Solo cuentan las que suenan: un texto intermedio no es el final del arco.
+      const suenan = celdas.filter((c) => c.dataset.celda === "nota");
+      if (suenan.length < 2) return setArco(null);
+      const base = caja.getBoundingClientRect();
+      const a = suenan[0].getBoundingClientRect();
+      const b = suenan[suenan.length - 1].getBoundingClientRect();
+      const centroA = a.left + a.width / 2 - base.left;
+      const centroB = b.left + b.width / 2 - base.left;
+      setArco({ left: centroA, width: Math.max(0, centroB - centroA) });
+    };
+
+    medir();
+    // El ancho cambia al redimensionar, al cambiar el zoom o al girar el móvil.
+    const obs = new ResizeObserver(medir);
+    obs.observe(caja);
+    return () => obs.disconnect();
+  }, [tokens, dense]);
+
+  return (
+    <div ref={cajaRef} className={cn("relative flex items-stretch", dense ? "gap-[0.3em]" : "gap-[0.5em]")}>
+      {beamSegments(tokens).map((seg, si) =>
+        seg.type === "single" ? (
+          <NoteCell key={si} token={seg.token} dense={dense} />
+        ) : (
+          <BeamGroup key={si} tokens={seg.tokens} beats={seg.beats} dense={dense} />
+        )
+      )}
+      {arco && arco.width > 0 && (
+        <span
+          aria-hidden
+          className="figura pointer-events-none absolute top-0 z-10 text-slate-500 dark:text-slate-300"
+          style={{ left: arco.left, width: arco.width, height: "0.55em" }}
+        >
+          <SlurFigure />
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Parte los acordes en grupos: los unidos por ligadura van juntos. */
+function tieSegments(chords: NoteToken[]): { tokens: NoteToken[]; tied: boolean }[] {
+  // Un texto intercalado no rompe la ligadura ni la termina: el `-` de
+  // "F# ~ - D" quiere decir "por semitonos", y el arco tiene que llegar al D.
+  const suena = (t: NoteToken) =>
+    Boolean(t.root || t.rest || t.repeat || t.duration != null);
+
+  const out: { tokens: NoteToken[]; tied: boolean }[] = [];
+  let i = 0;
+  while (i < chords.length) {
+    let j = i;
+    // Mientras el de turno esté ligado, se salta hasta el SIGUIENTE QUE SUENE.
+    while (chords[j].tieNext) {
+      let k = j + 1;
+      while (k < chords.length && !suena(chords[k])) k++;
+      if (k >= chords.length) break; // la ligadura cruza el compás: la pinta MeasureBlock
+      j = k;
+    }
+    if (j > i) {
+      out.push({ tokens: chords.slice(i, j + 1), tied: true });
+      i = j + 1;
+      continue;
+    }
+    out.push({ tokens: [chords[i]], tied: false });
+    i++;
+  }
+  return out;
+}
+
+
 function MeasureBlock({
   measure,
   noBar = false,
   dense = false,
+  saleLigado = false,
+  entraLigado = false,
 }: {
+  /** El último acorde queda ligado al compás siguiente (Ebmaj7 ~ | %). */
+  saleLigado?: boolean;
+  /** El primer acorde viene ligado del compás anterior. */
+  entraLigado?: boolean;
   measure: Measure;
   noBar?: boolean;
   dense?: boolean;
@@ -417,7 +559,10 @@ function MeasureBlock({
     <div
       // Cada compás crece según sus tiempos; los compases se reparten la fila.
       // Borde derecho fino = barra de tempo (se omite en el último de un recuadro).
-      className={cn("flex items-stretch", !noBar && "border-r border-slate-300 dark:border-slate-600")}
+      className={cn(
+        "relative flex items-stretch",
+        !noBar && "border-r border-slate-300 dark:border-slate-600"
+      )}
       style={{
         flexGrow: totalBeats,
         // De base, el ancho según nº de acordes; crece para llenar la fila. En
@@ -441,17 +586,51 @@ function MeasureBlock({
         )}
       >
         {chords.length ? (
-          beamSegments(chords).map((seg, si) =>
-            seg.type === "single" ? (
-              <NoteCell key={si} token={seg.token} dense={dense} />
+          tieSegments(chords).map((grupo, gi) =>
+            grupo.tied ? (
+              <TieGroup key={gi} tokens={grupo.tokens} dense={dense} />
             ) : (
-              <BeamGroup key={si} tokens={seg.tokens} beats={seg.beats} dense={dense} />
+              beamSegments(grupo.tokens).map((seg, si) =>
+                seg.type === "single" ? (
+                  <NoteCell key={`${gi}-${si}`} token={seg.token} dense={dense} />
+                ) : (
+                  <BeamGroup key={`${gi}-${si}`} tokens={seg.tokens} beats={seg.beats} dense={dense} />
+                )
+              )
             )
           )
         ) : (
           <div className="min-w-[1.6em] flex-1" />
         )}
       </div>
+      {/* Ligadura que cruza la barra de compás: en la partitura se dibuja medio
+          arco saliendo de un compás y medio entrando en el siguiente. Aquí
+          igual — el arco entero no cabe, porque cada compás es su propia caja. */}
+      {saleLigado && (
+        <span
+          aria-hidden
+          className="figura pointer-events-none absolute top-0 right-0 z-10 overflow-hidden text-slate-500 dark:text-slate-300"
+          style={{ width: "1.2em", height: "0.55em" }}
+        >
+          {/* El arco entero mide el doble y se asoma solo su mitad izquierda:
+              sale del acorde, sube, y la barra de compás lo corta. */}
+          <span className="absolute left-0 top-0 block" style={{ width: "2.4em", height: "0.55em" }}>
+            <SlurFigure />
+          </span>
+        </span>
+      )}
+      {entraLigado && (
+        <span
+          aria-hidden
+          className="figura pointer-events-none absolute top-0 left-0 z-10 overflow-hidden text-slate-500 dark:text-slate-300"
+          style={{ width: "1.2em", height: "0.55em" }}
+        >
+          {/* Aquí se asoma la mitad derecha: entra por la barra y baja al acorde. */}
+          <span className="absolute right-0 top-0 block" style={{ width: "2.4em", height: "0.55em" }}>
+            <SlurFigure />
+          </span>
+        </span>
+      )}
       {measure.repeatEnd && <RepeatGlyph side="end" />}
     </div>
   );
@@ -472,6 +651,13 @@ function groupSegments(measures: Measure[]): Segment[] {
     }
   }
   return segments;
+}
+
+/** ¿El último acorde de este compás queda ligado al siguiente? */
+function terminaLigado(m: Measure): boolean {
+  const suenan = m.notes.filter((n) => !n.timeSig);
+  const ultimo = suenan[suenan.length - 1];
+  return Boolean(ultimo?.tieNext);
 }
 
 export default function TablaturePreview({
@@ -532,7 +718,18 @@ export default function TablaturePreview({
                 if (m.isBreak) {
                   return <div key={si} aria-hidden style={{ flexBasis: "100%", flexShrink: 0, height: 0 }} />;
                 }
-                return <MeasureBlock key={si} measure={m} dense={dense} />;
+                // Una ligadura puede cruzar la barra de compás ("Ebmaj7 ~ | %"):
+                // hay que mirar el compás de al lado para saberlo.
+                const anterior = measures[measures.indexOf(m) - 1];
+                return (
+                  <MeasureBlock
+                    key={si}
+                    measure={m}
+                    dense={dense}
+                    saleLigado={terminaLigado(m)}
+                    entraLigado={Boolean(anterior && terminaLigado(anterior))}
+                  />
+                );
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
@@ -556,7 +753,14 @@ export default function TablaturePreview({
                   </span>
                   <div className="flex flex-1 items-stretch rounded-md border-2 border-slate-500 dark:border-slate-400">
                     {seg.items.map((m, idx) => (
-                      <MeasureBlock key={idx} measure={m} noBar={idx === seg.items.length - 1} dense={dense} />
+                      <MeasureBlock
+                        key={idx}
+                        measure={m}
+                        noBar={idx === seg.items.length - 1}
+                        dense={dense}
+                        saleLigado={terminaLigado(m)}
+                        entraLigado={Boolean(idx > 0 && terminaLigado(seg.items[idx - 1]))}
+                      />
                     ))}
                   </div>
                 </div>

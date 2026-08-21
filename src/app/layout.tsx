@@ -17,7 +17,7 @@ const bodyFont = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: "Partituras · Centro Cristiano La Casa de mi Padre",
-  description: "Gestor de canciones y acordes de Centro Cristiano La Casa de mi Padre",
+  description: "Partituras con acordes de Centro Cristiano La Casa de mi Padre",
   manifest: "/manifest.json",
 };
 

@@ -128,6 +128,15 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
         >
           <FermataFigure className="h-3.5" />
         </button>
+        <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Staccato:</span>
+        <button
+          type="button"
+          onClick={() => onInsert("!")}
+          className="flex h-7 w-7 items-end justify-center rounded border border-slate-200 bg-slate-50 pb-1 text-lg font-bold leading-none text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+          title="Staccato: punto debajo del acorde anterior (se escribe !)"
+        >
+          •
+        </button>
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Repeticion:</span>
         <button
           type="button"

@@ -162,7 +162,7 @@ export default async function PublicServicePage({
         </ol>
 
         <p className="mt-8 text-center text-xs text-slate-300 dark:text-slate-600">
-          La Casa de mi Padre · Cancionero
+          La Casa de mi Padre · Partituras
         </p>
       </div>
         </ContentScale>

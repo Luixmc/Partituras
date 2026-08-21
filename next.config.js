@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Permite compilar en OTRA carpeta sin pisar el `.next` que está usando el
+  // servidor de desarrollo. Compilar encima de él lo deja roto ("Cannot find
+  // module ./vendor-chunks/..."), y ya ha pasado tres veces. `npm run verificar`
+  // define esta variable; `npm run build` no, así que Vercel no cambia.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   async headers() {
     const corsHeaders = [
       {
