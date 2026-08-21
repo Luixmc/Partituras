@@ -1581,6 +1581,32 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-08-21 · Tanda 30 — Las notas del acorde, bien escritas · 🚀 r41
+
+**Publicado:** commit `8a1894e`, push `50e20d4..8a1894e` a `main`.
+
+**Una sola cosa, y de fondo (T-13):** el desplegable decía que `Bb` tiene «A# · D · F». Isaac lo
+vio mirando los diagramas con calma, y **su diagnóstico era correcto: solo pasaba con los
+bemoles**.
+
+**Lo importante no es el arreglo, es el porqué.** Las notas se calculaban **sumando semitonos**,
+y al escribir el resultado había que **elegir** entre `A#` y `Bb` — con la información justa para
+no acertar. Isaac preguntó si había que mirar el **centro tonal**; la respuesta fue mejor:
+**el propio acorde lo dice.** Cada nota se nombra ahora por su **grado** (cuántos semitonos sube
+y **cuántas letras**), así que la tercera de `Bb` es un `D` porque está dos letras más arriba.
+
+→ **El parámetro `bemoles` desapareció.** Ya no hay que arrastrar la tonalidad hasta el dibujo,
+y de paso se respeta lo que Isaac escribió aunque no encaje con el tono de la canción.
+→ Los dos diagramas tenían **su propia copia** de la tabla de notas; ahora usan `semitonoDe`.
+
+**Confirmado por él que dos casos raros se dejan como están** (*«está bien así, déjalos»*):
+`Bbmaj7/#9` lleva `C#` —la novena aumentada de `Bb`— y `Dbm` da `Db · Fb · Ab`, correcto aunque
+`Fb` sea un `E`.
+
+**Lección a la carpeta compartida:** L-118 `[PART]` — *si al mostrar un dato hay que elegir entre
+dos formas válidas, es que se perdió información antes; se arregla modelando el dato, no
+arrastrando contexto.*
+
 ### 2026-08-21 · Tanda 29 — Los acordes se pulsan y se ven · filtro por estado · 🚀 r40
 
 **Publicado:** commit `2ee126e`, push `3cf875b..2ee126e` a `main`.
