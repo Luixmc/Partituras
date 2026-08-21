@@ -1526,6 +1526,31 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-08-21 · Tanda 29 — Los acordes se pulsan y se ven · filtro por estado · 🚀 r40
+
+**Publicado:** commit `2ee126e`, push `3cf875b..2ee126e` a `main`.
+
+**Lo que entró:**
+- **FASE I completa (O-17 piano y bajo).** `acordes.ts` nuevo cubre **1.894 de 1.894 acordes, el
+  100 %**. Diagramas de piano y bajo, y desplegable al pulsar — estilo CifraClub, como pidió Isaac.
+- **O-28 · Filtro por estado**, solo para administradores. Verificado con **las dos cuentas**.
+- **T-12 · El `<select>` ilegible en oscuro**, arreglado en la hoja global: valía para los **8**.
+- **El exportador acepta una sesión de administrador** → la copia ya se lleva los 8 borradores.
+- **Una copia ya no puede pisar a otra** (L-117 `[PART]`).
+
+**Cuatro correcciones de Isaac mirando la pantalla, todas antes de integrar nada:**
+las octavas, el recorte del teclado, la mano izquierda y la leyenda del bajo. **La página
+desechable `/acordes-prueba` fue lo que las hizo baratas**, y se borró antes de publicar.
+
+🔴 **Lo que se me escapó y vio él:** al montar el desplegable metí una etiqueta por encima de un
+bloque de comentarios `//`, que pasaron de zona JavaScript a JSX — y ahí **`//` no comenta, se
+imprime**. La presentación salió con un párrafo de código encima de la canción. **Compiló, y los
+tres arneses dieron verde.** → Arnés nuevo `scratchpad/comentarios.mjs`, pasado por las **13
+páginas**: todas limpias.
+
+**Lecciones a la carpeta compartida:** L-114 `[PART]`, L-115 `[PART]`, L-116 `[PART]`,
+L-117 `[PART]`.
+
 ### 2026-08-20/21 · Tanda 28 — la ligadura, el modo de lectura, el tono con bemoles · 🚀 r39
 
 **Publicado:** commit `0f5c6cf`, push `c5dea4e..0f5c6cf` a `main`. **CI verde**
