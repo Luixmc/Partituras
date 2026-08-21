@@ -1637,6 +1637,37 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-08-21 · Tanda 31 — El comunicado para los músicos, en su sitio · 🚀 r42
+
+**Publicado:** commit `795660c`, push `27ac4e7..795660c` a `main`.
+
+Isaac quería un texto de lo cambiado desde que se retomó la página, **sin nada de
+administración** —*«no lo van a usar ellos»*—, para mandarlo al grupo de la iglesia.
+
+🔴 **El primer intento no servía, y lo descubrió él.** Se publicó como artefacto de Claude. Yo lo
+comprobé por línea de comandos: **HTTP 200**, y lo di por bueno. **Él lo abrió en incógnito y salía
+«Page not found» con un botón de iniciar sesión.** La página respondía, pero el contenido cargaba
+después — un `curl` medía la cáscara, no lo que ve una persona (**L-119 `[PART]`**).
+
+**Lo que sí funciona: `/novedades`**, en el dominio que los músicos ya conocen. Pública como
+`/s/<token>`, sin base de datos y sin migración.
+- El **contenido va aparte** (`lib/novedades.ts`): añadir una tanda futura es escribir una entrada,
+  y **el enlace repartido hoy sigue valiendo**.
+- Cada cambio lleva **NUEVO** o **ARREGLADO** — no es adorno: le dice al músico si busca un botón
+  nuevo o si algo dejó de fallar.
+- **`openGraph`** para que al pegarlo en WhatsApp salga «Qué cambió en Partituras».
+
+🔴 **Isaac corrigió DOS VECES la misma cosa: el texto estaba escrito como si todo se leyera en el
+teléfono.** La segunda vez fue explícito — *«los cambios se hicieron pensados tanto para PC como
+para teléfono, modifícalo en las secciones que sean pertinentes»*. → Repasado **entero**, no solo
+donde señaló: quedó **9 menciones al teléfono y 9 al computador**, medido, más una nota arriba que
+lo dice una sola vez. El peor era **el PDF**, contado desde el móvil cuando se baja igual desde el
+computador.
+📌 **Su detalle del «mundito gris» entró tal cual:** nadie recuerda «no había favicon»; **todos se
+acuerdan del globo gris**.
+
+**Lección a la carpeta compartida:** L-119 `[PART]`.
+
 ### 2026-08-21 · Tanda 30 — Las notas del acorde, bien escritas · 🚀 r41
 
 **Publicado:** commit `8a1894e`, push `50e20d4..8a1894e` a `main`.
