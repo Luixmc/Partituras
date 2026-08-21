@@ -113,7 +113,7 @@ export default async function PublicServicePage({
               <Play className="h-4 w-4" />
               Modo presentacion
             </Link>
-            <ServicePdfButton name={service.name} typeLabel={meta.label} dateText={dateText} songs={songs} />
+            <ServicePdfButton href={`/s/${service.public_token}/imprimir`} />
           </div>
         )}
 

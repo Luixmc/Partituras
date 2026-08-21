@@ -358,6 +358,21 @@ cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
 
+**T-09 · Mover una dirección sin dejar la vieja redirigiendo rompe lo que la gente tiene abierto.**
+*Síntoma:* Isaac recargó la pestaña que tenía y le salió **404**.
+*Causa:* la hoja del PDF se movió de sitio y la dirección anterior dejó de existir. Él la tenía
+en el historial.
+*Cómo se evita:* al mover una ruta, **dejar la vieja redirigiendo a la nueva**. Cuesta cinco
+líneas y evita que se rompa lo que otros tienen guardado.
+
+**T-10 · `100vh` al imprimir mide la PANTALLA en el móvil, no la hoja.**
+*Síntoma:* el PDF salía con **el doble de páginas** (7 canciones → 14 hojas, la mitad casi
+vacías). **Solo en el teléfono**; en el ordenador salía bien.
+*Causa:* se había puesto `min-height: 100vh` para que el fondo llegara abajo. El navegador del
+móvil calcula `vh` con la pantalla del teléfono —alta y estrecha—, no con la hoja horizontal.
+*Cómo se resuelve:* no usar `vh` para la altura de una página impresa. El fondo lo pinta el
+`<html>`, que sí cubre la hoja entera.
+
 **T-08 · Un servidor de desarrollo viejo se queda con el puerto y el nuevo se va a otro, callado.**
 *Síntoma:* la página devuelve **HTTP 500** en `localhost:3000` justo después de un cambio, y
 parece que el cambio la rompió.
@@ -811,7 +826,7 @@ funcionalidad nueva en un descarte de dos minutos.
 | **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
 | **D** | O-01 (duración y ligadura sueltas) · O-03 (staccato, D-08) | ⚠️ **El más alto.** Entran en el parser: pueden cambiar cómo se ven las 75 canciones ya escritas |
 | **E** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-09 · migración `20240015` aplicada | Commit `21575e2` (r36). Las 9 filas del repertorio intactas y la clave ya es `id` |
-| **F** | O-08 (impresión horizontal, D-10) | Medio. Hay que probarla **en teléfono** además de en PC |
+| **F** | ✅ **HECHA (2026-08-20)** — O-08 · el PDF completo del culto | Confirmada por Isaac en PC **y en teléfono**: *«todo perfecto»* |
 | **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
 | **H** | ✅ **HECHA (2026-08-20), sin publicar** — O-20 · O-21 | Verificada con datos reales (§7). **Falta que Isaac la mire y dé permiso** |
 | **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | **Sin fase asignada: pendientes.** Los tres son grandes y tienen preguntas abiertas |
@@ -1013,6 +1028,41 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20 · Tanda 26 — FASE F: el PDF del culto, con sus acordes
+
+El botón PDF bajaba solo la lista de canciones. Ahora se lleva el culto entero: cada canción en
+su hoja, con sus acordes, en el tono del culto, en horizontal o vertical y en claro u oscuro.
+
+**Cuatro fallos por el camino, y ninguno se vio compilando:**
+
+1. 🔴 **La hoja estaba dentro del panel**, que usa altura fija y `overflow: hidden`. Con eso el
+   navegador **no puede paginar**: salía **1 página** en vez de 7, cortada, y con la barra de
+   navegación impresa dentro del PDF. Se movió a `/imprimir/culto/[id]`, fuera del panel.
+   → Y al moverla **se rompió la dirección vieja**, que Isaac tenía abierta: 404. **Al mover una
+   ruta hay que dejar la vieja redirigiendo** (T-09).
+2. 🔴 **El modo claro salía ilegible**: se forzó el color del texto a negro pero **los fondos
+   siguieron oscuros**. Negro sobre azul marino. Se arregló dejando de pintar colores a mano y
+   **encendiendo o apagando el modo oscuro de la propia página**, que ya sabe pintarse sola.
+3. 🔴 **El marco blanco del PDF en modo oscuro.** El margen de página **es papel que no se puede
+   pintar**: se puso a cero y el aire se hace por dentro, con relleno.
+4. 🔴 **En el móvil salían 14 páginas en vez de 7.** Se había puesto que cada canción midiera
+   `100vh`; el navegador del teléfono calcula eso con **la pantalla del móvil**, no con la hoja,
+   así que cada canción ocupaba dos páginas (T-10).
+
+📌 **La orientación no se puede imponer en el móvil** —Brave y Chrome en Android usan el sistema
+de impresión de Android—, así que se añadió un **selector Horizontal/Vertical**. Se midió: en
+hoja vertical **dos columnas siguen cabiendo** (7 páginas), mientras que con una sola las
+canciones largas se parten (10 páginas). Van dos columnas siempre.
+
+🧰 **Lo más útil de esta tanda no es código: ahora se pueden generar los PDF desde aquí**, con
+Edge en segundo plano, y contar páginas, orientación y colores **antes** de pasarle nada a Isaac.
+Hasta ahora el PDF solo lo veía él. Los parámetros `?fondo=` y `?hoja=` existen para eso —y de
+paso sirven para mandar un enlace ya en un modo concreto.
+
+⚠️ **Y dos veces mintió mi propia comprobación**, que es lo que más despista: el detector de
+color no encontraba el fondo oscuro porque el PDF escribe `.0588` **sin el cero delante**; y el
+`@media print and (orientation: portrait)` **se aplicaba al revés**, generando 11 páginas.
 
 ### 2026-08-20 · Tanda 25 — Se crea el comunicado de cambios (D-18)
 

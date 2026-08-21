@@ -269,7 +269,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
     // hace el compás (que envuelve cuando hay etiquetas) sin partir palabras.
     content = (
       <span
-        className="whitespace-nowrap font-bold leading-tight text-yellow-500 dark:text-yellow-300"
+        className="etiqueta whitespace-nowrap font-bold leading-tight text-yellow-500 dark:text-yellow-300"
         style={{ fontSize: "1.5em" }}
       >
         {token.chordLabel}
@@ -278,7 +278,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
   } else if (token.text) {
     content = (
       <span
-        className="text-center italic leading-tight text-amber-700 dark:text-amber-300"
+        className="etiqueta text-center italic leading-tight text-amber-700 dark:text-amber-300"
         style={{ fontSize: "0.7em" }}
       >
         {token.text}
@@ -298,7 +298,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
-          className="absolute inset-x-0 top-0 flex justify-center text-slate-400 dark:text-slate-300"
+          className="figura absolute inset-x-0 top-0 flex justify-center text-slate-400 dark:text-slate-300"
           style={{ fontSize: "0.85em", height: "0.95em" }}
         >
           {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} beamed={beamed} />}
@@ -307,7 +307,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
       {/* Ligadura: arco que sale de este acorde hacia el siguiente, por arriba. */}
       {token.tieNext && (
         <span
-          className="pointer-events-none absolute top-0 z-10 text-slate-500 dark:text-slate-300"
+          className="figura pointer-events-none absolute top-0 z-10 text-slate-500 dark:text-slate-300"
           style={{ left: "50%", width: "calc(100% + 1.1em)", height: "0.55em" }}
         >
           <SlurFigure />
@@ -316,7 +316,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
       {content}
       {token.lyric && (
         <span
-          className="mt-0.5 whitespace-nowrap italic leading-none text-amber-700 dark:text-amber-300"
+          className="etiqueta mt-0.5 whitespace-nowrap italic leading-none text-amber-700 dark:text-amber-300"
           style={{ fontSize: "0.62em" }}
         >
           {token.lyric}

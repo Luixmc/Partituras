@@ -350,17 +350,6 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const meta = SERVICE_TYPE_META[serviceType] ?? SERVICE_TYPE_META.otro;
   const dateText = formatServiceDate(serviceDate || null);
 
-  // Canciones con su tono efectivo (versión guardada, override o el original).
-  const pdfSongs = songs.map((s) => {
-    const savedKey = s.sheet_key_id
-      ? s.available_keys.find((k) => k.id === s.sheet_key_id)?.key_signature
-      : null;
-    return {
-      title: s.title,
-      composer: s.composer,
-      key: savedKey || s.key_override || s.key_signature,
-    };
-  });
 
   // ── Vista de solo lectura (no admin) ───────────────────────
   if (!canEdit) {
@@ -388,7 +377,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                 <Play className="h-4 w-4" />
                 Presentar
               </Link>
-              <ServicePdfButton name={name} typeLabel={meta.label} dateText={dateText} songs={pdfSongs} />
+              <ServicePdfButton href={`/imprimir/culto/${service!.id}`} />
             </div>
           )}
         </div>
@@ -708,7 +697,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
             <Play className="h-4 w-4" />
             Modo presentacion
           </Link>
-          <ServicePdfButton name={name} typeLabel={meta.label} dateText={dateText} songs={pdfSongs} />
+          <ServicePdfButton href={`/imprimir/culto/${service!.id}`} />
         </div>
       )}
 

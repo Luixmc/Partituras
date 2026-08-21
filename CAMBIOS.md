@@ -53,6 +53,21 @@ Y un añadido:
 - **Quien recibe el enlace puede poner la página en claro u oscuro y cambiar el tamaño de la
   letra**, aunque no tenga cuenta.
 
+### 📄 El PDF del culto
+
+Antes el botón **PDF** bajaba solo **la lista** de canciones: título, autor y tono. Ahora se lleva
+**el culto entero**:
+
+- **Cada canción en su hoja**, con **todos sus acordes y su estructura**, y **en el tono en el
+  que se va a tocar** (no en el original).
+- Se puede elegir **claro u oscuro**. El oscuro es el bueno si lo vas a leer en el teléfono; el
+  claro, si alguna vez hay que sacarlo en papel.
+- Se puede elegir **hoja horizontal o vertical**. La vertical es la que sirve en el móvil,
+  porque el teléfono siempre guarda así.
+- Lo que elijas **se recuerda** para la próxima vez.
+
+Funciona igual para quien recibe el enlace del culto sin tener cuenta.
+
 ### 👤 En las cuentas
 
 - **Se puede cambiar el nombre de una cuenta** desde el panel de administración. **A esa persona
