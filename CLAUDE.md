@@ -877,7 +877,8 @@ funcionalidad nueva en un descarte de dos minutos.
 
 #### Las 2 nuevas (dictadas el 2026-08-20, probando la Fase D)
 
-**O-26 · Otra forma de leer las columnas en pantalla completa.** ✅ **HECHO el 2026-08-20, sin publicar.**
+**O-26 · Otra forma de leer las columnas en pantalla completa.** ✅ **HECHO y PUBLICADO el
+2026-08-20** (`0f5c6cf`, r39). Confirmado por Isaac: *«lo de las columnas también»*.
 `[la pidió un músico del grupo]`
 Isaac: *«que además de una, dos y tres columnas, haya para leer de izquierda, luego derecha,
 luego debajo izquierda… (que es como se venía haciendo), y que la otra sea: si son dos columnas
@@ -916,11 +917,11 @@ ningún otro sitio.**
 | **A** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-02 · O-04 · O-15 · +P-14 · +P-10 | Salió limpia. Commits `1bdf61e` (r31) y `76f571b`. Verificada en producción |
 | **B** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-05 · O-10 · O-07 · O-11 | Commit `36ba65d` (r32). Verificada **con sesión** en la pantalla real (§7) |
 | **C** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-14 · O-06 · +T-05 | Commit `73bb508` (r34). O-06 confirmado por Isaac; el panel de O-14 verificado en producción |
-| **D** | 🟡 **HECHA, SIN PUBLICAR (2026-08-20)** — ✅ O-03 (staccato) · ✅ duración suelta de O-01 · ✅ **la ligadura, los 3 fallos** (§9.2-ter). **Falta que Isaac la mire** | Compila · parser: solo cambia `Renueva Mi Espíritu` · **20 ligaduras, 0 perdidas** |
+| **D** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-03 (staccato) · duración suelta de O-01 · **la ligadura, los 3 fallos** (§9.2-ter) · **D-19** | Commit `0f5c6cf` (r39). Confirmada por Isaac: *«está perfecto lo del ligamento»*. **20 ligaduras, 0 perdidas** |
 | **E** | ✅ **HECHA Y PUBLICADA (2026-08-20)** — O-09 · migración `20240015` aplicada | Commit `21575e2` (r36). Las 9 filas del repertorio intactas y la clave ya es `id` |
 | **F** | ✅ **HECHA (2026-08-20)** — O-08 · el PDF completo del culto | Confirmada por Isaac en PC **y en teléfono**: *«todo perfecto»* |
-| **G** | ✅ **HECHA y CONFIRMADA por Isaac (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Sin publicar |
-| **H** | ✅ **HECHA (2026-08-20), sin publicar** — O-20 · O-21 | Verificada con datos reales (§7). **Falta que Isaac la mire y dé permiso** |
+| **G** | ✅ **HECHA, CONFIRMADA y PUBLICADA (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Publicada en `0f5c6cf` (r39) |
+| **H** | ✅ **HECHA y PUBLICADA (2026-08-20)** — O-20 · O-21 | Verificada con datos reales (§7). Publicada en `0f5c6cf` (r39) |
 | **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | **Sin fase asignada: pendientes.** Los tres son grandes y tienen preguntas abiertas |
 
 **Antes de la fase D es obligatorio** guardar el `content` de las 75 canciones y comparar el
@@ -966,9 +967,9 @@ render antes y después (§12.5). **La fase 0 cubre eso de paso.**
    → **Cazó un fallo mío antes de que Isaac lo viera:** en `F# ~ - D` el arco se quedaba en el
    `F#` solo. La cadena avanzaba una vez y el recorte la devolvía al principio. Reescrita para
    que salte al **siguiente que suene** en vez de avanzar-y-recortar.
-4. ⬜ **Que Isaac mire las 8 canciones con `~`** — sobre todo las 3 que cruzan compás.
-5. ⬜ **Pedirle permiso para publicar.** Sigue en pie: **ni un `commit` ni un `push` sin
-   preguntárselo, cada vez.**
+4. ✅ **Isaac miró las 8 canciones:** *«está perfecto lo del ligamento»*.
+5. ✅ **Publicado con su permiso** (*«publica, está todo perfecto»*), commit `0f5c6cf` (r39).
+   El permiso valía para ese trabajo: **el siguiente push se le vuelve a pedir.**
 
 **Las 20 ligaduras, para poder revisarlas:**
 
@@ -1181,6 +1182,32 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-20/21 · Tanda 28 — la ligadura, el modo de lectura, el tono con bemoles · 🚀 r39
+
+**Publicado:** commit `0f5c6cf`, push `c5dea4e..0f5c6cf` a `main`. **CI verde**
+(`runs/32446255909`). Comprobado en producción con `Cache-Control: no-cache`: el manifiesto
+sirve `"Partituras con acordes…"`, texto que **solo existe en este commit** — es la prueba de que
+lo desplegado es esto y no lo anterior. `/login` 200, los dos iconos 200.
+
+**Lo que entró:**
+- **La ligadura, los tres fallos** (§9.2-ter): arco medido en pantalla en vez de repartido por
+  porcentaje, arco que salta los textos intermedios, y medio arco a cada lado de la barra cuando
+  cruza de compás. **20 ligaduras en las 75 canciones, ninguna perdida.**
+- **D-19:** encadenar (`C~ D~ E`) da **un arco largo**, no una cadena de arquitos. Ya funcionaba;
+  se preguntó y se confirmó. **No se programó nada.**
+- **O-26:** dos maneras de recorrer las columnas, con multi-columna de CSS (no `grid-auto-flow`,
+  ver el porqué en O-26). Guardado por músico.
+- **T-11:** una canción en `Bb` mostraba `A#`. 4 canciones afectadas.
+- **O-27:** «Cancionero» → «Partituras».
+- **`npm run verificar`:** compila aparte y ya no rompe el servidor de desarrollo (T-04).
+
+**Tres arneses nuevos en el `scratchpad`,** todos sacando el código del archivo real:
+`ligaduras.mjs` (dónde empieza y acaba cada arco), `cadena.mjs` (qué hace encadenar) y
+`tono.mjs` (compila `music.ts` con el TypeScript del proyecto y comprueba la etiqueta de tono).
+🔴 **`ligaduras.mjs` cazó un fallo mío que el arnés viejo no podía ver** — L-104.
+
+**Lecciones a la carpeta compartida:** L-104, L-105, L-106, L-107.
 
 ### 2026-08-20 · Tanda 27 — FASE D: staccato y duración suelta (falta la ligadura)
 

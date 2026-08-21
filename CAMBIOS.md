@@ -1,6 +1,6 @@
 # Cambios de la página
 
-> Lo que ha ido cambiando en el cancionero, contado para quien lo usa.
+> Lo que ha ido cambiando en las partituras, contado para quien lo usa.
 > Si buscas el detalle técnico, está en `CLAUDE.md`.
 
 ---
