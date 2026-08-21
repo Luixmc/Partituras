@@ -499,7 +499,15 @@ largo por una cadena creyendo que la arregla.
 
 ### 9.1 Dependen de Isaac
 
-- [ ] ⚠️ **La invitación a Vercel probablemente NO SE PUEDE** — comprobado en la documentación
+- [x] 🟢 **DESCARTADO el 2026-08-21 — la invitación a Vercel deja de perseguirse.** Isaac
+      preguntó para qué hacía falta si no había dado problemas, y **al revisarlo tenía razón**:
+      4 de los 5 motivos ya están cubiertos por otra vía (CI, `git revert`, comprobar el
+      despliegue por contenido) y el 5.º —los registros de producción— es pequeño: **el único
+      susto real (T-07) no lo habrían pillado**. Súmale los 20 USD/persona/mes. **Ya no es un
+      bloqueante; el detalle completo, en §12.2.** Si algún día hace falta una variable de
+      entorno nueva, entonces sí hay que pedírsela al primo (hoy las 4 que usa ya están puestas).
+      *Lo de abajo se conserva porque es la investigación que sostiene la decisión.*
+- [ ] ⚠️ ~~La invitación a Vercel probablemente NO SE PUEDE~~ — comprobado en la documentación
       oficial el 2026-08-20 (`vercel.com/docs/plans/hobby`): en el plan **Hobby (gratis)** la
       fila «**Team collaboration features**» está **vacía**, y los roles (Owner/Member/Viewer)
       figuran como **N/A**. Invitar a alguien exige **Pro: 20 USD por persona al mes** (unos
@@ -514,11 +522,20 @@ largo por una cadena creyendo que la arregla.
       ⚠️ **Antes de intentarlo hay que averiguar si el dominio `partituras-blush.vercel.app`
       sobrevive a la transferencia**: si cambia, los músicos pierden el enlace que ya usan.
       **(c) dejarlo como está** y pedirle al primo que mire cuando algo falle.
-- [ ] 🔴 **Conseguir la clave `service_role`** (solo puede sacarla el primo, hasta que invite a
-      Isaac a su organización). **Subió de prioridad el 2026-08-20:** sin ella, **NINGUNA acción
-      del panel de administración funciona en el equipo de Isaac** —ni crear usuarios, ni cambiar
-      nombres, roles o contraseñas— y por tanto **O-14 no se puede probar en local** (T-05).
-      En la página publicada sí funciona.
+- [ ] 🔴 **Conseguir la clave `service_role`** — **es lo ÚNICO que sigue bloqueando de verdad.**
+      (Solo puede sacarla el primo, hasta que invite a Isaac a su organización.)
+      **Revisado el 2026-08-21, y sube otra vez de prioridad.** Tres motivos, el tercero es el
+      importante:
+      1. **La copia de seguridad se deja las 6 canciones en BORRADOR.** El `npm run export`
+         normal las pierde y lo avisa. Las de hoy se rescataron **a mano, una sola vez**.
+      2. Ninguna acción de `/admin` funciona en el equipo de Isaac (**T-05**). En producción sí.
+      3. 🔴 **Medido el 2026-08-21 contra la base real, sin sesión y con la clave pública:
+         devuelve 69 canciones y 3 cultos** (0 borradores). Es **P-02**. Y **`npm run export`
+         funciona hoy gracias a ese agujero** — el día que se tape, la copia deja de funcionar.
+         **No se puede cerrar P-02 sin tener antes la clave.**
+      📌 **El encuadre, que es lo que se olvida:** GitHub guarda el programa; **Supabase guarda
+      el trabajo de la iglesia** —75 canciones, cuenta ajena, plan gratuito, sin copias
+      automáticas—. La dependencia gorda nunca fue Vercel.
 - [x] ~~Aclarar con qué cuenta está conectado Supabase~~ → ✅ **RESUELTO y CONFIRMADO el
       2026-08-20 por el propio Isaac: «yo Supabase ni siquiera tengo una cuenta».** La sesión
       conectada a Claude es **la de su primo**, sin lugar a dudas. Encaja con la evidencia: veía
@@ -1124,12 +1141,41 @@ otra persona y compartido con un proyecto ajeno.
 
 ### 12.2 Accesos que faltan
 
-| # | Qué | Por qué bloquea |
+> 🔄 **Revisado el 2026-08-21**, porque Isaac lo preguntó: *«¿para qué se necesitaría la clave y
+> el acceso a Vercel, si todo lo que hemos hecho no ha habido problemas?»*. **Tenía razón en lo
+> de Vercel.** Lo que sigue es la lista después de revisarla, no la original.
+
+| # | Qué | Estado tras revisarlo |
 |---|---|---|
-| 1 | **Invitación al proyecto de Vercel** | Sin ella, si un build falla, el cambio no se publica y **nadie se entera**: no hay logs ni forma de revertir desde el panel |
-| 2 | **Clave `service_role`** | Sin ella, `/admin` no puede crear usuarios en local |
-| 3 | **Cuenta propia de Supabase + invitación a la organización** | Hoy se está usando la sesión del primo (§9.1) |
-| 4 | **Un acuerdo con el primo sobre quién toca `main`** | ⚠️ **El que más se olvida.** Si los dos empujan a `main` sin avisarse, se pisan — y cada push publica. Basta con decidir: *«te aviso antes de subir»* |
+| 1 | **Invitación al proyecto de Vercel** | 🟢 **YA NO BLOQUEA. No perseguirlo.** De los 5 motivos por los que se pidió, **4 se cubrieron por otra vía** (ver abajo). Y **Hobby no admite colaboradores**: el plan que sí, son **20 USD/persona/mes** |
+| 2 | **Clave `service_role`** | 🔴 **SIGUE BLOQUEANDO, y es lo único de esta lista que importa.** Tres motivos, abajo |
+| 3 | **Cuenta propia de Supabase + invitación a la organización** | 🟡 Menor. Hoy se usa la sesión del primo (§9.1) |
+| 4 | **Un acuerdo con el primo sobre quién toca `main`** | 🟡 **El que más se olvida.** Si los dos empujan sin avisarse se pisan — y cada push publica. Basta con: *«te aviso antes de subir»* |
+
+**Por qué Vercel dejó de bloquear:**
+
+| Por qué se pidió | Qué lo cubre hoy |
+|---|---|
+| Si el build falla, nadie se entera | ✅ **CI de GitHub Actions** (12.4-①), verde o rojo en cada commit |
+| No se puede revertir desde el panel | ✅ `git revert` + push: se publica solo en ~40 s (§12.3-7) |
+| No se sabe si llegó a desplegarse | ✅ Se le pide a la página **un texto que solo existe en el commit nuevo**. Si lo sirve, es ese build. Usado en la tanda 28 |
+| Añadir una variable de entorno nueva | ⚠️ Solo el primo. Pero el proyecto usa **4** (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NODE_ENV`) y **las 4 ya están puestas**. Nada de lo pendiente necesita otra |
+| Ver los registros cuando algo falla **solo** en producción | ❌ **Nada lo cubre.** Único hueco real — y **pequeño**: el susto de los 3 minutos (T-07) **no lo habrían pillado**, porque la página respondía 200 y devolvía cero filas, sin error que leer |
+
+**Por qué la `service_role` sí bloquea, con la medición del 2026-08-21:**
+
+1. **La copia de seguridad se deja las 6 canciones en BORRADOR.** El `npm run export` normal las
+   pierde y lo avisa (`scripts/export-datos.mjs:119`). Las de hoy se rescataron **a mano, una vez**.
+2. `/admin` no funciona en el equipo de Isaac sin ella (**T-05**). En producción sí: el primo la puso allí.
+3. 🔴 **La que importa. Medido contra la base real, sin sesión y con la clave pública:**
+   **69 canciones y 3 cultos** se devuelven; **0 borradores** (esos sí están protegidos). Es el
+   fallo **P-02**, y aquí está el nudo: **`npm run export` funciona HOY gracias a ese agujero.**
+   El día que se tape, la copia deja de funcionar. **No se puede cerrar P-02 sin tener antes la clave.**
+
+📌 **Y el encuadre que hay que recordar:** *«no tener dependencias que no sean GitHub»* suena bien,
+pero **la dependencia gorda no es Vercel, es Supabase.** GitHub guarda el programa; **Supabase
+guarda el trabajo de la iglesia** — 75 canciones, cuenta ajena, plan gratuito, sin copias
+automáticas. Por eso la clave importa y el panel de Vercel no.
 
 ### 12.3 El procedimiento, cada vez
 
