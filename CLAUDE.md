@@ -1802,6 +1802,34 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-08-21 · Tanda 32 — FASE J: las letras (O-18) · 🚀 r43
+
+**Publicado:** commit `baa7bae`, push `94168dc..baa7bae` a `main`.
+**De momento SOLO PARA EL ADMIN** (D-22), mientras Isaac escribe las 75.
+
+**Lo que hace viable el encargo** es que **276 estrofas ya venían empezadas**: la primera frase
+estaba escrita entre paréntesis en la etiqueta de cada sección desde siempre. El botón «Traer las
+secciones» las trae, y escribir pasa a ser **continuar**, no empezar de cero.
+
+**Tres cosas que Isaac encontró usándolo, y las tres eran mías:**
+1. **El modo letra se perdía al pasar de canción** — yo lo puse así para evitar una pantalla vacía.
+   El caso raro rompía el caso normal (**L-120 `[PART]`**).
+2. **La letra no respetaba columnas ni recorrido** (O-26): iba siempre en multi-columna.
+3. **El andamio metía «Brass x4» como si fuera un verso.** Se midió: **276 de 284** paréntesis
+   acaban en puntos suspensivos porque son frases cortadas; los demás son anotaciones de arreglo.
+
+**Buscar por letra probado con datos reales**, en cuanto él escribió dos: `?q=temporada` encuentra
+**Aceleración** por su letra, no por su título.
+
+**El interruptor único (D-22)** — `ROLES_LETRAS` en `lib/letras.ts`. Los cuatro sitios lo miran.
+Probado **por las dos caras**: con lector, `/letras` da **307** y no hay entrada ni pestaña ni
+botón; con admin, los tres aparecen. Y **la letra no sale del servidor** para quien no debe verla.
+
+**Copia de seguridad antes de publicar:** `Partituras-datos-2026-08-21-17h49h42`, **con las dos
+letras dentro**.
+
+**Lección a la carpeta compartida:** L-120 `[PART]`.
+
 ### 2026-08-21 · Tanda 31 — El comunicado para los músicos, en su sitio · 🚀 r42
 
 **Publicado:** commit `795660c`, push `27ac4e7..795660c` a `main`.
