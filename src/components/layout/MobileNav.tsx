@@ -15,8 +15,9 @@ export default function MobileNav({ role }: { role: UserRole }) {
   // y no en el teléfono.
   const visible = seccionesDe(role);
 
+  // `data-suelo`: hasta aqui puede bajar el desplegable del acorde (O-41).
   return (
-    <nav className="safe-area-pb flex border-t border-slate-200 bg-white md:hidden dark:border-slate-700 dark:bg-slate-900">
+    <nav data-suelo className="safe-area-pb flex border-t border-slate-200 bg-white md:hidden dark:border-slate-700 dark:bg-slate-900">
       {visible.map(({ href, corto, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(href + "/");
         return (

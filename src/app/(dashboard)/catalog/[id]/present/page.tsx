@@ -89,6 +89,13 @@ export default async function SongPresentPage({
       songs={songs}
       startIndex={inicio}
       backHref={`/catalog/${params.id}${cultoId ? `?culto=${cultoId}` : filtrosAQuery(searchParams)}`}
+      // Al salir se vuelve a la canción que se está viendo, no a la de entrada
+      // (O-40). El sufijo es el mismo: el culto si se vino de uno, y si no el
+      // filtro del catálogo, para que «la siguiente» siga respetándolo (D-15).
+      volverPorCancion={{
+        base: "/catalog",
+        sufijo: cultoId ? `?culto=${cultoId}` : filtrosAQuery(searchParams),
+      }}
     />
   );
 }

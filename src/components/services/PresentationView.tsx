@@ -20,6 +20,22 @@ type Props = {
   title:    string;
   songs:    PresentSong[];
   backHref: string;
+  /**
+   * Dirección de salida armada CON LA CANCIÓN QUE SE ESTÁ VIENDO (O-40).
+   *
+   * Isaac: «si la primera canción fue "x" y en la pantalla quedamos en la "y",
+   * cuando le demos para salir que nos deje en el modo vista de la "y"». Con
+   * `backHref` a secas se volvía siempre a la canción por la que se entró, y
+   * después de pasar tres se perdía por dónde ibas.
+   *
+   * 🔴 Va como DATOS y no como función: esto es componente de cliente y quien
+   * lo monta es de servidor, así que una función no se puede pasar.
+   *
+   * Solo lo usa la pantalla completa de UNA canción. Entrando por «Presentar»
+   * desde el culto, la X vuelve al culto y así está bien: allí no se entró por
+   * una canción concreta.
+   */
+  volverPorCancion?: { base: string; sufijo: string };
   /** Canción por la que se empieza. Se usa al abrir una canción concreta del
       catálogo: la lista es la que el músico estaba viendo, pero se arranca en
       la que abrió (O-16). */
@@ -87,7 +103,7 @@ function guardarTamano(songId: string, escala: number | null) {
   }
 }
 
-export default function PresentationView({ title, songs, backHref, startIndex = 0 }: Props) {
+export default function PresentationView({ title, songs, backHref, startIndex = 0, volverPorCancion }: Props) {
   const [index, setIndex] = useState(startIndex);
   // El tamaño de letra lo decide el auto-ajuste; el usuario puede ajustarlo a
   // mano (40%–200%), lo que desactiva el auto-ajuste para esa canción.
@@ -135,6 +151,13 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   const [viewport, setViewport] = useState({ w: 0, h: 0 });
 
   const song = songs[index];
+
+  // A dónde lleva la X. Si quien montó la pantalla dio una plantilla, se sale
+  // por la canción que se está viendo (O-40); si no, por donde se entró.
+  const salirA =
+    volverPorCancion && song?.id
+      ? `${volverPorCancion.base}/${song.id}${volverPorCancion.sufijo}`
+      : backHref;
   const total = songs.length;
 
   const go = useCallback(
@@ -410,7 +433,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         isFullscreen ? "bg-white/70 dark:bg-slate-950/70" : "bg-white/95 dark:bg-slate-950/95"
       )}>
         <Link
-          href={backHref}
+          href={salirA}
           className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
           aria-label="Salir de la presentacion"
         >

@@ -1580,6 +1580,79 @@ mirándolas juntas.
 **Comprobado:** como admin, las tres tarjetas enseñan **una etiqueta cada una** —Publicado,
 Borrador y Archivado— y siguen saliendo los 3 cultos.
 
+**O-40 · Al salir de pantalla completa, quedarse en la canción en la que estabas.**
+Isaac, 2026-08-21: *«si la primera canción fue "x", y en la pantalla quedamos en la canción "y",
+cuando le demos para salir del modo pantalla que nos deje en el modo vista de la canción "y"»*.
+→ Hoy la **X** va a un `backHref` **fijo**, el de la canción por la que se entró
+(`catalog/[id]/present/page.tsx:91`). Si pasaste tres canciones, salir te devuelve tres atrás — y
+además **se pierde por dónde ibas**, que en mitad de un culto es lo peor que puede pasar.
+→ **Solo afecta a la pantalla completa DE UNA CANCIÓN.** Entrando por «Presentar» desde el culto,
+la X vuelve al culto y eso está bien: ahí no entraste por una canción concreta.
+→ ⚠️ **La plantilla del enlace se pasa como DATOS, no como función:** `PresentationView` es
+componente de cliente y quien lo monta es de servidor, así que una función no se puede pasar
+—no es serializable—. Se pasa `{ base, sufijo }` y el componente arma la dirección con el id de
+la canción que se está viendo.
+
+**O-41 · El desplegable del acorde no puede pasar por debajo del panel de abajo.**
+Isaac, 2026-08-21, con dos capturas —una del teléfono y otra del PC con la ventana a media
+pantalla—: *«que cuando se le dé al acorde no salga por encima del panel de abajo, o mejor dicho,
+que no baje más del margen del panel de abajo, para que se vea bien, ya que con el zoom y el modo
+claro y oscuro que sale para teléfono ya ahí no se puede hacer más nada»*.
+→ **Causa:** el desplegable se coloca contra el **alto de la ventana** (`vh`), y ahí abajo hay dos
+cosas que no son la ventana: la **barra de navegación del móvil** y el **control flotante de
+lectura** (el del `90%` y el sol). El panel les cae encima y tapa unos botones que **ya no se
+pueden usar**.
+→ **Arreglo:** el suelo deja de ser `vh` y pasa a ser **lo más alto de lo que haya pegado abajo**,
+medido en el momento. Las dos barras se marcan con `data-suelo` y el desplegable las mide; si no
+hay ninguna —pantalla completa, PDF—, el suelo vuelve a ser la ventana.
+📌 **Por qué medirlo y no restar un número fijo:** la barra del móvil no está en el ordenador, el
+control flotante no está en pantalla completa, y el `safe-area` del iPhone cambia la altura. Un
+número a ojo acierta en una pantalla y falla en las otras tres.
+
+**O-42 · El desplegable enseña UN instrumento, con pestañas — y se acuerda de cuál elegiste.**
+Idea del **hermano de Isaac**: *«sería mejor que cuando se le dé a un acorde salgan primero el
+instrumento, para luego darle clic a uno de esos y salga el diagrama de ese instrumento
+solamente»*. Isaac la trasladó **sin comprársela** —*«a mí no me suena mucho la verdad… pero si tú
+ves que es mejor, hazlo como veas conveniente»*— y la dejó a mi criterio.
+
+**Se hizo, pero NI COMO LO PIDIÓ EL HERMANO NI DEJÁNDOLO COMO ESTABA. Los dos tienen razón en una
+mitad:**
+
+| Quién | En qué acierta | Qué falla en su propuesta |
+|---|---|---|
+| **El hermano** | Sobra información: **un músico toca UN instrumento**. El guitarrista no necesita ver el piano nunca | Elegir **cada vez** son dos toques por acorde, y un acorde se mira docenas de veces en un culto |
+| **Isaac** | Que no estorbe un paso extra | Dejarlo como está sigue enseñándole tres diagramas a quien usa uno |
+
+→ **La respuesta es la tercera: PESTAÑAS con MEMORIA.** Piano · Bajo · Guitarra arriba, **se ve
+uno**, y **la elección se guarda en el navegador de cada músico** (`localStorage`). El guitarrista
+la pone una vez y a partir de ahí **pulsa un acorde y ve la guitarra, directamente, siempre** — sin
+el paso extra que temía Isaac y sin el ruido que señalaba su hermano.
+→ **No es un invento para este caso:** es exactamente lo que ya hacen el tamaño de letra (D-09b) y
+el modo de recorrer las columnas (O-26). **Preferencia de quien lee, guardada por aparato, sin
+migración.**
+→ 🔴 **Y arregla O-41 de raíz, que es lo que decide la cuestión:** el panel pasa de **tres
+diagramas apilados a uno**. Lo que se salía de la pantalla era el alto acumulado. Con esto la
+mitad del problema desaparece en vez de acotarse.
+
+#### Comprobado de O-40 / O-41 / O-42 (2026-08-21)
+
+- **Compila limpio** y el arnes de comentarios da **0 de 3 paginas** — que hacia falta, porque al
+  marcar la barra del movil **se coló un `//` en zona JSX**, el fallo exacto de la tanda 29. Se vio
+  y se corrigio antes de seguir: el comentario se subio por encima del `return (`.
+- **Las dos barras quedan marcadas** con `data-suelo`: la de navegacion del movil y el control
+  flotante de lectura.
+- **La pantalla completa desde un culto sigue en pie** (200) y la X arranca apuntando a la cancion
+  por la que se entro. **La presentacion del culto no se toco**: su X sigue volviendo al culto.
+
+⬜ **Punto ciego, y hay que decirlo: las tres cosas se ven SOLO en el navegador.**
+- **O-40** solo se distingue **pasando canciones**: al arrancar, la direccion nueva y la vieja
+  coinciden, asi que el HTML del servidor no las separa.
+- **O-42** el desplegable **no existe hasta que se pulsa un acorde**, asi que ni las pestañas ni la
+  memoria salen en el HTML.
+- **O-41** la altura depende de lo que mida cada pantalla.
+→ **Lo prueba Isaac**, que es de donde salieron: pasar tres canciones y salir, pulsar un acorde
+abajo del todo en el telefono, y cambiar de pestaña y volver a entrar para ver si se acuerda.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la

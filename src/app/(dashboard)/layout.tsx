@@ -37,7 +37,7 @@ export default async function DashboardLayout({
 
         {/* Control de lectura flotante (solo móvil; en escritorio está en la
             barra lateral). Disponible en todas las secciones. */}
-        <div className="fixed bottom-20 right-3 z-30 md:hidden">
+        <div data-suelo className="fixed bottom-20 right-3 z-30 md:hidden">
           <ReadingControls className="shadow-lg" />
         </div>
       </div>

@@ -45,6 +45,55 @@ export function useAbrirAcorde() {
 
 type Estado = { escrito: string; ancla: DOMRect } | null;
 
+/** Los instrumentos del desplegable, en el orden en que se ensenan. */
+type Instrumento = "piano" | "bajo" | "guitarra";
+const INSTRUMENTOS: { id: Instrumento; nombre: string }[] = [
+  { id: "piano",    nombre: "Piano" },
+  { id: "bajo",     nombre: "Bajo" },
+  { id: "guitarra", nombre: "Guitarra" },
+];
+
+// La eleccion se guarda POR MUSICO, en su navegador: es preferencia de quien
+// lee, no de la cancion, asi que no toca la base de datos. Es lo mismo que ya
+// hacen el tamano de letra (D-09b) y el modo de leer las columnas (O-26).
+const CLAVE_INSTRUMENTO = "acorde-instrumento";
+
+function leerInstrumento(): Instrumento | null {
+  try {
+    const v = window.localStorage.getItem(CLAVE_INSTRUMENTO);
+    return INSTRUMENTOS.some((i) => i.id === v) ? (v as Instrumento) : null;
+  } catch {
+    return null; // ventana privada o almacenamiento bloqueado: se sigue sin guardar
+  }
+}
+
+function guardarInstrumento(id: Instrumento) {
+  try {
+    window.localStorage.setItem(CLAVE_INSTRUMENTO, id);
+  } catch {
+    /* almacenamiento lleno o bloqueado */
+  }
+}
+
+/**
+ * Hasta donde puede llegar el desplegable por abajo (O-41).
+ *
+ * Devuelve la parte de arriba de lo que haya pegado al fondo -marcado con
+ * `data-suelo`-, o el alto de la ventana si no hay nada: pantalla completa,
+ * impresion, o el ordenador, donde la barra de abajo no existe.
+ */
+function suelo(): number {
+  const vh = window.innerHeight;
+  let tope = vh;
+  document.querySelectorAll<HTMLElement>("[data-suelo]").forEach((el) => {
+    const r = el.getBoundingClientRect();
+    // Solo cuenta si se ve y esta de verdad abajo: un elemento apagado por CSS
+    // (`md:hidden`) mide 0 y no puede hundir el suelo hasta arriba del todo.
+    if (r.height > 0 && r.top > vh / 2) tope = Math.min(tope, r.top);
+  });
+  return tope;
+}
+
 export function ChordPopoverProvider({
   children,
   bemoles = false,
@@ -113,13 +162,37 @@ function Panel({
   // alguien le añade contenido**, y falla en silencio.
   const [sitio, setSitio] = useState<{ left: number; top: number; maxAlto: number } | null>(null);
 
+  // Que instrumento se esta viendo (O-42). Arranca en piano y el guardado se
+  // lee ya en el navegador: leerlo en el estado inicial romperia el render del
+  // servidor, donde no hay `localStorage`. Mismo cuidado que en O-26.
+  const [instrumento, setInstrumento] = useState<Instrumento>("piano");
+  useEffect(() => {
+    const guardado = leerInstrumento();
+    if (guardado) setInstrumento(guardado);
+  }, []);
+
+  function elegirInstrumento(id: Instrumento) {
+    setInstrumento(id);
+    guardarInstrumento(id);
+  }
+
   useLayoutEffect(() => {
     const caja = cajaRef.current;
     if (!caja) return;
 
     const margen = 8;
-    const vh = window.innerHeight;
     const vw = window.innerWidth;
+    // El suelo NO es el alto de la ventana (O-41). Abajo hay cosas que no son
+    // la ventana: la barra de navegacion del movil y el control flotante de
+    // lectura -el del 90% y el sol-. El panel les caia encima y tapaba botones
+    // que ya no se podian usar; lo vio Isaac con dos capturas, una del telefono
+    // y otra del PC con la ventana a media pantalla.
+    //
+    // Se MIDE en vez de restar un numero a ojo: la barra del movil no esta en
+    // el ordenador, el control flotante no esta en pantalla completa, y el
+    // `safe-area` del iPhone cambia la altura. Un numero fijo acierta en una
+    // pantalla y falla en las otras tres.
+    const vh = suelo();
     // `scrollHeight` y no `offsetHeight`: lo que mide es la altura NATURAL,
     // sin recortar por el `max-height` que se le pone justo después.
     const alto = caja.scrollHeight;
@@ -143,10 +216,15 @@ function Panel({
           : Math.max(margen, vh - Math.min(alto, maxAlto) - margen);
 
     setSitio({ left, top, maxAlto });
-  }, [ancla, escrito]);
+  }, [ancla, escrito, instrumento]);
 
   // Las salidas tempranas van DESPUÉS de todos los hooks, nunca en medio.
   if (!acorde) return null;
+
+  // La guitarra solo se ofrece si se sabe la postura: `posicionDe` devuelve
+  // null cuando la calidad no tiene forma, y una postura inventada la tocaria
+  // alguien en un culto.
+  const hayGuitarra = Boolean(posicionDe(acorde));
 
   return createPortal(
     <>
@@ -183,19 +261,58 @@ function Panel({
           </button>
         </div>
 
-        <PianoDiagram acorde={acorde} className="mx-auto" />
+        {/* Las pestañas de instrumento (O-42).
 
-        <div className="mt-3 text-xs text-slate-500">bajo: {acorde.bajo}</div>
-        <BassDiagram acorde={acorde} className="mt-1" />
+            Antes se apilaban los TRES diagramas. El hermano de Isaac propuso
+            elegir el instrumento cada vez; Isaac no lo veía por el paso extra.
+            Los dos tenían razón en una mitad: sobra información —un músico
+            toca UN instrumento— pero elegir cada vez son dos toques por
+            acorde, y un acorde se mira docenas de veces en un culto.
 
-        {/* Guitarra. Solo si se sabe la postura: `posicionDe` devuelve null
-            cuando la calidad no tiene forma, y una postura inventada la
-            tocaría alguien en un culto. */}
-        {posicionDe(acorde) && (
-          <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
-            <div className="mb-1 text-xs text-slate-500">guitarra</div>
-            <GuitarDiagram acorde={acorde} className="mx-auto" />
-          </div>
+            Así que se ve UNO y **la elección se guarda en el navegador de cada
+            músico**: el guitarrista la pone una vez y a partir de ahí pulsa un
+            acorde y ve la guitarra, directamente, siempre. Es lo mismo que ya
+            hacen el tamaño de letra y el modo de leer las columnas.
+
+            🔴 Y de paso el panel pasa de tres diagramas a uno, que es lo que
+            hacía que se saliera de la pantalla (O-41). */}
+        <div className="mb-2 flex gap-1" role="tablist" aria-label="Instrumento">
+          {INSTRUMENTOS.map((ins) => {
+            // La guitarra solo se ofrece si se sabe la postura: `posicionDe`
+            // devuelve null cuando la calidad no tiene forma, y una postura
+            // inventada la tocaría alguien en un culto.
+            if (ins.id === "guitarra" && !hayGuitarra) return null;
+            const activo = ins.id === instrumento;
+            return (
+              <button
+                key={ins.id}
+                type="button"
+                role="tab"
+                aria-selected={activo}
+                onClick={() => elegirInstrumento(ins.id)}
+                className={`flex-1 rounded-lg px-2 py-1 text-xs font-semibold transition-colors ${
+                  activo
+                    ? "bg-brand-600 text-white"
+                    : "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                }`}
+              >
+                {ins.nombre}
+              </button>
+            );
+          })}
+        </div>
+
+        {instrumento === "piano" && <PianoDiagram acorde={acorde} className="mx-auto" />}
+
+        {instrumento === "bajo" && (
+          <>
+            <div className="text-xs text-slate-500">bajo: {acorde.bajo}</div>
+            <BassDiagram acorde={acorde} className="mt-1" />
+          </>
+        )}
+
+        {instrumento === "guitarra" && hayGuitarra && (
+          <GuitarDiagram acorde={acorde} className="mx-auto" />
         )}
       </div>
     </>,
