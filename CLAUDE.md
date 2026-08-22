@@ -1684,6 +1684,35 @@ no había nada**.
 **Comprobado:** los 5 `<details>`, **solo el primero con `open`** · el mapa con sus 5 resúmenes ·
 y el texto de la tanda **sigue completo en el HTML**, no se perdió nada al plegar.
 
+#### 🔴 Y una segunda corrección suya, el 2026-08-22: las tandas mentían de fecha
+
+Isaac: *«como pusiste los cambios de hoy y ayer, ten en cuenta que los cambios que se mencionan de
+ayer en realidad una parte son del 20 de agosto… sería bueno que se muestre bien, así como es el
+archivo de cambios en el GitHub»*.
+
+**Tenía razón, y él mismo dio la referencia:** `CAMBIOS.md` **ya estaba bien partido** por días —
+22, 21 y 20 — mientras que `/novedades` tenía **una sola tanda del 21** con dentro todo lo del 20.
+Al haber sacado la del 22, la del 21 se quedó llevando dos días de trabajo.
+
+**Cómo se hizo, y esto importa más que el resultado:** no se cortó y pegó texto a mano. Se
+**cargó el contenido real ya compilado**, se repartió **por título** según lo que dice `CAMBIOS.md`,
+se regeneró el archivo, y **se contó antes y después**:
+
+| | |
+|---|---|
+| Cambios antes de repartir | **35** |
+| Cambios después | **35** |
+| **22 de agosto** | 2 secciones · **4** cambios |
+| **21 de agosto** | 3 secciones · **9** |
+| **20 de agosto** | 5 secciones · **22** |
+
+📌 **Repartir texto a mano pierde cosas y no se nota.** Contar las dos veces es lo que convierte
+«creo que están todos» en «están los 35».
+
+→ **Y un ajuste que salió de ahí:** con tres tandas se abrían **tres** secciones (la primera de
+cada una), y la página volvía a ser larga — justo lo que O-38 vino a arreglar. Ahora **solo se abre
+la primera sección del día más reciente**.
+
 **O-39 · En la tarjeta del culto tienen que salir LOS TRES estados, «Publicado» incluido.**
 ✅ **HECHO.** Isaac, 2026-08-21, viendo la pantalla ya con un borrador y un archivado:
 

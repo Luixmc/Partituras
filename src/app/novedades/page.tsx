@@ -107,7 +107,7 @@ export default function NovedadesPage() {
         </h1>
       </header>
 
-      {TANDAS.map((tanda) => (
+      {TANDAS.map((tanda, t) => (
         <article key={tanda.iso} className="mt-8 flex flex-col gap-10">
           <div className="flex flex-col gap-3">
             <time dateTime={tanda.iso} className="text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -165,7 +165,10 @@ export default function NovedadesPage() {
           {tanda.secciones.map((seccion, s) => (
             <details
               key={seccion.titulo}
-              open={s === 0}
+              // Abierta SOLO la primera seccion del dia mas reciente. Con
+              // tres tandas, abrir la primera de cada una volvia a llenar la
+              // pagina de dias viejos — que es justo lo que se queria evitar.
+              open={t === 0 && s === 0}
               className="group border-b border-slate-200 pb-5 dark:border-slate-700"
             >
               <summary className="flex cursor-pointer list-none items-baseline gap-3 py-1 font-display text-2xl font-semibold text-slate-900 marker:content-none dark:text-slate-50 [&::-webkit-details-marker]:hidden">
