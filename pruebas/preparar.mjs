@@ -34,6 +34,7 @@ const MODULOS = [
   "sections",
   "chordInput",
   "letras",
+  "transpositores",
 ];
 
 function preparar() {

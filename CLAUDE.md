@@ -709,8 +709,9 @@ largo por una cadena creyendo que la arregla.
       `20240018` esperaba permiso. **Ya no se usa nunca**: la función existe desde el 2026-08-22.
       Se quita cuando lleve unos días en pie. **Está anotado aquí a propósito**: un respaldo
       temporal sin dueño se queda para siempre.
-- [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
-      O-06 y O-08 no se pueden empezar sin inventarse una regla.
+- [x] ~~Contestar las preguntas abiertas de §9.2~~ → ✅ **las de O-03, O-06 y O-08 se cerraron el
+      2026-08-20**, y **O-01 y O-19 el 2026-08-22** (§9.2-nonies). O-01 se cerró **sin programar
+      nada**; de O-19 quedó una propuesta de diseño esperando el visto bueno.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
 
 ### 9.2 EL ENCARGO DE ISAAC (dictado 2026-08-19, respondido y ampliado 2026-08-20)
@@ -2514,6 +2515,141 @@ significa que el sitio esté caído** — y al revés, tampoco protege de public
 - **El recorrido de las 19 pantallas** (lo que se hizo a mano con Next 16) todavía no está
   automatizado. Es lo siguiente, y necesita una sesión de verdad para las páginas protegidas.
 
+### 9.2-nonies · O-01 y O-19 — las dos preguntas musicales, CERRADAS el 2026-08-22
+
+#### ✅ O-01 · La ligadura de valor se queda COMO ESTÁ. No se programa nada
+
+Quedaba una sola duda de O-01 desde el 2026-08-20: la ligadura **suma las duraciones** —eso ya
+funciona, el compás cuenta la suma—, pero faltaba decidir **cómo se dibuja**: dos figuras con el
+arco, o fundidas en una sola con la duración sumada.
+
+**Isaac eligió dejarlo como está**, y antes de preguntarle se midió, que es lo que hizo la pregunta
+contestable:
+
+| | |
+|---|---|
+| Parejas ligadas en las 75 canciones | **13** |
+| …con duración escrita en **los dos** acordes | **3** |
+| …y las tres son el mismo caso | **blanca + blanca = redonda** |
+| Las otras 10 | **sin duración escrita**: no hay figura que fundir |
+
+🔴 **Y el hallazgo que decidió la pregunta: en las tres, los dos acordes son DISTINTOS**
+(`Dm7→Bb`, `Am7→Em7`, `F→G7`).
+
+Eso importa porque en partitura una ligadura de valor **une la misma nota**, y por eso se pueden
+fundir en una figura. Aquí une **dos acordes diferentes**, así que fundirlos obligaría a decidir
+cuál se queda con la redonda — **y el otro desaparecería de la cuadrícula**.
+
+→ **O-01 queda CERRADA del todo.** Su otra mitad —la duración suelta sin acorde delante— se hizo en
+la fase D. **No queda nada pendiente de O-01.**
+
+📌 **Por qué está escrito aunque no cambie una línea, igual que D-19:** la pregunta va a volver.
+Sin esto, el siguiente que lea «la ligadura suma las duraciones» se pone a fundir figuras y rompe
+tres canciones.
+
+#### 🎺 O-19 · El trompetista LEE LOS ACORDES y se saca su parte
+
+Isaac, 2026-08-22, contestando qué hace hoy: **lee la cuadrícula como los demás y toca lo que le
+sale**. Nadie le escribe una línea aparte.
+
+**Eso descarta el trabajo caro y deja el barato**, que era la duda desde el 2026-08-20:
+- ❌ **NO hay que teclear su línea de notas** — no existe en ningún sitio y habría sido otro
+  trabajo de escribir 75 canciones, como las letras.
+- ❌ **NO hacen falta digitaciones de pistones** — él no lee notas sueltas, lee acordes.
+- ✅ **Lo que le sirve es la canción en SU tono.** Y eso ya se sabe hacer: es transponer.
+
+🔴 **Y hay un problema real que hoy tiene, aunque no lo haya dicho: si lee los acordes tal cual,
+está tocando un tono por debajo.** La trompeta es **en Si♭**: suena **un tono más grave** de lo que
+se lee. Si en la página pone `D` y él toca su `D`, **suena `C`** — y va con el resto del grupo por
+un tono de diferencia. Para que suene `D` tiene que leer **`E`**.
+
+**Lo que leería en las 75 canciones, medido:**
+
+| El tono de la canción | Lo que él debe leer | Cuántas |
+|---|---|---|
+| D | **E** | 14 |
+| F | **G** | 10 |
+| E | **F#** | 9 |
+| C | **D** | 7 |
+| G | **A** | 6 |
+| Dm | **Em** | 5 |
+| Bm · Bb · A | **C#m · C · B** | 4 cada uno |
+| Em · Am | **F#m · Bm** | 3 cada uno |
+| F# · B | **Ab · Db** | 2 cada uno |
+| G#m · Cm | **Bbm · Dm** | 1 cada uno |
+
+⚠️ **Un aviso honesto que sale de la cuenta:** las 2 canciones en `F#` le quedan en **Ab**, las 2 en
+`B` en **Db**, y la de `G#m` en **Bbm**. Son tonos incómodos de trompeta, y **eso no se puede
+evitar**: es la cuenta, no una decisión. Lo único que lo arreglaría es bajar el tono de esas
+canciones para todo el grupo, y eso es cosa de Isaac.
+
+#### ✅ D-28 · La página se lo da YA TRANSPUESTO. El trompetista no transpone de cabeza
+
+Isaac, 2026-08-22: *«que le aparezca transpuesto al trompetista, para que no lea nada de mente»*.
+
+→ **La cuenta la hace la página, no la persona.** Es la misma idea que ya manda en el resto del
+proyecto: lo que se puede calcular no se le pide al músico en mitad de un culto.
+
+**Tres decisiones, y la primera es la que evita un lío de verdad:**
+
+1. 🔴 **La barra enseña LOS DOS tonos: `Tono: D · lees E`.** Si solo se enseñara el suyo, el
+   trompetista diría «estamos en E» y el resto «no, en D» — **discutiendo el tono en mitad del
+   servicio**. Enseñar los dos números no cuesta nada y quita el malentendido de raíz.
+2. **Se guarda por músico, en su aparato** (`localStorage`), como el instrumento del acorde
+   (O-42) y el tamaño de letra (D-09b). Lo pone una vez y ya. **Sin migración, sin tocar la base**,
+   y sin que la elección de uno afecte a nadie más.
+3. **Vale para cualquier instrumento en Si♭, no solo la trompeta:** clarinete, saxo tenor y saxo
+   soprano necesitan exactamente lo mismo. La regla vive en `lib/transpositores.ts`, así que
+   añadir el saxo alto (en Mi♭) el día que haga falta es **una línea**.
+
+⚠️ **Y el aviso honesto, que no tiene arreglo desde el código:** las 2 canciones en `F#` le quedan
+en **Ab**, las 2 en `B` en **Db**, y la de `G#m` en **Bbm**. Son tonos incómodos de trompeta, y
+**es la cuenta, no una decisión**. Lo único que lo cambiaría es bajarle el tono a esas 5 canciones
+para todo el grupo — **decisión de Isaac, no se toca por cuenta propia**.
+
+| Fase | Qué | Estado |
+|---|---|---|
+| **P.1** | `lib/transpositores.ts` + el selector en la presentación, con el tono doble | ✅ **HECHO** |
+| **P.2** | Que se recuerde por músico | ✅ **HECHO** |
+| **P.3** | *(a decidir)* El PDF del culto en su tono, para llevarlo en papel | ⬜ **sin empezar** |
+
+#### Cómo quedó, y los dos cuidados que hacían falta
+
+- **`lib/transpositores.ts`** — la regla en un sitio. Tres entradas: **Como suena** (0), **En Si♭**
+  (+2) y **En Mi♭** (+9). La de Mi♭ **no la usa nadie hoy** y se deja escrita a propósito: es una
+  línea, y así el día que entre un saxo alto no hay que volver a razonar la cuenta.
+- **El selector va pegado al tono**, en su propia fila de la barra, porque es justo lo que cambia:
+  qué tono ves escrito.
+- 🔴 **Lo que no era obvio ①: la excepción de T-11 deja de aplicar.** «Sin mover el tono se enseña
+  lo escrito» vale mientras **no se transponga**; con un instrumento transpositor **sí** hay que
+  reescribir, así que ahí manda otra vez la ortografía del tono destino. Sin ese matiz, un
+  trompetista en una canción en `F` habría visto los acordes de `G` **escritos con bemoles**.
+- 🔴 **Lo que no era obvio ②: el auto-ajuste del tamaño hay que rehacerlo** al cambiar de
+  instrumento — los acordes cambian de ancho (`C#m` no mide lo que `Dbm`) y el texto puede dejar
+  de caber.
+- **El culto compartido lo hereda gratis:** usa el mismo componente.
+
+#### Comprobado (2026-08-22)
+
+- **Compila limpio**, el selector sale con sus tres opciones, y **por defecto no hay tono doble**
+  —porque por defecto no se transpone—. Arnés de comentarios: 0.
+- 🔴 **Y sobre todo: 25 pruebas nuevas** (`pruebas/transpositores.test.mjs`), que suben el total a
+  **128**. Se prueban **las 16 tonalidades reales del repertorio** una a una: `D→E`, `F→G`,
+  `E→F#`, `Bb→C`, `F#→Ab`, `G#m→Bbm`… y que **los acordes se reescriben, no solo el rótulo**.
+  📌 **Aquí las pruebas no son ceremonia:** si la cuenta estuviera mal, **no se ve**. El
+  trompetista lee algo que parece razonable, lo toca, y suena un tono fuera. Ni pantalla en rojo
+  ni error en la consola: solo un domingo que suena raro.
+- **Ante la duda, no se transpone:** un valor desconocido guardado en el navegador da 0, así que
+  lo peor que puede pasar es ver el tono normal.
+
+⬜ **Lo que hay que probar con los ojos, y no puedo yo:** el selector es del navegador, así que
+**hay que pulsarlo**. Y lo que de verdad cierra esto es que **el trompetista lo mire y diga que sí**.
+
+📌 **Dónde NO va a estar, y hay que decirlo:** el **modo vista** de una canción **hoy no transpone
+nada** —ni con culto ni con los ±—, así que ahí no hay dónde engancharlo sin añadirle antes la
+transposición entera. Va en **la presentación**, que es *«LA pantalla del culto»* (O-30) y donde el
+músico lee tocando. El culto compartido lo hereda gratis: usa el mismo componente.
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:
@@ -2952,10 +3088,10 @@ guardando el resultado. Después de cada cambio, se repitió y se comparó.
 - ✅ **O-01 · Duración suelta**: `:1` sin acorde delante dibuja su figura sola, en el mismo sitio
   donde va la de los acordes. Y la ligadura `~` ya engancha también con una duración suelta.
 
-⛔ **PENDIENTE de O-01: qué debe hacer exactamente la ligadura al «unir las duraciones».** Hay
-dos lecturas y no se puede adivinar: (a) dibujar las dos notas con el arco y que el compás
-cuente la suma —que es lo que ya pasa—, o (b) fundirlas en **una sola figura** con la duración
-sumada (negra + negra ligadas = una blanca). Preguntado a Isaac con un ejemplo.
+✅ **RESUELTO el 2026-08-22 (§9.2-nonies): se queda como está** —las dos figuras con el arco—,
+así que **no hubo que programar nada**. Isaac lo eligió después de medir: de las 13 parejas
+ligadas solo 3 llevan duración en los dos acordes, y **en las tres los acordes son distintos**,
+de modo que fundirlas habría hecho desaparecer el segundo. **O-01 queda cerrada del todo.**
 
 ### 2026-08-20 · Tanda 26 — FASE F: el PDF del culto, con sus acordes
 

@@ -11,6 +11,13 @@ import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
 import { esMenor, keyToPitch, ortografiaDe, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
+import {
+  TRANSPOSITORES,
+  TRANSPOSITOR_POR_DEFECTO,
+  guardarTranspositor,
+  leerTranspositor,
+  semitonosDe,
+} from "@/lib/transpositores";
 import type { PresentSong } from "@/types";
 
 const PITCH_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -114,6 +121,28 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Se arranca en "filas" y se lee el guardado ya en el navegador: leerlo en el
   // estado inicial rompería el render del servidor (no hay localStorage allí).
   const [recorrido, setRecorrido] = useState<Recorrido>("filas");
+
+  // ── El instrumento de quien lee (D-28) ────────────────────
+  //
+  // Un instrumento en Si♭ SUENA UN TONO MÁS GRAVE de lo que lee, así que su
+  // parte se escribe un tono por encima. Si el trompetista lee el `D` de la
+  // página y toca su `D`, suena `C`: un tono por debajo del grupo. Ahora la
+  // cuenta la hace la página y él no transpone nada de cabeza.
+  //
+  // Se arranca en «como suena» y lo guardado se lee ya en el navegador:
+  // leerlo en el estado inicial rompería el render del servidor.
+  const [transpositor, setTranspositor] = useState(TRANSPOSITOR_POR_DEFECTO);
+  useEffect(() => {
+    setTranspositor(leerTranspositor());
+  }, []);
+
+  function elegirTranspositor(id: string) {
+    setTranspositor(id);
+    guardarTranspositor(id);
+  }
+
+  const desplazamiento = semitonosDe(transpositor);
+
   // Acordes o letra (J.4).
   //
   // 🔴 SE MANTIENE al pasar de canción. Primero se reiniciaba a acordes
@@ -354,11 +383,13 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, columns, recorrido, verLetra, isFullscreen]);
+  }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, verLetra, isFullscreen]);
 
-  // Semitonos efectivos: (original → tono del culto) + ajuste manual.
+
+  // Semitonos efectivos: (original → tono del culto) + ajuste manual + el
+  // desplazamiento del instrumento.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
-  const totalSemitones = (((baseSemitones + liveOffset) % 12) + 12) % 12;
+  const totalSemitones = (((baseSemitones + liveOffset + desplazamiento) % 12) + 12) % 12;
   // ── El tono que se está viendo, UNO SOLO ──────────────────
   //
   // Antes la etiqueta de arriba y los acordes de abajo lo calculaban por
@@ -367,8 +398,14 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   const tonoBase = song?.target_key || song?.original_key;
   const menor = esMenor(tonoBase);
   const basePitch = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
-  const tonoEfectivo =
+  // El que SUENA: sin el desplazamiento del instrumento. Es el tono del que
+  // habla el grupo.
+  const tonoQueSuena =
     basePitch === null ? null : (((basePitch + liveOffset) % 12) + 12) % 12;
+  // El que se LEE en la pantalla: con el desplazamiento. Es el que hay que
+  // usar para escribir los acordes.
+  const tonoEfectivo =
+    tonoQueSuena === null ? null : (((tonoQueSuena + desplazamiento) % 12) + 12) % 12;
 
   // ¿Bemoles o sostenidos? **Lo decide el tono AL QUE SE LLEGA.**
   //
@@ -379,8 +416,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Y si el músico NO ha movido el tono, no se decide nada: se respeta lo que
   // está escrito (T-11). Elegir entre `Bb` y `A#` solo toca cuando hay que
   // reescribir de verdad; esa elección ya la tomó quien escribió la canción.
+  //
+  // ⚠️ La excepción de T-11 —«sin mover el tono se respeta lo escrito»— vale
+  // solo cuando NO se transpone. Con un instrumento transpositor sí se
+  // reescribe, así que ahí manda otra vez el tono destino.
   const flats =
-    !liveOffset && tonoBase
+    !liveOffset && !desplazamiento && tonoBase
       ? prefersFlats(tonoBase)
       : tonoEfectivo === null
         ? false
@@ -415,13 +456,27 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     // ya la tomó quien escribió la canción. Los acordes tampoco se tocan cuando
     // no hay transposición, así que recalcular solo servía para contradecirlos:
     // arriba ponía "A#" y debajo estaba "Bb".
-    if (!liveOffset && tonoBase) return tonoBase;
+    if (!liveOffset && !desplazamiento && tonoBase) return tonoBase;
     if (tonoEfectivo === null) return tonoBase || null;
     // El MISMO tono efectivo y la MISMA ortografía que usan los acordes: así la
     // barra no puede volver a contradecir a la partitura (T-14).
     const nota = (flats ? PITCH_FLAT : PITCH_SHARP)[tonoEfectivo];
     return menor ? `${nota}m` : nota;
-  }, [tonoBase, tonoEfectivo, menor, liveOffset, flats]);
+  }, [tonoBase, tonoEfectivo, menor, liveOffset, desplazamiento, flats]);
+
+  // El tono que SUENA, para enseñarlo al lado del que se lee.
+  //
+  // 🔴 Se enseñan LOS DOS a propósito. Con solo el suyo, el trompetista diría
+  // «estamos en E» y el resto «no, en D», y acabarían discutiendo el tono en
+  // mitad del servicio. Dos números no cuestan nada y quitan el malentendido.
+  const etiquetaQueSuena = useMemo(() => {
+    if (!desplazamiento) return null;
+    if (!liveOffset && tonoBase) return tonoBase;
+    if (tonoQueSuena === null) return tonoBase || null;
+    const bemoles = ortografiaDe(tonoQueSuena, menor);
+    const nota = (bemoles ? PITCH_FLAT : PITCH_SHARP)[tonoQueSuena];
+    return menor ? `${nota}m` : nota;
+  }, [tonoBase, tonoQueSuena, menor, liveOffset, desplazamiento]);
 
   if (!song) {
     return (
@@ -608,6 +663,37 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
           >
             {recorrido === "filas" ? <CornerDownRight className="h-4 w-4" /> : <TextQuote className="h-4 w-4" />}
           </button>
+        )}
+      </div>
+
+      {/* Tu instrumento (D-28). Va pegado al tono porque es justo lo que
+          cambia: qué tono ves escrito. */}
+      <div className={cn(
+        "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
+        isFullscreen ? "bg-slate-50/70 backdrop-blur dark:bg-slate-900/70" : "bg-slate-50 dark:bg-slate-900"
+      )}>
+        <span className="text-slate-500 dark:text-slate-400">Tu instrumento</span>
+        {TRANSPOSITORES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => elegirTranspositor(t.id)}
+            aria-pressed={t.id === transpositor}
+            title={t.ejemplos}
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+              t.id === transpositor
+                ? "bg-brand-600 text-white"
+                : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            )}
+          >
+            {t.nombre}
+          </button>
+        ))}
+        {desplazamiento > 0 && (
+          <span className="text-xs text-slate-400">
+            se te muestra más arriba, para que suene con el grupo
+          </span>
         )}
       </div>
       </div>
