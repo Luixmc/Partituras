@@ -99,14 +99,30 @@ export default function SongDetailEditor({
         ? [sheet.category_id]
         : [];
 
-  // `?ver=letra` abre la canción directamente en su letra: es como llega
-  // quien viene de la sección «Letras» (J.2).
+  // `?ver=` dice en qué pestaña se abre la canción. Sirve para dos cosas:
+  //  · llegar directamente a la letra desde la sección «Letras» (J.2), y
+  //  · 🔴 **no perder la pestaña al pasar de canción** (O-43). Isaac estaba
+  //    escribiendo letras, pulsaba «siguiente» y la página lo devolvía a los
+  //    acordes: tenía que volver a la pestaña Letra en cada una de las 75.
+  //
+  // Va en la DIRECCIÓN y no en el navegador porque es exactamente lo que ya
+  // hacen el filtro del catálogo y el `?culto=`: contexto de por dónde vas.
+  // Así sobrevive además a recargar y al botón «atrás».
   const parametros = useSearchParams();
   // ¿A este usuario le toca ver las letras? Lo decide ROLES_LETRAS.
   const verLetras = puedeVerLetras(rol);
-  const [mode, setMode] = useState<"view" | "edit" | "letra">(
-    parametros.get("ver") === "letra" ? "letra" : "view"
-  );
+  const [mode, setMode] = useState<"view" | "edit" | "letra">(() => {
+    const ver = parametros.get("ver");
+    if (ver === "letra") return "letra";
+    if (ver === "edit" && canEdit) return "edit";
+    return "view";
+  });
+
+  /** Le pega el modo actual a un enlace, para no perderlo al cambiar de canción. */
+  const conModo = (href: string | null | undefined) => {
+    if (!href || mode === "view") return href ?? null;
+    return `${href}${href.includes("?") ? "&" : "?"}ver=${mode}`;
+  };
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"ok" | "error">("ok");
@@ -170,8 +186,13 @@ export default function SongDetailEditor({
 
   // Intercepta la navegación interna (enlaces del menú, "volver", etc.) para
   // mostrar el diálogo de guardar/descartar en vez de salir sin avisar.
+  //
+  // 🔴 **También en modo LETRA**, y esto no era así: el aviso solo miraba el
+  // modo edición, así que **escribir una letra y pulsar «siguiente» la perdía
+  // sin decir nada**. Salió al arreglar O-43, y es peor que O-43: Isaac está
+  // ahora mismo tecleando las 75 letras.
   useEffect(() => {
-    if (mode !== "edit" || !isDirty) return;
+    if ((mode !== "edit" && mode !== "letra") || !isDirty) return;
     const handler = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
         return;
@@ -202,11 +223,15 @@ export default function SongDetailEditor({
     setCategoryIds(snap.categoryIds ?? []);
     setStatus(snap.status);
     setContent(snap.content);
+    // 🔴 Faltaba: la letra entra en el `snapshot` que decide si hay cambios,
+    // pero «descartar» no la devolvía. Se descartaba todo menos justo lo que
+    // se acababa de escribir.
+    setLyrics(snap.lyrics ?? "");
   };
 
   // Pide salir: si hay cambios, muestra el diálogo; si no, sigue de una.
   const requestLeave = (proceed: () => void) => {
-    if (mode === "edit" && isDirty) setLeavePrompt({ proceed });
+    if ((mode === "edit" || mode === "letra") && isDirty) setLeavePrompt({ proceed });
     else proceed();
   };
 
@@ -245,7 +270,7 @@ export default function SongDetailEditor({
 
       if (e.key === "ArrowRight" && nextHref) {
         e.preventDefault();
-        router.push(nextHref);
+        router.push(conModo(nextHref)!);
       } else if (e.key === "ArrowLeft" && prevHref) {
         e.preventDefault();
         router.push(prevHref);
@@ -436,7 +461,7 @@ export default function SongDetailEditor({
           {(prevHref || nextHref) && (
             <div className="flex items-center gap-1">
               <Link
-                href={prevHref ?? "#"}
+                href={conModo(prevHref) ?? "#"}
                 aria-disabled={!prevHref}
                 title={prevTitle ? `Anterior: ${prevTitle}  (←)` : "No hay anterior"}
                 className={
@@ -454,7 +479,7 @@ export default function SongDetailEditor({
                 </span>
               )}
               <Link
-                href={nextHref ?? "#"}
+                href={conModo(nextHref) ?? "#"}
                 aria-disabled={!nextHref}
                 title={nextTitle ? `Siguiente: ${nextTitle}  (→)` : "No hay siguiente"}
                 className={

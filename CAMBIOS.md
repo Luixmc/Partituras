@@ -15,6 +15,17 @@
   `F#m7`, `G#m7`. Medido sobre las 75 canciones y las 12 tonalidades: **afectaba a más de la mitad
   de las transposiciones**.
 
+### 🎤 Al escribir las letras
+
+- **Arreglado: pasar de canción te sacaba de la pestaña «Letra».** Estabas escribiendo la letra,
+  pulsabas «siguiente» y la página te devolvía a los acordes: había que volver a entrar en Letra en
+  cada canción. Ahora **se queda en la pestaña en la que estás** — y vale igual para Vista, Edición
+  y Letra, vengas del catálogo o de un culto.
+- 🔴 **Y arreglado algo peor que salió al mirarlo: escribir una letra y pasar de canción la perdía
+  SIN AVISAR.** El aviso de «tienes cambios sin guardar» solo funcionaba en el modo de editar
+  acordes, no en el de la letra. Ahora avisa en los dos.
+- **Y «descartar» descartaba todo menos la letra**, que se quedaba modificada. También corregido.
+
 ### 🎺 Si tocas trompeta
 
 - **Elige «Trompeta» y ves la canción en tu tono.** En la barra de arriba, a pantalla completa,

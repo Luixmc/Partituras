@@ -1836,6 +1836,52 @@ mitad del problema desaparece en vez de acotarse.
 → **Lo prueba Isaac**, que es de donde salieron: pasar tres canciones y salir, pulsar un acorde
 abajo del todo en el telefono, y cambiar de pestaña y volver a entrar para ver si se acuerda.
 
+**O-43 · Pasar de canción NO puede sacarte de la pestaña en la que estás.** ✅ **HECHO.**
+Isaac, 2026-08-22, **escribiendo letras**: *«cuando estoy en el modo letra colocando la letra a una
+canción y le doy al botón siguiente o reversa para pasar de canción, me manda al modo vista de la
+canción; arréglalo para todos los modos, y todas las canciones y secciones»*.
+
+**Es el mismo fallo que la tanda 32 arregló en la PANTALLA COMPLETA, ahora en la vista.** Y allí
+bastó con no reiniciar el estado, porque no se cambia de página; aquí **sí se cambia**, así que
+había que llevarse el modo a la dirección.
+
+*Cómo se resuelve:* el modo viaja en `?ver=`, **igual que ya viajan el filtro del catálogo y
+`?culto=`**. Es el patrón que el proyecto ya usa para «por dónde vas», y de propina sobrevive a
+recargar y al botón «atrás».
+→ Vale para los **tres modos** (`view` · `edit` · `letra`), en los botones **y** en las flechas del
+teclado, y **convive con el culto**: `?culto=…&ver=letra`.
+
+#### 🔴 Y al mirarlo salieron DOS fallos peores que el que pidió
+
+**① Escribir una letra y pulsar «siguiente» la perdía SIN AVISAR.**
+El editor tiene un diálogo de «guardar o descartar» al salir con cambios… pero solo miraba
+`mode !== "edit"`. **En modo letra no se activaba.** O sea: se escribe una estrofa, se pulsa la
+flecha, y el texto se va sin decir nada.
+→ 🔴 **Esto le podía estar costando trabajo AHORA MISMO**, que es justo cuando está tecleando las
+75 letras. Corregido: el aviso cubre **edición y letra**.
+
+**② «Descartar» descartaba todo MENOS la letra.**
+`restoreSnapshot` devolvía título, autor, tono, compás, categorías, estado y acordes… **y no la
+letra**, aunque la letra sí entra en el `snapshot` que decide si hay cambios. Así que el diálogo
+decía «se descartaron los cambios» **y el texto seguía modificado**. Corregido.
+
+📌 **Los dos son de la misma familia y por eso salieron juntos:** el modo «letra» se añadió en la
+fase J **después** de que el editor ya tuviera su red de seguridad, y **la red no se extendió al
+modo nuevo**. Cuando se añade un modo a una pantalla que ya protege datos, hay que **repasar qué
+protecciones se quedaron mirando solo al modo viejo**.
+
+**Comprobado (2026-08-22), con datos reales:**
+
+| Situación | Los vecinos apuntan a |
+|---|---|
+| Modo vista | `/catalog/<id>` — **sin `ver=`**, como antes |
+| Modo letra | `/catalog/<id>?ver=letra` |
+| Modo edición | `/catalog/<id>?ver=edit` |
+| Desde un culto **y** en letra | `/catalog/<id>?culto=…&ver=letra` — **los dos** |
+| Desde la sección «Letras» | las tarjetas ya llevaban `?ver=letra`, y ahora **se conserva al pasar** |
+
+Compila limpio · 128 pruebas verdes · arnés de comentarios 0 de 2.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la

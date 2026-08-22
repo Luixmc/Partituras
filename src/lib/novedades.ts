@@ -75,6 +75,28 @@ export const TANDAS: Tanda[] = [
     "entrada": "Un arreglo que se nota tocando, algo nuevo para quien toca trompeta, y unas cuantas cosas de debajo del capó.",
     "secciones": [
       {
+        "titulo": "Al escribir las letras",
+        "resumen": "Pasar de canción ya no te saca de la pestaña, y avisa antes de perder lo que llevabas escrito.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Pasar de canción te sacaba de la pestaña «Letra».",
+            "detalle": [
+              "Estabas escribiendo la letra, pulsabas <strong>siguiente</strong> y la página te devolvía a los acordes. Había que volver a entrar en Letra en cada canción.",
+              "Ahora <strong>se queda en la pestaña en la que estás</strong>, y vale igual para Vista, Edición y Letra — vengas del catálogo o de un culto."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Y lo peor: pasar de canción PERDÍA la letra sin avisar.",
+            "detalle": [
+              "El aviso de <strong>«tienes cambios sin guardar»</strong> solo funcionaba en el modo de editar acordes, no en el de la letra. Escribías una estrofa, pulsabas la flecha, y el texto se iba sin decir nada.",
+              "Ahora avisa en los dos. Y <strong>«descartar»</strong>, que descartaba todo menos la letra, también quedó arreglado."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Al leer los acordes",
         "resumen": "El tono al que transportas ya se escribe como se lee: nada de acordes en bemoles cuando la canción está en sostenidos.",
         "cambios": [
