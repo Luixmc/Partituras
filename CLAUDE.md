@@ -2454,6 +2454,30 @@ alguien transpusiera a ese tono. Lo cazó la primera tabla que se escribió.
 **Enganchadas al CI**, delante del build: si una falla, sale ❌ en el commit **antes** de que
 Vercel publique nada.
 
+#### 🔴 Y el CI se puso ROJO a la primera, por la razón más tonta posible
+
+El `npm test` decía `node --test "pruebas/*.test.mjs"`. **Los globs en `--test` llegaron en Node
+21**, y **el CI corre con Node 20**: `Could not find '…/pruebas/*.test.mjs'`. En el equipo de Isaac
+—Node 24— funcionaba perfectamente.
+
+📌 **Es la misma lección de siempre en su versión pequeña:** *«funciona en mi máquina»*. Y encima
+**estaba escrito tres líneas más arriba** —que el CI usa Node 20 y por eso hay que compilar el
+TypeScript— y aun así se escribió un comando que esa versión no entiende.
+
+*Cómo quedó:* `pruebas/ejecutar.mjs` **lee la carpeta y pasa los archivos uno a uno**, que es lo
+único que funciona en las dos versiones:
+
+| Forma | Node 20 | Node 24 |
+|---|---|---|
+| `node --test pruebas/` | ✅ | ❌ «Cannot find module …/pruebas» |
+| `node --test "pruebas/*.test.mjs"` | ❌ sin globs | ✅ |
+| **`node --test a.mjs b.mjs c.mjs`** | ✅ | ✅ |
+
+→ Y añadir una prueba **no obliga a tocar nada**: la lista se saca leyendo el directorio.
+✅ **La página no se enteró:** el CI y Vercel son independientes, así que el despliegue siguió
+verde y `/login` respondiendo 200 con el CI en rojo. **Conviene saberlo: un CI rojo aquí NO
+significa que el sitio esté caído** — y al revés, tampoco protege de publicar.
+
 ⬜ **Lo que falta, y por qué no está:**
 - **Las 75 canciones reales NO pueden ir al repositorio: es PÚBLICO.** Los arneses que las usan
   (`ligaduras`, `notas`, `piano`, `comentarios`…) siguen viviendo en el `scratchpad` y leyendo del
