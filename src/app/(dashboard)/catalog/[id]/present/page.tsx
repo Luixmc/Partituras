@@ -15,13 +15,14 @@ import type { PresentSong } from "@/types";
  * flechas y el deslizar lleven a la siguiente de ESA lista y no del catálogo
  * entero (O-16, D-15).
  */
-export default async function SongPresentPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: FiltrosCatalogo;
-}) {
+export default async function SongPresentPage(
+  props: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<FiltrosCatalogo>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient();
 
   // 🔴 Si se viene DE UN CULTO, la lista es su repertorio y no el catálogo:

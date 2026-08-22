@@ -15,11 +15,12 @@ import { SERVICE_TYPE_META, formatServiceDate, mapPresentSongs } from "@/lib/ser
  * Sigue pidiendo sesión: el middleware protege todo lo que no esté en su lista
  * de rutas públicas.
  */
-export default async function ImprimirCultoPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ImprimirCultoPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

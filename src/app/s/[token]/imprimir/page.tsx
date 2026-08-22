@@ -8,11 +8,12 @@ import { SERVICE_TYPE_META, formatServiceDate, mapPresentSongs } from "@/lib/ser
  * La misma hoja imprimible, para quien recibió el enlace compartido y no tiene
  * cuenta (O-08). Solo funciona si el culto está compartido.
  */
-export default async function ImprimirCultoPublicoPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function ImprimirCultoPublicoPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

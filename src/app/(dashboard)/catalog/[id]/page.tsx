@@ -14,13 +14,14 @@ type SheetWithCategory = Sheet & {
   } | null;
 };
 
-export default async function SheetDetailPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: FiltrosCatalogo;
-}) {
+export default async function SheetDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<FiltrosCatalogo>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: sheet } = await supabase

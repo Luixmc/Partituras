@@ -2166,6 +2166,85 @@ las partituras), o esperar a que salga un parche para la rama 14 — que puede n
 → **Queda anotado como decisión pendiente de Isaac**, no como olvido.
 
 
+#### 🧪 La prueba de Next 16 (2026-08-21) — rama `isaac/next16`
+
+Isaac: *«lo del next haz la prueba, pero si ves que tienes que hacer una copia antes hazlo»*.
+→ **Copia hecha antes de tocar nada:** `_RESPALDOS\Partituras-antes-next16-2026-08-21.bundle`
+(1,6 MB, verificado: *«records a complete history»*) más `package.json` y `package-lock.json` en
+`_RESPALDOS\Partituras-deps-antes-next16\`. Y **la prueba va en rama aparte**, no en la de trabajo.
+
+🔴 **EL HALLAZGO, y es el que justifica todo lo demás: COMPILÓ LIMPIO Y LA APP ESTABA ROTA.**
+
+Con Next 16 recién instalado, `npm run build` terminó **sin un solo error** y generó las 19 rutas.
+Y al levantarlo y probar pantalla por pantalla:
+
+| | |
+|---|---|
+| Pantallas sin parámetro (`/catalog`, `/services`, `/admin`…) | **200**, bien |
+| **Todas las que llevan `[id]` o `[token]`** | **404** |
+
+Es decir: **ninguna canción, ningún culto, ninguna presentación y ningún enlace compartido**. La
+página entera inservible para un músico, y el build diciendo que todo estaba bien.
+
+*Causa:* desde Next 15, `params` y `searchParams` **son promesas**. `params.id` llegaba
+`undefined`, la consulta no encontraba nada y la página devolvía `notFound()`.
+
+📌 **Esto es exactamente el riesgo que se había advertido** al recomendar no migrar: *«si la
+migración rompe algo que el build no cace, se rompe para los músicos»*. **No fue una hipótesis:
+pasó, a la primera, y en el 100 % de las páginas que importan.** Sin probar pantalla por pantalla
+—que es lo que ninguna compilación hace— esto se habría publicado.
+
+**Cómo se arregló:** con el **codemod oficial** de Next (`@next/codemod next-async-request-api`),
+no a mano: **11 archivos, 0 errores**, justo los 11 que se habían contado.
+
+**Lo demás que hizo falta:**
+- **React se queda en 18.** Next 16 lo acepta (`^18.2.0 || ^19.0.0`), así que **no hay que migrar
+  React también**. El primer intento lo subió a 19 y ahí saltó `@react-pdf/renderer`, que solo
+  admite hasta 18. → Se volvió a 18 y desapareció el conflicto.
+- **`eslint-config-next` se queda en la 14.** Subirlo exige **ESLint 9**, que es otra migración
+  (cambia el formato de configuración entero). **No afecta ni a la app ni al CI**, que ejecuta
+  `npm ci` + `npm run build`, no el lint.
+- **`tsconfig.json`** lo reescribe el propio Next: `moduleResolution` a `bundler`, `jsx` a
+  `react-jsx`, `target` a `ES2017`. Es suyo, va en el commit.
+
+#### 📌 Y un huérfano que salió al tirar del hilo
+
+**`@react-pdf/renderer` NO LO USA NADIE.** `grep` en `src/`: **cero**. Quedó suelto cuando el PDF
+del culto pasó a hacerse con la impresión del navegador (D-10, fase F). Es una dependencia muerta
+que además **bloqueó la actualización** al ser la única que impedía React 19.
+→ **No se ha quitado**: es una decisión aparte y no hacía falta para esto. Anotado.
+
+#### ✅ Lo medido con Next 16, todo en verde
+
+| Qué | Resultado |
+|---|---|
+| Compilación | ✅ limpia, 19 rutas |
+| **El middleware** (lo que protege la página) | ✅ **6 rutas protegidas → 307** sin sesión |
+| Las públicas sin cuenta | ✅ `/login`, `/novedades`, `/manifest.json`, `/favicon.ico`, `/sw.js` → **200** |
+| 12 pantallas con sesión de admin | ✅ **200 las doce** |
+| El enlace público del culto y sus dos hojas | ✅ **200 las tres** |
+| Catálogo | **75 canciones** |
+| Culto | **8 asas de arrastre · 8 enlaces con `?culto=`** |
+| Lista de cultos | **3 etiquetas de estado** |
+| Canción y presentación | **19 acordes dibujados** en cada una · `data-suelo` presente |
+| Ligaduras | **20, ninguna perdida** |
+| Guitarra | **1.892 de 1.894 · 0 formas que no suenan** |
+| Visibilidad de cultos | **10 de 10** |
+| Comentarios filtrados | **0 de 6 páginas** |
+| **Vulnerabilidades** | **de 15 a 8** (13 altas → 6) — **`next` y `pdfjs-dist` desaparecen**; las 6 que quedan son de herramientas de desarrollo y **no llegan a ningún navegador** |
+
+⬜ **LO QUE NADIE HA MIRADO TODAVÍA, y es la mitad que falta:** todo lo anterior es **servidor**.
+Con `curl` no se prueba **nada de lo que hace JavaScript en el navegador**, y esta tanda ha metido
+justo eso: **arrastrar el repertorio, el desplegable del acorde con sus pestañas, la pantalla
+completa y los botones ± del tono**. Un cambio de versión mayor de Next puede tocar la hidratación
+y los portales — y **el desplegable del acorde usa un portal y la pantalla completa del
+navegador**, que es lo más frágil que hay aquí.
+→ 🔴 **Por eso NO se sube a `main` todavía.** La rama está publicada aparte para que no se pierda,
+y le toca a Isaac abrirlo en `localhost:3000` y probar cuatro cosas. **Es su propia regla 2**:
+*«nada está arreglado hasta comprobarlo… si el cambio toca la interfaz, hay que simular el flujo
+completo del usuario final»*.
+
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:

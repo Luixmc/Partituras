@@ -6,11 +6,12 @@ import { mapPresentSongs } from "@/lib/services";
 import { puedeVerLetras } from "@/lib/letras";
 import { puedeVerCulto } from "@/lib/cultos";
 
-export default async function ServicePresentPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ServicePresentPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

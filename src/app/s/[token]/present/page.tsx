@@ -4,11 +4,12 @@ import PresentationView from "@/components/services/PresentationView";
 import { mapPresentSongs } from "@/lib/services";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function PublicServicePresentPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function PublicServicePresentPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

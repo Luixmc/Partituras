@@ -9,11 +9,12 @@ import ReadingControls from "@/components/theme/ReadingControls";
 import { createClient } from "@/lib/supabase/server";
 import { SERVICE_TYPE_META, formatServiceDate } from "@/lib/services";
 
-export default async function PublicServicePage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function PublicServicePage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

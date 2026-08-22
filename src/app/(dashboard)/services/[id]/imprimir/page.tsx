@@ -8,10 +8,11 @@ import { redirect } from "next/navigation";
  * guardada o en el historial no se encuentra un 404. Le pasó a Isaac el mismo
  * día del cambio.
  */
-export default function ImprimirCultoAntiguo({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ImprimirCultoAntiguo(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   redirect(`/imprimir/culto/${params.id}`);
 }

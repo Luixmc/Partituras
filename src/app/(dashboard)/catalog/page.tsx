@@ -6,11 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
 
-export default async function CatalogPage({
-  searchParams,
-}: {
-  searchParams: FiltrosCatalogo;
-}) {
+export default async function CatalogPage(
+  props: {
+    searchParams: Promise<FiltrosCatalogo>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
 
   // El filtro por estado es SOLO para administradores (O-28). A los demás ni

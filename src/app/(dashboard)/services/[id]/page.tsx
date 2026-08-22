@@ -7,11 +7,12 @@ import { createClient } from "@/lib/supabase/server";
 import { estadoDe, puedeVerCulto } from "@/lib/cultos";
 import type { ServiceWithSongs } from "@/types";
 
-export default async function ServiceDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ServiceDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: service } = await supabase

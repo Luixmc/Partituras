@@ -29,7 +29,8 @@ import type { Category } from "@/types";
 
 export const metadata = { title: "Letras · Partituras" };
 
-export default async function LetrasPage({ searchParams }: { searchParams: FiltrosCatalogo }) {
+export default async function LetrasPage(props: { searchParams: Promise<FiltrosCatalogo> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
 
   const {
