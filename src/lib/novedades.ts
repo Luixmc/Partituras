@@ -63,7 +63,7 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "22 de agosto de 2026",
     "iso": "2026-08-22",
-    "entrada": "Un arreglo que se nota tocando y unas cuantas cosas de debajo del capó.",
+    "entrada": "Un arreglo que se nota tocando, algo nuevo para quien toca trompeta, y unas cuantas cosas de debajo del capó.",
     "secciones": [
       {
         "titulo": "Al leer los acordes",
@@ -100,6 +100,37 @@ export const TANDAS: Tanda[] = [
                 ]
               ]
             }
+          }
+        ]
+      },
+      {
+        "titulo": "Si tocas trompeta",
+        "resumen": "La página te da la canción en TU tono, para que no tengas que transportar de cabeza.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Elige «Trompeta» y ves la canción en tu tono.",
+            "detalle": [
+              "En la barra de arriba, a pantalla completa, hay <strong>Tu instrumento: Como suena · Trompeta</strong>. Lo eliges una vez y se queda guardado en tu aparato.",
+              "La trompeta <strong>suena un tono más grave de lo que lee</strong>. Así que si la canción va en <code>D</code> y tú tocas tu <code>D</code>, suena <code>C</code> — un tono por debajo del resto. Para que suene <code>D</code> tienes que leer <code>E</code>.",
+              "Ahora <strong>esa cuenta la hace la página</strong>: eliges Trompeta y ya ves <code>E</code>, con todos los acordes cambiados. No transportas nada.",
+              "Arriba salen <strong>los dos tonos</strong>: el que suena y el que tú lees. Así, cuando alguien diga «vamos en D», sabes que tú vas en E y nadie discute."
+            ],
+            "tabla": {
+              "cabecera": ["La canción va en", "Tú lees", "Cuántas hay"],
+              "filas": [
+                ["D", "E", "14"],
+                ["F", "G", "10"],
+                ["E", "F#", "9"],
+                ["C", "D", "7"]
+              ]
+            }
+          },
+          {
+            "titulo": "Sirve también para clarinete y saxo tenor.",
+            "detalle": [
+              "Son instrumentos <em>en Bb</em> igual que la trompeta, así que necesitan exactamente lo mismo."
+            ]
           }
         ]
       },

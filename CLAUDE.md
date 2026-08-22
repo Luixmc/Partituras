@@ -22,9 +22,15 @@
 > ⚠️ Ojo tambien con `npm run export`: **fecha en UTC**, asi que a partir de las 19:00 en Colombia
 > la carpeta lleva ya el dia siguiente.
 >
-> **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md`**, en la
-> sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la página, no qué archivo
-> se tocó. Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
+> **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md` Y en
+> `/novedades`**, en la sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la
+> página, no qué archivo se tocó.
+> 🔴 **Y son DOS sitios, no uno.** Se incumplió el 2026-08-22 con lo de la trompeta: se publicó,
+> se escribió aquí —D-28, D-29, §9.2-nonies— y **se olvidó el comunicado**. Lo vio Isaac:
+> *«lo subiste pero no lo documentaste en los archivos y en la página de novedades»*.
+> **Documentar en el `CLAUDE.md` no es documentar para el músico**: este archivo lo lee quien
+> programa, y el que toca no entra aquí. Si el cambio se nota usando la página —y lo de la
+> trompeta se nota mucho—, **no está terminado hasta que está en los dos.** Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
 > cambiando. Es un documento **para leer**, no un historial técnico — ese es §13 de aquí.
 >
 > **REGLA DE LA CARPETA COMPARTIDA — se repasa CADA tanda y se dice cuáles de los cuatro

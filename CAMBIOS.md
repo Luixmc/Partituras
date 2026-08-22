@@ -15,6 +15,25 @@
   `F#m7`, `G#m7`. Medido sobre las 75 canciones y las 12 tonalidades: **afectaba a más de la mitad
   de las transposiciones**.
 
+### 🎺 Si tocas trompeta
+
+- **Elige «Trompeta» y ves la canción en tu tono.** En la barra de arriba, a pantalla completa,
+  aparece **Tu instrumento: Como suena · Trompeta**. Lo eliges una vez y se queda guardado en tu
+  aparato.
+- **Por qué hacía falta:** la trompeta **suena un tono más grave de lo que lee**. Si la canción va
+  en `D` y tocas tu `D`, suena `C` — un tono por debajo del resto. Para que suene `D` tienes que
+  leer `E`. **Ahora esa cuenta la hace la página**: no transportas nada de cabeza.
+- **Arriba salen los dos tonos**, el que suena y el que tú lees, para que cuando alguien diga
+  «vamos en D» sepas que tú vas en E y nadie discuta.
+- Vale igual para **clarinete y saxo tenor**, que son en Bb como la trompeta.
+
+| La canción va en | Tú lees | Cuántas hay |
+|---|---|---|
+| D | **E** | 14 |
+| F | **G** | 10 |
+| E | **F#** | 9 |
+| C | **D** | 7 |
+
 ### 🔧 Por dentro (no se ve, pero importa)
 
 - **La página ya no se queda con una versión vieja.** El almacén que la guarda para que cargue
@@ -30,8 +49,9 @@
   escribir en dos pasos; si fallaba el segundo —la conexión que se corta armando el culto desde el
   teléfono— **el repertorio se perdía**. Ahora las dos cosas van juntas: si algo falla, **no se
   toca nada**. *(Solo administradores.)*
-- **La página tiene por fin comprobaciones automáticas.** 103 de ellas, que se ejecutan solas en
-  cada cambio: el tono, las notas de cada acorde, las posturas de guitarra y quién ve qué culto.
+- **La página tiene por fin comprobaciones automáticas.** **128** de ellas, que se ejecutan solas
+  en cada cambio: el tono, las notas de cada acorde, las posturas de guitarra, quién ve qué culto y
+  la cuenta de la trompeta. Si algo se rompe, se ve **antes** de que llegue a la página.
 
 ---
 
