@@ -97,6 +97,30 @@ export function prefersFlats(targetKey: string | null | undefined): boolean {
 }
 
 /**
+ * ¿Este tono se escribe con bemoles o con sostenidos? (T-14)
+ *
+ * 🔴 Se le pregunta por el tono **AL QUE SE LLEGA**, no por el de partida. Era
+ * el fallo que vio Isaac: bajó una canción de `F` a `E` y los acordes salieron
+ * `Dbm`, `Gbm7`, `Abm7` — la ortografía de `F`, que es de bemoles— cuando en
+ * `E` son `C#m`, `F#m7`, `G#m7`. La barra decía «Tono: E» y la partitura
+ * estaba escrita **como si fuera Fb**. Y nadie toca en Fb.
+ *
+ * No hay regla que inventar: `KEY_OPTIONS` y `KEY_OPTIONS_MINOR` **ya la
+ * tienen escrita**, tonalidad por tonalidad. Es el círculo de quintas de toda
+ * la vida — Sol, Re, La, Mi, Si llevan sostenidos; Fa, Si♭, Mi♭, La♭, Re♭
+ * llevan bemoles—. Aquí solo se busca por altura y modo.
+ *
+ * @param pitch  0–11, la altura del tono destino.
+ * @param menor  Si el tono es menor: `Dm` lleva bemoles y `D` no.
+ */
+export function ortografiaDe(pitch: number, menor: boolean): boolean {
+  const p = ((pitch % 12) + 12) % 12;
+  const tabla = menor ? KEY_OPTIONS_MINOR : KEY_OPTIONS;
+  const opt = tabla.find((k) => k.pitch === p);
+  return opt ? opt.flats : false;
+}
+
+/**
  * Semitonos para pasar de `fromKey` (tonalidad original de la canción, p. ej.
  * "C major") a `toKey` (tono elegido para el culto, p. ej. "Eb"). 0–11.
  * Devuelve null si falta alguno (no se transpone).

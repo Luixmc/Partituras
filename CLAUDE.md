@@ -414,6 +414,84 @@ se leía estaba mal.
 final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
 *Encontrado por Isaac usando la app el 2026-08-20.*
 
+**T-14 · Al transponer, los acordes se escribían con la ortografía del tono DE PARTIDA.**
+*Síntoma:* Isaac bajó «Anhelo Conocerte» de **F a E** y la barra decía **«Tono: E»** —correcto—,
+pero debajo los acordes salían `Dbm`, `Gbm7`, `Abm7`, `Ab/C`, `Gbm`, `Eb`, `Ab7`, `Dbm7`. En **E**
+esos acordes son `C#m`, `F#m7`, `G#m7`, `G#/C`, `F#m`, `D#`, `G#7`, `C#m7`.
+Sus palabras (2026-08-21): *«transporté la canción a E siendo que original está en F, y los acordes
+no son en E sino en Fb, y se sabe que en vez de Fb es mejor decir E y tocar en la tonalidad de E
+para más comodidad. Arregla esto para todas las canciones y todas las tonalidades»*.
+
+📌 **Su lectura es exacta:** la etiqueta decía E, pero los acordes estaban escritos **como si el
+tono fuera Fb**. Y nadie toca en Fb.
+
+*Causa,* `PresentationView.tsx:365`, **dos fallos en una línea**:
+
+```ts
+const flats = prefersFlats(song?.target_key || song?.original_key) || liveOffset < 0;
+```
+
+1. **La ortografía se heredaba del tono de PARTIDA.** Sin culto, `original_key` es `F` —tono de
+   bemoles— así que todo salía en bemoles **aunque el destino fuera E**, que es de sostenidos.
+2. **`|| liveOffset < 0` es una heurística falsa:** «si bajas el tono, usa bemoles». Bajar de F da
+   E, de C da B, de G da F# — **las tres son de sostenidos**. Bajar no tiene nada que ver con los
+   bemoles.
+
+*Cómo se resuelve:* **la ortografía la decide el tono DESTINO, no el de partida.** Y no hace falta
+inventar la regla: `KEY_OPTIONS` y `KEY_OPTIONS_MINOR` (`music.ts:29,47`) **ya la tienen escrita**,
+con su campo `flats` por tonalidad — es el círculo de quintas de toda la vida. Solo faltaba
+**preguntarle a la tabla por el tono al que se llega**, en vez de por el de salida.
+→ Función nueva `ortografiaDe(pitch, menor)` en `music.ts`, y `keyLabel` y los acordes pasan a
+usar **el mismo tono efectivo**: antes la etiqueta y la partitura lo calculaban por caminos
+distintos, que es lo que permitía que se contradijeran.
+
+🔴 **Se respeta T-11, que manda por encima:** **si el músico no ha movido el tono, no se recalcula
+nada.** Se enseña lo que está escrito, letra por letra. Elegir entre `Bb` y `A#` solo se hace
+cuando hay que reescribir de verdad; **esa elección, si ya la tomó quien escribió la canción, no se
+le toca.**
+
+*Dónde NO estaba el fallo, comprobado uno por uno:* `SongKeyVersions.tsx:33` y
+`PrintableService.tsx:272` ya preguntaban por el **tono destino**, así que estaban bien. Y el modo
+vista no transpone. **Era un solo sitio**, aunque se viera en todas las canciones.
+
+📌 **Y es la tercera vez que muerde lo mismo** —T-06 (se perdía la `m` de `Bm`), T-11 (`Bb` salía
+`A#`) y ahora esta—: **el tono se estaba deduciendo de la información equivocada.** Las tres veces
+el dato bueno estaba al lado.
+
+**Medido con `scratchpad/tono2.mjs`, que compila `music.ts` con el TypeScript del proyecto y pasa
+las 75 canciones reales por las 22 transposiciones posibles:**
+
+| | |
+|---|---|
+| Casos probados | **1.650** (75 canciones x 22) |
+| **Cambian de ortografia** | **913 - el 55,3 %** |
+| Tonalidades imposibles que salen (Fb, Cb, E#, B#) | **0** |
+
+🔴 **Mas de la mitad de las transposiciones estaban mal escritas.** No era un caso raro: le pasaba
+a cualquiera que tocara los botones de subir o bajar tono.
+
+**El caso exacto de la captura de Isaac, «Anhelo Conocerte», de F a E:**
+
+| | Acordes |
+|---|---|
+| **Antes** | `E  Dbm  Gbm7  B7  B  Ab/C  A  Abm7  Gbm  D7  Eb  Ab7` |
+| **Ahora** | `E  C#m  F#m7  B7  B  G#/C  A  G#m7  F#m  D7  D#  G#7` |
+
+**Las cuatro combinaciones, comprobadas una a una:**
+
+| Tono del culto | Movio los +/- | Que hace |
+|---|---|---|
+| no | no | **no transpone**: se enseña lo escrito (T-11) |
+| no | si | ortografia del **tono destino** ← *era el fallo* |
+| si | no | ortografia del **tono del culto** — ya estaba bien |
+| si | si | ortografia del **destino** (culto + ajuste) |
+
+⚠️ **Lo que NO se puede comprobar desde aqui:** el fallo solo aparece **pulsando los +/-**, que es
+JavaScript del navegador. Lo que si se midio: la funcion real con las 75 canciones, y que **el
+culto que ya tenia tono cambiado sigue igual** (`Santo Por Siempre` F→D, presentacion 200, **ni un
+bemol**) — que era el riesgo de tocar esto.
+
+
 **T-11 · El mismo sitio, el mismo día: una canción en `Bb` mostraba `A#`.**
 *Síntoma:* en pantalla completa, «Cristo Es Mi Roca» ponía **`A#` arriba** mientras **debajo
 todos los acordes eran `Bb`, `F7`, `Cm7`** — bemoles. La barra se contradecía con la partitura.

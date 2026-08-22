@@ -10,7 +10,7 @@ import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
-import { esMenor, keyToPitch, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
+import { esMenor, keyToPitch, ortografiaDe, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
 import type { PresentSong } from "@/types";
 
 const PITCH_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -359,10 +359,32 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual.
   const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
   const totalSemitones = (((baseSemitones + liveOffset) % 12) + 12) % 12;
-  // ¿Se escribe con bemoles? Manda el tono del culto si lo hay, y si no, EL DE
-  // LA CANCIÓN. Mirar solo el del culto era el fallo: en el catálogo no hay
-  // culto, así que una canción en Bb se dibujaba con la tabla de sostenidos.
-  const flats = prefersFlats(song?.target_key || song?.original_key) || liveOffset < 0;
+  // ── El tono que se está viendo, UNO SOLO ──────────────────
+  //
+  // Antes la etiqueta de arriba y los acordes de abajo lo calculaban por
+  // caminos distintos, y por eso podían contradecirse: la barra decía «E» y
+  // debajo estaba escrito en bemoles, como si fuera Fb (T-14).
+  const tonoBase = song?.target_key || song?.original_key;
+  const menor = esMenor(tonoBase);
+  const basePitch = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
+  const tonoEfectivo =
+    basePitch === null ? null : (((basePitch + liveOffset) % 12) + 12) % 12;
+
+  // ¿Bemoles o sostenidos? **Lo decide el tono AL QUE SE LLEGA.**
+  //
+  // 🔴 Antes se heredaba del tono de PARTIDA, más un «si baja, bemoles» que es
+  // falso: bajar de F da E, de C da B, de G da F#, y las tres son de
+  // sostenidos. Bajar no tiene nada que ver con los bemoles.
+  //
+  // Y si el músico NO ha movido el tono, no se decide nada: se respeta lo que
+  // está escrito (T-11). Elegir entre `Bb` y `A#` solo toca cuando hay que
+  // reescribir de verdad; esa elección ya la tomó quien escribió la canción.
+  const flats =
+    !liveOffset && tonoBase
+      ? prefersFlats(tonoBase)
+      : tonoEfectivo === null
+        ? false
+        : ortografiaDe(tonoEfectivo, menor);
 
   const content = useMemo(
     () => (song?.content ? transposeContent(song.content, totalSemitones, flats) : ""),
@@ -394,12 +416,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     // no hay transposición, así que recalcular solo servía para contradecirlos:
     // arriba ponía "A#" y debajo estaba "Bb".
     if (!liveOffset && tonoBase) return tonoBase;
-    const base = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
-    if (base === null) return tonoBase || null;
-    const eff = (((base + liveOffset) % 12) + 12) % 12;
-    const nota = (flats ? PITCH_FLAT : PITCH_SHARP)[eff];
-    return esMenor(tonoBase) ? `${nota}m` : nota;
-  }, [song?.target_key, song?.original_key, liveOffset, flats]);
+    if (tonoEfectivo === null) return tonoBase || null;
+    // El MISMO tono efectivo y la MISMA ortografía que usan los acordes: así la
+    // barra no puede volver a contradecir a la partitura (T-14).
+    const nota = (flats ? PITCH_FLAT : PITCH_SHARP)[tonoEfectivo];
+    return menor ? `${nota}m` : nota;
+  }, [tonoBase, tonoEfectivo, menor, liveOffset, flats]);
 
   if (!song) {
     return (
