@@ -569,22 +569,35 @@ largo por una cadena creyendo que la arregla.
 - [x] ~~El push de la tanda 33~~ → ✅ **HECHO el 2026-08-21 con su permiso** (*«adelante sube todo
       lo que no está subido, y en el orden que dices»*), commit `c1b4b40` (r44). Verificado en
       producción. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir.**
-- [ ] 🔴 **LA MIGRACIÓN `20240017` SIGUE SIN EJECUTAR — y NO es por falta de permiso de Isaac.**
-      Él lo dio en el mismo mensaje. **La bloqueó el entorno donde corre Claude**, que no deja
-      escribir esquema contra la base de producción, y **no se buscó una vía alternativa a
-      propósito**: saltarse ese bloqueo es exactamente lo que no hay que hacer.
-      **Qué falta:** añadir `status` a `services`, poner `published` a los 3 cultos existentes y
-      cambiar la política de lectura. El SQL está escrito y listo en
-      `supabase/migrations/20240017_service_status.sql`.
-      **Cómo se aplica:** Isaac lo pega en el **SQL Editor** del panel de Supabase (o su primo), o
-      autoriza la herramienta en los ajustes de Claude Code.
-      ✅ **Mientras tanto NO hay nada roto, y es por diseño:** el código publicado trata un culto
-      **sin la columna como publicado** (T-07), así que los 3 cultos se siguen viendo igual que
-      antes. Lo único que no funciona todavía es **el botón de cambiar el estado**, que dará error
-      hasta que la columna exista.
-      **Y hay que comprobarlo después de aplicarla**, que es la mitad del encargo que quedó sin
-      medir: poner un culto en borrador y **consultar `services` con la clave pública** (sin sesión,
-      el caso más estricto) — debe devolver **2**, no 3.
+- [x] ~~La migración `20240017`~~ → ✅ **APLICADA el 2026-08-21**, después de que Isaac autorizara
+      la herramienta (*«hagamos la segunda opción que dices, te autorizo la herramienta»*). El
+      primer intento lo bloqueó el entorno de Claude, **no** un permiso suyo; **no se buscó una vía
+      alternativa a propósito** — saltarse ese bloqueo es justo lo que no hay que hacer.
+      **Comprobado contra la base, antes y después:**
+
+      | | antes | después |
+      |---|---|---|
+      | Cultos | 3 | **3** |
+      | …publicados | — | **3** |
+      | …no publicados | — | **0** |
+      | Filas de repertorio | 17 | **17** |
+      | Columna `status` | no existía | **existe**, defecto `draft` **solo para los nuevos** |
+      | Política de lectura | `services_select_all :: true` | **`services_select_viewer :: status='published' or created_by=auth.uid() or is_admin()`** |
+
+      **Y que no rompió nada, que era el riesgo:** con la **clave pública y sin sesión**, la base
+      sigue devolviendo **los 3 cultos** (Escuela Dominical, asd, Ayuno), los tres publicados. La
+      app contra la base ya migrada: lista **200 con 3 cultos y 0 etiquetas de estado** —correcto,
+      están los tres publicados—, detalle **200** con el control diciendo «Publicado: lo ven los
+      músicos y los lectores», y las 8 asas de arrastre en su sitio.
+- [ ] ⬜ **FALTA MEDIR LA OTRA MITAD DE O-31: que un culto en BORRADOR no lo vea nadie más que el
+      admin.** No se puede comprobar sin que exista uno, y **hoy los 3 están publicados**.
+      🔴 **No se hizo por cuenta propia a propósito:** poner en borrador un culto suyo —o crear uno
+      de prueba— es **escribir en sus datos de producción**, y eso no entraba en el permiso que dio
+      (que era para la migración). Es el mismo criterio de D-14.
+      **Cómo se cierra, y de paso prueba el botón nuevo:** que Isaac pulse **Borrador** en un culto,
+      avise, se consulta `services` **con la clave pública** —debe devolver **2**, no 3— y él lo
+      devuelve a **Publicado**. Si prefiere que se haga con un culto desechable creado y borrado
+      para la prueba, tiene que decirlo.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -2131,6 +2144,10 @@ desde la cuenta que lo tiene todo.**
 **Lección a la carpeta compartida:** **L-121** `[PART]` — *añadir una columna con defecto le cambia
 el significado a las filas que ya existen*. Sin el `update` de la migración, `default 'draft'`
 habría hecho **desaparecer los 3 cultos** para músicos y lectores, sin error y sin aviso.
+
+**La migración `20240017` quedó APLICADA esa misma noche**, después del push y en ese orden: 3
+cultos, los 3 en `published`, 17 filas de repertorio intactas y la política nueva en su sitio. El
+detalle y lo que falta por medir, en §9.1.
 
 **Copia de seguridad previa:** `Partituras-datos-2026-08-22` — 3 cultos y 17 filas de repertorio,
 que es exactamente lo que la migración puede estropear.
