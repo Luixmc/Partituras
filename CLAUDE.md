@@ -11,6 +11,17 @@
 > descarte, aunque sea una corrección a una respuesta mía. Lo que quede **pendiente va a §9,
 > nunca solo a §13**. Si la conversación se corta, lo escrito es lo único que sobrevive.
 >
+> **REGLA DE LA FECHA — se pregunta el reloj, NO se hereda la del principio de la conversación.**
+> Isaac lo corrigio el 2026-08-22: *«los cambios que se hicieron desde hoy es para el 22 de agosto,
+> estoy viendo los archivos y marcan 21 de agosto, o sea el dia de ayer»*. Tenia razon: una sesion
+> larga cruza la medianoche y todo lo de la madrugada y la mañana siguiente se seguia fechando con
+> el dia en que arranco. → **Antes de escribir una fecha, `date`.** Y si hay que reconstruir lo ya
+> escrito, **la verdad esta en `git log --date=format:'%Y-%m-%d %H:%M'`**: los commits llevan la
+> hora real. Para el comunicado manda **la fecha en que el musico lo puede ver**, no la de cuando
+> se tecleo — la Fase L se escribio la noche del 21 y se publico el 22, asi que va en el 22.
+> ⚠️ Ojo tambien con `npm run export`: **fecha en UTC**, asi que a partir de las 19:00 en Colombia
+> la carpeta lleva ya el dia siguiente.
+>
 > **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md`**, en la
 > sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la página, no qué archivo
 > se tocó. Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
@@ -418,7 +429,7 @@ final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m,
 *Síntoma:* Isaac bajó «Anhelo Conocerte» de **F a E** y la barra decía **«Tono: E»** —correcto—,
 pero debajo los acordes salían `Dbm`, `Gbm7`, `Abm7`, `Ab/C`, `Gbm`, `Eb`, `Ab7`, `Dbm7`. En **E**
 esos acordes son `C#m`, `F#m7`, `G#m7`, `G#/C`, `F#m`, `D#`, `G#7`, `C#m7`.
-Sus palabras (2026-08-21): *«transporté la canción a E siendo que original está en F, y los acordes
+Sus palabras (2026-08-22): *«transporté la canción a E siendo que original está en F, y los acordes
 no son en E sino en Fb, y se sabe que en vez de Fb es mejor decir E y tocar en la tonalidad de E
 para más comodidad. Arregla esto para todas las canciones y todas las tonalidades»*.
 
@@ -600,7 +611,17 @@ largo por una cadena creyendo que la arregla.
       ⚠️ **Antes de intentarlo hay que averiguar si el dominio `partituras-blush.vercel.app`
       sobrevive a la transferencia**: si cambia, los músicos pierden el enlace que ya usan.
       **(c) dejarlo como está** y pedirle al primo que mire cuando algo falle.
-- [ ] 🔴 **Conseguir la clave `service_role`** — **es lo ÚNICO que sigue bloqueando de verdad.**
+- [ ] 🟡 **La clave `service_role` — PEDIDA el 2026-08-22, y el primo dijo que sí.** Isaac se lo
+      pidió con el texto que se le preparó; **la manda cuando llegue del trabajo a la casa.**
+      → **Ya no hay que perseguirlo: hay que estar pendiente de que llegue.** En cuanto esté:
+      ponerla en `.env.local` (línea `SUPABASE_SERVICE_ROLE_KEY=`, que **no se sube**, está en
+      `.gitignore`), rehacer `npm run export` para tener por fin **la copia completa** —hoy se deja
+      las 8 canciones en borrador y **2 de los 3 cultos**, medido— y con eso ya se puede cerrar
+      P-02.
+      ⚠️ **Cuando llegue, no se pega en ningún chat de grupo ni en ningún documento compartido**:
+      esa clave se salta todas las políticas de la base.
+      *Lo de abajo es la investigación que sostiene por qué hacía falta.*
+- [ ] 🔴 ~~Conseguir la clave `service_role`~~ — **es lo ÚNICO que sigue bloqueando de verdad.**
       (Solo puede sacarla el primo, hasta que invite a Isaac a su organización.)
       **Revisado el 2026-08-21, y sube otra vez de prioridad.** Tres motivos, el tercero es el
       importante:
@@ -676,7 +697,7 @@ largo por una cadena creyendo que la arregla.
       los esconde la interfaz. O-31 queda comprobada **por las dos caras**.
       📌 Y de paso queda probado el **botón de cambiar estado**, que era lo único de la tanda que
       no se había podido ejercitar desde aquí.
-- [x] ~~Decidir si se migra a Next 16~~ → ✅ **HECHO Y PUBLICADO el 2026-08-21**, commit `fb77141`.
+- [x] ~~Decidir si se migra a Next 16~~ → ✅ **HECHO Y PUBLICADO el 2026-08-22**, commit `fb77141`.
       Isaac pidió la prueba con copia previa; salió bien **después de arreglar lo que rompía**, y
       la aprobó tras mirarla en local: *«está todo bien en lo que me dices para buscar, adelante»*.
       **Vulnerabilidades: de 15 a 8**, y **`next` y `pdfjs-dist` desaparecen** — las 6 altas que
@@ -685,7 +706,7 @@ largo por una cadena creyendo que la arregla.
       **compiló limpio y la app estaba rota entera.** El detalle, arriba.
 - [ ] ⬜ **Quitar el respaldo de `replaceSongs`** (`services/actions.ts`). Es el borrar-e-insertar
       de siempre, que se dejó para que publicar el código no rompiera nada mientras la migración
-      `20240018` esperaba permiso. **Ya no se usa nunca**: la función existe desde el 2026-08-21.
+      `20240018` esperaba permiso. **Ya no se usa nunca**: la función existe desde el 2026-08-22.
       Se quita cuando lleve unos días en pie. **Está anotado aquí a propósito**: un respaldo
       temporal sin dueño se queda para siempre.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
@@ -1100,7 +1121,7 @@ entre dos columnas**. `column-count` **no está en la fase de impresión**: el P
 propia rejilla de dos columnas, sin tocar.
 → El auto-ajuste de tamaño se rehace al cambiar el recorrido: la altura del contenido cambia.
 
-**O-27 · «Cancionero» → «Partituras».** ✅ Hecho el 2026-08-20 · 🔴 **REPETIDO el 2026-08-21.**
+**O-27 · «Cancionero» → «Partituras».** ✅ Hecho el 2026-08-20 · 🔴 **REPETIDO el 2026-08-22.**
 
 🔴 **SE VOLVIÓ A COLAR, y lo colé yo.** Al escribir el aviso nuevo del login (Fase L) puse
 *«Pídesela a quien lleva el cancionero»*, e Isaac tuvo que pedirlo por segunda vez:
@@ -1109,7 +1130,7 @@ caso página o algo así, pero cancionero no por favor»*.
 
 → **La palabra `cancionero` NO SE ESCRIBE.** Ni en la pantalla, ni en los comentarios del código,
 ni en este documento. Se dice **«Partituras»**, **«la página»** o **«las partituras»**.
-→ **Barrido entero el 2026-08-21:** quedan **0 en `src/`, `public/` y el README**. Las dos únicas
+→ **Barrido entero el 2026-08-22:** quedan **0 en `src/`, `public/` y el README**. Las dos únicas
 que sobreviven son **las citas de esta misma regla** —aquí y en `CAMBIOS.md`—, y se quedan a
 propósito: si se borran, desaparece el motivo, y el siguiente que escriba un texto vuelve a
 ponerla. **Que es exactamente lo que pasó.**
@@ -2075,13 +2096,13 @@ la presentación y el PDF. → **Antes y después de I.3 se pasan los tres arnes
 puede salir en **modo vista** y en **presentación**, nunca robándole el clic al editor — es el
 mismo cuidado que hizo falta en O-20 con las flechas del teclado.
 
-### 9.2-sexies · FASE L — el caché, el 404 y las dependencias · ✅ APROBADA por Isaac el 2026-08-21
+### 9.2-sexies · FASE L — el caché, el 404 y las dependencias · ✅ APROBADA por Isaac el 2026-08-21 · 🚀 PUBLICADA el 2026-08-22
 
 Isaac: *«ahora vamos con lo que hace falta resolver para ir avanzando»*, y eligió esta de cuatro
 opciones. Orden acordado: **① el caché · ③ el 404 · ② las dependencias**, y **④ el culto vacío
 después**.
 
-#### 🔴 T-02 estaba MAL EXPLICADA. Medido el 2026-08-21 antes de tocar nada
+#### 🔴 T-02 estaba MAL EXPLICADA. Medido el 2026-08-21 por la noche, antes de tocar nada
 
 Llevábamos varias tandas diciéndole a Isaac que «el service worker cachea y por eso no se ve el
 cambio». **Al ir a arreglarlo y medir, la explicación no se sostiene entera.**
@@ -2172,10 +2193,10 @@ las partituras), o esperar a que salga un parche para la rama 14 — que puede n
 → **Queda anotado como decisión pendiente de Isaac**, no como olvido.
 
 
-#### 🧪 La prueba de Next 16 (2026-08-21) — rama `isaac/next16`
+#### 🧪 La prueba de Next 16 (2026-08-22) — rama `isaac/next16`
 
 Isaac: *«lo del next haz la prueba, pero si ves que tienes que hacer una copia antes hazlo»*.
-→ **Copia hecha antes de tocar nada:** `_RESPALDOS\Partituras-antes-next16-2026-08-21.bundle`
+→ **Copia hecha antes de tocar nada:** `_RESPALDOS\Partituras-antes-next16-2026-08-21.bundle` *(el nombre lleva el 21; se creó el 22)*
 (1,6 MB, verificado: *«records a complete history»*) más `package.json` y `package-lock.json` en
 `_RESPALDOS\Partituras-deps-antes-next16\`. Y **la prueba va en rama aparte**, no en la de trabajo.
 
@@ -2251,7 +2272,7 @@ y le toca a Isaac abrirlo en `localhost:3000` y probar cuatro cosas. **Es su pro
 completo del usuario final»*.
 
 
-### 9.2-septies · P-04 — que un culto no pueda quedarse vacío · ✅ APROBADA por Isaac el 2026-08-21
+### 9.2-septies · P-04 — que un culto no pueda quedarse vacío · ✅ APROBADA por Isaac el 2026-08-22
 
 Isaac eligió esto de cuatro opciones. Es el único de los problemas abiertos que **puede morder un
 domingo por la mañana**.
@@ -2306,7 +2327,7 @@ para que no se quede ahí para siempre.
 | **M.2** | `replaceSongs` la usa, con respaldo si no existe | ⬜ |
 | **M.3** | Comprobar que el culto **no se vacía** cuando el guardado falla | ⬜ **espera la migración** |
 
-#### Comprobado hasta donde se puede sin la migración (2026-08-21)
+#### Comprobado hasta donde se puede sin la migración (2026-08-22)
 
 - **Compila limpio.**
 - **El respaldo se dispara con el error correcto.** Llamando a la función contra la base real —que
@@ -2334,7 +2355,7 @@ las 20 filas se restauran desde `service_songs.json` de la copia.
 
 
 
-#### ✅ P-04 HECHA, MIGRADA Y COMPROBADA (2026-08-21)
+#### ✅ P-04 HECHA, MIGRADA Y COMPROBADA (2026-08-22)
 
 Isaac dio el permiso para las tres cosas: *«te doy el permiso, adelante»*. Se hizo **en el orden de
 T-07**: copia → código a producción → migración → prueba.
@@ -2394,6 +2415,52 @@ siempre— ya no se usa nunca, porque la función existe. **Se quita cuando llev
 Anotado en §9.1 para que un respaldo temporal no se quede para siempre.
 
 
+### 9.2-octies · P-11 — las pruebas automáticas · ✅ APROBADA por Isaac el 2026-08-22
+
+Isaac: *«adelante con lo veas mejor»*. Se eligió P-11 porque **la semana lo justificó sola**: dos
+fallos serios y **los dos se cazaron probando, no razonando** — Next 16 (el build en verde y la app
+rota entera) y el `revoke` que no revocaba. Las dos veces la comprobación fue **a mano**, así que
+no quedaba nada que la repitiera la próxima vez.
+
+#### Cómo está montado, y las tres decisiones que lo sostienen
+
+| Decisión | Por qué |
+|---|---|
+| **`node --test`, el de Node. CERO dependencias nuevas** | El proyecto ya arrastra 8 vulnerabilidades de herramientas de desarrollo; meter otro ejecutor con su árbol de paquetes iba en contra. Node trae uno desde la 18 |
+| **Se compila `src/lib` con `tsc` antes de probar** (`pruebas/preparar.mjs`) | 🔴 **El CI corre con Node 20, que NO ejecuta TypeScript.** Sin este paso las pruebas no arrancarían allí — y una prueba que solo corre en el equipo de casa no es una red de seguridad |
+| **Se compila a CommonJS, no a módulos ES** | `tsc` emite `from "./acordes"` **sin la extensión `.js`**, y Node en modo ES la exige. Con `require` se resuelve sola. Es lo mismo que ya hacían los arneses |
+| **Se prueba EL ARCHIVO REAL, nunca una copia** | Una prueba sobre una copia pegada sigue en verde el día que el original cambia. `preparar.mjs` lee `src/lib/*.ts` y solo reescribe las rutas `@/…`, que las entiende Next pero no `tsc` |
+
+#### 🔴 Y encontró un fallo A LA PRIMERA
+
+Escribiendo la tabla del círculo de quintas, la prueba de `ortografiaDe` falló en **Db**:
+`KEY_OPTIONS` decía **`C#`** para esa altura. Y es incorrecto de verdad: **`C#` mayor tiene SIETE
+sostenidos** —con mi sostenido y si sostenido dentro— y **no la toca nadie**; **`Db` mayor tiene
+cinco bemoles** y es la que se lee.
+→ **Comprobado antes de tocar nada:** de las 75 canciones, los cultos y las versiones por tono,
+**ninguna** usaba esa altura. Cero datos que migrar.
+→ En **menor** la tabla ya estaba bien y no se toca: `C#m` son 4 sostenidos y `Dbm` serían 8.
+📌 **El fallo llevaba ahí desde antes de que empezáramos**, y no lo habría visto nadie hasta que
+alguien transpusiera a ese tono. Lo cazó la primera tabla que se escribió.
+
+#### Qué cubren las 103 pruebas
+
+| Archivo | Qué asegura |
+|---|---|
+| `musica.test.mjs` (27) | El tono. **Cada bloque es un fallo que llegó a la página**: T-06 (se perdía el modo), T-11 (no recalcular lo escrito), T-14 (la ortografía la manda el destino), y las 12 tonalidades del círculo de quintas |
+| `acordes.test.mjs` (20) | Las notas por grados (T-13), **los dos casos que parecen fallos y no lo son** (`Bbmaj7/#9`, `Dbm`), la doble vida de la barra `/`, y la notación propia de Isaac (`A4`, `E#m2/b5`) |
+| `guitarra.test.mjs` (56) | **Que las posturas SUENEN**: ninguna nota de fuera, ninguna del acorde ausente salvo la quinta. Más que caben en una mano y que los acordes al aire ganan a los de cejilla |
+
+**Enganchadas al CI**, delante del build: si una falla, sale ❌ en el commit **antes** de que
+Vercel publique nada.
+
+⬜ **Lo que falta, y por qué no está:**
+- **Las 75 canciones reales NO pueden ir al repositorio: es PÚBLICO.** Los arneses que las usan
+  (`ligaduras`, `notas`, `piano`, `comentarios`…) siguen viviendo en el `scratchpad` y leyendo del
+  respaldo local. **Se mudarán con un salto si no encuentran los datos**, para que el CI no falle.
+- **El recorrido de las 19 pantallas** (lo que se hizo a mano con Next 16) todavía no está
+  automatizado. Es lo siguiente, y necesita una sesión de verdad para las páginas protegidas.
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:
@@ -2416,7 +2483,7 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-03 · «Solo el admin edita» puede ser solo apariencia.** Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.
-- [x] ~~**P-04 · Editar un culto puede dejarlo vacío.**~~ → ✅ **ARREGLADO el 2026-08-21**,
+- [x] ~~**P-04 · Editar un culto puede dejarlo vacío.**~~ → ✅ **ARREGLADO el 2026-08-22**,
       migraciones `20240018` y `20240019`. Guardar el repertorio va por una función de la base que
       corre en **una transacción**: si el insert falla, el borrado se deshace. **Comprobado con un
       guardado que revienta a mitad: el culto conservó sus 8 canciones.** El detalle, en

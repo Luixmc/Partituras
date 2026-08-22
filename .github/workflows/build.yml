@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    name: npm run build
+    name: pruebas y build
     runs-on: ubuntu-latest
 
     steps:
@@ -36,6 +36,9 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Pruebas
+        run: npm test
 
       - name: Compilar
         run: npm run build

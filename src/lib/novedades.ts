@@ -61,6 +61,76 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    fecha: "22 de agosto de 2026",
+    iso: "2026-08-22",
+    entrada:
+      "Un arreglo que se nota tocando y unas cuantas cosas de debajo del capó.",
+    secciones: [
+      {
+        titulo: "Al leer los acordes",
+        resumen:
+          "El tono al que transportas ya se escribe como se lee: nada de acordes en bemoles " +
+          "cuando la canción está en sostenidos.",
+        cambios: [
+          {
+            tipo: "arreglado",
+            titulo: "Al subir o bajar el tono, los acordes salían mal escritos.",
+            detalle: [
+              "Si bajabas una canción de <code>F</code> a <code>E</code>, arriba ponía " +
+                "<strong>Tono: E</strong> — bien — pero debajo los acordes salían " +
+                "<code>Dbm</code>, <code>Gbm7</code>, <code>Abm7</code>. Estaban escritos como si " +
+                "el tono fuera <code>Fb</code>, y <strong>nadie toca en Fb</strong>.",
+              "Ahora la página mira <strong>el tono al que llegas</strong>, no del que sales: en " +
+                "<code>E</code> salen <code>C#m</code>, <code>F#m7</code>, <code>G#m7</code>, que " +
+                "es como se leen. Vale para las 75 canciones y para las 12 tonalidades.",
+            ],
+            tabla: {
+              cabecera: ["De F a E", "Decía", "Ahora dice"],
+              filas: [
+                ["el segundo acorde", "Dbm", "C#m"],
+                ["el tercero", "Gbm7", "F#m7"],
+                ["el del bajo", "Ab/C", "G#/C"],
+              ],
+            },
+          },
+        ],
+      },
+      {
+        titulo: "Por dentro",
+        resumen:
+          "No se ve al abrir la página, pero es lo que hace que no te sirva una versión vieja " +
+          "y que abrir un PDF no sea un riesgo.",
+        cambios: [
+          {
+            tipo: "arreglado",
+            titulo: "La página podía quedarse con una copia vieja.",
+            detalle: [
+              "El almacén que guarda la página para que cargue rápido <strong>no se limpiaba " +
+                "nunca</strong>. Si un día te fallaba la conexión, podía servirte una copia de " +
+                "hace meses. Ahora se renueva en cada actualización.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "Abrir un PDF podía ser un riesgo.",
+            detalle: [
+              "El lector de PDF de la página tenía un fallo conocido: un archivo preparado a mala " +
+                "fe podía ejecutar código al abrirlo. Actualizado, junto con el motor de la página.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "El enlace «Regístrate» del inicio de sesión daba error.",
+            detalle: [
+              "Llevaba a una página que no existe. Se quitó: <strong>las cuentas las crea quien " +
+                "administra</strong>, no hay registro abierto.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     fecha: "21 de agosto de 2026",
     iso: "2026-08-21",
     entrada:
@@ -112,27 +182,6 @@ export const TANDAS: Tanda[] = [
               "Se guarda <strong>en tu aparato</strong>, así que cada músico tiene el suyo. En el " +
                 "teléfono puedes tener la guitarra y en el computador el piano, si te sirve así.",
             ],
-          },
-          {
-            tipo: "arreglado",
-            titulo: "Al subir o bajar el tono, los acordes salían mal escritos.",
-            detalle: [
-              "Si bajabas una canción de <code>F</code> a <code>E</code>, arriba ponía " +
-                "<strong>Tono: E</strong> — bien — pero debajo los acordes salían " +
-                "<code>Dbm</code>, <code>Gbm7</code>, <code>Abm7</code>. Estaban escritos como si " +
-                "el tono fuera <code>Fb</code>, y <strong>nadie toca en Fb</strong>.",
-              "Ahora la página mira <strong>el tono al que llegas</strong>, no del que sales: en " +
-                "<code>E</code> salen <code>C#m</code>, <code>F#m7</code>, <code>G#m7</code>, que " +
-                "es como se leen. Vale para las 75 canciones y para las 12 tonalidades.",
-            ],
-            tabla: {
-              cabecera: ["De F a E", "Decía", "Ahora dice"],
-              filas: [
-                ["el segundo acorde", "Dbm", "C#m"],
-                ["el tercero", "Gbm7", "F#m7"],
-                ["el del bajo", "Ab/C", "G#/C"],
-              ],
-            },
           },
           {
             tipo: "arreglado",

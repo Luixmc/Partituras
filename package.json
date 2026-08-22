@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "copy-pdf-worker": "node -e \"require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','public/pdf.worker.min.mjs')\"",
-    "export": "node scripts/export-datos.mjs"
+    "export": "node scripts/export-datos.mjs",
+    "test": "node pruebas/preparar.mjs && node --test \"pruebas/*.test.mjs\""
   },
   "dependencies": {
     "@react-pdf/renderer": "^3.4.0",

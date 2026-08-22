@@ -28,7 +28,15 @@ const NOTE_TO_PITCH: Record<string, number> = {
 // `flats` decide si la salida transpuesta usa bemoles o sostenidos.
 export const KEY_OPTIONS: { value: string; pitch: number; flats: boolean }[] = [
   { value: "C",  pitch: 0,  flats: false },
-  { value: "C#", pitch: 1,  flats: false },
+  // 🔴 Db y NO C#, aunque sea la misma tecla. **C# mayor tiene SIETE
+  // sostenidos** —incluido un mi sostenido y un si sostenido— y no la toca
+  // nadie; **Db mayor tiene cinco bemoles** y es la que se lee. Lo cazo una
+  // prueba de `pruebas/musica.test.mjs` el 2026-08-21, no un músico.
+  // Comprobado antes de tocarlo: **ninguna de las 75 canciones, ningún culto y
+  // ninguna versión** usaban esa altura, así que no hay dato que migrar.
+  // (En MENOR es al reves y la tabla de abajo ya lo tiene bien: `C#m` son 4
+  // sostenidos y `Dbm` serian 8, asi que alli manda el sostenido.)
+  { value: "Db", pitch: 1,  flats: true  },
   { value: "D",  pitch: 2,  flats: false },
   { value: "Eb", pitch: 3,  flats: true  },
   { value: "E",  pitch: 4,  flats: false },

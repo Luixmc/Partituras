@@ -24,3 +24,4 @@ tsconfig.tsbuildinfo
 
 # Carpetas que usan los arneses del scratchpad para compilar .ts sueltos
 .scratch-*/
+.pruebas-tmp/
