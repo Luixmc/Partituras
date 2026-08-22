@@ -566,16 +566,25 @@ largo por una cadena creyendo que la arregla.
       Desactivar). Tiene una contraseña sencilla y es una cuenta real en un sitio abierto a
       internet. **Recordatorio: hoy desactivar un usuario NO le impide entrar** (P-01) — hasta
       que P-01 esté arreglado, para cerrarla de verdad hay que **cambiarle la contraseña**.
-- [ ] 🔴 **DOS PERMISOS PENDIENTES DE ISAAC, y los dos son de esta tanda (2026-08-21):**
-      1. **Ejecutar la migración `20240017` contra producción** (D-04). Es la de O-31: añade la
-         columna `status` a `services`, pone `published` a los 3 cultos que ya existen y cambia la
-         política de lectura. **Copia previa hecha** (`Partituras-datos-2026-08-22`).
-      2. **El commit y el push** de esta tanda: guitarra (fase K), O-30, O-32, O-33, O-34, O-35,
-         la colocación del desplegable, la lista de secciones compartida y O-31.
-      ⚠️ **El orden importa y no es negociable (T-07): PRIMERO el push, DESPUÉS la migración.**
-      El código está escrito para aguantar la base vieja —un culto sin `status` cuenta como
-      publicado—, pero **no al revés**: si la migración va primero, hay unos minutos con la
-      política nueva aplicada y el código viejo arriba.
+- [x] ~~El push de la tanda 33~~ → ✅ **HECHO el 2026-08-21 con su permiso** (*«adelante sube todo
+      lo que no está subido, y en el orden que dices»*), commit `c1b4b40` (r44). Verificado en
+      producción. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir.**
+- [ ] 🔴 **LA MIGRACIÓN `20240017` SIGUE SIN EJECUTAR — y NO es por falta de permiso de Isaac.**
+      Él lo dio en el mismo mensaje. **La bloqueó el entorno donde corre Claude**, que no deja
+      escribir esquema contra la base de producción, y **no se buscó una vía alternativa a
+      propósito**: saltarse ese bloqueo es exactamente lo que no hay que hacer.
+      **Qué falta:** añadir `status` a `services`, poner `published` a los 3 cultos existentes y
+      cambiar la política de lectura. El SQL está escrito y listo en
+      `supabase/migrations/20240017_service_status.sql`.
+      **Cómo se aplica:** Isaac lo pega en el **SQL Editor** del panel de Supabase (o su primo), o
+      autoriza la herramienta en los ajustes de Claude Code.
+      ✅ **Mientras tanto NO hay nada roto, y es por diseño:** el código publicado trata un culto
+      **sin la columna como publicado** (T-07), así que los 3 cultos se siguen viendo igual que
+      antes. Lo único que no funciona todavía es **el botón de cambiar el estado**, que dará error
+      hasta que la columna exista.
+      **Y hay que comprobarlo después de aplicarla**, que es la mitad del encargo que quedó sin
+      medir: poner un culto en borrador y **consultar `services` con la clave pública** (sin sesión,
+      el caso más estricto) — debe devolver **2**, no 3.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -2048,6 +2057,56 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-08-21 · Tanda 33 — Guitarra · el estado del culto · y las seis que salieron probando de LECTOR · 🚀 r44
+
+**Publicado:** commit `c1b4b40`, push `c736054..c1b4b40` a `main`.
+
+📌 **La tanda entera nace de una cosa que Isaac hizo por primera vez: probar la página con la
+cuenta en LECTOR.** De esa sola sesión salieron **seis fallos** (O-30 a O-35) que desde la cuenta
+de administrador **no se ven**, entre ellos dos que estropeaban la pantalla del culto. **Probar con
+el rol del usuario final encuentra en diez minutos lo que no encuentra ninguna comprobación hecha
+desde la cuenta que lo tiene todo.**
+
+**Lo que entró:**
+- **Fase K · la guitarra** (la parte que faltaba de O-17). Sin tabla de digitaciones: **formas
+  móviles** en dos familias —fundamental en 6ª y en 5ª— y gana la que caiga más cerca del aire.
+  **1.892 de 1.894 acordes (99,9 %).**
+- **O-30 · A pantalla completa no salían los diagramas.** El portal iba a `document.body`, y la
+  pantalla completa del navegador **solo pinta el subárbol de su elemento**: el panel existía y era
+  invisible. Ahora el portal apunta a `document.fullscreenElement ?? document.body`.
+- **O-32 · La etiqueta de estado, solo para el admin.** · **O-35 · Las tarjetas**, de ~185 a
+  ~110 px sin perder información.
+- **O-33 / O-34 · Desde un culto, «la siguiente» era el catálogo entero** y el «volver» dejaba en
+  el listado. Ahora la canción sabe de qué culto viene (`?culto=<id>`).
+- **O-31 · El culto tiene estado**, igual que la canción (código publicado; la migración va aparte).
+- **O-36 · El admin también abre una canción desde el editor del culto.**
+- **O-37 · El repertorio se ordena arrastrando**, y fuera los botones de subir y bajar.
+
+🔴 **Tres cosas de esta tanda que valen más que el código que las resuelve:**
+
+1. **La forma de guitarra se comprueba EN EJECUCIÓN, no al escribirla.** De las 15 escritas a mano,
+   `suenaBien` **cazó cinco que no sonaban** — y eso **no se ve mirando el dibujo**: hay que contar
+   las notas. Una forma que no cuadra **deja de dibujarse** en vez de llegarle a alguien que la va
+   a tocar en un culto.
+2. **La lista de secciones del panel estaba escrita DOS VECES** —barra lateral y barra del
+   teléfono—, así que «Letras» salía en el ordenador y **no en el móvil**. Es la tercera vez que
+   dos listas gemelas se separan en este proyecto (P-09). Salió a `lib/navegacion.ts`.
+3. **El orden de publicar, otra vez (T-07).** El código de O-31 se escribió **para aguantar la base
+   vieja**: un culto sin la columna `status` cuenta como **publicado**. Se midió con la columna
+   todavía sin crear —que es como iba a estar producción entre el push y la migración— y los 3
+   cultos seguían saliendo. **Primero el push, después la migración. Al revés no funciona.**
+
+**Lección a la carpeta compartida:** **L-121** `[PART]` — *añadir una columna con defecto le cambia
+el significado a las filas que ya existen*. Sin el `update` de la migración, `default 'draft'`
+habría hecho **desaparecer los 3 cultos** para músicos y lectores, sin error y sin aviso.
+
+**Copia de seguridad previa:** `Partituras-datos-2026-08-22` — 3 cultos y 17 filas de repertorio,
+que es exactamente lo que la migración puede estropear.
+📌 **Detalle del nombre, para no confundirse:** el exportador fecha en **UTC**, así que a partir de
+las 19:00 en Colombia la carpeta lleva **la fecha del día siguiente**. Esa copia es de la noche del
+**21**.
+
 
 ### 2026-08-21 · Tanda 32 — FASE J: las letras (O-18) · 🚀 r43
 
