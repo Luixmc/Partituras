@@ -81,22 +81,45 @@ export const TANDAS: Tanda[] = [
             tipo: "nuevo",
             titulo: "Toca cualquier acorde y ves cómo se toca.",
             detalle: [
-              "Con el dedo en el teléfono o con el ratón en el computador. Se abre un teclado con " +
-                "las notas marcadas y el mástil del bajo, con la nota que le toca al bajista " +
-                "señalada. Funciona en la vista normal y a pantalla completa.",
+              "Con el dedo en el teléfono o con el ratón en el computador. Funciona en la vista " +
+                "normal y a pantalla completa.",
+              "Arriba del recuadro eliges <strong>Piano</strong>, <strong>Bajo</strong> o " +
+                "<strong>Guitarra</strong>, y <strong>se ve el que elijas</strong>. En el piano se " +
+                "marcan las teclas; en el bajo, el mástil, con la nota del bajista señalada.",
               "Están <strong>los 1.894 acordes</strong> del cancionero, incluidos los raros.",
             ],
           },
           {
             tipo: "nuevo",
-            titulo: "Y ahora también sale la GUITARRA.",
+            titulo: "Y ahora también está la GUITARRA.",
             detalle: [
-              "El mismo recuadro trae el mástil de la guitarra: <strong>×</strong> es cuerda que no " +
-                "se toca, <strong>○</strong> es al aire, el punto es dónde pisar, y la barra es la " +
-                "cejilla. Debajo dice en qué traste va y en qué cuerda cae la fundamental.",
+              "En su pestaña sale el mástil: <strong>×</strong> es cuerda que no se toca, " +
+                "<strong>○</strong> es al aire, el punto es dónde pisar, y la barra es la cejilla. " +
+                "Debajo dice en qué traste va y en qué cuerda cae la fundamental.",
               "Se saben tocar <strong>1.892 de los 1.894 acordes</strong>. Los dos que faltan son " +
                 "raros de verdad, y <strong>a propósito no se dibuja nada</strong> en vez de " +
                 "inventar una postura: más vale no enseñar nada que enseñar algo que no suena.",
+            ],
+          },
+          {
+            tipo: "nuevo",
+            titulo: "La página se acuerda de tu instrumento.",
+            detalle: [
+              "Eliges <strong>Piano</strong>, <strong>Bajo</strong> o <strong>Guitarra</strong> una " +
+                "vez y ya se queda así: a partir de ahí tocas un acorde y ves <strong>directamente " +
+                "el tuyo</strong>, sin volver a elegir. Puedes mirar los otros cuando quieras, con " +
+                "un toque.",
+              "Se guarda <strong>en tu aparato</strong>, así que cada músico tiene el suyo. En el " +
+                "teléfono puedes tener la guitarra y en el computador el piano, si te sirve así.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "El recuadro del acorde se metía debajo de la barra de abajo.",
+            detalle: [
+              "Al tocar un acorde de la parte de abajo de la canción, el recuadro tapaba la barra de " +
+                "secciones y los botones de tamaño y de claro/oscuro — y ahí ya no se podía hacer " +
+                "nada. Ahora <strong>nunca baja de esa barra</strong>.",
             ],
           },
           {
@@ -226,6 +249,16 @@ export const TANDAS: Tanda[] = [
               "Con los botones <strong>‹ ›</strong> o con las flechas <strong>← →</strong> del " +
                 "teclado, en la vista normal y a pantalla completa. Y respeta el filtro: si estás " +
                 "mirando <em>Alabanzas</em>, pasas a la siguiente de Alabanzas.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "Al salir de pantalla completa volvías a la canción de antes.",
+            detalle: [
+              "Si entrabas por una canción, pasabas dos o tres y cerrabas, la página te devolvía a " +
+                "<strong>la primera</strong> — y se perdía por dónde ibas, que en mitad de un culto " +
+                "es lo peor que puede pasar.",
+              "Ahora sales <strong>en la canción que estabas viendo</strong>.",
             ],
           },
           {

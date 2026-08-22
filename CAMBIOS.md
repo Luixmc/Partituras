@@ -33,6 +33,15 @@ No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
   propósito no se dibuja nada**: más vale no enseñar nada que una postura que no suena.
 - **Arreglado: a pantalla completa no salían los diagramas.** Tocabas el acorde y no aparecía nada,
   justo en la pantalla que se usa tocando.
+- **Un instrumento por vez, y la página se acuerda del tuyo.** Arriba del recuadro eliges
+  **Piano · Bajo · Guitarra** y se ve el que elijas. Lo pones una vez y a partir de ahí tocas un
+  acorde y ves directamente el tuyo. Se guarda **en tu aparato**, así que cada músico tiene el suyo.
+  *(La idea de separar los instrumentos es del hermano de Isaac.)*
+- **Arreglado: el recuadro se metía debajo de la barra de abajo.** Al tocar un acorde de la parte
+  baja de la canción tapaba la barra de secciones y los botones de tamaño y claro/oscuro, y ahí ya
+  no se podía hacer nada. Ahora nunca baja de esa barra.
+- **Arreglado: al salir de pantalla completa volvías a la canción de antes.** Si pasabas dos o tres
+  canciones y cerrabas, te devolvía a la primera. Ahora sales **en la que estabas viendo**.
 
 ### 📖 En las canciones
 
