@@ -10,8 +10,13 @@ export default function PWARegister() {
     if (!("serviceWorker" in navigator)) return;
     if (process.env.NODE_ENV !== "production") return; // evita cachear en dev
 
+    // La dirección lleva el id de ESTE despliegue. Al cambiar, el navegador
+    // instala el service worker nuevo y su `activate` borra el caché anterior.
+    // Con `/sw.js` a secas la dirección no cambiaba nunca y el caché viejo
+    // sobrevivía a todos los despliegues.
+    const version = process.env.NEXT_PUBLIC_BUILD_ID || "dev";
     const register = () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
+      navigator.serviceWorker.register(`/sw.js?v=${version}`).catch(() => {
         /* ignoramos errores de registro */
       });
     };

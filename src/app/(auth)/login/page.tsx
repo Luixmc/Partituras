@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -78,11 +77,16 @@ export default function LoginPage() {
         </button>
       </form>
 
+      {/* Antes aquí había un «Regístrate» que llevaba a `/signup` — una página
+          que NO EXISTE: daba 404 en producción (P-08). No se ha creado, se ha
+          quitado: en esta app **las cuentas las crea el administrador** desde
+          `/admin`, y no debe haber registro abierto. Es el cancionero de una
+          iglesia, no un servicio público.
+
+          Se deja el aviso porque quien llega sin cuenta necesita saber qué
+          hacer; un hueco vacío le dejaría igual de perdido que el 404. */}
       <p className="text-center text-brand-300 text-sm mt-6">
-        ¿No tienes cuenta?{" "}
-        <Link href="/signup" className="text-white hover:underline font-medium">
-          Regístrate
-        </Link>
+        ¿No tienes cuenta? Pídesela a quien lleva el cancionero.
       </p>
     </div>
   );

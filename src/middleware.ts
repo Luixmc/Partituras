@@ -34,12 +34,16 @@ export async function middleware(request: NextRequest) {
   // Rutas públicas: los cultos compartidos (/s/<token>) y el comunicado de
   // cambios (/novedades), que se manda al grupo de la iglesia y tiene que
   // abrirse SIN cuenta — es justo el motivo por el que existe (O-29).
-  const publicRoutes = ["/login", "/signup", "/s/", "/novedades"];
+  // `/signup` salió de aquí: esa página no existe y el enlace que llevaba a
+  // ella se quitó (P-08). Dejarla en la lista solo abría un hueco a una ruta
+  // fantasma.
+  const publicRoutes = ["/login", "/s/", "/novedades"];
   const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
 
   // Los enlaces compartidos son accesibles aunque haya sesión iniciada;
-  // solo /login y /signup redirigen a /catalog cuando el usuario ya entró.
-  const isAuthOnlyPublic = pathname.startsWith("/login") || pathname.startsWith("/signup");
+  // Solo /login redirige a /catalog cuando el usuario ya entro (P-08: /signup
+  // no existe).
+  const isAuthOnlyPublic = pathname.startsWith("/login");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

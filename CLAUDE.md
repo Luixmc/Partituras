@@ -598,6 +598,12 @@ largo por una cadena creyendo que la arregla.
       los esconde la interfaz. O-31 queda comprobada **por las dos caras**.
       📌 Y de paso queda probado el **botón de cambiar estado**, que era lo único de la tanda que
       no se había podido ejercitar desde aquí.
+- [ ] 🔴 **DECIDIR SI SE MIGRA A NEXT 16.** El arreglo de la vulnerabilidad de `next` **no es una
+      actualizacion, es un salto de dos versiones mayores** (14 -> 16), marcado como rompedor. Los
+      21 avisos son en su mayoria denegacion de servicio, envenenamiento de cache y SSRF, y varios
+      dicen «self-hosted» — y esto lo sirve Vercel. Migrar dos mayores **sin una sola prueba
+      automatica** (P-11) es el cambio mas arriesgado que se ha planteado en el proyecto.
+      **Recomendado: no ahora.** Antes, unas pruebas; o esperar un parche para la rama 14.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -1970,6 +1976,103 @@ la presentación y el PDF. → **Antes y después de I.3 se pasan los tres arnes
 ⚠️ **Cuidado con el pulsar en MODO EDICIÓN:** ahí la cuadrícula se escribe a mano. El dibujo solo
 puede salir en **modo vista** y en **presentación**, nunca robándole el clic al editor — es el
 mismo cuidado que hizo falta en O-20 con las flechas del teclado.
+
+### 9.2-sexies · FASE L — el caché, el 404 y las dependencias · ✅ APROBADA por Isaac el 2026-08-21
+
+Isaac: *«ahora vamos con lo que hace falta resolver para ir avanzando»*, y eligió esta de cuatro
+opciones. Orden acordado: **① el caché · ③ el 404 · ② las dependencias**, y **④ el culto vacío
+después**.
+
+#### 🔴 T-02 estaba MAL EXPLICADA. Medido el 2026-08-21 antes de tocar nada
+
+Llevábamos varias tandas diciéndole a Isaac que «el service worker cachea y por eso no se ve el
+cambio». **Al ir a arreglarlo y medir, la explicación no se sostiene entera.**
+
+| Qué se midió | Resultado |
+|---|---|
+| Cabeceras de `/sw.js`, `/login` y `/novedades` en producción | **las tres**: `Cache-Control: public, max-age=0, must-revalidate` |
+| Estrategia del service worker (`public/sw.js:27`) | **network-first**: pide a la red y solo cae al caché si la red falla |
+
+→ **El caché HTTP del navegador NO es el culpable:** Vercel manda revalidar siempre.
+→ **El service worker tampoco lo es mientras haya red**, porque pide a la red primero.
+
+**Entonces, ¿qué es lo que sí falla? Esto, y es real:**
+`CACHE = "partituras-v1"` es **constante** (`sw.js:4`), y `activate` borra *«las claves distintas
+de `CACHE`»* (`:14`). Como `CACHE` nunca cambia, **no se borra nada, nunca**. El caché acumula
+respuestas desde el primer día, y el día que la red falle o vaya lenta —un móvil con datos flojos
+en el culto— **el músico recibe una copia que puede ser de hace meses**, sin ningún aviso.
+
+📌 **La lección, que es la que vale:** *«se cachea»* era un diagnóstico **plausible y sin medir**,
+y aguantó varias tandas porque el síntoma encajaba. Bastaron dos `curl` de cabeceras para verlo.
+**Un diagnóstico que nadie ha medido se convierte en folclore del proyecto.**
+
+#### ① El caché versionado
+
+- `sw.js` lee su versión **de su propia dirección**: se registra como `/sw.js?v=<id>`, y dentro
+  `new URL(self.location).searchParams.get("v")`.
+- **Por qué por la dirección y no reescribiendo el archivo:** `public/` son archivos estáticos que
+  van al repositorio; reescribirlos en cada compilación dejaría el repositorio sucio en cada push.
+  Cambiar la dirección basta: el navegador la compara y, si cambió, **instala el service worker
+  nuevo** — y ahí `activate` sí encuentra claves distintas y **borra el caché viejo**.
+- El id sale de `VERCEL_GIT_COMMIT_SHA` en producción y de `dev` en local, por
+  `NEXT_PUBLIC_BUILD_ID` en `next.config.js`.
+
+#### ③ El enlace «Regístrate» que da 404
+
+Confirmado en producción: **`/signup` → 404**, y el enlace está en `login/page.tsx:83`.
+→ **Se quita el enlace, no se crea la página.** En esta app **las cuentas las crea el admin** desde
+`/admin`: no hay registro abierto, y no debe haberlo — es la iglesia, no un servicio público.
+Crear un `/signup` sería añadir una puerta que Isaac no quiere.
+→ `/signup` sale también de las rutas públicas del middleware.
+
+#### ② Las dependencias
+
+`npm audit`, medido: **15 (13 altas), todas con arreglo disponible**. Solo dos llegan al navegador
+de alguien:
+- **`next`** — no estaba anotado, y es lo más serio de hoy: es el framework entero.
+- **`pdfjs-dist`** — permite ejecutar JavaScript al abrir un PDF, y la app abre PDFs que trae el
+  propio usuario (`songImport.ts:33-66`).
+⚠️ **Después de actualizar `pdfjs-dist` hay que regenerar el worker** (`npm run copy-pdf-worker`) o
+la importación de PDF deja de funcionar.
+Las otras 11 son herramientas de desarrollo (eslint, glob, minimatch): **no llegan a ningún
+navegador**.
+
+
+#### ✅ Lo hecho y comprobado (2026-08-21)
+
+| Punto | Estado |
+|---|---|
+| **① El caché versionado** | ✅ Hecho. `sw.js` lee su versión de `?v=`; `PWARegister` la pasa; `next.config.js` la saca de `VERCEL_GIT_COMMIT_SHA`. **Comprobado en el JS compilado:** el registro sale como `sw.js?v="dev"` en local, y será el commit en Vercel |
+| **③ El enlace `/signup`** | ✅ Quitado, y `/signup` fuera de las rutas públicas. En su sitio queda **«¿No tienes cuenta? Pídesela a quien lleva el cancionero»** — un hueco vacío dejaría igual de perdido que el 404 |
+| **② `pdfjs-dist`** | ✅ **5.7.284 → 6.2.108**, worker regenerado. **Probado con un PDF real: 7 páginas, 3.797 caracteres**, y el texto sale bien, símbolos de repetición incluidos |
+| **② Lo demás no rompedor** | ✅ `npm audit fix`: **de 15 a 11** vulnerabilidades (13 altas → 9). Cayeron `ws`, `brace-expansion`, `js-yaml`, `nanoid` |
+| **② `next`** | ⛔ **NO SE TOCÓ. Decisión de Isaac, ver abajo** |
+
+**Y lo que sostiene que nada se rompió:** compila limpio · **20 ligaduras, 0 perdidas** en las 75
+canciones · la lectura de PDF probada de punta a punta con la versión nueva.
+
+#### ⛔ Next NO se actualizó, y el motivo cambia el encargo
+
+Al medirlo apareció algo que no estaba en la nota original de P-13, y que **cambia materialmente
+lo aprobado**, así que se paró y se le contó a Isaac en vez de seguir:
+
+> **El arreglo de `next` es Next 16.** Salto de **dos versiones mayores** (14 → 16), marcado por
+> el propio `npm` como **rompedor**. No es actualizar: es **migrar**.
+
+**Los tres números que lo deciden:**
+1. **Son 21 avisos**, y leyéndolos uno a uno: la mayoría son **denegación de servicio,
+   envenenamiento de caché y SSRF**, y varios dicen literalmente *«self-hosted applications»*.
+   **Esta app no es self-hosted: la sirve Vercel**, que parchea su propia infraestructura.
+2. **El proyecto no tiene ni una prueba automática** (P-11). Migrar dos versiones mayores del
+   framework entero sin red de seguridad es **el cambio más arriesgado que se ha planteado aquí**
+   — más que la migración de la base, que al menos tenía copia y se podía medir con un `select`.
+3. **Un push a `main` publica en 40 segundos.** Si la migración rompe algo que el build no cace,
+   se rompe **para los músicos**, no en local.
+
+→ **Recomendación: no ahora.** Primero P-11 (unas pruebas de las funciones que sostienen el
+cancionero), o esperar a que salga un parche para la rama 14 — que puede no llegar.
+→ **Queda anotado como decisión pendiente de Isaac**, no como olvido.
+
 
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 

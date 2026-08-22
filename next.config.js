@@ -5,6 +5,11 @@ const nextConfig = {
   // module ./vendor-chunks/..."), y ya ha pasado tres veces. `npm run verificar`
   // define esta variable; `npm run build` no, así que Vercel no cambia.
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
+  // Id de este despliegue, para que el service worker sepa qué versión sirve
+  // y limpie el caché de la anterior. En Vercel es el commit; en local, "dev".
+  env: {
+    NEXT_PUBLIC_BUILD_ID: (process.env.VERCEL_GIT_COMMIT_SHA || "dev").slice(0, 7),
+  },
   async headers() {
     const corsHeaders = [
       {
