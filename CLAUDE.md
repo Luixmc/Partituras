@@ -589,15 +589,15 @@ largo por una cadena creyendo que la arregla.
       app contra la base ya migrada: lista **200 con 3 cultos y 0 etiquetas de estado** —correcto,
       están los tres publicados—, detalle **200** con el control diciendo «Publicado: lo ven los
       músicos y los lectores», y las 8 asas de arrastre en su sitio.
-- [ ] ⬜ **FALTA MEDIR LA OTRA MITAD DE O-31: que un culto en BORRADOR no lo vea nadie más que el
-      admin.** No se puede comprobar sin que exista uno, y **hoy los 3 están publicados**.
-      🔴 **No se hizo por cuenta propia a propósito:** poner en borrador un culto suyo —o crear uno
-      de prueba— es **escribir en sus datos de producción**, y eso no entraba en el permiso que dio
-      (que era para la migración). Es el mismo criterio de D-14.
-      **Cómo se cierra, y de paso prueba el botón nuevo:** que Isaac pulse **Borrador** en un culto,
-      avise, se consulta `services` **con la clave pública** —debe devolver **2**, no 3— y él lo
-      devuelve a **Publicado**. Si prefiere que se haga con un culto desechable creado y borrado
-      para la prueba, tiene que decirlo.
+- [x] ~~Medir la otra mitad de O-31~~ → ✅ **CERRADA el 2026-08-21, y la cerró Isaac.** Puso «asd»
+      en **borrador** y «Ayuno» en **archivado** con el botón nuevo, y **lo probó él mismo con una
+      cuenta de LECTOR en incógnito**: *«acabo de hacer la prueba y sí funciona correctamente»*.
+      🔴 **Y medido donde importa, que no es la pantalla:** con la **clave pública y sin sesión**
+      —el caso más estricto, el que ni siquiera pasa por la app— `services` devuelve **1 de 3**:
+      solo «Escuela Dominical», la publicada. **La base esconde el borrador y el archivado**, no
+      los esconde la interfaz. O-31 queda comprobada **por las dos caras**.
+      📌 Y de paso queda probado el **botón de cambiar estado**, que era lo único de la tanda que
+      no se había podido ejercitar desde aquí.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -1558,6 +1558,27 @@ no había nada**.
 
 **Comprobado:** los 5 `<details>`, **solo el primero con `open`** · el mapa con sus 5 resúmenes ·
 y el texto de la tanda **sigue completo en el HTML**, no se perdió nada al plegar.
+
+**O-39 · En la tarjeta del culto tienen que salir LOS TRES estados, «Publicado» incluido.**
+✅ **HECHO.** Isaac, 2026-08-21, viendo la pantalla ya con un borrador y un archivado:
+
+> *«solo pal admin le sale si está publicada, archivada o en borrador las canciones, y le sale
+> cualquiera de esos estados en la tarjeta de cada canción; así mismo en las tarjetas de culto
+> salga para el publicado, porque sale el archivado y el borrador»*
+
+🔴 **Corrige una decisión mía, y tiene razón.** Yo había escondido la etiqueta de «Publicado» en
+los cultos —`estadoDe(s) !== "published"`— pensando en no meter ruido: si casi todos van a estar
+publicados, la etiqueta se repite en todas y no informa.
+**Pero eso rompía la coherencia con las canciones**, donde sí salen los tres (O-32), y sobre todo:
+**un hueco vacío no dice «está publicado», dice «no sé».** Quien administra mira la tarjeta para
+saber en qué estado está, y la ausencia de etiqueta obliga a deducirlo. → **Salen los tres.**
+
+📌 **Es el mismo patrón que ya salió con el modo letra:** una decisión mía de «quitar ruido» que
+**le quitaba información al usuario**. La diferencia entre las dos pantallas no la vi yo, la vio él
+mirándolas juntas.
+
+**Comprobado:** como admin, las tres tarjetas enseñan **una etiqueta cada una** —Publicado,
+Borrador y Archivado— y siguen saliendo los 3 cultos.
 
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 

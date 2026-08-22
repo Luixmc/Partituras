@@ -77,8 +77,14 @@ export default async function ServicesPage() {
                     <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
                       {/* El estado, SOLO para el admin: a un músico no le dice
                           nada porque solo ve lo publicado (O-31, igual que O-32
-                          en las tarjetas de canción). */}
-                      {isAdmin && estadoDe(s) !== "published" && (
+                          en las tarjetas de canción).
+
+                          🔴 SALEN LOS TRES, «Publicado» incluido. Al principio
+                          se escondía el de publicado por no meter ruido, e
+                          Isaac lo corrigió (O-39): en las canciones salen los
+                          tres, así que aquí también. Un hueco vacío no dice
+                          «está publicado», dice «no sé». */}
+                      {isAdmin && (
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${ESTADO_CULTO[estadoDe(s)].className}`}
                         >
