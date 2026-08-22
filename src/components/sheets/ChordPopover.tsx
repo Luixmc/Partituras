@@ -1,11 +1,22 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import PianoDiagram from "@/components/sheets/PianoDiagram";
 import BassDiagram from "@/components/sheets/BassDiagram";
+import GuitarDiagram from "@/components/sheets/GuitarDiagram";
+import { posicionDe } from "@/lib/guitarra";
 import { leerAcorde } from "@/lib/acordes";
 
 // ─────────────────────────────────────────────────────────────
@@ -87,23 +98,55 @@ function Panel({
   bemoles: boolean;
   onCerrar: () => void;
 }) {
-  const [montado, setMontado] = useState(false);
-  useEffect(() => setMontado(true), []);
-  if (!montado) return null;
-
+  const cajaRef = useRef<HTMLDivElement>(null);
   const acorde = leerAcorde(escrito);
-  if (!acorde) return null;
 
-  // Se coloca debajo del acorde y centrado en él, pero sin salirse por los
-  // lados ni por abajo: en el móvil un acorde del borde derecho dejaría medio
-  // panel fuera de la pantalla.
-  const margen = 8;
-  const izquierda = Math.min(
-    Math.max(margen, ancla.left + ancla.width / 2 - ANCHO / 2),
-    window.innerWidth - ANCHO - margen
-  );
-  const cabeDebajo = ancla.bottom + 260 < window.innerHeight;
-  const arriba = cabeDebajo ? ancla.bottom + 6 : Math.max(margen, ancla.top - 266);
+  // ── Dónde se coloca ──
+  //
+  // 🔴 Se MIDE, no se estima. Antes había un `260` a ojo —la altura que
+  // tenía cuando solo llevaba piano y bajo—, y al añadir la guitarra el
+  // panel creció y **se salía por debajo de la pantalla**: los acordes de
+  // la mitad de abajo de la canción enseñaban el diagrama cortado. Lo vio
+  // Isaac (2026-08-21).
+  //
+  // Un número fijo para la altura de algo que crece **caduca en cuanto
+  // alguien le añade contenido**, y falla en silencio.
+  const [sitio, setSitio] = useState<{ left: number; top: number; maxAlto: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const caja = cajaRef.current;
+    if (!caja) return;
+
+    const margen = 8;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    // `scrollHeight` y no `offsetHeight`: lo que mide es la altura NATURAL,
+    // sin recortar por el `max-height` que se le pone justo después.
+    const alto = caja.scrollHeight;
+    const maxAlto = vh - margen * 2;
+
+    const left = Math.min(
+      Math.max(margen, ancla.left + ancla.width / 2 - ANCHO / 2),
+      Math.max(margen, vw - ANCHO - margen)
+    );
+
+    // Debajo si cabe; si no, encima; y si no cabe en ninguno de los dos
+    // —una pantalla baja, o un móvil en horizontal—, pegado abajo y con
+    // desplazamiento propio. Nunca cortado.
+    const debajo = vh - ancla.bottom - margen;
+    const encima = ancla.top - margen;
+    const top =
+      alto <= debajo
+        ? ancla.bottom + 6
+        : alto <= encima
+          ? ancla.top - alto - 6
+          : Math.max(margen, vh - Math.min(alto, maxAlto) - margen);
+
+    setSitio({ left, top, maxAlto });
+  }, [ancla, escrito]);
+
+  // Las salidas tempranas van DESPUÉS de todos los hooks, nunca en medio.
+  if (!acorde) return null;
 
   return createPortal(
     <>
@@ -114,7 +157,16 @@ function Panel({
         role="dialog"
         aria-label={`Cómo se toca ${escrito}`}
         className="fixed z-[61] rounded-xl bg-white p-3 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
-        style={{ left: izquierda, top: arriba, width: ANCHO }}
+        ref={cajaRef}
+        style={{
+          left: sitio?.left ?? 0,
+          top: sitio?.top ?? 0,
+          width: ANCHO,
+          maxHeight: sitio?.maxAlto,
+          overflowY: "auto",
+          // Hasta que no está medido no se enseña, para que no se vea saltar.
+          visibility: sitio ? "visible" : "hidden",
+        }}
       >
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <span className="font-display text-lg leading-none text-slate-800 dark:text-slate-100">{escrito}</span>
@@ -135,8 +187,24 @@ function Panel({
 
         <div className="mt-3 text-xs text-slate-500">bajo: {acorde.bajo}</div>
         <BassDiagram acorde={acorde} className="mt-1" />
+
+        {/* Guitarra. Solo si se sabe la postura: `posicionDe` devuelve null
+            cuando la calidad no tiene forma, y una postura inventada la
+            tocaría alguien en un culto. */}
+        {posicionDe(acorde) && (
+          <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
+            <div className="mb-1 text-xs text-slate-500">guitarra</div>
+            <GuitarDiagram acorde={acorde} className="mx-auto" />
+          </div>
+        )}
       </div>
     </>,
-    document.body
+    // 🔴 A `document.fullscreenElement` cuando lo hay, y NO siempre al
+    // `body`. La pantalla completa de verdad —la del navegador— solo
+    // enseña el subárbol del elemento al que se le pidió; un portal al
+    // `body` queda FUERA de ese subárbol, así que el panel existe y es
+    // invisible. Isaac lo vio con la cuenta de lector el 2026-08-21, y
+    // justo en la pantalla que se usa tocando (O-30).
+    document.fullscreenElement ?? document.body
   );
 }

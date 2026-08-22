@@ -2,26 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ROLES_LETRAS } from "@/lib/letras";
 import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, LayoutGrid, LogOut, PlusCircle, Settings, Mic2 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import ReadingControls from "@/components/theme/ReadingControls";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { seccionesDe } from "@/lib/navegacion";
 import type { Profile } from "@/types";
 
-const navItems = [
-  { href: "/catalog", label: "Canciones", icon: LayoutGrid, roles: ["admin", "musician", "viewer"] },
-  { href: "/services", label: "Cultos", icon: CalendarDays, roles: ["admin", "musician", "viewer"] },
-  // Sección propia, idea de Isaac (2026-08-21): quien canta no quiere
-  // acordes nunca, así que entra directo a lo suyo. Los tres roles.
-  // Quién la ve sale de ROLES_LETRAS: hoy solo el admin, mientras Isaac
-  // escribe las 75. Abrirlo a todos es cambiar esa constante, no esta línea.
-  { href: "/letras", label: "Letras", icon: Mic2, roles: ROLES_LETRAS },
-  { href: "/sheets/new", label: "Nueva cancion", icon: PlusCircle, roles: ["admin"] },
-  { href: "/admin", label: "Administrar", icon: Settings, roles: ["admin"] },
-];
 
 export default function Sidebar({
   profile,
@@ -40,9 +29,10 @@ export default function Sidebar({
     router.push("/login");
   }
 
-  const visibleItems = navItems.filter(
-    (item) => !profile || item.roles.includes(profile.role)
-  );
+  // La lista es la MISMA que la de la barra del teléfono (lib/navegacion.ts).
+  // Sin perfil todavía no se sabe el rol: mejor no enseñar nada que enseñar
+  // secciones que luego desaparecen.
+  const visibleItems = profile ? seccionesDe(profile.role) : [];
 
   return (
     <div className="flex h-full w-full flex-col border-r border-brand-900 bg-brand-950 text-white">

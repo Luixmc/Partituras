@@ -518,7 +518,12 @@ export default function SongDetailEditor({
                 cancion tiene acordes escritos. */}
             {viewContent.trim() && (
               <Link
-                href={`/catalog/${sheet.id}/present${filtro}`}
+                // Arrastra el culto si se vino de uno: si no, al entrar a
+                // pantalla completa se perdería el repertorio y volverían a
+                // salir las 75 canciones (O-33).
+                href={`/catalog/${sheet.id}/present${
+                  parametros.get("culto") ? `?culto=${parametros.get("culto")}` : filtro
+                }`}
                 title="Ver a pantalla completa"
                 className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >

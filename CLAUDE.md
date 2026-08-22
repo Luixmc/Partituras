@@ -566,6 +566,16 @@ largo por una cadena creyendo que la arregla.
       Desactivar). Tiene una contraseña sencilla y es una cuenta real en un sitio abierto a
       internet. **Recordatorio: hoy desactivar un usuario NO le impide entrar** (P-01) — hasta
       que P-01 esté arreglado, para cerrarla de verdad hay que **cambiarle la contraseña**.
+- [ ] 🔴 **DOS PERMISOS PENDIENTES DE ISAAC, y los dos son de esta tanda (2026-08-21):**
+      1. **Ejecutar la migración `20240017` contra producción** (D-04). Es la de O-31: añade la
+         columna `status` a `services`, pone `published` a los 3 cultos que ya existen y cambia la
+         política de lectura. **Copia previa hecha** (`Partituras-datos-2026-08-22`).
+      2. **El commit y el push** de esta tanda: guitarra (fase K), O-30, O-32, O-33, O-34, O-35,
+         la colocación del desplegable, la lista de secciones compartida y O-31.
+      ⚠️ **El orden importa y no es negociable (T-07): PRIMERO el push, DESPUÉS la migración.**
+      El código está escrito para aguantar la base vieja —un culto sin `status` cuenta como
+      publicado—, pero **no al revés**: si la migración va primero, hay unos minutos con la
+      política nueva aplicada y el código viejo arriba.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -1258,6 +1268,243 @@ de la presentación—, así que abrirlo es **cambiar esa línea y nada más**.
 **Probado por las dos caras**, aprovechando que Isaac cambió el rol de la cuenta de prueba:
 - **Con LECTOR:** `/letras` **307**, sin entrada en el menú, sin pestaña, sin botón.
 - **Con ADMIN:** `/letras` **200**, entrada, pestaña y botón, los tres presentes.
+
+#### Las 6 nuevas (dictadas el 2026-08-21, PROBANDO CON UNA CUENTA DE LECTOR)
+
+📌 **Isaac las sacó todas de una sola sesión con la cuenta en LECTOR.** Es la primera vez que
+prueba la página como la ve un músico, y salieron **seis cosas que desde el admin no se ven**.
+→ **Probar con el rol del usuario final encuentra en diez minutos lo que no encuentra ninguna
+comprobación desde la cuenta que lo tiene todo.**
+
+**O-30 · A pantalla completa NO salen los diagramas del acorde.** 🔴 **Fallo, y de los que
+importan: la pantalla completa es LA pantalla del culto.**
+→ **Causa encontrada:** el desplegable se dibuja con un **portal a `document.body`** (fase I),
+y la pantalla completa de verdad —la del navegador— **solo enseña el subárbol del elemento al que
+se le pidió**. El panel se pinta **fuera de ese subárbol**, así que existe y es invisible.
+→ **Arreglo:** el portal va a `document.fullscreenElement ?? document.body`.
+
+**O-31 · Los cultos tienen ESTADO, igual que las canciones.** ✅ **RESPONDIDA por Isaac el
+2026-08-21**, y su respuesta cierra la duda de las tres lecturas que había aquí:
+
+> *«que sea como las canciones, que yo puedo crear una, pero por ejemplo si está en archivado o
+> borrador que no lo pueda ver ni el lector ni el músico, solamente el admin, y ya si está
+> público que lo puedan ver los otros dos roles»*
+
+→ Es decir, **NO es «activar/desactivar»** (dos estados) ni es «apagar el enlace público» —eso ya
+existe y es otra cosa (`is_public`, migración 013)—. Son **los mismos tres estados de las
+canciones**: `draft` · `published` · `archived`.
+
+| | admin | musician | viewer | sin cuenta (enlace `/s/<token>`) |
+|---|---|---|---|---|
+| `published` | ve | **ve** | **ve** | ve, si además `is_public` |
+| `draft` / `archived` | ve | **no** | **no** | **no** |
+
+⚠️ **Necesita MIGRACIÓN**: la tabla `services` (`20240012:23-32`) **no tiene ninguna columna para
+eso** — solo `name`, `service_type`, `service_date`, `notes`, `is_public`, `public_token` y las de
+auditoría. Toca la base de producción → **OK expreso de Isaac** (D-04) y **copia previa**.
+
+#### D-23 · El estado del culto reutiliza el enum `sheet_status`, no se crea uno nuevo
+
+Los tres valores son **los mismos tres** y significan lo mismo. Un `service_status` paralelo sería
+un segundo sitio que mantener, y el día que se añada un cuarto estado habría que acordarse de
+tocar los dos. El nombre del tipo dice «sheet» y el tipo lo usan dos tablas: **se prefiere eso a
+tener dos enums que se separen** (es P-09 aplicado al esquema).
+
+#### D-24 · Los cultos que YA existen nacen `published`, aunque el defecto de la columna sea `draft`
+
+🔴 **Esto no es un detalle: es evitar T-07 otra vez.** Si la columna se añadiera con
+`default 'draft'` y nada más, **los 3 cultos que hay en producción desaparecerían de golpe** para
+músicos y lectores — sin error, sin aviso, igual que el catálogo vacío de los 3 minutos.
+→ La migración añade la columna **y en la misma pasada pone `published` a todo lo que ya existía**.
+El defecto `draft` solo afecta a los cultos **nuevos**, que es lo que Isaac pidió: los crea él y
+los publica cuando estén armados.
+
+#### D-25 · Se cierra también en la BASE, no solo escondiendo tarjetas
+
+**L-87 `[PART]`: la interfaz no es un permiso.** Las canciones sí están protegidas en la base
+(`sheets_select_viewer`, `20240004:98`), y Isaac pidió *«que sea como las canciones»*.
+→ La política `services_select_all` (`20240012:64`, hoy `using (true)`) se sustituye por la misma
+forma que la de canciones: `status = 'published' or created_by = auth.uid() or public.is_admin()`.
+→ **Efecto secundario bueno:** un culto en borrador **deja de ser legible con la clave pública**,
+que es media P-02.
+→ ⚠️ **Efecto secundario que hay que saber:** `npm run export` con la clave pública **se dejará
+los cultos en borrador**, igual que ya se deja las canciones en borrador. **La copia hay que
+hacerla con la sesión de administrador** (`SUPABASE_ACCESS_TOKEN`), que ya lo admite desde r40.
+
+#### El plan de O-31, por subfases
+
+| Sub | Qué | Estado |
+|---|---|---|
+| **K.1** | **El código primero**, y que tolere que la columna todavía no exista: un culto **sin `status` se trata como `published`** (T-07) | ✅ **HECHO y comprobado** |
+| **K.2** | **Migración `20240017`**: columna + relleno de los existentes + política nueva | ⬜ **ESCRITA, SIN EJECUTAR.** Espera el OK expreso de Isaac (D-04) |
+| **K.3** | **El control en el editor** (solo admin) y la **etiqueta en la tarjeta** (solo admin, como O-32) | ✅ **HECHO** |
+
+**Sin fila de filtro por estado en la lista de cultos, y es a propósito.** El plan escrito decía
+«igual que O-28 en el catálogo», y al hacerlo se vio que no es igual: en el catálogo hay **75
+canciones** y buscar los borradores a ojo era el trabajo que O-28 ahorraba; en cultos hay **3**, y
+los que no están publicados ya se distinguen por su etiqueta. Una fila de filtros para tres
+tarjetas es ruido. **Se añade el día que haya cultos de sobra**, no antes.
+
+#### Cómo quedó montado
+
+| Archivo | Qué |
+|---|---|
+| `src/lib/cultos.ts` **(nuevo)** | `estadoDe` y `puedeVerCulto`, **la regla en un solo sitio**. Los cuatro llamantes miran aquí |
+| `services/page.tsx` | Filtra la lista y pinta la etiqueta **solo al admin** |
+| `services/[id]/page.tsx` | **Redirige** al que no puede verlo, aunque escriba la dirección a mano |
+| `services/[id]/present/page.tsx` | Lo mismo, y su `select` pasó a `*` para que entre `status` cuando exista |
+| `services/actions.ts` | `setServiceStatusAction`, **aparte del botón de Guardar** |
+| `EstadoCulto.tsx` **(nuevo)** | Los tres botones + **qué significa cada estado en la práctica** |
+| `20240017_service_status.sql` | Columna + relleno + política. **Sin ejecutar** |
+
+**Lo que NO hizo falta tocar, y conviene saber por qué:** `/s/<token>` (el enlace público) y
+`/imprimir/culto/[id]` **no llevan ni una línea nueva**. En cuanto la política del paso 3 esté
+aplicada, la base deja de devolverles un culto que no esté publicado, y las dos páginas ya
+responden `notFound()` cuando no hay fila. **El permiso está en la capa que toca**, y no hay dos
+sitios que se puedan separar con el tiempo.
+
+#### Comprobado (2026-08-21, con la base TODAVÍA SIN la columna)
+
+Y eso es justo lo que había que comprobar: **producción va a estar así** entre el push y la
+migración.
+
+- **`/services` como admin → 200 y los 3 cultos**, sin ninguna etiqueta de estado. Correcto: sin
+  columna, `estadoDe` los cuenta publicados. **Si esto fallara, los músicos se habrían quedado
+  sin cultos** — es T-07 evitada, medida.
+- **El detalle del culto → 200**, con los tres botones y «Publicado: lo ven los músicos y los
+  lectores» debajo.
+- **La presentación del culto → 200.**
+- **Arnés `scratchpad/cultos.mjs`, 10 de 10 casos**, sacando la lógica del `.ts` real: las seis
+  casillas de la tabla de Isaac, más los cuatro casos de «la columna todavía no está»
+  (`{}`, `null`, valor raro, culto nulo) → **los cuatro se ven, ninguno revienta**.
+- **`comentarios.mjs` sobre las 5 páginas tocadas: 0 con comentarios a la vista.**
+- **`npm run verificar`: compila limpio**, 19 rutas.
+
+⬜ **Lo que NO se ha podido comprobar aquí, y es la mitad del encargo:** que un **lector o músico
+de verdad** no vea un culto en borrador. La cuenta de prueba está en **admin** (D-14), y sin la
+columna no hay ningún culto en borrador que probar. → **Se comprueba después de la migración**,
+y hay una forma que no necesita segunda cuenta: **consultar `services` con la clave pública**
+(sin sesión, que es el caso más estricto) y contar. Es lo mismo que se midió para P-02.
+
+#### Copia de seguridad hecha antes de proponer la migración
+
+`_RESPALDOS\Partituras-datos-2026-08-22\` — **3 cultos y 17 filas de repertorio**, que es
+**exactamente lo que esta migración puede estropear**. Las 8 canciones en borrador no van (falta
+la `service_role`, §12.2), pero **la migración 017 no toca `sheets`**; para eso sigue valiendo la
+copia completa del 2026-08-21-17h49h42.
+
+**O-32 · La etiqueta de estado (PUBLICADA / BORRADOR / ARCHIVADO) solo para el admin.**
+A un lector o a un músico no le dice nada —él solo ve lo publicado— y le mete ruido en cada
+tarjeta. Es lo mismo que O-28 con el filtro: **el estado es cosa de quien administra**.
+
+**O-33 · Desde un culto, «la siguiente canción» enseña TODO el catálogo, no el repertorio.**
+🔴 **Fallo, y muy visible tocando:** se abre el culto → una canción → pantalla completa, y las
+flechas recorren las 75 canciones en vez de las 7 del culto. En mitad de un servicio eso es
+justo lo contrario de lo que hace falta.
+→ **Causa:** desde `ServiceEditor` la canción se abre con `/catalog/<id>` **a secas**
+(`ServiceEditor.tsx:394`), sin decir de dónde viene. La vista y la pantalla completa solo saben
+del filtro del catálogo (D-15), y sin nada, cogen el catálogo entero.
+
+**O-34 · El botón «atrás» del navegador vuelve al catálogo, no al culto.**
+Es la otra cara de O-33: como se entró por `/catalog/<id>`, el «volver» de la propia página
+lleva al catálogo. **Se arregla con lo mismo**: que la canción sepa que viene de un culto.
+
+**O-35 · Las tarjetas del catálogo desaprovechan el espacio.**
+Sobra hueco dentro de cada tarjeta. Se ajusta el alto y el reparto para que quepan más de un
+vistazo, sin quitar información.
+
+**O-36 · Desde el editor del culto, el admin tampoco puede abrir una canción.** ✅ **HECHO.**
+Isaac, 2026-08-21, probando O-33/O-34: *«fíjate que yo como admin no me permite darle clic a
+cualquier canción que esté en la lista para que me lleve a modo vista como los otros roles, ni en
+pc ni en teléfono»*.
+
+**Tenía razón, y no es un fallo de O-33: es un hueco que venía de antes.** El culto se dibuja con
+**dos listas distintas** en el mismo componente:
+
+| Rol | Cómo se ve el repertorio | ¿Se puede pulsar? |
+|---|---|---|
+| lector · músico | tarjetas de solo lectura (`ServiceEditor.tsx:411`) | **sí**, enlace a la canción |
+| **admin** | filas de editor: selector de tono, subir, bajar, quitar (`:620`) | **no** — el título era texto suelto |
+
+→ O-33 y O-34 arreglaron el enlace **de la lista del lector**, que es la que se estaba mirando.
+La del admin nunca lo tuvo, así que el único que **no** podía abrir una canción desde su culto era
+justo el que más entra ahí.
+
+📌 **Y es la segunda vez en dos días que el fallo está en «la otra copia de la misma lista»** —la
+primera fue «Letras», que salía en el ordenador y no en el teléfono porque la barra de navegación
+estaba escrita dos veces (P-09, lo arregló `lib/navegacion.ts`). **Aquí las dos listas se quedan**:
+no son lo mismo —una edita y la otra no—, pero **lo que sí tiene que ser igual es el enlace**.
+
+**Cómo se hizo, y los tres cuidados que hacían falta:**
+1. **Enlace SOLO en el bloque del texto** (título, categoría, compositor), **no en la fila entera**:
+   dentro hay un `<select>` y tres botones, y un enlace envolviéndolos se comería sus clics.
+2. **Lleva `?culto=<id>`**, igual que la lista del lector, para que las flechas recorran **el
+   repertorio y no las 75 canciones**, y el «volver» apunte al culto (O-33, O-34).
+3. **Los cambios sin guardar quedan protegidos solos, y esto conviene saberlo:** el editor ya
+   intercepta **cualquier clic en un `<a>`** cuando hay cambios pendientes (`:214-232`) y saca el
+   diálogo de guardar/descartar. Al ser un `<Link>` de verdad, el enlace nuevo **entra en esa red
+   sin escribir una línea**. Si se hubiera hecho con un `onClick` + `router.push`, se habría
+   saltado el aviso y **se perderían los cambios en silencio**.
+4. **En un culto que todavía no se ha guardado no hay enlace**, a propósito: `service` es `null`,
+   así que no hay culto al que volver ni repertorio guardado que recorrer.
+
+**Comprobado con datos reales (2026-08-21), en el culto de 8 canciones:**
+**8 filas → 8 enlaces** con su `?culto=`, y **los 8 tríos de botones intactos**. Abriendo una desde
+ahí, las vecinas son **`22e71fb0` y `2b94850f`** —las dos del repertorio— y el botón dice **«Volver
+al culto»**; la MISMA canción abierta sin culto trae **`10f0c130` y `23640b82`**, que son sus
+vecinas alfabéticas del catálogo, y dice **«Volver al catalogo»**.
+
+
+**O-37 · Ordenar el repertorio ARRASTRANDO, y fuera los botones de subir y bajar.**
+Isaac, 2026-08-21: *«quiero quitar los botones de subir y bajar las canciones que sirven para
+cambiar el orden de la lista y que tenga para poder arrastrar, no quiero esos botones más, con el
+arrastre es más fácil»*.
+→ **Los botones se van.** No se quedan «por si acaso»: lo dijo dos veces en la misma frase.
+
+🔴 **LA DECISIÓN TÉCNICA QUE DECIDE SI ESTO FUNCIONA O NO: se hace con `PointerEvent`, NO con el
+arrastrar-y-soltar de HTML5** (`draggable` + `dragstart` + `drop`).
+
+Y no es una preferencia de estilo — es que **el de HTML5 no funciona con el dedo.** En un móvil,
+`draggable` no dispara nada: el navegador se queda con el gesto para hacer scroll o para el
+menú de copiar. Sería exactamente el fallo que Isaac ya cazó dos veces —**funciona en el PC y no
+en el teléfono**—, y él arma los cultos desde el móvil. `PointerEvent` es un solo camino para
+ratón, dedo y lápiz.
+
+**Lo que hace falta para que el dedo arrastre de verdad, y las tres se olvidan:**
+1. **`touch-action: none` en el asa.** Sin esto el navegador se queda el gesto para hacer scroll
+   y la fila no se mueve: el dedo baja y lo que baja es la página.
+2. **`setPointerCapture`.** Sin esto, en cuanto el dedo se sale del asa —que mide 28 píxeles— se
+   deja de recibir el movimiento y el arrastre se corta a mitad.
+3. **`pointercancel`**, no solo `pointerup`: una llamada entrante o un gesto del sistema cancelan
+   el puntero sin soltarlo, y sin escucharlo la fila se quedaría pegada al dedo para siempre.
+
+**Se reordena EN VIVO** —la lista se recoloca mientras se arrastra, no al soltar—: es lo que se
+espera hoy, y de paso evita tener que dibujar una fila fantasma flotando.
+
+**Y el orden nuevo es `splice`, no un intercambio.** El `move` de los botones **intercambiaba**
+dos filas, que es lo correcto para «sube una», pero al arrastrar la 1 hasta la 5 dejaría la 5 en
+el sitio 1. Arrastrar es **sacar la fila e insertarla donde está el dedo**, y las de en medio
+corren un puesto.
+
+**Sin librería nueva.** Son unas 30 líneas; una dependencia de arrastrar-y-soltar trae su propio
+peso y su propia forma de romperse.
+
+**Se conserva el teclado, sin devolver los botones:** el asa recibe el foco y **↑ / ↓ mueven la
+fila**. Quien no pueda arrastrar sigue pudiendo ordenar, y en pantalla no aparece ningún botón
+más — que es lo que él pidió.
+
+**Comprobado en la pantalla real (2026-08-21):** **0 botones de «Subir» y «Bajar»** · **8 asas**,
+una por canción · **8 `touch-none`** · y lo demás **sin tocar**: 8 botones de quitar, 8 enlaces a
+la canción y el selector de tono con sus grupos. Compila limpio y el arnés de comentarios da 0.
+
+⬜ **Lo que NO se puede comprobar desde aquí, y es justo el gesto:** que la fila siga al dedo. El
+arrastre lo pinta el navegador y **no deja rastro en el HTML**, así que **hay que probarlo con la
+mano — y sobre todo en el teléfono**, que es el motivo de haberlo hecho con `PointerEvent`. Es el
+mismo punto ciego que el botón de WhatsApp y el `<select>` en modo oscuro (T-12).
+
+📌 **Un detalle que no cambia:** arrastrar deja el culto **con cambios sin guardar**, igual que
+hacían los botones. Hay que darle a «Guardar», y si se sale antes sigue saliendo el aviso.
+
 
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 

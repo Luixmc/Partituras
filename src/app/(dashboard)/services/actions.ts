@@ -3,11 +3,19 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import type { ServiceType } from "@/types";
+import type { ServiceType, SheetStatus } from "@/types";
 
 export type ActionResult = { ok: boolean; error?: string; message?: string; id?: string };
 
 const SERVICE_TYPES: ServiceType[] = ["viernes", "domingo", "ayuno", "santa_cena", "otro"];
+
+const ESTADOS: SheetStatus[] = ["draft", "published", "archived"];
+
+const MENSAJE_ESTADO: Record<SheetStatus, string> = {
+  draft:     "Culto en borrador: solo lo ves tú.",
+  published: "Culto publicado: ya lo ven los músicos.",
+  archived:  "Culto archivado: deja de verlo todo el mundo menos tú.",
+};
 
 export interface ServiceInput {
   name:         string;
@@ -145,6 +153,37 @@ export async function updateServiceAction(id: string, input: ServiceInput): Prom
     revalidatePath("/services");
     revalidatePath(`/services/${id}`);
     return { ok: true, id, message: "Culto actualizado." };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/**
+ * Cambia el estado de un culto: borrador · publicado · archivado (O-31).
+ *
+ * Va en su propia acción, como el enlace público, y NO dentro de «guardar»:
+ * publicar un culto es una decisión aparte de corregirle el nombre o mover una
+ * canción de sitio, y meterla en el mismo botón haría que se publicara sin
+ * querer al retocar cualquier otra cosa.
+ *
+ * 🔴 El estado NO se toca al crear (`createServiceAction` no lo manda): lo pone
+ * el defecto de la columna, que es `draft`. Un culto nace en borrador y se
+ * publica cuando está armado — que es justo lo que Isaac describió.
+ */
+export async function setServiceStatusAction(
+  id: string,
+  status: SheetStatus
+): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    if (!ESTADOS.includes(status)) throw new Error("Estado no válido.");
+
+    const { error } = await supabase.from("services").update({ status }).eq("id", id);
+    if (error) throw error;
+
+    revalidatePath("/services");
+    revalidatePath(`/services/${id}`);
+    return { ok: true, message: MENSAJE_ESTADO[status] };
   } catch (e) {
     return fail(e);
   }

@@ -18,6 +18,10 @@ export interface FiltrosCatalogo {
   category?: string;
   /** Estado de la canción. **Solo lo usan los administradores** (O-28). */
   estado?: string;
+  /** De qué culto se viene, si se llegó desde uno (O-33). NO es un filtro
+      del catálogo: no entra en la consulta ni en `filtrosAQuery`; sirve para
+      saber que la lista de «la siguiente» es el repertorio de ese culto. */
+  culto?: string;
 }
 
 /** Los tres estados que admite la base (`sheet_status`, migración 20240001). */

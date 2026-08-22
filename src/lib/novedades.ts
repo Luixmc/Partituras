@@ -73,6 +73,26 @@ export const TANDAS: Tanda[] = [
             ],
           },
           {
+            tipo: "nuevo",
+            titulo: "Y ahora también sale la GUITARRA.",
+            detalle: [
+              "El mismo recuadro trae el mástil de la guitarra: <strong>×</strong> es cuerda que no " +
+                "se toca, <strong>○</strong> es al aire, el punto es dónde pisar, y la barra es la " +
+                "cejilla. Debajo dice en qué traste va y en qué cuerda cae la fundamental.",
+              "Se saben tocar <strong>1.892 de los 1.894 acordes</strong>. Los dos que faltan son " +
+                "raros de verdad, y <strong>a propósito no se dibuja nada</strong> en vez de " +
+                "inventar una postura: más vale no enseñar nada que enseñar algo que no suena.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "A pantalla completa no salían los diagramas.",
+            detalle: [
+              "Tocabas el acorde y no aparecía nada — justo en la pantalla que se usa tocando. " +
+                "Ya sale igual que en la vista normal.",
+            ],
+          },
+          {
             tipo: "arreglado",
             titulo: "Las notas del acorde estaban mal escritas.",
             detalle: [
@@ -165,6 +185,16 @@ export const TANDAS: Tanda[] = [
           },
           {
             tipo: "nuevo",
+            titulo: "Las tarjetas ocupan menos y caben más de un vistazo.",
+            detalle: [
+              "Sobraba hueco dentro de cada una: fuera la fila que ponía «Canción» en todas y el " +
+                "botón de «Ver canción», que repetía lo que ya hace tocar la tarjeta. Cada una pasó " +
+                "de unos <strong>185 a unos 110 píxeles</strong> de alto, <strong>sin quitar " +
+                "información</strong>.",
+            ],
+          },
+          {
+            tipo: "nuevo",
             titulo: "Botón «Pantalla completa» en cada canción.",
             detalle: [
               "El mismo visor que se usa en los cultos: columnas, tamaño automático y subir o " +
@@ -199,6 +229,18 @@ export const TANDAS: Tanda[] = [
             detalle: [
               "Las que hagan falta, y <strong>cada vez con su propio tono y su propia nota</strong>. " +
                 "Antes la página lo impedía sin decir por qué.",
+            ],
+          },
+          {
+            tipo: "arreglado",
+            titulo: "Desde un culto, «la siguiente» era del catálogo entero.",
+            detalle: [
+              "Abrías el culto, entrabas en una canción y las flechas te paseaban por las " +
+                "<strong>75 canciones</strong> del cancionero en vez de por las del repertorio. En " +
+                "mitad de un servicio, eso es lo contrario de lo que hace falta.",
+              "Ahora, al entrar desde un culto, <strong>lo que se recorre es el repertorio de ese " +
+                "culto</strong> — en su orden — y el botón de volver te devuelve <strong>al " +
+                "culto</strong>, no al listado de canciones. Vale igual a pantalla completa.",
             ],
           },
           {

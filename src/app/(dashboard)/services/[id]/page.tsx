@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import ServiceEditor, { type CatalogSong } from "@/components/services/ServiceEditor";
 import { createClient } from "@/lib/supabase/server";
+import { estadoDe, puedeVerCulto } from "@/lib/cultos";
 import type { ServiceWithSongs } from "@/types";
 
 export default async function ServiceDetailPage({
@@ -30,6 +31,12 @@ export default async function ServiceDetailPage({
     ? await supabase.from("profiles").select("role").eq("id", user.id).single()
     : { data: null };
   const canEdit = profile?.role === "admin";
+
+  // Un culto en borrador o archivado no lo abre nadie más que el admin, ni
+  // escribiendo la dirección a mano (O-31). Esconder la tarjeta no es un
+  // permiso — L-87, que en este proyecto ya se pagó con el botón de
+  // «desactivar usuario».
+  if (!puedeVerCulto(service, canEdit)) redirect("/services");
 
   // Normaliza las canciones embebidas y las ordena por posicion.
   const songs = (service.service_songs ?? [])
@@ -58,6 +65,7 @@ export default async function ServiceDetailPage({
     service_type: service.service_type,
     service_date: service.service_date,
     notes:        service.notes,
+    status:       estadoDe(service),
     is_public:    service.is_public,
     public_token: service.public_token,
     created_by:   service.created_by,

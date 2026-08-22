@@ -24,8 +24,22 @@ export default async function SongPresentPage({
 }) {
   const supabase = await createClient();
 
-  // La misma consulta que el catálogo, con los mismos filtros y el mismo orden.
-  const lista = await buscarCanciones(supabase, searchParams);
+  // 🔴 Si se viene DE UN CULTO, la lista es su repertorio y no el catálogo:
+  // tocando en un servicio, «la siguiente» tiene que ser la siguiente del
+  // culto (O-33). Si no, la misma consulta que el catálogo, con sus filtros.
+  const cultoId = typeof searchParams.culto === "string" ? searchParams.culto : null;
+
+  let lista: { id: string }[] = [];
+  if (cultoId) {
+    const { data: repertorio } = await supabase
+      .from("service_songs")
+      .select("sheet_id, position")
+      .eq("service_id", cultoId)
+      .order("position");
+    lista = (repertorio ?? []).map((r) => ({ id: r.sheet_id as string }));
+  }
+  if (!lista.length) lista = await buscarCanciones(supabase, searchParams);
+
   const posicion = lista.findIndex((c) => c.id === params.id);
 
   // El contenido de acordes no viene en la lista del catálogo (se dejó de pedir
@@ -74,7 +88,7 @@ export default async function SongPresentPage({
       title={songs[inicio]?.title ?? ""}
       songs={songs}
       startIndex={inicio}
-      backHref={`/catalog/${params.id}${filtrosAQuery(searchParams)}`}
+      backHref={`/catalog/${params.id}${cultoId ? `?culto=${cultoId}` : filtrosAQuery(searchParams)}`}
     />
   );
 }

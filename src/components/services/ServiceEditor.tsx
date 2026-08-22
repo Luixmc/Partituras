@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowDown,
-  ArrowUp,
+  GripVertical,
   CalendarDays,
   Check,
   Copy,
@@ -25,14 +24,16 @@ import {
   updateServiceAction,
   deleteServiceAction,
   setServiceShareAction,
+  setServiceStatusAction,
   type ServiceInput,
 } from "@/app/(dashboard)/services/actions";
 import ServicePdfButton from "@/components/services/ServicePdfButton";
 import ShareBox from "@/components/services/ShareBox";
+import EstadoCulto from "@/components/services/EstadoCulto";
 import AutoTextarea from "@/components/ui/AutoTextarea";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
 import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
-import type { ServiceType, ServiceWithSongs, SheetKeyOption } from "@/types";
+import type { ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
 
 export interface CatalogSong {
   id:             string;
@@ -118,6 +119,24 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [isPublic, setIsPublic] = useState(service?.is_public ?? false);
 
   const [sharing, setSharing] = useState(false);
+
+  const [estado, setEstado] = useState<SheetStatus>(service?.status ?? "draft");
+  const [cambiandoEstado, setCambiandoEstado] = useState(false);
+
+  async function cambiarEstado(nuevo: SheetStatus) {
+    if (!service) return;
+    setCambiandoEstado(true);
+    const res = await setServiceStatusAction(service.id, nuevo);
+    setCambiandoEstado(false);
+    if (res.ok) {
+      setEstado(nuevo);
+      setMessage(res.message ?? "Estado actualizado.");
+      setMessageType("ok");
+    } else {
+      setMessage(res.error ?? "No se pudo cambiar el estado.");
+      setMessageType("error");
+    }
+  }
 
 
 
@@ -271,14 +290,53 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     setSongs((prev) => prev.filter((s) => s.uid !== uid));
   }
 
-  function move(index: number, dir: -1 | 1) {
+  /**
+   * Mueve una cancion del puesto `desde` al puesto `hasta` (O-37).
+   *
+   * 🔴 Saca la fila y la INSERTA donde toca; no intercambia dos. El
+   * intercambio era correcto para «sube una», pero arrastrando la 1 hasta la 5
+   * dejaria la 5 en el puesto 1. Arrastrar corre un puesto a las de en medio.
+   */
+  function moverA(desde: number, hasta: number) {
     setSongs((prev) => {
+      if (desde === hasta || hasta < 0 || hasta >= prev.length) return prev;
       const next = [...prev];
-      const target = index + dir;
-      if (target < 0 || target >= next.length) return prev;
-      [next[index], next[target]] = [next[target], next[index]];
+      const [fila] = next.splice(desde, 1);
+      next.splice(hasta, 0, fila);
       return next;
     });
+  }
+
+  // ── Arrastrar para ordenar (O-37) ──────────────────────────
+  // Con PointerEvent, NO con el arrastrar-y-soltar de HTML5: aquel no dispara
+  // nada con el dedo, y los cultos Isaac los arma desde el telefono.
+  const filas = useRef<Array<HTMLLIElement | null>>([]);
+  const [arrastrando, setArrastrando] = useState<string | null>(null);
+
+  function agarrar(e: React.PointerEvent<HTMLElement>, uid: string) {
+    // Sin capturar el puntero, en cuanto el dedo se sale del asa —28 pixeles—
+    // se dejan de recibir los movimientos y el arrastre se corta a mitad.
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setArrastrando(uid);
+  }
+
+  function arrastrar(e: React.PointerEvent<HTMLElement>) {
+    if (!arrastrando) return;
+    const y = e.clientY;
+    const destino = filas.current.findIndex((el) => {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return y >= r.top && y <= r.bottom;
+    });
+    if (destino < 0) return;
+    const origen = songs.findIndex((x) => x.uid === arrastrando);
+    if (origen >= 0 && origen !== destino) moverA(origen, destino);
+  }
+
+  // `pointercancel` tambien: una llamada entrante o un gesto del sistema
+  // cancelan el puntero sin soltarlo, y la fila se quedaria pegada al dedo.
+  function soltar() {
+    setArrastrando(null);
   }
 
   function patchSong(uid: string, patch: Partial<SongRow>) {
@@ -391,7 +449,11 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
           {songs.map((s, i) => (
             <li key={s.uid}>
               <Link
-                href={`/catalog/${s.sheet_id}`}
+                // Se dice DE QUÉ CULTO viene: sin eso, la vista y la pantalla
+                // completa cogen el catálogo entero, y las flechas recorren
+                // las 75 canciones en vez de las del repertorio (O-33). Y el
+                // «volver» apunta al catálogo en vez de al culto (O-34).
+                href={`/catalog/${s.sheet_id}?culto=${service.id}`}
                 className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900"
               >
                 <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
@@ -591,27 +653,99 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
         </div>
       </div>
 
-      {/* Lista ordenada */}
-      <ol className="mb-6 space-y-2">
+      {/* Lista ordenada. Mientras se arrastra se corta la seleccion de texto:
+          si no, el gesto va subrayando los titulos por el camino. */}
+      <ol className={`mb-6 space-y-2 ${arrastrando ? "select-none" : ""}`}>
         {songs.map((s, i) => (
           <li
             key={s.uid}
-            className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-900"
+            ref={(el) => {
+              filas.current[i] = el;
+            }}
+            className={`flex flex-wrap items-center gap-2 rounded-xl border bg-white p-2.5 dark:bg-slate-900 ${
+              arrastrando === s.uid
+                ? "border-brand-400 shadow-md dark:border-brand-500"
+                : "border-slate-200 dark:border-slate-700"
+            }`}
           >
+            {/* El asa. `touch-none` es imprescindible: sin ella el navegador
+                del movil se queda el gesto para hacer scroll y lo que baja es
+                la pagina, no la cancion (O-37).
+
+                Recibe el foco y ↑/↓ la mueven, para que se pueda ordenar sin
+                arrastrar — sin devolver a la pantalla los botones que Isaac
+                quitó. */}
+            <button
+              type="button"
+              onPointerDown={(e) => agarrar(e, s.uid)}
+              onPointerMove={arrastrar}
+              onPointerUp={soltar}
+              onPointerCancel={soltar}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  moverA(i, i - 1);
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  moverA(i, i + 1);
+                }
+              }}
+              className="flex h-7 w-7 flex-shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-slate-100 hover:text-slate-500 active:cursor-grabbing dark:text-slate-600 dark:hover:bg-slate-800"
+              aria-label={`Mover ${s.title}. Arrastra, o usa las flechas arriba y abajo`}
+              title="Arrastra para cambiar el orden"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
             <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
               {i + 1}
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
-                {s.title}
+            {/* El admin también abre la canción desde aquí (O-36). Antes esto
+                era texto suelto y el único que NO podía entrar a una canción
+                desde su culto era justo el que más entra.
+
+                🔴 El enlace envuelve SOLO el texto, nunca la fila: al lado hay
+                un <select> de tono y tres botones, y un enlace por encima se
+                comería sus clics.
+
+                Y va con `?culto=` como la lista del lector, para que las
+                flechas recorran el repertorio y el «volver» apunte al culto
+                (O-33, O-34).
+
+                Siendo un <Link> de verdad, el aviso de «cambios sin guardar»
+                lo cubre solo: el editor intercepta los clics en cualquier <a>.
+                Con un onClick + router.push se habría saltado, y se perderían
+                los cambios en silencio. */}
+            {service ? (
+              <Link
+                href={`/catalog/${s.sheet_id}?culto=${service.id}`}
+                className="group min-w-0 flex-1"
+                title="Abrir la cancion"
+              >
+                <span className="block truncate font-medium text-slate-900 group-hover:text-brand-700 dark:text-slate-100 dark:group-hover:text-brand-300">
+                  {s.title}
+                </span>
+                <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <CategoryBadge name={s.category_name} color={s.category_color} />
+                  {s.composer && (
+                    <span className="truncate text-xs text-slate-400">{s.composer}</span>
+                  )}
+                </span>
+              </Link>
+            ) : (
+              /* Culto sin guardar: no hay culto al que volver ni repertorio
+                 guardado que recorrer, así que tampoco hay enlace. */
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium text-slate-900 dark:text-slate-100">
+                  {s.title}
+                </span>
+                <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                  <CategoryBadge name={s.category_name} color={s.category_color} />
+                  {s.composer && (
+                    <span className="truncate text-xs text-slate-400">{s.composer}</span>
+                  )}
+                </span>
               </span>
-              <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                <CategoryBadge name={s.category_name} color={s.category_color} />
-                {s.composer && (
-                  <span className="truncate text-xs text-slate-400">{s.composer}</span>
-                )}
-              </span>
-            </span>
+            )}
             <select
               value={s.sheet_key_id ? `k:${s.sheet_key_id}` : s.key_override ? `t:${s.key_override}` : ""}
               onChange={(e) => {
@@ -652,24 +786,6 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => move(i, -1)}
-                disabled={i === 0}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 dark:hover:bg-slate-800"
-                aria-label="Subir"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => move(i, 1)}
-                disabled={i === songs.length - 1}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 dark:hover:bg-slate-800"
-                aria-label="Bajar"
-              >
-                <ArrowDown className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
                 onClick={() => removeSong(s.uid)}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
                 aria-label="Quitar"
@@ -699,6 +815,11 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
           </Link>
           <ServicePdfButton href={`/imprimir/culto/${service!.id}`} />
         </div>
+      )}
+
+      {/* Estado del culto (O-31). Solo el admin, y solo si ya existe. */}
+      {canEdit && !isNew && (
+        <EstadoCulto estado={estado} onCambiar={cambiarEstado} cambiando={cambiandoEstado} />
       )}
 
       {/* Compartir: enlace público de solo lectura (O-24) */}

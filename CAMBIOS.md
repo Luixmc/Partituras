@@ -24,11 +24,43 @@ en la vista normal y a pantalla completa.
 
 No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
 
+### 🎸 Y ahora también la guitarra
+
+- **El mismo recuadro del acorde trae el mástil de la guitarra:** × es cuerda que no se toca, ○ es
+  al aire, el punto es dónde pisar y la barra es la cejilla. Debajo dice en qué traste va y en qué
+  cuerda cae la fundamental.
+- Se saben tocar **1.892 de los 1.894 acordes**. Los dos que faltan son raros de verdad, y **a
+  propósito no se dibuja nada**: más vale no enseñar nada que una postura que no suena.
+- **Arreglado: a pantalla completa no salían los diagramas.** Tocabas el acorde y no aparecía nada,
+  justo en la pantalla que se usa tocando.
+
 ### 📖 En las canciones
 
 - **Filtro por estado, solo para administradores.** Debajo de las categorías aparece
   **Publicado · Borrador · Archivado**, y se combina con las categorías. **A los músicos y lectores
   no les cambia nada.**
+- **La etiqueta de PUBLICADA / BORRADOR / ARCHIVADA ya solo la ve el administrador.** A un músico
+  no le decía nada —él solo ve lo publicado— y le metía ruido en las 75 tarjetas.
+- **Las tarjetas ocupan menos.** Fuera la fila que ponía «Canción» en todas y el botón de «Ver
+  canción», que repetía lo que ya hace tocar la tarjeta. De unos **185 a unos 110 píxeles** de
+  alto, **sin quitar información**.
+
+### 🎵 En los cultos
+
+- **Arreglado: desde un culto, «la siguiente» era del catálogo entero.** Entrabas en una canción
+  del culto y las flechas te paseaban por las **75 canciones** en vez de por las del repertorio, y
+  el botón de volver te dejaba en el listado en vez de en el culto. Ahora se recorre **el
+  repertorio de ese culto, en su orden**, y el volver devuelve **al culto**. Vale también a
+  pantalla completa.
+- **El repertorio se ordena ARRASTRANDO.** Fuera los botones de subir y bajar: se agarra la
+  canción por el asa de la izquierda y se lleva a su sitio. **Funciona con el dedo en el teléfono**
+  y con el ratón en el computador. *(Solo administradores.)*
+- **Desde el editor del culto ya se puede abrir una canción.** El título es un enlace, como lo era
+  para lectores y músicos. *(Solo administradores.)*
+- **Los cultos tienen estado: borrador · publicado · archivado**, igual que las canciones. Un
+  culto nuevo nace en borrador y **solo lo ve quien administra** hasta que se publica. Los que ya
+  existían quedaron publicados, así que **para los músicos no cambia nada**. *(Solo
+  administradores.)*
 
 ### 🎤 Las letras (en preparación)
 

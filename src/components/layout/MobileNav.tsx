@@ -2,25 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, LayoutGrid, PlusCircle, Settings } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { seccionesDe } from "@/lib/navegacion";
 import type { UserRole } from "@/types";
 
-const navItems = [
-  { href: "/catalog", label: "Canciones", icon: LayoutGrid, roles: ["admin", "musician", "viewer"] },
-  { href: "/services", label: "Cultos", icon: CalendarDays, roles: ["admin", "musician", "viewer"] },
-  { href: "/sheets/new", label: "Nueva", icon: PlusCircle, roles: ["admin"] },
-  { href: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
-];
 
 export default function MobileNav({ role }: { role: UserRole }) {
   const pathname = usePathname();
-  const visible = navItems.filter((item) => item.roles.includes(role));
+  // La lista es la MISMA que la del ordenador (`lib/navegacion.ts`): antes
+  // estaba escrita aquí aparte, y por eso «Letras» salía en el ordenador
+  // y no en el teléfono.
+  const visible = seccionesDe(role);
 
   return (
     <nav className="safe-area-pb flex border-t border-slate-200 bg-white md:hidden dark:border-slate-700 dark:bg-slate-900">
-      {visible.map(({ href, label, icon: Icon }) => {
+      {visible.map(({ href, corto, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(href + "/");
         return (
           <Link
@@ -34,7 +31,7 @@ export default function MobileNav({ role }: { role: UserRole }) {
             )}
           >
             <Icon className={cn("h-5 w-5", active && "stroke-[2.5px]")} />
-            {label}
+            {corto}
           </Link>
         );
       })}

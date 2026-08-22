@@ -75,22 +75,51 @@ export default async function SheetDetailPage({
   // viendo y no del catálogo entero (O-16, D-15).
   const filtro = filtrosAQuery(searchParams);
 
-  // Vecinas dentro de la lista que el músico estaba viendo, para poder pasar de
-  // canción sin volver al catálogo (O-20). Misma lista y mismo orden que allí.
-  const lista = await buscarCanciones(supabase, searchParams);
+  // ── De qué lista forma parte esta canción ──
+  //
+  // 🔴 Si se llegó DESDE UN CULTO (`?culto=<id>`), la lista es el repertorio
+  // de ese culto, no el catálogo. Sin esto, en mitad de un servicio las
+  // flechas recorrían las 75 canciones en vez de las 7 del culto (O-33), que
+  // es justo lo contrario de lo que hace falta tocando.
+  const cultoId = typeof searchParams.culto === "string" ? searchParams.culto : null;
+
+  let lista: { id: string; title: string }[] = [];
+  let volverA = `/catalog${filtro}`;
+  let volverLabel = "Volver al catalogo";
+
+  if (cultoId) {
+    // Se pide también el título: las flechas de «anterior / siguiente»
+    // enseñan el nombre de la canción a la que llevan.
+    const { data: repertorio } = await supabase
+      .from("service_songs")
+      .select("sheet_id, position, sheet:sheets(title)")
+      .eq("service_id", cultoId)
+      .order("position");
+    lista = (repertorio ?? []).map((r: any) => ({
+      id: r.sheet_id as string,
+      title: r.sheet?.title ?? "",
+    }));
+    // Y el «volver» apunta al culto, no al catálogo (O-34).
+    volverA = `/services/${cultoId}`;
+    volverLabel = "Volver al culto";
+  }
+  if (!lista.length) lista = await buscarCanciones(supabase, searchParams);
   const posicion = lista.findIndex((c) => c.id === params.id);
   const anterior = posicion > 0 ? lista[posicion - 1] : null;
   const siguiente = posicion >= 0 && posicion < lista.length - 1 ? lista[posicion + 1] : null;
-  const hrefDe = (c: { id: string } | null) => (c ? `/catalog/${c.id}${filtro}` : null);
+  // Las vecinas conservan de dónde venían: si se está recorriendo un culto,
+  // la siguiente también tiene que saberlo.
+  const contexto = cultoId ? `?culto=${cultoId}` : filtro;
+  const hrefDe = (c: { id: string } | null) => (c ? `/catalog/${c.id}${contexto}` : null);
 
   return (
     <div className="flex min-h-full flex-col">
       <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <Link
-            href={`/catalog${filtro}`}
+            href={volverA}
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-            aria-label="Volver al catalogo"
+            aria-label={volverLabel}
           >
             <ArrowLeft className="h-4 w-4 text-slate-600 dark:text-slate-300" />
           </Link>

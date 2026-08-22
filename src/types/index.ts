@@ -79,6 +79,9 @@ export interface Service {
   service_type: ServiceType;
   service_date: string | null;   // ISO date (YYYY-MM-DD)
   notes:        string | null;
+  /** Estado del culto (O-31). Los mismos tres de las canciones (D-23).
+      Se normaliza siempre con `estadoDe` de `lib/cultos.ts`. */
+  status:       SheetStatus;
   is_public:    boolean;
   public_token: string;
   created_by:   string;

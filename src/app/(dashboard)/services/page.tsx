@@ -3,6 +3,7 @@ import { CalendarDays, Music2, Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { SERVICE_TYPE_META, formatServiceDate } from "@/lib/services";
+import { ESTADO_CULTO, estadoDe, puedeVerCulto } from "@/lib/cultos";
 import type { Service } from "@/types";
 
 type ServiceRow = Service & { service_songs: { count: number }[] };
@@ -24,7 +25,10 @@ export default async function ServicesPage() {
     .order("service_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
-  const services = (data ?? []) as ServiceRow[];
+  // Los cultos en borrador o archivados **solo los ve el admin** (O-31). Esto
+  // no es la barrera —la barrera está en la base (D-25)—: es para que la
+  // pantalla no enseñe una tarjeta que al pulsarla rebotaría.
+  const services = ((data ?? []) as ServiceRow[]).filter((s) => puedeVerCulto(s, isAdmin));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -71,6 +75,16 @@ export default async function ServicesPage() {
                       {meta.label}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                      {/* El estado, SOLO para el admin: a un músico no le dice
+                          nada porque solo ve lo publicado (O-31, igual que O-32
+                          en las tarjetas de canción). */}
+                      {isAdmin && estadoDe(s) !== "published" && (
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${ESTADO_CULTO[estadoDe(s)].className}`}
+                        >
+                          {ESTADO_CULTO[estadoDe(s)].label}
+                        </span>
+                      )}
                       <Music2 className="h-3.5 w-3.5" />
                       {count}
                     </span>

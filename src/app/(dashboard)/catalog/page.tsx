@@ -83,7 +83,7 @@ export default async function CatalogPage({
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sheets.map((sheet) => (
-                <SheetCard key={sheet.id} sheet={sheet} filtro={filtro} />
+                <SheetCard key={sheet.id} sheet={sheet} filtro={filtro} esAdmin={esAdmin} />
               ))}
             </div>
           </>
