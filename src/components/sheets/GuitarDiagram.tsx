@@ -5,7 +5,7 @@ import type { Acorde } from "@/lib/acordes";
 import { posicionDe, CUERDAS_GUITARRA } from "@/lib/guitarra";
 
 // ─────────────────────────────────────────────────────────────
-// El acorde dibujado en el mástil, como en cualquier cancionero:
+// El acorde dibujado en el mástil, como en cualquier libro de partituras:
 // seis cuerdas de arriba abajo, los trastes en vertical, un punto
 // donde va cada dedo.
 //

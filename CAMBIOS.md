@@ -18,7 +18,7 @@ en la vista normal y a pantalla completa.
   son el resto del acorde por si quieres caminar.
 - Cuando el acorde lleva un bajo distinto —`F/A`, `A/G#m`— se ven **las dos manos**: la izquierda
   hace fundamental, quinta y octava.
-- **Se dibujan los 1.894 acordes del cancionero**, incluidos los raros.
+- **Se dibujan los 1.894 acordes de las partituras**, incluidos los raros.
 - **Las notas salen bien escritas.** Un `Bb` dice **`Bb · D · F`**, no `A# · D · F`; un `Cm7`
   dice **`C · Eb · G · Bb`**. Antes todo lo que llevaba bemol salía con sostenidos.
 

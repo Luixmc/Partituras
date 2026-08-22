@@ -86,7 +86,7 @@ export const TANDAS: Tanda[] = [
               "Arriba del recuadro eliges <strong>Piano</strong>, <strong>Bajo</strong> o " +
                 "<strong>Guitarra</strong>, y <strong>se ve el que elijas</strong>. En el piano se " +
                 "marcan las teclas; en el bajo, el mástil, con la nota del bajista señalada.",
-              "Están <strong>los 1.894 acordes</strong> del cancionero, incluidos los raros.",
+              "Están <strong>los 1.894 acordes</strong> de las partituras, incluidos los raros.",
             ],
           },
           {
@@ -290,7 +290,7 @@ export const TANDAS: Tanda[] = [
             titulo: "Desde un culto, «la siguiente» era del catálogo entero.",
             detalle: [
               "Abrías el culto, entrabas en una canción y las flechas te paseaban por las " +
-                "<strong>75 canciones</strong> del cancionero en vez de por las del repertorio. En " +
+                "<strong>75 canciones</strong> de la página en vez de por las del repertorio. En " +
                 "mitad de un servicio, eso es lo contrario de lo que hace falta.",
               "Ahora, al entrar desde un culto, <strong>lo que se recorre es el repertorio de ese " +
                 "culto</strong> — en su orden — y el botón de volver te devuelve <strong>al " +

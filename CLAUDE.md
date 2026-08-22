@@ -25,7 +25,7 @@
 
 ## 1 · Guía rápida para la IA (léeme primero)
 
-**Qué es.** Cancionero web con acordes del **Centro Cristiano La Casa de mi Padre**. No es
+**Qué es.** Partituras con acordes del **Centro Cristiano La Casa de mi Padre**. No es
 notación de pentagrama: es un **editor de acordes en cuadrícula**, donde cada celda es un
 acorde con su figura musical.
 
@@ -590,7 +590,7 @@ largo por una cadena creyendo que la arregla.
       fila «**Team collaboration features**» está **vacía**, y los roles (Owner/Member/Viewer)
       figuran como **N/A**. Invitar a alguien exige **Pro: 20 USD por persona al mes** (unos
       **80.000 pesos**), y **Isaac no quiere pagar nada** — es una constante de todos sus
-      proyectos. Además el plan Hobby es **solo para uso no comercial**, cosa que el cancionero
+      proyectos. Además el plan Hobby es **solo para uso no comercial**, cosa que la página
       cumple.
       → **Hay que confirmarlo mirando el panel del primo** (puede tener un plan distinto).
       → **Alternativas si no se puede, en orden de preferencia:**
@@ -960,7 +960,7 @@ que decidir **de dónde sale la letra**: ¿se escribe aparte en esa columna, o s
 hay entre paréntesis? Son dos proyectos distintos.
 
 **O-19 · Una sección para TROMPETAS.** `[PENDIENTE]`
-→ ❓ Hay que preguntar qué necesita ver un trompetista que no le sirva del cancionero actual:
+→ ❓ Hay que preguntar qué necesita ver un trompetista que no le sirva de la página actual:
 ¿su línea de notas?, ¿solo su parte del arreglo?, ¿la misma canción transpuesta a su tono? Va de
 la mano de la duda de O-17 sobre el instrumento transpositor.
 
@@ -1094,7 +1094,21 @@ entre dos columnas**. `column-count` **no está en la fase de impresión**: el P
 propia rejilla de dos columnas, sin tocar.
 → El auto-ajuste de tamaño se rehace al cambiar el recorrido: la altura del contenido cambia.
 
-**O-27 · «Cancionero» → «Partituras».** ✅ **HECHO el 2026-08-20.**
+**O-27 · «Cancionero» → «Partituras».** ✅ Hecho el 2026-08-20 · 🔴 **REPETIDO el 2026-08-21.**
+
+🔴 **SE VOLVIÓ A COLAR, y lo colé yo.** Al escribir el aviso nuevo del login (Fase L) puse
+*«Pídesela a quien lleva el cancionero»*, e Isaac tuvo que pedirlo por segunda vez:
+*«te dije que quites todo lo que sea relacionado a cancionero y lo cambies por Partituras, o en su
+caso página o algo así, pero cancionero no por favor»*.
+
+→ **La palabra `cancionero` NO SE ESCRIBE.** Ni en la pantalla, ni en los comentarios del código,
+ni en este documento. Se dice **«Partituras»**, **«la página»** o **«las partituras»**.
+→ **Barrido entero el 2026-08-21:** quedan **0 en `src/`, `public/` y el README**. Las dos únicas
+que sobreviven son **las citas de esta misma regla** —aquí y en `CAMBIOS.md`—, y se quedan a
+propósito: si se borran, desaparece el motivo, y el siguiente que escriba un texto vuelve a
+ponerla. **Que es exactamente lo que pasó.**
+→ 📌 **La lección:** una regla de estilo que solo vive en el historial se incumple sola. Por eso
+sube aquí, en negrita, y no en la línea de una tanda vieja.
 Isaac: *«que así es como manejamos nosotros el lenguaje»*. Cambiado en el pie de la página
 compartida, en el nombre de la app instalada y en la descripción de la página. **No quedaba
 ningún otro sitio.**
@@ -2121,7 +2135,7 @@ navegador**.
 | Punto | Estado |
 |---|---|
 | **① El caché versionado** | ✅ Hecho. `sw.js` lee su versión de `?v=`; `PWARegister` la pasa; `next.config.js` la saca de `VERCEL_GIT_COMMIT_SHA`. **Comprobado en el JS compilado:** el registro sale como `sw.js?v="dev"` en local, y será el commit en Vercel |
-| **③ El enlace `/signup`** | ✅ Quitado, y `/signup` fuera de las rutas públicas. En su sitio queda **«¿No tienes cuenta? Pídesela a quien lleva el cancionero»** — un hueco vacío dejaría igual de perdido que el 404 |
+| **③ El enlace `/signup`** | ✅ Quitado, y `/signup` fuera de las rutas públicas. En su sitio queda **«¿No tienes cuenta? Pídesela a quien lleva la página»** — un hueco vacío dejaría igual de perdido que el 404 |
 | **② `pdfjs-dist`** | ✅ **5.7.284 → 6.2.108**, worker regenerado. **Probado con un PDF real: 7 páginas, 3.797 caracteres**, y el texto sale bien, símbolos de repetición incluidos |
 | **② Lo demás no rompedor** | ✅ `npm audit fix`: **de 15 a 11** vulnerabilidades (13 altas → 9). Cayeron `ws`, `brace-expansion`, `js-yaml`, `nanoid` |
 | **② `next`** | ⛔ **NO SE TOCÓ. Decisión de Isaac, ver abajo** |
@@ -2148,7 +2162,7 @@ lo aprobado**, así que se paró y se le contó a Isaac en vez de seguir:
    se rompe **para los músicos**, no en local.
 
 → **Recomendación: no ahora.** Primero P-11 (unas pruebas de las funciones que sostienen el
-cancionero), o esperar a que salga un parche para la rama 14 — que puede no llegar.
+las partituras), o esperar a que salga un parche para la rama 14 — que puede no llegar.
 → **Queda anotado como decisión pendiente de Isaac**, no como olvido.
 
 
@@ -2721,7 +2735,7 @@ seguro en cualquier orden; quitar solo es seguro cuando ya nadie lo pide.
 - ✅ **T-06 · Arreglado el tono menor.** `Bm` salía como `B` en la barra de la presentación —y
   son tonalidades distintas—. El modo se lleva aparte y se devuelve al final (`esMenor` en
   `music.ts`). **Afectaba a 17 de las 75 canciones.** Probado con las tonalidades reales del
-  cancionero: 12 casos, todos correctos. Se arregla en un solo sitio, así que vale para el culto
+  las partituras: 12 casos, todos correctos. Se arregla en un solo sitio, así que vale para el culto
   **y** para el catálogo, como pidió.
 - ✅ **Migración `20240016` escrita** para quitar `hymn_number` de la base (D-16 ampliada).
 - 📌 **O-22 · La idea de avisar por WhatsApp, registrada con sus dos caminos y sus costes.**
