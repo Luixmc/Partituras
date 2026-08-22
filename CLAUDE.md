@@ -35,7 +35,7 @@ desde una tablet**.
 **La pregunta que responde.** *«¿Qué tocamos este domingo, en qué tono, y cómo lo leo mientras
 toco?»*
 
-**Arquitectura en una línea.** Next.js 14 (App Router) + React 18 + TypeScript + Tailwind
+**Arquitectura en una línea.** Next.js 16 (App Router) + React 18 + TypeScript + Tailwind
 sobre Supabase (Postgres + Auth + RLS), desplegado en Vercel con publicación automática en
 cada push a `main`.
 
@@ -676,12 +676,13 @@ largo por una cadena creyendo que la arregla.
       los esconde la interfaz. O-31 queda comprobada **por las dos caras**.
       📌 Y de paso queda probado el **botón de cambiar estado**, que era lo único de la tanda que
       no se había podido ejercitar desde aquí.
-- [ ] 🔴 **DECIDIR SI SE MIGRA A NEXT 16.** El arreglo de la vulnerabilidad de `next` **no es una
-      actualizacion, es un salto de dos versiones mayores** (14 -> 16), marcado como rompedor. Los
-      21 avisos son en su mayoria denegacion de servicio, envenenamiento de cache y SSRF, y varios
-      dicen «self-hosted» — y esto lo sirve Vercel. Migrar dos mayores **sin una sola prueba
-      automatica** (P-11) es el cambio mas arriesgado que se ha planteado en el proyecto.
-      **Recomendado: no ahora.** Antes, unas pruebas; o esperar un parche para la rama 14.
+- [x] ~~Decidir si se migra a Next 16~~ → ✅ **HECHO Y PUBLICADO el 2026-08-21**, commit `fb77141`.
+      Isaac pidió la prueba con copia previa; salió bien **después de arreglar lo que rompía**, y
+      la aprobó tras mirarla en local: *«está todo bien en lo que me dices para buscar, adelante»*.
+      **Vulnerabilidades: de 15 a 8**, y **`next` y `pdfjs-dist` desaparecen** — las 6 altas que
+      quedan son de herramientas de desarrollo y no llegan a ningún navegador.
+      🔴 **La lección va a la carpeta compartida como L-122**, y es la más cara de la noche:
+      **compiló limpio y la app estaba rota entera.** El detalle, arriba.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.

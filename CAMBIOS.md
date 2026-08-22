@@ -31,6 +31,11 @@ No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
   cuerda cae la fundamental.
 - Se saben tocar **1.892 de los 1.894 acordes**. Los dos que faltan son raros de verdad, y **a
   propósito no se dibuja nada**: más vale no enseñar nada que una postura que no suena.
+- **Arreglado: al subir o bajar el tono, los acordes salían mal escritos.** Bajando de `F` a `E`,
+  arriba ponía «Tono: E» pero debajo salía `Dbm`, `Gbm7`, `Abm7` — escrito como si el tono fuera
+  `Fb`, y nadie toca en Fb. Ahora manda **el tono al que llegas**, no del que sales: salen `C#m`,
+  `F#m7`, `G#m7`. Medido sobre las 75 canciones y las 12 tonalidades: **afectaba a más de la mitad
+  de las transposiciones**.
 - **Arreglado: a pantalla completa no salían los diagramas.** Tocabas el acorde y no aparecía nada,
   justo en la pantalla que se usa tocando.
 - **Un instrumento por vez, y la página se acuerda del tuyo.** Arriba del recuadro eliges
@@ -92,6 +97,13 @@ No sale al imprimir ni cuando estás editando: ahí el clic es para otra cosa.
 - **La copia de seguridad ya se lleva también los borradores.** Antes se dejaba fuera 8 canciones,
   y había que rescatarlas a mano.
 - **Y una copia ya no puede borrar a otra.** Dos copias seguidas el mismo minuto se pisaban.
+- **La página ya no se queda con la versión vieja.** El almacén que guarda la página para que
+  cargue rápido **no se limpiaba nunca**: si un día fallaba la conexión, podía servirte una copia
+  de hace meses. Ahora se renueva en cada actualización.
+- **Se cerró el único agujero de seguridad que llegaba al navegador**, el del lector de PDF: un PDF
+  preparado a mala fe podía ejecutar código al abrirlo. También se actualizó el motor de la página.
+- **El enlace «Regístrate» del inicio de sesión daba error 404.** Se quitó: las cuentas las crea
+  quien administra, no hay registro abierto.
 
 ---
 

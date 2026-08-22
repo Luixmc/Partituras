@@ -115,6 +115,27 @@ export const TANDAS: Tanda[] = [
           },
           {
             tipo: "arreglado",
+            titulo: "Al subir o bajar el tono, los acordes salían mal escritos.",
+            detalle: [
+              "Si bajabas una canción de <code>F</code> a <code>E</code>, arriba ponía " +
+                "<strong>Tono: E</strong> — bien — pero debajo los acordes salían " +
+                "<code>Dbm</code>, <code>Gbm7</code>, <code>Abm7</code>. Estaban escritos como si " +
+                "el tono fuera <code>Fb</code>, y <strong>nadie toca en Fb</strong>.",
+              "Ahora la página mira <strong>el tono al que llegas</strong>, no del que sales: en " +
+                "<code>E</code> salen <code>C#m</code>, <code>F#m7</code>, <code>G#m7</code>, que " +
+                "es como se leen. Vale para las 75 canciones y para las 12 tonalidades.",
+            ],
+            tabla: {
+              cabecera: ["De F a E", "Decía", "Ahora dice"],
+              filas: [
+                ["el segundo acorde", "Dbm", "C#m"],
+                ["el tercero", "Gbm7", "F#m7"],
+                ["el del bajo", "Ab/C", "G#/C"],
+              ],
+            },
+          },
+          {
+            tipo: "arreglado",
             titulo: "El recuadro del acorde se metía debajo de la barra de abajo.",
             detalle: [
               "Al tocar un acorde de la parte de abajo de la canción, el recuadro tapaba la barra de " +
