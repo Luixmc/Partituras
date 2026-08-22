@@ -30,7 +30,16 @@ export type Cambio = {
   /** Párrafos de explicación. Admiten <strong>, <em> y <code>. */
   detalle?: string[];
   /** Comparación antes/después, para lo que se entiende mejor viéndolo. */
-  tabla?: { cabecera: string[]; filas: string[][] };
+  /**
+   * Una tabla dentro del cambio.
+   *
+   * 🔴 `comparativa: true` es lo que hace que la columna del MEDIO salga
+   * tachada, como «lo que decía antes». **Hay que pedirlo**: antes se tachaba
+   * siempre la del medio, por POSICIÓN, y en cuanto llegó una tabla de datos
+   * normales —«la canción va en / tú lees / cuántas hay»— salió tachado justo
+   * el dato importante. Lo vio Isaac el 2026-08-22.
+   */
+  tabla?: { cabecera: string[]; filas: string[][]; comparativa?: boolean };
 };
 
 export type Seccion = {
@@ -98,7 +107,8 @@ export const TANDAS: Tanda[] = [
                   "Ab/C",
                   "G#/C"
                 ]
-              ]
+              ],
+              "comparativa": true
             }
           }
         ]
@@ -117,12 +127,32 @@ export const TANDAS: Tanda[] = [
               "Arriba salen <strong>los dos tonos</strong>: el que suena y el que tú lees. Así, cuando alguien diga «vamos en D», sabes que tú vas en E y nadie discute."
             ],
             "tabla": {
-              "cabecera": ["La canción va en", "Tú lees", "Cuántas hay"],
+              "cabecera": [
+                "La canción va en",
+                "Tú lees",
+                "Cuántas hay"
+              ],
               "filas": [
-                ["D", "E", "14"],
-                ["F", "G", "10"],
-                ["E", "F#", "9"],
-                ["C", "D", "7"]
+                [
+                  "D",
+                  "E",
+                  "14"
+                ],
+                [
+                  "F",
+                  "G",
+                  "10"
+                ],
+                [
+                  "E",
+                  "F#",
+                  "9"
+                ],
+                [
+                  "C",
+                  "D",
+                  "7"
+                ]
               ]
             }
           },
@@ -239,7 +269,8 @@ export const TANDAS: Tanda[] = [
                   "C · D# · G · A#",
                   "C · Eb · G · Bb"
                 ]
-              ]
+              ],
+              "comparativa": true
             }
           }
         ]

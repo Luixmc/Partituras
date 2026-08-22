@@ -1691,6 +1691,28 @@ no había nada**.
 **Comprobado:** los 5 `<details>`, **solo el primero con `open`** · el mapa con sus 5 resúmenes ·
 y el texto de la tanda **sigue completo en el HTML**, no se perdió nada al plegar.
 
+#### 🔴 Tercera corrección suya: la tabla tachaba el dato bueno
+
+Isaac, 2026-08-22, mirando la tabla de la trompeta: la columna **«TÚ LEES»** salía **tachada y
+apagada** — justo el dato por el que existe esa tabla.
+
+*Causa:* el dibujo de la tabla tachaba **la columna del medio, por POSICIÓN**, porque las tres
+tablas que había hasta entonces eran de tipo «antes / ahora» y ahí la del medio **es** lo viejo.
+En cuanto llegó una tabla de datos normales —«la canción va en · tú lees · cuántas hay»—, el estilo
+siguió aplicándose y **tachó lo importante**.
+
+*Cómo se resuelve:* **tachar pasa a pedirse**, con `comparativa: true` en la tabla. Y el valor por
+defecto es **no tachar**: un efecto especial tiene que ser explícito, para que la siguiente tabla
+que alguien añada **no salga rara por sorpresa**. Las dos comparativas que había se marcaron.
+
+📌 **La lección, que vale para cualquier tabla o lista:** **un estilo que se aplica por la POSICIÓN
+del dato es una bomba de relojería.** Funciona mientras todos los datos tengan la misma forma, y
+miente el día que llega uno distinto — sin error, sin aviso, solo un dato tachado que no debía
+estarlo. El estilo tiene que depender de **lo que el dato significa**, no de dónde cae.
+
+**Comprobado:** quedan **5 celdas tachadas** y son exactamente las que deben —`Dbm`, `Gbm7`,
+`Ab/C`, `A# · D · F` y `G · A# · D`—; la tabla de la trompeta, limpia.
+
 #### 🔴 Y una segunda corrección suya, el 2026-08-22: las tandas mentían de fecha
 
 Isaac: *«como pusiste los cambios de hoy y ayer, ten en cuenta que los cambios que se mencionan de

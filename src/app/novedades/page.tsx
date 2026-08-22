@@ -76,12 +76,19 @@ function Comparativa({ tabla }: { tabla: NonNullable<Cambio["tabla"]> }) {
                   key={j}
                   className={
                     "whitespace-nowrap border-b border-slate-200 px-3 py-2 last:border-0 dark:border-slate-700 " +
-                    // La del medio es lo que decía ANTES: tachada y apagada.
-                    (j === 1
-                      ? "text-slate-400 line-through dark:text-slate-500"
-                      : j === 2
-                        ? "font-semibold text-slate-900 dark:text-slate-100"
-                        : "text-slate-600 dark:text-slate-300")
+                    // 🔴 Tachar la columna del medio SOLO en las tablas de
+                    // «antes / ahora», y porque la tabla lo pide. Antes se
+                    // hacía por POSICIÓN, en todas, y la primera tabla de datos
+                    // normales salió con el dato importante tachado.
+                    (tabla.comparativa
+                      ? j === 1
+                        ? "text-slate-400 line-through dark:text-slate-500"
+                        : j === 2
+                          ? "font-semibold text-slate-900 dark:text-slate-100"
+                          : "text-slate-600 dark:text-slate-300"
+                      : j === 0
+                        ? "text-slate-600 dark:text-slate-300"
+                        : "font-semibold text-slate-900 dark:text-slate-100")
                   }
                 >
                   {celda}
