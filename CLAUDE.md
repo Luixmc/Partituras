@@ -2246,6 +2246,89 @@ y le toca a Isaac abrirlo en `localhost:3000` y probar cuatro cosas. **Es su pro
 completo del usuario final»*.
 
 
+### 9.2-septies · P-04 — que un culto no pueda quedarse vacío · ✅ APROBADA por Isaac el 2026-08-21
+
+Isaac eligió esto de cuatro opciones. Es el único de los problemas abiertos que **puede morder un
+domingo por la mañana**.
+
+#### El fallo, en cuatro líneas
+
+`services/actions.ts`, `replaceSongs`: guardar un culto **borra todas sus canciones y las vuelve a
+insertar**.
+
+```ts
+await supabase.from("service_songs").delete().eq("service_id", serviceId);   // ← ya no hay nada
+if (songs.length) await supabase.from("service_songs").insert(rows);         // ← si esto falla...
+```
+
+Son **dos viajes independientes a la base**. Entre uno y otro, el culto **está vacío**. Si el
+segundo falla —se cae la conexión, el móvil pierde cobertura mientras se guarda, la base rechaza
+una fila—, el error se ve en pantalla **pero el repertorio ya se borró**. Y no hay «deshacer».
+
+📌 **Por qué importa aquí y no en otro sitio:** el culto se arma **el sábado o el domingo antes de
+tocar**, muchas veces **desde el teléfono**, que es justo donde la conexión se corta.
+
+#### D-26 · Se arregla con una FUNCIÓN EN LA BASE, no reordenando las llamadas
+
+Se miraron tres caminos:
+
+| Camino | Por qué no / por qué sí |
+|---|---|
+| **Insertar primero y borrar después** | ❌ Durante un instante el culto tiene **el repertorio duplicado**, y si falla el borrado se queda así. Cambia un fallo por otro |
+| **Guardar una copia y reinsertarla si falla** | ❌ Es un «deshacer» a mano: si también falla la reinserción —y en un corte de conexión falla—, **se perdió igual**. Más código y la misma promesa rota |
+| ✅ **Una función de PostgreSQL** | **Una función de PL/pgSQL corre dentro de UNA transacción.** Si el insert falla, el borrado **se deshace solo**. No es un truco: es lo que la base ya sabe hacer y el código no puede hacer desde fuera |
+
+**Y la seguridad no se afloja:** la función va **`security invoker`** (el modo por defecto), así que
+se ejecuta con los permisos de quien llama y **la política `service_songs_write_admin` sigue
+mandando**. Un músico que la invocara directamente no podría vaciar nada. Lo contrario
+—`security definer`— habría abierto una puerta para saltarse los permisos, que es el error clásico
+de este arreglo.
+
+#### D-27 · El código va PRIMERO y aguanta que la función no exista
+
+🔴 **Es L-121 otra vez**, y aquí toca aplicarla al revés que en O-31: allí faltaba una columna, aquí
+falta una función. Entre publicar el código y ejecutar la migración hay un rato en el que
+producción llama a algo que **todavía no está**.
+→ Si la base contesta *«esa función no existe»*, el código **hace lo de siempre** —borrar e
+insertar— y deja constancia. En cuanto la migración esté, pasa a usar la función **sin tocar nada
+más**.
+→ **El respaldo se quita cuando la migración lleve un tiempo aplicada**, no antes. Anotado en §9.1
+para que no se quede ahí para siempre.
+
+| Sub | Qué | Estado |
+|---|---|---|
+| **M.1** | La función `reemplazar_canciones_culto` — migración `20240018` | ⬜ **escrita, sin ejecutar** |
+| **M.2** | `replaceSongs` la usa, con respaldo si no existe | ⬜ |
+| **M.3** | Comprobar que el culto **no se vacía** cuando el guardado falla | ⬜ **espera la migración** |
+
+#### Comprobado hasta donde se puede sin la migración (2026-08-21)
+
+- **Compila limpio.**
+- **El respaldo se dispara con el error correcto.** Llamando a la función contra la base real —que
+  todavía no la tiene— PostgREST contesta **`PGRST202`**, que es exactamente lo que reconoce
+  `funcionQueNoExiste`. Así que **publicar este código no rompe nada**: seguirá guardando como
+  hasta ahora hasta que la migración esté.
+- El camino de respaldo es **byte a byte el que lleva meses funcionando**; no se ha reescrito.
+
+#### 🔬 La prueba que hay que hacer DESPUÉS de la migración, y cómo
+
+**No basta con que la función guarde bien: hay que demostrar que DESHACE.** La prueba es corta y
+prueba justo el fallo que se está arreglando:
+
+1. Contar las canciones del culto → **20**.
+2. Llamar a la función con una canción **que no existe** (viola la clave foránea, así que el insert
+   falla a mitad).
+3. Volver a contar.
+
+| Si la función es correcta | Si estuviera mal |
+|---|---|
+| La llamada da error **y el culto conserva sus 20 canciones** | El culto se queda **vacío** — el fallo original, reproducido |
+
+⚠️ **Toca datos reales, así que necesita el OK de Isaac** y **copia fresca antes**. Si saliera mal,
+las 20 filas se restauran desde `service_songs.json` de la copia.
+
+
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:

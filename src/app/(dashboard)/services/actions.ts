@@ -84,12 +84,54 @@ function cleanInput(input: ServiceInput) {
   };
 }
 
-/** Reescribe la lista ordenada de canciones de un culto. */
+/**
+ * ¿Es este error un «esa función todavía no existe»?
+ *
+ * Hace falta porque el código se publica ANTES de ejecutar la migración
+ * (D-27), así que hay un rato en el que producción llama a algo que aún no
+ * está. Postgres lo llama `42883`; PostgREST, que es quien contesta de verdad,
+ * lo envuelve en `PGRST202` porque ni siquiera la encuentra en su catálogo.
+ */
+function funcionQueNoExiste(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return (
+    error.code === "PGRST202" ||
+    error.code === "42883" ||
+    /reemplazar_canciones_culto/.test(error.message ?? "")
+  );
+}
+
+/**
+ * Reescribe la lista ordenada de canciones de un culto.
+ *
+ * 🔴 Va por una FUNCIÓN DE LA BASE, y no borrando e insertando desde aquí, por
+ * una razón que no se puede resolver en TypeScript: borrar e insertar son
+ * **dos peticiones distintas**, y entre una y otra el culto está vacío. Si la
+ * segunda fallaba —la conexión que se cae, el móvil que pierde cobertura
+ * mientras se guarda— el repertorio se perdía y no había vuelta atrás (P-04).
+ *
+ * Dentro de la base eso sale gratis: la función corre en UNA transacción, así
+ * que si el insert falla, el borrado se deshace solo.
+ *
+ * ⚠️ El respaldo de abajo es TEMPORAL, y tiene fecha: existe solo mientras la
+ * migración `20240018` no esté aplicada en producción. Está anotado en §9.1
+ * para quitarlo, porque un respaldo sin dueño se queda para siempre.
+ */
 async function replaceSongs(
   supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"],
   serviceId: string,
   songs: ReturnType<typeof cleanInput>["songs"]
 ) {
+  const { error } = await supabase.rpc("reemplazar_canciones_culto", {
+    p_service_id: serviceId,
+    p_canciones: songs,
+  });
+  if (!error) return;
+  if (!funcionQueNoExiste(error)) throw error;
+
+  // ── Respaldo: la migración todavía no está aplicada ──
+  // Es lo de siempre, con su riesgo de siempre. Se conserva para que publicar
+  // el código no rompa nada mientras la migración espera el visto bueno.
   const { error: delErr } = await supabase
     .from("service_songs")
     .delete()
