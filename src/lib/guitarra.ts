@@ -43,7 +43,7 @@ export const CUERDAS_GUITARRA = [
  */
 type Forma = (number | null)[];
 
-/** Formas con la fundamental en la 6ª cuerda (familia de «mi»). */
+/** Formas con la fundamental en la 6ª cuerda (familia de «E»). */
 const EN_SEXTA: Record<string, Forma> = {
   "":     [0, 2, 2, 1, 0, 0],   // mi mayor
   m:      [0, 2, 2, 0, 0, 0],   // mi menor
@@ -67,7 +67,7 @@ const EN_SEXTA: Record<string, Forma> = {
   maj9:   [0, 2, 1, 1, 0, 2],
 };
 
-/** Formas con la fundamental en la 5ª cuerda (familia de «la»). */
+/** Formas con la fundamental en la 5ª cuerda (familia de «A»). */
 const EN_QUINTA: Record<string, Forma> = {
   "":     [null, 0, 2, 2, 2, 0],   // la mayor
   m:      [null, 0, 2, 2, 1, 0],   // la menor

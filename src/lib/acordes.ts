@@ -6,7 +6,7 @@
 //
 // Un acorde no es una lista de semitonos: es una fundamental y unos
 // GRADOS sobre ella. La tercera de `Bb` es un `D` porque está dos
-// letras más arriba (si→do→re), y la quinta es `F`. Contando solo
+// letras más arriba (B→C→D), y la quinta es `F`. Contando solo
 // semitonos hay que elegir entre `A#` y `Bb`, y esa elección no se
 // puede acertar sin saber de dónde viene la nota.
 //

@@ -2615,9 +2615,30 @@ para todo el grupo — **decisión de Isaac, no se toca por cuenta propia**.
 
 #### Cómo quedó, y los dos cuidados que hacían falta
 
-- **`lib/transpositores.ts`** — la regla en un sitio. Tres entradas: **Como suena** (0), **En Si♭**
-  (+2) y **En Mi♭** (+9). La de Mi♭ **no la usa nadie hoy** y se deja escrita a propósito: es una
-  línea, y así el día que entre un saxo alto no hay que volver a razonar la cuenta.
+- **`lib/transpositores.ts`** — la regla en un sitio. **Dos entradas: «Como suena» (0) y
+  «Trompeta» (+2).**
+  🔴 **El Mi♭ del saxo alto se QUITÓ**, el 2026-08-22, por orden de Isaac: *«quita el Mib del saxo
+  alto, ya que nada más usamos trompeta»*. Se había dejado escrito «por si acaso» —era una línea—
+  y él lo cortó: **una opción que nadie usa es ruido en un selector que se mira tocando.** Si algún
+  día entra un saxo alto, se añade con su `semitonos: 9`.
+
+#### 🔤 D-29 · Las notas se nombran SIEMPRE en cifrado americano: C, D, E, F, G, A, B
+
+Isaac, 2026-08-22: *«que sea en cifrado americano para todo C, D, E, F, G, A, B»*.
+
+→ **Ni en la pantalla, ni en los comentarios del código, ni en las pruebas.** Se dice `Bb`, no
+«si bemol»; `E`, no «mi». Es el idioma en el que están escritas las 75 canciones, y mezclarlo
+obliga a traducir mentalmente **justo a quien menos tiempo tiene**, que es el que está tocando.
+→ **Barrido entero:** el selector decía «En Si♭» y ahora dice **«Trompeta»** (con «en Bb» en la
+ayuda). Se corrigieron además `music.ts` («G, D, A, E y B llevan sostenidos», «un E# y un B#»),
+`acordes.ts` («B→C→D»), `guitarra.ts` («familia de E» y «familia de A»), `PianoDiagram`
+(«llevan negra detrás C, D, F, G y A») y las tres pruebas.
+→ **Queda UNA sola mención**, y es **la cita de esta misma regla** en `transpositores.ts`: si se
+borra, desaparece el motivo. Es lo mismo que se hizo con «cancionero» (O-27), y por la misma razón
+— **esa regla ya se incumplió una vez por vivir solo en el historial**.
+⚠️ **Lo que NO son nombres de nota y se queda igual:** «negra», «blanca», «corchea», «redonda» y
+«semicorchea» son nombres de **duración**, no de nota, y en cifrado americano no tienen
+equivalente.
 - **El selector va pegado al tono**, en su propia fila de la barra, porque es justo lo que cambia:
   qué tono ves escrito.
 - 🔴 **Lo que no era obvio ①: la excepción de T-11 deja de aplicar.** «Sin mover el tono se enseña

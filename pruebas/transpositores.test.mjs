@@ -6,7 +6,7 @@
 // un tono fuera del grupo. No hay pantalla en rojo ni error en la consola —
 // solo un domingo que suena raro.
 //
-// La regla, para no volver a razonarla: un instrumento en Si♭ **suena un tono
+// La regla, para no volver a razonarla: un instrumento en Bb **suena un tono
 // más grave de lo que lee**, así que su parte se escribe **un tono por
 // encima**. Toca su `E` → suena `D`.
 // ─────────────────────────────────────────────────────────────
@@ -36,18 +36,20 @@ describe("la cuenta de cada instrumento", () => {
     assert.equal(semitonosDe("do"), 0);
   });
 
-  test("en Si♭ sube UN TONO (2 semitonos)", () => {
+  test("la trompeta (en Bb) sube UN TONO: 2 semitonos", () => {
     assert.equal(semitonosDe("sib"), 2);
   });
 
-  test("en Mi♭ sube una sexta mayor (9 semitonos)", () => {
-    assert.equal(semitonosDe("mib"), 9);
+  test("solo hay dos opciones: como suena y trompeta", () => {
+    // Isaac quitó el Mi bemol del saxo alto el 2026-08-22: «nada más usamos
+    // trompeta». Si algún día vuelve, se añade aquí y en `transpositores.ts`.
+    assert.deepEqual(TRANSPOSITORES.map((t) => t.id).sort(), ["do", "sib"]);
   });
 
   test("lo que no se reconoce no transpone: ante la duda, como suena", () => {
     // Importante que sea 0 y no otra cosa: si un día se guarda un valor viejo
     // en el navegador, lo peor que puede pasar es que se vea el tono normal.
-    for (const raro of ["", "trompeta", "sib2", null, undefined]) {
+    for (const raro of ["", "mib", "sib2", null, undefined]) {
       assert.equal(semitonosDe(raro), 0, JSON.stringify(raro));
     }
   });

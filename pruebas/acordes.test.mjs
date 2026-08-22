@@ -3,7 +3,7 @@
 //
 // Aquí vive la regla de T-13: **las notas se nombran por GRADOS, no por
 // semitonos**. La tercera de `Bb` es un `D` porque está dos letras más arriba
-// —si, do, re—, no porque caiga en tal semitono. Contando semitonos hay que
+// —B, C, D—, no porque caiga en tal semitono. Contando semitonos hay que
 // elegir entre `A#` y `Bb`, y esa elección no se puede acertar sin saber de
 // dónde viene la nota.
 //
@@ -60,7 +60,7 @@ describe("la barra significa DOS cosas distintas", () => {
 
   test("/b5 es una ALTERACIÓN: el bajo sigue siendo la fundamental", () => {
     const a = leerAcorde("F#m7/b5");
-    assert.equal(a.bajo, "F#", "el bajista NO toca un si bemol");
+    assert.equal(a.bajo, "F#", "el bajista NO toca un Bb");
     assert.ok(a.notas.length >= 4);
   });
 
@@ -104,7 +104,7 @@ describe("lo que no se sabe, NO se inventa", () => {
 });
 
 describe("semitonoDe entiende las dobles alteraciones", () => {
-  test("F## es un sol", () => assert.equal(semitonoDe("F##"), semitonoDe("G")));
-  test("Cb es un si", () => assert.equal(semitonoDe("Cb"), semitonoDe("B")));
-  test("Fb es un mi", () => assert.equal(semitonoDe("Fb"), semitonoDe("E")));
+  test("F## suena como G", () => assert.equal(semitonoDe("F##"), semitonoDe("G")));
+  test("Cb suena como B", () => assert.equal(semitonoDe("Cb"), semitonoDe("B")));
+  test("Fb suena como E", () => assert.equal(semitonoDe("Fb"), semitonoDe("E")));
 });

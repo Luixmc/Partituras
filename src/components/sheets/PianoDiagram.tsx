@@ -148,8 +148,8 @@ export default function PianoDiagram({ acorde, className }: { acorde: Acorde; cl
   for (let w = primera; w <= ultima; w++) {
     const x = (w - primera) * ANCHO_BLANCA;
     blancas.push({ x, abs: semiBlanca(w) });
-    // Llevan negra detrás do, re, fa, sol y la. Mi y si no: ahí es donde el
-    // teclado deja dos blancas juntas, y es lo que hace reconocible el dibujo.
+    // Llevan negra detrás C, D, F, G y A. E y B no: ahí es donde el teclado
+    // deja dos blancas juntas, y es lo que hace reconocible el dibujo.
     const grado = ((w % 7) + 7) % 7;
     if (NEGRAS.some((n) => n.tras === grado) && w < ultima) {
       negras.push({ x: x + ANCHO_BLANCA - ANCHO_NEGRA / 2, abs: semiBlanca(w) + 1 });

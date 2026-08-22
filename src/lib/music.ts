@@ -29,7 +29,7 @@ const NOTE_TO_PITCH: Record<string, number> = {
 export const KEY_OPTIONS: { value: string; pitch: number; flats: boolean }[] = [
   { value: "C",  pitch: 0,  flats: false },
   // 🔴 Db y NO C#, aunque sea la misma tecla. **C# mayor tiene SIETE
-  // sostenidos** —incluido un mi sostenido y un si sostenido— y no la toca
+  // sostenidos** —incluidos un E# y un B#— y no la toca
   // nadie; **Db mayor tiene cinco bemoles** y es la que se lee. Lo cazo una
   // prueba de `pruebas/musica.test.mjs` el 2026-08-21, no un músico.
   // Comprobado antes de tocarlo: **ninguna de las 75 canciones, ningún culto y
@@ -86,7 +86,7 @@ export function keyToPitch(key: string | null | undefined): number | null {
  * ¿El tono es MENOR? Reconoce "Am", "Bbm", "C#m" y también "A minor".
  *
  * Hace falta porque al transponer solo se mueve la NOTA: `keyToPitch("Bm")`
- * devuelve la altura de si, y al volver a escribirla salía "B" a secas. El modo
+ * devuelve la altura de B, y al volver a escribirla salía "B" a secas. El modo
  * hay que llevarlo aparte y devolverlo al final, o "Bm" se lee como "B" y son
  * dos tonalidades distintas.
  */
@@ -115,8 +115,8 @@ export function prefersFlats(targetKey: string | null | undefined): boolean {
  *
  * No hay regla que inventar: `KEY_OPTIONS` y `KEY_OPTIONS_MINOR` **ya la
  * tienen escrita**, tonalidad por tonalidad. Es el círculo de quintas de toda
- * la vida — Sol, Re, La, Mi, Si llevan sostenidos; Fa, Si♭, Mi♭, La♭, Re♭
- * llevan bemoles—. Aquí solo se busca por altura y modo.
+ * la vida — G, D, A, E y B llevan sostenidos; F, Bb, Eb, Ab y Db llevan
+ * bemoles—. Aquí solo se busca por altura y modo.
  *
  * @param pitch  0–11, la altura del tono destino.
  * @param menor  Si el tono es menor: `Dm` lleva bemoles y `D` no.

@@ -124,7 +124,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
   // ── El instrumento de quien lee (D-28) ────────────────────
   //
-  // Un instrumento en Si♭ SUENA UN TONO MÁS GRAVE de lo que lee, así que su
+  // Un instrumento en Bb SUENA UN TONO MÁS GRAVE de lo que lee, así que su
   // parte se escribe un tono por encima. Si el trompetista lee el `D` de la
   // página y toca su `D`, suena `C`: un tono por debajo del grupo. Ahora la
   // cuenta la hace la página y él no transpone nada de cabeza.
@@ -692,7 +692,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         ))}
         {desplazamiento > 0 && (
           <span className="text-xs text-slate-400">
-            se te muestra más arriba, para que suene con el grupo
+            se te muestra un tono más arriba — así lo que suena va con el grupo
           </span>
         )}
       </div>

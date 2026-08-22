@@ -5,7 +5,7 @@
 // no lea nada de mente» (D-28).
 //
 // 🔴 EL PROBLEMA QUE ESTO RESUELVE, y que llevaba ahí sin que nadie lo dijera:
-// la trompeta es **en Si♭**, o sea que **suena un tono más grave de lo que
+// la trompeta es **en Bb**, o sea que **suena un tono más grave de lo que
 // lee**. Si en la página pone `D` y el trompetista toca su `D`, **suena `C`** —
 // un tono por debajo del resto del grupo. Para que suene `D` tiene que leer
 // `E`. O lo estaba haciendo de cabeza cada domingo, o llevaba tiempo sonando
@@ -21,8 +21,13 @@ export type Transpositor = {
   nombre: string;
   /**
    * Cuántos semitonos hay que SUBIR lo escrito para que suene lo que toca el
-   * resto. Un instrumento en Si♭ suena un tono por debajo, así que su parte
+   * resto. Un instrumento en Bb suena un tono por debajo, así que su parte
    * se escribe un tono por encima: +2.
+   *
+   * 🔴 Y las notas se nombran SIEMPRE en cifrado americano —C, D, E, F, G, A,
+   * B—, aquí y en cualquier texto del proyecto. Lo pidió Isaac el 2026-08-22:
+   * es el idioma en el que están escritas las 75 canciones, y mezclarlo con
+   * «si bemol» obliga a traducir mentalmente justo a quien menos tiempo tiene.
    */
   semitonos: number;
   /** Qué instrumentos son. Sale debajo del selector, para no tener que saberlo. */
@@ -38,17 +43,9 @@ export const TRANSPOSITORES: Transpositor[] = [
   },
   {
     id: "sib",
-    nombre: "En Si♭",
+    nombre: "Trompeta",
     semitonos: 2,
-    ejemplos: "trompeta, clarinete, saxo tenor y soprano",
-  },
-  {
-    // Se deja escrito aunque hoy no lo use nadie: es UNA LÍNEA, y así el día
-    // que entre un saxo alto no hay que volver a razonar la cuenta.
-    id: "mib",
-    nombre: "En Mi♭",
-    semitonos: 9,
-    ejemplos: "saxo alto y barítono",
+    ejemplos: "trompeta (en Bb). También vale para clarinete y saxo tenor",
   },
 ];
 

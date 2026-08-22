@@ -36,8 +36,8 @@ describe("de qué tonalidad hablamos", () => {
 });
 
 describe("bemoles o sostenidos: manda el tono AL QUE SE LLEGA (T-14)", () => {
-  // La regla no es de nadie: es el círculo de quintas. Sol, Re, La, Mi y Si
-  // llevan sostenidos; Fa, Si♭, Mi♭, La♭ y Re♭ llevan bemoles.
+  // La regla no es de nadie: es el círculo de quintas. G, D, A, E y B
+  // llevan sostenidos; F, Bb, Eb, Ab y Db llevan bemoles.
   const MAYORES = [
     [0, false, "C"], [1, true, "Db"], [2, false, "D"], [3, true, "Eb"],
     [4, false, "E"], [5, true, "F"], [6, false, "F#"], [7, false, "G"],
