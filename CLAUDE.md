@@ -683,6 +683,11 @@ largo por una cadena creyendo que la arregla.
       quedan son de herramientas de desarrollo y no llegan a ningún navegador.
       🔴 **La lección va a la carpeta compartida como L-122**, y es la más cara de la noche:
       **compiló limpio y la app estaba rota entera.** El detalle, arriba.
+- [ ] ⬜ **Quitar el respaldo de `replaceSongs`** (`services/actions.ts`). Es el borrar-e-insertar
+      de siempre, que se dejó para que publicar el código no rompiera nada mientras la migración
+      `20240018` esperaba permiso. **Ya no se usa nunca**: la función existe desde el 2026-08-21.
+      Se quita cuando lleve unos días en pie. **Está anotado aquí a propósito**: un respaldo
+      temporal sin dueño se queda para siempre.
 - [ ] **Contestar las preguntas abiertas (❓) que queden en §9.2** — sin ellas, O-01, O-03,
       O-06 y O-08 no se pueden empezar sin inventarse una regla.
 - [x] ~~Aprobar el orden de fases~~ → **APROBADO el 2026-08-20**, con la Fase 0 por delante.
@@ -2329,6 +2334,66 @@ las 20 filas se restauran desde `service_songs.json` de la copia.
 
 
 
+#### ✅ P-04 HECHA, MIGRADA Y COMPROBADA (2026-08-21)
+
+Isaac dio el permiso para las tres cosas: *«te doy el permiso, adelante»*. Se hizo **en el orden de
+T-07**: copia → código a producción → migración → prueba.
+
+| Sub | Estado |
+|---|---|
+| **M.1** Función `reemplazar_canciones_culto` (migración `20240018`) | ✅ **aplicada** |
+| **M.2** `replaceSongs` la usa, con respaldo si no existe | ✅ publicado en `0c2e7ea` |
+| **M.3** Demostrar que **deshace** | ✅ **medido, abajo** |
+| **M.4** Cerrarla a los anónimos (migración `20240019`) | ✅ **aplicada** — hallazgo de la propia prueba |
+
+**Copia previa:** `Partituras-datos-2026-08-22-11h58h26` (20 filas de repertorio) más un volcado
+completo de `services` y `service_songs` leído directamente de la base, porque la copia estándar
+**ya solo trae 1 de los 3 cultos** — efecto de la migración 017, que cerró la lectura pública.
+
+#### La prueba, que es lo que de verdad valía
+
+**① Que DESHAGA.** Se llamó a la función sobre el culto «asd» pasándole una canción **que no
+existe**, para que el insert reventara a mitad:
+
+| | Antes | Después |
+|---|---|---|
+| Canciones del culto | **8** | **8** |
+| Repertorio total | 20 | **20** |
+
+**El culto conservó su repertorio tras un guardado que falló.** Con el código viejo se habría
+quedado vacío — es el fallo original, reproducido y contenido.
+
+**② Que además GUARDE bien.** Se le pasaron al mismo culto exactamente sus 8 canciones:
+**8 de 8 coinciden en canción y posición**, posiciones `0,1,2,3,4,5,6,7` sin huecos. Los tres
+cultos quedaron **exactamente como estaban**: `asd=8 · Ayuno=5 · Escuela Dominical=7`.
+
+#### 🔴 T-15 · `revoke ... from public` NO revoca lo que se concedió a un ROL
+
+*Síntoma:* con la 018 ya aplicada, llamar a la función **sin cuenta, con la clave pública**,
+devolvía **`204 No Content`** — o sea, se ejecutaba.
+*Causa:* la 018 terminaba en `revoke all on function ... from public`. **Supabase concede EXECUTE a
+`anon` y a `authenticated` de forma explícita** en cada función nueva, y **revocar de `PUBLIC` no
+toca una concesión explícita a un rol**. Son dos cosas distintas y se parecen mucho.
+*Comprobado:* `has_function_privilege('anon', ...)` daba **`true`** después de la 018.
+
+✅ **NO era explotable, y también se midió:** llamándola sin cuenta contra un culto **de verdad**
+para vaciarlo, el culto **conservó sus 8 canciones**. La función es `security invoker`, así que el
+borrado corre con los permisos de quien llama y la política `service_songs_write_admin` no le deja
+ver ni una fila que borrar. **La defensa real estaba donde tenía que estar** (D-26).
+
+*Cómo se cerró:* migración `20240019`, `revoke execute ... from anon`.
+*Medido después:* la misma llamada devuelve **`401`**, `anon` → `false`, la app (`authenticated`)
+→ `true`, y `prosecdef` → `false` (sigue siendo invoker, no definer).
+
+📌 **Lo que enseña, y por eso sube a trampa:** el permiso se **comprueba**, no se deduce del SQL que
+uno escribió. Dos líneas de `has_function_privilege` separaron *«creo que está cerrado»* de *«está
+cerrado»* — y el agujero lo abrió una línea que **parecía** hacer justo eso.
+
+⬜ **Pendiente menor, con dueño:** el **respaldo** de `replaceSongs` —el borrar-e-insertar de
+siempre— ya no se usa nunca, porque la función existe. **Se quita cuando lleve unos días en pie.**
+Anotado en §9.1 para que un respaldo temporal no se quede para siempre.
+
+
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
 Ninguno en marcha. **No se toca nada de esto hasta que Isaac lo dicte** (fue explícito:
@@ -2351,9 +2416,11 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-03 · «Solo el admin edita» puede ser solo apariencia.** Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.
-- [ ] **P-04 · Editar un culto puede dejarlo vacío.** `services/actions.ts:83-93` borra todas
-      las canciones y reinserta **sin transacción**. Si el insert falla, el culto se queda sin
-      canciones — y eso pasaría un domingo por la mañana.
+- [x] ~~**P-04 · Editar un culto puede dejarlo vacío.**~~ → ✅ **ARREGLADO el 2026-08-21**,
+      migraciones `20240018` y `20240019`. Guardar el repertorio va por una función de la base que
+      corre en **una transacción**: si el insert falla, el borrado se deshace. **Comprobado con un
+      guardado que revienta a mitad: el culto conservó sus 8 canciones.** El detalle, en
+      §9.2-septies, y de la prueba salió **T-15**.
 - [ ] **P-05 · Una canción no se puede repetir en un culto.** PK `(service_id, sheet_id)` en
       `20240012:56`, y `services/actions.ts:56-58` de-duplica **en silencio**. Abrir y cerrar
       con el mismo coro es imposible y nadie explica por qué.
