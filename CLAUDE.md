@@ -1515,6 +1515,37 @@ mismo punto ciego que el botón de WhatsApp y el `<select>` en modo oscuro (T-12
 hacían los botones. Hay que darle a «Guardar», y si se sale antes sigue saliendo el aviso.
 
 
+**O-38 · `/novedades` soltaba todo abierto de golpe: mapa arriba y secciones plegables.**
+✅ **HECHO.** Isaac, 2026-08-21, **leyendo la página ya publicada**: *«creo que el orden mejor sería
+mencionar los cambios por secciones y que de ahí se desglosen los demás… lo digo como para que haya
+un orden en la que el grupo cuando lea esto lo pueda entender bien, porque soy yo y veo que hay
+algunos enredos»*.
+
+📌 **Y lo dejó a mi criterio** —*«en esta permito, si crees que no es buena idea lo puedes
+omitir»*—. **Se hizo igualmente, y el motivo es él mismo:** si el que escribió los cambios se
+enreda leyéndolos, un músico que no sabe qué se tocó se enreda más. **Es el mejor lector de prueba
+que tiene el proyecto.**
+
+**El problema, medido:** la página pintaba **5 secciones y ~28 cambios abiertos a la vez**, cada
+uno con uno o dos párrafos. En un teléfono eso es un muro de texto sin forma: no se ve cuánto hay,
+ni por dónde empezar, ni qué te importa.
+
+**Lo que se hizo, dos cosas:**
+1. **Un mapa arriba** — las secciones con **cuántos cambios** trae cada una y **una línea de qué vas
+   a encontrar**. Campo `resumen` nuevo en `Seccion`. Sin esa línea sería una lista de títulos que
+   no dice si merece la pena entrar.
+2. **Cada sección se despliega**, con `<details>` de HTML. **Ni una línea de JavaScript**: funciona
+   con el dedo, sin cuenta, y si algo fallara **el texto sigue estando ahí** — de hecho sigue
+   entero en el HTML, solo plegado.
+
+🔴 **La primera sección va ABIERTA a propósito.** Con todo cerrado, quien entra por el enlace de
+WhatsApp vería cinco rayas y pensaría que la página está vacía — que es justo el fallo que ya se
+pagó una vez con el enlace de Claude (O-29): **parecía que funcionaba y para el que no tenía cuenta
+no había nada**.
+
+**Comprobado:** los 5 `<details>`, **solo el primero con `open`** · el mapa con sus 5 resúmenes ·
+y el texto de la tanda **sigue completo en el HTML**, no se perdió nada al plegar.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la

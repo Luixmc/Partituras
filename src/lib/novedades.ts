@@ -33,7 +33,19 @@ export type Cambio = {
   tabla?: { cabecera: string[]; filas: string[][] };
 };
 
-export type Seccion = { titulo: string; cambios: Cambio[] };
+export type Seccion = {
+  titulo: string;
+  /**
+   * Una línea de «qué vas a encontrar aquí», para el mapa de arriba.
+   *
+   * 🔴 Es lo que pidió Isaac el 2026-08-21 leyendo la página: «creo que el
+   * orden mejor sería mencionar los cambios por secciones y que de ahí se
+   * desglosen los demás… veo que hay algunos enredos». Sin esto, el mapa
+   * sería una lista de títulos que no dice si te interesa entrar.
+   */
+  resumen: string;
+  cambios: Cambio[];
+};
 
 export type Tanda = {
   /** Cómo se lee la fecha en pantalla. */
@@ -61,6 +73,9 @@ export const TANDAS: Tanda[] = [
     secciones: [
       {
         titulo: "Al leer los acordes",
+        resumen:
+          "Toca un acorde y ves cómo se hace en piano, bajo y guitarra. Y unas cuantas cosas que se " +
+          "dibujaban mal —figuras, ligaduras, el tono de arriba— que ya salen bien.",
         cambios: [
           {
             tipo: "nuevo",
@@ -166,6 +181,9 @@ export const TANDAS: Tanda[] = [
       },
       {
         titulo: "Al buscar una canción",
+        resumen:
+          "Ya salen las 75, las tarjetas ocupan menos y se pasa de una canción a otra sin volver al " +
+          "listado.",
         cambios: [
           {
             tipo: "arreglado",
@@ -222,6 +240,9 @@ export const TANDAS: Tanda[] = [
       },
       {
         titulo: "En el culto",
+        resumen:
+          "Repetir una canción las veces que haga falta, el enlace para quien no tiene cuenta, y " +
+          "avisar al grupo por WhatsApp.",
         cambios: [
           {
             tipo: "nuevo",
@@ -266,6 +287,9 @@ export const TANDAS: Tanda[] = [
       },
       {
         titulo: "El PDF del culto",
+        resumen:
+          "Antes bajaba solo la lista de títulos. Ahora se lleva las canciones enteras, con sus " +
+          "acordes, una por hoja.",
         cambios: [
           {
             titulo: "Antes bajaba solo la lista de canciones. Ahora se lleva el culto entero.",
@@ -298,6 +322,9 @@ export const TANDAS: Tanda[] = [
         // funcionan igual en el computador. Un título que excluye sin querer
         // hace que la mitad de la gente ni lo lea.
         titulo: "En el teléfono y en el computador",
+        resumen:
+          "El tamaño de letra se queda guardado, hay dos maneras de leer las columnas, y el logo de " +
+          "la iglesia sale en la pestaña.",
         cambios: [
           {
             tipo: "nuevo",

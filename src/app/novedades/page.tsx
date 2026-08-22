@@ -125,16 +125,63 @@ export default function NovedadesPage() {
             )}
           </div>
 
-          {tanda.secciones.map((seccion) => (
-            <section key={seccion.titulo} className="flex flex-col gap-5">
-              <h2 className="flex items-baseline gap-3 border-b border-slate-200 pb-2 font-display text-2xl font-semibold text-slate-900 dark:border-slate-700 dark:text-slate-50">
+          {/* EL MAPA. Isaac, leyendo la página el 2026-08-21: «el orden mejor
+              sería mencionar los cambios por secciones y que de ahí se
+              desglosen los demás… soy yo y veo que hay algunos enredos».
+              Tenía razón: la página soltaba las 5 secciones y sus ~28 cambios
+              abiertos de una vez, que en un teléfono es un muro de texto.
+              Aquí se ve la forma entera de un vistazo, y cada línea dice si
+              te interesa entrar. */}
+          <nav className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+              Lo que cambió, por partes
+            </p>
+            <ol className="flex flex-col gap-3">
+              {tanda.secciones.map((seccion) => (
+                <li key={seccion.titulo} className="flex flex-col gap-0.5">
+                  <p className="flex items-baseline gap-2 font-semibold text-slate-900 dark:text-slate-100">
+                    {seccion.titulo}
+                    <span className="ml-auto whitespace-nowrap text-xs font-semibold tabular-nums text-slate-400 dark:text-slate-500">
+                      {seccion.cambios.length}
+                    </span>
+                  </p>
+                  <Texto
+                    html={seccion.resumen}
+                    className="text-sm text-slate-500 dark:text-slate-400"
+                  />
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          {/* Cada sección se despliega. Se usa <details>, que es HTML del
+              navegador: no hace falta ni una línea de JavaScript, funciona
+              con el dedo y sin cuenta, y si algo fallara el contenido sigue
+              estando ahí.
+
+              La PRIMERA va abierta a propósito: si se abriera todo cerrado,
+              quien entra por el enlace de WhatsApp vería cinco rayas y
+              pensaría que la página está vacía. */}
+          {tanda.secciones.map((seccion, s) => (
+            <details
+              key={seccion.titulo}
+              open={s === 0}
+              className="group border-b border-slate-200 pb-5 dark:border-slate-700"
+            >
+              <summary className="flex cursor-pointer list-none items-baseline gap-3 py-1 font-display text-2xl font-semibold text-slate-900 marker:content-none dark:text-slate-50 [&::-webkit-details-marker]:hidden">
+                <span
+                  aria-hidden
+                  className="select-none text-base text-slate-400 transition-transform group-open:rotate-90 dark:text-slate-500"
+                >
+                  ▸
+                </span>
                 {seccion.titulo}
                 <span className="ml-auto whitespace-nowrap text-xs font-semibold tabular-nums text-slate-400 dark:text-slate-500">
                   {seccion.cambios.length} {seccion.cambios.length === 1 ? "cambio" : "cambios"}
                 </span>
-              </h2>
+              </summary>
 
-              <ul className="flex flex-col gap-6">
+              <ul className="mt-5 flex flex-col gap-6">
                 {seccion.cambios.map((cambio, i) => (
                   <li key={i} className="flex flex-col gap-1.5">
                     {cambio.tipo && <Marca tipo={cambio.tipo} />}
@@ -146,7 +193,7 @@ export default function NovedadesPage() {
                   </li>
                 ))}
               </ul>
-            </section>
+            </details>
           ))}
         </article>
       ))}
