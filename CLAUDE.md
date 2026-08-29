@@ -2852,9 +2852,9 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       corre en **una transacción**: si el insert falla, el borrado se deshace. **Comprobado con un
       guardado que revienta a mitad: el culto conservó sus 8 canciones.** El detalle, en
       §9.2-septies, y de la prueba salió **T-15**.
-- [ ] **P-05 · Una canción no se puede repetir en un culto.** PK `(service_id, sheet_id)` en
-      `20240012:56`, y `services/actions.ts:56-58` de-duplica **en silencio**. Abrir y cerrar
-      con el mismo coro es imposible y nadie explica por qué.
+- [x] ~~**P-05 · Una canción no se puede repetir en un culto**~~ → **HECHO en la fase E**
+      (2026-08-20), migración `20240015`: la clave primaria pasó a ser un id propio de cada fila.
+      Era la misma petición que O-09. Confirmado por Isaac: *«lo probé y funciona»*.
 - [ ] **P-06 · El OCR depende de un CDN externo.** `songImport.ts:74-77` carga worker, WASM e
       idiomas de `cdn.jsdelivr.net` y `tessdata.projectnaptha.com`. Sin internet no funciona,
       en una app que se vende como instalable.
@@ -2872,9 +2872,10 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       de **pruebas**.
       **Y un «Historial de versiones»** con `r31`…`r45`, retomando la numeración del primo. → **A
       partir de aquí las publicaciones vuelven a llevar su `rXX`.**
-- [ ] **P-08 · El enlace «Regístrate» del login da 404.** `login/page.tsx:83` → `/signup`, que
-      no existe (comprobado en producción). El middleware la trata como pública
-      (`middleware.ts:35`).
+- [x] ~~**P-08 · El enlace «Regístrate» da 404**~~ → **HECHO en la fase L** (2026-08-22). **No se
+      creó la página, se quitó el enlace**: aquí las cuentas las crea el admin y no debe haber
+      registro abierto. En su sitio queda a quién pedirla. `/signup` salió también de las rutas
+      públicas del middleware.
 - [x] ~~**P-09 · `parseSections` duplicado**~~ → **CERRADO el 2026-08-28**, y no por limpieza:
       **fue la causa de O-44**. Al estar escrita dos veces y no haber «la de todos», la pantalla de
       crear canción no tenía a cuál llamar y se quedó **sin secciones**. Ahora hay **una sola** y la
@@ -2889,8 +2890,17 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       CORS de `next.config.js:6-9` fija `Allow-Origin` a su propio dominio con
       `Allow-Credentials: true` sobre `/catalog/*` y `/sheets/*`, que son páginas HTML, no una
       API: no hace nada útil y miente el día que cambie el dominio.
-- [ ] **P-11 · Ni una prueba, ni CI.** Sin `.github/`, sin un solo archivo de test.
-- [ ] **P-12 · Versionar el caché del service worker** para cerrar T-02 de raíz.
+- [x] ~~**P-11 · Ni una prueba, ni CI**~~ → **HECHO.** El **CI** el 2026-08-20 (`npm run build` en
+      cada push) y **las pruebas el 2026-08-22**: hoy son **139**, con el runner de Node y **cero
+      dependencias nuevas**, y el CI las ejecuta **antes** del build. Ver §9.2-octies.
+      ⬜ **Lo que falta de P-11:** automatizar el **recorrido de las 19 pantallas**, que es lo que
+      cazó lo de Next 16 y sigue haciéndose a mano.
+- [x] ~~**P-12 · Versionar el caché del service worker**~~ → **HECHO en la fase L** (2026-08-22).
+      `sw.js` lee su versión de su propia dirección (`?v=<commit>`), así que al desplegar se instala
+      el nuevo y **limpia el anterior**. Antes el nombre del caché era constante y `activate` **no
+      borraba nada nunca**.
+      📌 Y de paso se corrigió T-02, que estaba **mal explicada**: el caché HTTP no era el culpable
+      —Vercel manda revalidar siempre— sino el caché del service worker, que no caducaba.
 - [x] ~~**P-14 · El middleware bloqueaba `/manifest.json`**~~ → ✅ **ARREGLADO en la Fase A.**
       El `matcher` de `middleware.ts:59` excluía imágenes y `favicon.ico` pero **no el
       manifiesto**, así que `/manifest.json` respondía **307 hacia `/login`**. El navegador lo
@@ -2898,13 +2908,11 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       queda **sin icono y sin nombre**. Apareció al poner el logo (O-15): el favicon funcionaba
       y el manifiesto no. Se añadieron `manifest.json`, `sw.js` y la extensión `.ico` a las
       exclusiones.
-- [ ] **P-13 · `pdfjs-dist` permite ejecutar JavaScript arbitrario al abrir un PDF
-      malicioso.** De las 15 vulnerabilidades que reporta `npm audit`, **esta es la única que
-      importa de verdad**: las demás son de herramientas de desarrollo (eslint, glob,
-      minimatch) que no llegan al navegador del usuario. Y aquí sí llega: la app abre PDFs que
-      trae el propio usuario (`songImport.ts:33-66`). Se arregla actualizando `pdfjs-dist` —
-      y después hay que **regenerar el worker** con `npm run copy-pdf-worker`, o la
-      importación de PDF deja de funcionar.
+- [x] ~~**P-13 · `pdfjs-dist` permite ejecutar JavaScript al abrir un PDF malicioso**~~ →
+      **HECHO en la fase L** (2026-08-22): **5.7.284 → 6.2.108**, con el worker regenerado y
+      **probado con un PDF real** (7 páginas, 3.797 caracteres). De paso subió **Next 14 → 16**.
+      **Las vulnerabilidades bajaron de 15 a 8**, y las 8 que quedan son de herramientas de
+      desarrollo: **no llegan a ningún navegador**.
 
 ### 9.4 Resueltos
 
