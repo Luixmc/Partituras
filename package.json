@@ -13,7 +13,6 @@
     "test": "node pruebas/ejecutar.mjs"
   },
   "dependencies": {
-    "@react-pdf/renderer": "^3.4.0",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.43.0",
     "clsx": "^2.1.1",

@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+
+  // 🔴 Se lee de la dirección AL MONTAR, no con `useSearchParams`. Esa página
+  // se prerenderiza, y `useSearchParams` en una página estática obliga a
+  // envolverla en `<Suspense>`: sin eso **el build falla**, y falla en la fase
+  // de prerender, no al compilar. Para un aviso visual, leerlo tras montar
+  // vale igual y no arrastra ese requisito.
+  const [desactivada, setDesactivada] = useState(false);
+  useEffect(() => {
+    setDesactivada(new URLSearchParams(window.location.search).get("cuenta") === "desactivada");
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +42,17 @@ export default function LoginPage() {
   return (
     <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
       <h2 className="font-display text-xl font-semibold text-white mb-6">Iniciar sesión</h2>
+
+      {/* Al desactivar una cuenta, el middleware cierra la sesión y trae aquí
+          con `?cuenta=desactivada` (P-01). Sin este aviso, la persona vería el
+          login sin más y creería que se le cayó la sesión: volvería a intentar
+          entrar una y otra vez sin entender por qué. */}
+      {desactivada && (
+        <p className="mb-5 rounded-xl border border-amber-300/40 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
+          <strong className="font-semibold">Tu cuenta está desactivada.</strong> Habla con quien
+          lleva la página si crees que es un error.
+        </p>
+      )}
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div>

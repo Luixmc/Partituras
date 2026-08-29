@@ -441,6 +441,30 @@ se leía estaba mal.
 final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
 *Encontrado por Isaac usando la app el 2026-08-20.*
 
+**T-16 · «Compila» comprobado con un `grep` MIENTE: el build falla despues de decir «Compiled successfully».**
+*Sintoma:* durante toda una tanda, la comprobacion de compilacion dio verde y **el build estaba
+fallando**. Se descubrio de rebote, porque `npm start` no arrancaba: faltaba
+`.next/prerender-manifest.json`.
+*Causa:* el filtro que se venia usando era `npm run build | grep "Compiled successfully"`. Pero
+**«✓ Compiled successfully» es una fase INTERMEDIA**: despues vienen la comprobacion de tipos, el
+prerender de las paginas estaticas y el cierre del build. El build reventaba en el **prerender de
+`/login`** —por un `useSearchParams` en una pagina estatica, que exige `<Suspense>`— y aun asi
+imprimia esa linea antes de morir.
+*Medido:* `npm run build; echo $?` devolvia **1**, y el `grep` encontraba su linea igual.
+
+🔴 **Lo que salva aqui es el CI, y es exactamente para lo que se puso.** El CI usa el **codigo de
+salida**, no un grep, asi que lo publicado esta bien: el fallo vivia solo en los cambios locales.
+Si el CI hubiera comprobado como yo, esto llega a produccion.
+
+*Como se comprueba a partir de ahora:*
+```bash
+npm run build > /tmp/b.log 2>&1; echo $?     # 0 = bien. Lo demas es mentira
+```
+📌 **La regla, que vale mas alla de esto:** cuando una herramienta ya te dice si fue bien
+—el codigo de salida—, **no lo deduzcas de su texto**. Un mensaje intermedio no es un veredicto, y
+el dia que el programa cambie una linea de su salida, tu comprobacion se vuelve decorativa sin que
+nadie se entere.
+
 **T-14 · Al transponer, los acordes se escribían con la ortografía del tono DE PARTIDA.**
 *Síntoma:* Isaac bajó «Anhelo Conocerte» de **F a E** y la barra decía **«Tono: E»** —correcto—,
 pero debajo los acordes salían `Dbm`, `Gbm7`, `Abm7`, `Ab/C`, `Gbm`, `Eb`, `Ab7`, `Dbm7`. En **E**
@@ -2954,8 +2978,13 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [x] ~~**P-11 · Ni una prueba, ni CI**~~ → **HECHO.** El **CI** el 2026-08-20 (`npm run build` en
       cada push) y **las pruebas el 2026-08-22**: hoy son **139**, con el runner de Node y **cero
       dependencias nuevas**, y el CI las ejecuta **antes** del build. Ver §9.2-octies.
-      ⬜ **Lo que falta de P-11:** automatizar el **recorrido de las 19 pantallas**, que es lo que
-      cazó lo de Next 16 y sigue haciéndose a mano.
+      ✅ **Y el recorrido de pantallas, HECHO el 2026-08-28**: `pruebas/pantallas.mjs`. Recorre
+      **26 pantallas** —publicas sin cuenta, protegidas sin sesion (que deben rebotar) y todas las
+      del panel con sesion— y **no se conforma con el 200**: comprueba que el texto que tiene que
+      estar, esta. Es lo que cazo lo de Next 16, y ya no se hace a mano.
+      ⚠️ **NO va en el CI, y no es pereza:** para entrar a las pantallas protegidas hace falta una
+      sesion de verdad, y **meter credenciales en el CI de un repositorio publico no se hace**. Se
+      ejecuta a mano, contra el servidor de casa, antes de publicar algo gordo.
 - [x] ~~**P-12 · Versionar el caché del service worker**~~ → **HECHO en la fase L** (2026-08-22).
       `sw.js` lee su versión de su propia dirección (`?v=<commit>`), así que al desplegar se instala
       el nuevo y **limpia el anterior**. Antes el nombre del caché era constante y `activate` **no

@@ -85,23 +85,6 @@ function cleanInput(input: ServiceInput) {
 }
 
 /**
- * ¿Es este error un «esa función todavía no existe»?
- *
- * Hace falta porque el código se publica ANTES de ejecutar la migración
- * (D-27), así que hay un rato en el que producción llama a algo que aún no
- * está. Postgres lo llama `42883`; PostgREST, que es quien contesta de verdad,
- * lo envuelve en `PGRST202` porque ni siquiera la encuentra en su catálogo.
- */
-function funcionQueNoExiste(error: { code?: string; message?: string } | null): boolean {
-  if (!error) return false;
-  return (
-    error.code === "PGRST202" ||
-    error.code === "42883" ||
-    /reemplazar_canciones_culto/.test(error.message ?? "")
-  );
-}
-
-/**
  * Reescribe la lista ordenada de canciones de un culto.
  *
  * 🔴 Va por una FUNCIÓN DE LA BASE, y no borrando e insertando desde aquí, por
@@ -113,9 +96,11 @@ function funcionQueNoExiste(error: { code?: string; message?: string } | null): 
  * Dentro de la base eso sale gratis: la función corre en UNA transacción, así
  * que si el insert falla, el borrado se deshace solo.
  *
- * ⚠️ El respaldo de abajo es TEMPORAL, y tiene fecha: existe solo mientras la
- * migración `20240018` no esté aplicada en producción. Está anotado en §9.1
- * para quitarlo, porque un respaldo sin dueño se queda para siempre.
+ * 📌 Aquí hubo un respaldo —el borrar-e-insertar de siempre— para que publicar
+ * el código no rompiera nada mientras la migración `20240018` esperaba
+ * permiso. **Se quitó el 2026-08-28**, con la función ya seis días en pie.
+ * Estaba anotado con dueño y fecha a propósito: un respaldo temporal sin dueño
+ * se queda para siempre.
  */
 async function replaceSongs(
   supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"],
@@ -126,23 +111,7 @@ async function replaceSongs(
     p_service_id: serviceId,
     p_canciones: songs,
   });
-  if (!error) return;
-  if (!funcionQueNoExiste(error)) throw error;
-
-  // ── Respaldo: la migración todavía no está aplicada ──
-  // Es lo de siempre, con su riesgo de siempre. Se conserva para que publicar
-  // el código no rompa nada mientras la migración espera el visto bueno.
-  const { error: delErr } = await supabase
-    .from("service_songs")
-    .delete()
-    .eq("service_id", serviceId);
-  if (delErr) throw delErr;
-
-  if (songs.length) {
-    const rows = songs.map((s) => ({ service_id: serviceId, ...s }));
-    const { error: insErr } = await supabase.from("service_songs").insert(rows);
-    if (insErr) throw insErr;
-  }
+  if (error) throw error;
 }
 
 /** Crea un culto con su lista de canciones. */

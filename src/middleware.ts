@@ -57,6 +57,37 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // ── Un usuario DESACTIVADO no entra (P-01) ─────────────────
+  //
+  // 🔴 Hasta hoy, «desactivar» solo escribia `profiles.active` y **nadie leia
+  // ese campo nunca mas**: el usuario entraba igual, con todos sus permisos.
+  // El boton apagaba la tarjeta y decia «Usuario desactivado», asi que parecia
+  // que funcionaba — el peor tipo de fallo, porque solo se descubre el dia que
+  // hace falta de verdad.
+  //
+  // Va aqui y no en el layout del panel por dos razones: el layout deja fuera
+  // `/imprimir/culto/[id]`, que vive aparte, y un componente de servidor **no
+  // puede escribir cookies**, asi que no podria cerrar la sesion.
+  if (user && !isPublic) {
+    const { data: perfil } = await supabase
+      .from("profiles")
+      .select("active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    // 🔴 Se echa SOLO si `active` es exactamente `false`. Si la consulta falla,
+    // si llega `null`, o si no hay fila, **se deja pasar**. Un fallo al leer un
+    // permiso no puede convertirse en «fuera todo el mundo»: el precio de
+    // equivocarse aqui es dejar al grupo sin pagina un domingo (L-121).
+    if (perfil?.active === false) {
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = "?cuenta=desactivada";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return supabaseResponse;
 }
 
