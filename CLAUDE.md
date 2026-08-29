@@ -1962,6 +1962,31 @@ contenido**, y la prueba **documenta el contrato real** en vez de esconderlo.
 📌 Queda escrito para el día que alguien quiera limpiarlo: **es un cambio de una línea, pero hay
 que pasar por las siete pantallas antes.**
 
+**O-46 · Escribiendo la letra, la pantalla saltaba arriba del todo.** ✅ **HECHO.**
+Isaac, 2026-08-28: *«cuando estoy escribiendo la letra sí se desplaza el texto, pero hay veces que
+se mueve la pantalla y me sube a lo más arriba»*.
+
+🔴 **Lo causé yo el día anterior, con O-45.** El campo que crece mide el texto **colapsándose un
+instante** (`height: auto`) para leer su `scrollHeight`. En ese instante la página se encoge, y si
+el campo ya era más alto que la pantalla, **el navegador reajusta el scroll y sube al principio**.
+
+📌 **Y ahí está el «a veces» que él describió, que era la pista:** solo pasa **cuando el campo ya no
+cabe entero**. O sea, **cuanto más llevas escrito, más te salta** — justo cuando peor viene. Un
+fallo que empeora con el uso es de los que hay que arreglar de raíz, no acotar.
+
+*Cómo se resuelve:* se **guarda el scroll antes de colapsar y se devuelve después**, todo seguido,
+así que el navegador no llega a pintar el estado colapsado y no se ve ningún parpadeo.
+
+⚠️ **Y el detalle que lo hace funcionar aquí:** se devuelve el scroll de los **ANCESTROS**, no el de
+la ventana. En el panel de esta app el `<main>` lleva `overflow-hidden` y **quien se desplaza es un
+contenedor de dentro**; mirar solo `window.scrollY` no habría arreglado nada.
+
+**Sale gratis en los dos sitios:** `AutoTextarea` lo usan la letra **y** el editor de acordes, así
+que el editor deja de saltar también — allí pasaba menos porque los acordes ocupan menos.
+
+⬜ **Hay que probarlo con los ojos:** el salto lo hace el navegador y **no deja rastro en el HTML**.
+Escribe una letra larga, hasta que el campo pase de la pantalla, y sigue escribiendo.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -2824,6 +2849,42 @@ equivalente.
 nada** —ni con culto ni con los ±—, así que ahí no hay dónde engancharlo sin añadirle antes la
 transposición entera. Va en **la presentación**, que es *«LA pantalla del culto»* (O-30) y donde el
 músico lee tocando. El culto compartido lo hereda gratis: usa el mismo componente.
+
+### 9.2-decies · P-01 — desactivar un usuario ahora lo desactiva de verdad
+
+Isaac, 2026-08-28: *«adelante con lo tuyo que puedes hacer»*. Se eligió P-01 el primero porque es
+el único de la lista que **puede dejarle sin poder cerrarle la puerta a alguien**, y no depende de
+nadie más.
+
+#### El fallo
+
+`admin/actions.ts:161` escribe `profiles.active`, la tarjeta del panel se pinta en gris… y **nadie
+lee ese campo nunca más**: ni el middleware, ni el layout, ni una sola política de la base.
+**El usuario «desactivado» entra igual**, con todos sus permisos.
+
+📌 **Es el botón mentiroso, y de los peores que hay:** no falla, no da error, y **parece que
+funcionó** — la tarjeta se apaga y el mensaje dice «Usuario desactivado». Isaac se enteraría el día
+que lo necesitara de verdad, que es el peor día para enterarse.
+
+#### D-30 · Se comprueba en el MIDDLEWARE, y se cierra la sesión
+
+Se miraron tres sitios:
+
+| Dónde | Por qué no / por qué sí |
+|---|---|
+| El layout del panel | ❌ Cubre `(dashboard)` pero **deja fuera `/imprimir/culto/[id]`**, que vive aparte para poder paginar el PDF. Y un componente de servidor **no puede escribir cookies**, así que no podría cerrar la sesión |
+| Las políticas de la base | ⚠️ Es lo correcto de verdad, y **falta** (ver abajo). Pero toca `is_admin()` y las políticas de lectura de cinco tablas: es un cambio de riesgo alto, con migración, y **hoy no se puede aplicar** |
+| ✅ **El middleware** | Se ejecuta en **cada navegación protegida**, ya trae la sesión, y **sí puede escribir cookies** — así que puede cerrar la sesión de verdad en vez de solo redirigir |
+
+🔴 **Y la regla que evita el desastre: se echa SOLO si `active` es exactamente `false`.**
+Si la consulta falla, si el campo llega `null`, si la fila no está — **se deja pasar**. Un fallo al
+leer un permiso **no puede convertirse en «fuera todo el mundo»**: es la misma lección de L-121 y
+T-07, y aquí el precio de equivocarse es dejar a los músicos sin página un domingo.
+
+⬜ **Lo que NO cubre, y hay que decirlo (L-87):** esto es la aplicación. Un desactivado que se
+guarde su token **puede seguir leyendo por la API** hasta que caduque. Para cerrarlo de verdad hay
+que meter `active` en las políticas de la base, y eso es una migración aparte — anotada en §9.3.
+**La mitad que sí queda cerrada es la que se usa: por la página web no entra.**
 
 ### 9.3 Dependen de Claude (a la espera de que Isaac decida)
 
