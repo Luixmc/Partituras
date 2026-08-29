@@ -2,35 +2,65 @@
 
 Aplicación web para gestionar, editar y compartir el repertorio de canciones con acordes de **Centro Cristiano La Casa de mi Padre**.
 
-Construida con **Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS · Supabase**.
+Construida con **Next.js 16 (App Router) · React 18 · TypeScript · Tailwind CSS · Supabase**,
+desplegada en Vercel con publicación automática en cada push a `main`.
 
 ---
 
 ## ¿Qué hace?
 
-- **Catálogo** de canciones con búsqueda (título / compositor / número de himno) y filtro por categorías.
-- **Editor de acordes en cuadrícula** (no es notación de pentagrama): escribes acordes con botones o a mano y se renderizan en compases.
-- **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`, con barra de progreso) o texto plano (`.txt`/`.md`). Extrae el contenido y sugiere el título automáticamente.
+- **Catálogo** de las ~75 canciones, con búsqueda por título, compositor **y letra**, y filtro por
+  categorías. Los administradores pueden filtrar además por estado (publicada / borrador / archivada).
+- **Editor de acordes en cuadrícula** (no es notación de pentagrama): escribes acordes con botones o
+  a mano y se renderizan en compases, con sus figuras musicales, ligaduras, repeticiones y casillas.
+- **Diagramas de acordes**: pulsa cualquier acorde y se abre cómo se toca en **piano, bajo o
+  guitarra** — el que elijas, y se recuerda. Cubre los 1.894 acordes del repertorio.
+- **Modo trompeta**: quien toca un instrumento en Bb ve la canción **ya transpuesta a su tono**, con
+  los dos tonos a la vista (el que suena y el que lee).
+- **Pantalla completa** para tocar desde la tablet: pasar de canción, transponer, tamaño de letra
+  guardado por canción y dos maneras de recorrer las columnas.
+- **Cultos (setlists)**: repertorio ordenado arrastrando, con tono por canción, estado
+  (borrador / publicado / archivado), **PDF con las canciones completas** y enlace público para
+  quien no tiene cuenta.
+- **Letras** de las canciones: escribirlas, leerlas, buscarlas y alternarlas con los acordes a
+  pantalla completa.
+- **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`) o
+  texto plano. Extrae el contenido y sugiere el título.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
-- **Aviso de cambios sin guardar** al salir del modo edición o cerrar la pestaña.
+- **Aviso de cambios sin guardar** al salir del editor, de la letra o al cerrar la pestaña.
 - **Autenticación y roles** (admin / músico / lector) con Supabase Auth + Row Level Security.
+- **`/novedades`**: página pública con lo que va cambiando, contado para los músicos.
 
 ### Formato de notación (texto en `sheets.content`)
 
 El texto plano se parsea a compases en `TablaturePreview`:
+
+> ⚠️ **Esta tabla estuvo mal desde `r10` hasta `r45`**: decía que las secciones se escribían
+> `<Coro>`, cuando los corchetes son lo que parte sección y `<...>` es texto centrado. Si vienes de
+> una versión vieja del README, lo que vale es esto.
 
 | Elemento | Sintaxis | Ejemplo |
 |---|---|---|
 | Acorde raíz | `A`–`G` | `C`, `G` |
 | Alteración / calidad (pegada) | `#` `b` `m` `7` `maj7` `m7b5` `dim` `sus4` `add9`… | `Dm7`, `Gsus4` |
 | Bajo invertido | `/` | `C/G` |
-| Duración (divide el compás) | `:n` → `:0.5` `:1` `:2` `:3` `:4` | `C:2 G:2` |
-| Silencio | `Z` con duración → `Z:4` `Z:2` `Z:1` | `C:2 Z:2` |
+| **Sección** | **`[Coro]`**, en su propia línea — **con corchetes** | `[Intro]`, `[A (Anhelo...)]` |
+| **Texto centrado** | **`<lo que sea>`** — se dibuja como un acorde, no parte sección | `<Conteo 1, 2, 3>` |
+| Duración | `:0.25` `:0.5` `:0.75` `:1` `:1.5` `:2` `:3` `:4` — también **suelta**, sin acorde | `C:2 G:2`, `:1` |
+| Silencio | `Z` con duración | `C:2 Z:2` |
 | Barra de compás | `\|` | `C \| G` |
 | Repetición | `\|:` … `:\|` | `\|: C G :\|` |
-| Recuadro / casilla (final 1 ó 2) | `{` … `}1` / `}2` (el número sale encima) | `\|: C \|: F G :\| { Am }1 { C }2` |
-| Sección | `<Intro>` `<Verso>` `<Coro>`… (en su línea) | `<Coro>` |
-| Texto/letra (legado) | `(...)` | `(Aleluya)` |
+| Casilla 1ª / 2ª vez | `{` … `}1` / `}2` | `\|: C \|: F G :\| { Am }1 { C }2` |
+| **Ligadura** | **`~`** suelto o pegado. Encadenar da **un solo arco largo** | `C~ D~ E` |
+| **Calderón** | **`^`** pegado | `E^` |
+| **Staccato** | **`!`** pegado | `C:1!` |
+| **Repetir acorde** | **`%`** | `C \| % \| %` |
+| **Paso cromático** | **`-`** entre dos acordes: se va tocando por semitonos | `F# ~ - D` |
+| **Salto de fila** | **`;`** | `C G ; Am F` |
+| **Cambio de compás** | el compás en medio de la línea | `\|: 4/4 C \| 6/8 G :\|` |
+| Letra bajo el acorde | `(...)` | `(Aleluya)` |
+
+**Disminuido:** se **escribe** `dim` / `dim7` y se **dibuja** `°` / `°7`. El símbolo no se teclea nunca.
 
 La duración controla el ancho relativo de cada acorde dentro del compás, de modo que el reparto del tiempo se ve en la cuadrícula. Varios acordes entre barras (`\|F G\|`) se muestran juntos, sin líneas divisorias entre ellos. La duración se dibuja como **figura musical** (corchea/negra/blanca/redonda) encima del acorde, y los silencios se dibujan con su figura correspondiente. Toda la notación (figuras y silencios) se renderiza en SVG en `components/sheets/MusicFigures.tsx`.
 
@@ -49,7 +79,18 @@ npm install
 npm run dev      # http://localhost:3000
 ```
 
-Scripts disponibles: `npm run dev`, `npm run build`, `npm start`, `npm run lint`.
+| Script | Para qué |
+|---|---|
+| `npm run dev` | Servidor de desarrollo en `localhost:3000` |
+| `npm test` | Las 139 pruebas |
+| `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
+| `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
+| `npm start` | Sirve el build de producción en local |
+| `npm run export` | Copia de seguridad de los datos a JSON |
+| `npm run copy-pdf-worker` | Regenera el *worker* de PDF tras actualizar `pdfjs-dist` |
+
+> ⚠️ **`npm run dev` y `npm run build` no se ejecutan a la vez**: comparten la carpeta `.next` y el
+> build deja al servidor de desarrollo roto. Con el servidor encendido, usa **`npm run verificar`**.
 
 ---
 
@@ -68,7 +109,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## Migraciones de base de datos
 
-Todas viven en `supabase/migrations/` y se aplican en orden.
+Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 19.**
+
+> ⚠️ **Una migración ya aplicada no se modifica: se añade una nueva.** La base tiene datos reales en
+> uso. Y el orden importa: **primero se publica el código y después se toca la base** — quitar una
+> columna que el código publicado todavía pide deja la página vacía sin ningún error visible.
 
 ### Con Supabase CLI
 
@@ -130,32 +175,49 @@ songs             ← tabla del antiguo módulo de mosaicos (sin uso en la app)
 
 ```
 src/
+  middleware.ts             → sesión y rutas públicas. Se ejecuta en CADA navegación
   app/
-    (auth)/login            → inicio de sesión
-    (dashboard)/
+    (auth)/login            → único punto de entrada (no hay registro abierto)
+    (dashboard)/            → todo lo que exige sesión
       catalog               → catálogo + búsqueda y filtros
-      catalog/[id]          → vista/editor de una canción (SongDetailEditor)
-      sheets/new            → crear canción nueva
-      admin                 → gestión de usuarios (solo admins): page + actions.ts + AdminUsers
-    layout.tsx, page.tsx
+      catalog/[id]          → vista / edición / letra de una canción
+      catalog/[id]/present  → pantalla completa de una canción
+      sheets/new            → crear canción
+      services              → cultos, y services/[id] su editor
+      services/[id]/present → modo presentación del culto
+      letras                → sección de letras (hoy solo admin)
+      admin                 → gestión de usuarios
+    s/[token]               → culto compartido, PÚBLICO y sin cuenta
+    imprimir/culto/[id]     → hoja imprimible del culto (fuera del panel, para paginar bien)
+    novedades               → comunicado público de cambios
   components/
-    layout/                 → Sidebar, MobileNav
     sheets/
-      TablaturePreview.tsx  → render de la cuadrícula de acordes
-      MusicFigures.tsx      → figuras musicales SVG (notas y silencios)
+      TablaturePreview.tsx  → EL CORAZÓN: texto → cuadrícula de acordes
+      MusicFigures.tsx      → figuras y silencios en SVG
       SongDetailEditor.tsx  → editor + vista de una canción
-      ChordToolbar.tsx      → barra de botones de acordes (compartida)
-      ImportControls.tsx    → botón de importar archivo (PDF/imagen/texto)
-      SheetCard.tsx         → tarjeta del catálogo
-      CatalogFilters.tsx    → filtros por categoría
+      ChordPopover.tsx      → el desplegable al pulsar un acorde
+      PianoDiagram · BassDiagram · GuitarDiagram
+      LetraPanel.tsx        → escribir y leer la letra
+    services/
+      ServiceEditor.tsx     → armar el culto (arrastrando)
+      PresentationView.tsx  → modo presentación
   lib/
-    supabase/               → clientes (browser/server)
-    chordInput.ts           → lógica compartida para escribir acordes
-    songImport.ts           → extracción de texto de PDF/imagen/texto
-    utils.ts                → cn()
-  middleware.ts             → refresco de sesión / protección de rutas
+    music.ts                → transposición y ortografía de tonos
+    sections.ts             → partir la canción en secciones  ← LA ÚNICA, no copiar
+    acordes.ts · guitarra.ts → qué notas tiene un acorde y cómo se toca
+    transpositores.ts       → instrumentos en Bb (trompeta)
+    catalogo.ts             → la consulta del catálogo  ← compartida por 3 pantallas
+    cultos.ts · letras.ts · navegacion.ts · novedades.ts
+    chordInput.ts · songImport.ts · utils.ts
+    supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
+pruebas/                    → las 139 pruebas (ver más abajo)
+supabase/migrations/        → 19 migraciones
 ```
+
+> 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron
+> duplicadas y las dos costaron un fallo en producción: cuando una tercera pantalla necesitó la
+> lógica, no supo a cuál de las dos copias llamar. **No las copies: impórtalas.**
 
 ---
 
@@ -173,13 +235,21 @@ src/
 - [x] Panel de administración (`/admin`, solo admins): crear usuarios, cambiar contraseña y rol, activar/desactivar
 - [x] Modo claro/oscuro y tamaño de letra en lectura (persistidos)
 
+- [x] **PDF del culto** con las canciones completas, una por hoja, en horizontal o vertical
+- [x] **PWA / instalable** en móvil, con el logo de la iglesia
+- [x] **Cultos**: repertorio ordenado arrastrando, tono por canción, estado y enlace público
+- [x] **Diagramas de acordes**: piano, bajo y guitarra, con el instrumento recordado
+- [x] **Modo trompeta** (instrumentos en Bb): la canción ya transpuesta a su tono
+- [x] **Letras** de las canciones: escribir, leer, buscar y alternar con los acordes
+- [x] **Pruebas automáticas** (139) y CI en cada push
+- [x] `/novedades`: comunicado público de cambios
+
 **Pendiente**
 
-- [ ] Exportar / imprimir a PDF (`@react-pdf/renderer` ya está instalado, sin usar)
 - [ ] Etiquetas, favoritos e historial de versiones en la UI (las tablas ya existen)
 - [ ] Subida y visor de PDF original + miniaturas
 - [ ] Sincronización con Google Drive
-- [ ] PWA / instalable en móvil
+- [ ] Darle sentido al rol `musician`, que hoy hace lo mismo que `viewer`
 
 ---
 
@@ -187,4 +257,51 @@ src/
 
 - **`pdfjs-dist`**: el *worker* se sirve desde `public/pdf.worker.min.mjs` (copia local). Si actualizas `pdfjs-dist`, regenera la copia con `npm run copy-pdf-worker`.
 - **Tabla `songs`** (migraciones `20240008`/`20240009`, del antiguo módulo de mosaicos) sigue en el esquema pero no se usa en la app.
-- **`@react-pdf/renderer`** está instalado pero aún sin usar (pensado para exportar/imprimir).
+- **`@react-pdf/renderer`** está instalado y **ya no lo usa nadie**: el PDF del culto se hace con la
+  impresión del navegador. Quitarlo es seguro, y de paso desbloquea React 19.
+- **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
+  `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
+  antes la clave `service_role`, porque `npm run export` depende de esa lectura.
+- **Desactivar un usuario no le impide entrar**: `profiles.active` se escribe y no lo lee nadie.
+- **`eslint-config-next` sigue en la 14** con Next 16: subirlo exige migrar a ESLint 9. No afecta ni
+  a la app ni al CI, que ejecuta `npm test` y `npm run build`.
+- **`"strict": false`** en `tsconfig.json`.
+
+---
+
+## Pruebas
+
+```bash
+npm test        # 139 pruebas, sin dependencias externas (usa el runner de Node)
+```
+
+Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
+las ejecuta en cada push, **antes** del build.
+
+Cubren lo que más ha roto: el tono y su ortografía, las notas de cada acorde, que las posturas de
+guitarra **suenen**, la separación en secciones, quién ve qué culto y la cuenta de la trompeta.
+
+⚠️ Las 75 canciones reales **no están en el repositorio** (es público). Los arneses que las usan
+viven fuera y leen de una copia local.
+
+---
+
+## Historial de versiones
+
+El primo numeraba las publicaciones `r1`…`r30` y mantuvo este archivo hasta `r10`. Desde `r31` lo
+retoma Isaac. Lo que ve un músico está contado en **[`CAMBIOS.md`](CAMBIOS.md)** y en la página
+pública `/novedades`; esto es el resumen técnico.
+
+| Versión | Qué entró |
+|---|---|
+| **r31** | Figuras con puntillo, `dim` → `°`, el logo de la iglesia, `/manifest.json` desbloqueado |
+| **r32** | El catálogo deja de cortar en 50, todas las categorías por canción, pantalla completa por canción |
+| **r34** | Cambiar el nombre de una cuenta; el tamaño de letra guardado por músico y canción |
+| **r36** | Una canción puede ir varias veces en el mismo culto (migración `20240015`) |
+| **r39** | Las ligaduras (3 fallos), dos maneras de leer las columnas, el tono con bemoles, staccato y duración suelta |
+| **r40** | Los acordes se pulsan: diagramas de piano y bajo. Filtro por estado. `<select>` legible en oscuro |
+| **r41** | Las notas del acorde, nombradas por grados: `Bb` es `Bb D F`, no `A# D F` |
+| **r42** | `/novedades`, la página pública de cambios |
+| **r43** | Las letras: escribir, leer, buscar y alternar con los acordes |
+| **r44** | Guitarra en los diagramas · el culto tiene estado (migración `20240017`) · seis correcciones que salieron probando con cuenta de lector |
+| **r45** | Next 14 → 16 · el caché del *service worker* versionado · `pdfjs-dist` actualizado · la ortografía al transponer la decide el tono destino · el culto no puede quedarse vacío al guardar (migraciones `20240018`/`20240019`) · **139 pruebas y CI** · modo trompeta · **este README, al día otra vez** |

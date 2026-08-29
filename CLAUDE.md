@@ -22,6 +22,16 @@
 > ⚠️ Ojo tambien con `npm run export`: **fecha en UTC**, asi que a partir de las 19:00 en Colombia
 > la carpeta lleva ya el dia siguiente.
 >
+> **REGLA DEL README — el `README.md` se mantiene al dia, como hacia el primo.**
+> Isaac, 2026-08-28: *«los cambios que se hacen, agregalos al readme, para tener todo ahi como
+> venia haciendo mi primo»*. Y tenia razon en lo de «como venia haciendo»: **el primo lo actualizo
+> hasta `r10` y ahi se quedo** —comprobado con `git log --follow README.md`—, asi que llevaba
+> **veinte versiones** describiendo una app que ya no existe. Era P-07.
+> → **Son TRES documentos y cada uno tiene su lector:** `README.md` **para quien abre el
+> repositorio** (que es publico) y quiere saber que es esto y como se levanta · `CAMBIOS.md` y
+> `/novedades` **para el musico** · `CLAUDE.md` **para quien programa**. Un cambio que altere lo
+> que la app **hace** o **como se usa** toca el README; uno que solo cambie por dentro, no.
+>
 > **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md` Y en
 > `/novedades`**, en la sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la
 > página, no qué archivo se tocó.
@@ -2848,9 +2858,20 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-06 · El OCR depende de un CDN externo.** `songImport.ts:74-77` carga worker, WASM e
       idiomas de `cdn.jsdelivr.net` y `tessdata.projectnaptha.com`. Sin internet no funciona,
       en una app que se vende como instalable.
-- [ ] **P-07 · El README miente en la sintaxis.** Dice `<Coro>` para las secciones; son
-      `[Coro]`. Tampoco menciona cultos, presentación, enlaces públicos, PWA ni versiones por
-      tono, y lista 10 migraciones de 14. Está congelado en ~r10.
+- [x] ~~**P-07 · El README miente en la sintaxis**~~ → **CERRADO el 2026-08-28**, y lo pidió Isaac:
+      *«los cambios que se hacen, agrégalos al readme, para tener todo ahí como venía haciendo mi
+      primo»*.
+      📌 **Y «como venía haciendo» tenía trampa, comprobada con `git log --follow README.md`: el
+      primo lo actualizó hasta `r10` y ahí lo dejó.** Llevaba **veinte versiones** describiendo una
+      app que ya no existe — decía que las secciones se escriben `<Coro>`, que se busca por número
+      de himno (borrado en D-16) y que el PDF y la PWA estaban pendientes.
+      **Qué se puso al día:** la pila (Next 16), qué hace la app hoy, **la tabla de sintaxis
+      entera** —con ligadura, calderón, staccato, `%`, `;`, el paso cromático y el aviso de que la
+      vieja era falsa—, los scripts (`npm test`, `npm run verificar`), las 19 migraciones con el
+      aviso del orden, la estructura real de carpetas, el roadmap, la deuda técnica y una sección
+      de **pruebas**.
+      **Y un «Historial de versiones»** con `r31`…`r45`, retomando la numeración del primo. → **A
+      partir de aquí las publicaciones vuelven a llevar su `rXX`.**
 - [ ] **P-08 · El enlace «Regístrate» del login da 404.** `login/page.tsx:83` → `/signup`, que
       no existe (comprobado en producción). El middleware la trata como pública
       (`middleware.ts:35`).
