@@ -3075,6 +3075,14 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       algo menos de acierto. Para leer acordes de una foto puede sobrar.
       → **Decision de Isaac**, y hay que preguntarsela con estos numeros. No se mete nada en el
       repositorio del primo por cuenta propia.
+
+      ❌ **DESCARTADO POR ISAAC el 2026-08-28: «dejalo como esta».** Se le ofrecieron las tres
+      opciones con su peso —la ligera (~2 MB), dejarlo, y la completa (~20 MB)— y eligio no tocarlo.
+      → **P-06 deja de ser un pendiente y pasa a ser una decision tomada.** No volver a proponerlo:
+      el OCR se usa **con internet**, que es como se usa la pagina el 99 % de las veces, y el precio
+      era meter megas en el repositorio de otra persona.
+      → 📌 **Si alguna vez cambia:** lo unico que faltaria de verdad es el idioma; el programa y el
+      motor **ya estan en `node_modules`** y se copian como se hace con `pdf.worker.min.mjs`.
 - [x] ~~**P-07 · El README miente en la sintaxis**~~ → **CERRADO el 2026-08-28**, y lo pidió Isaac:
       *«los cambios que se hacen, agrégalos al readme, para tener todo ahí como venía haciendo mi
       primo»*.
