@@ -487,7 +487,39 @@ el usuario.
 🔴 **Y lo que enseña de mi forma de comprobar, que es peor que el fallo:** probe P-01 con `curl`
 y di por bueno el resultado —307, cookie cerrada, todo correcto—. **Lo que no mire fue el
 TIEMPO.** La respuesta era correcta y la pagina inservible. **Un 200 no dice nada si tarda 13
-segundos**, y ninguna de mis comprobaciones miraba el reloj. Ahora `pantallas.mjs` deberia medirlo.
+segundos**, y ninguna de mis comprobaciones miraba el reloj.
+
+✅ **ARREGLADO el 2026-08-29: `pruebas/pantallas.mjs` ya mira el reloj.** Una pantalla que tarde mas
+de **5 segundos** cuenta como fallo aunque responda bien, y el resumen dice siempre **cual fue la
+mas lenta**. Con la pagina sana da **«26 bien · 0 mal · la mas lenta: 1,3 s»**; con el middleware de
+anoche habria cantado las de sesion.
+
+#### Y el desenlace: era Supabase, y NO era solo mio (2026-08-29)
+
+Despues de publicar el arreglo, la pagina **seguia dando 504**. Al medir los dos servicios de
+Supabase por separado aparecio la segunda causa, y no era nuestra:
+
+| | |
+|---|---|
+| **PostgREST** (los datos) | ✅ **0,8 s** |
+| **GoTrue** (la sesion) | 🔴 **no respondia**: 30 s y corte |
+
+→ Cada pagina con cuenta pregunta «¿quien eres?» a ese servicio, asi que se quedaban colgadas.
+**Colgaba igual desde el equipo de casa contra la misma base**, o sea que no era Vercel ni el
+despliegue. Y Supabase lo tenia **reconocido en su pagina de estado** como incidente activo
+(«API Gateway — Degraded Performance»).
+
+⚠️ **Y una trampa al vigilarlo, que casi me hace cantar victoria:** el servicio **iba y venia**. Una
+comprobacion dio `200` y se dio por recuperado; a los cinco intentos: `5,0 s · 13,7 s · cuelga ·
+cuelga · cuelga`. → **Para dar por bueno un servicio que se recupera hay que exigirle varias
+respuestas seguidas Y RAPIDAS**, no una.
+
+**Cerrado el 2026-08-29**, con Isaac avisando de que ya funcionaba: sesion en **0,3 s** (cinco de
+cinco), `/catalog` en **1,2 s**, y **26 de 26 pantallas en produccion**. No hubo que tocar nada mas.
+
+📌 **Las dos causas se juntaron, y conviene separarlas al contarlo:** el middleware era un fallo mio
+real —13 s medidos con la base sana— y estaba bien quitarlo; la caida de Supabase era
+independiente. Al principio parecian lo mismo.
 
 **T-16 · «Compila» comprobado con un `grep` MIENTE: el build falla despues de decir «Compiled successfully».**
 *Sintoma:* durante toda una tanda, la comprobacion de compilacion dio verde y **el build estaba

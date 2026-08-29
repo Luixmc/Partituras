@@ -27,12 +27,25 @@ const COOKIE = process.env.COOKIE_FILE
   ? readFileSync(process.env.COOKIE_FILE, "utf8").trim()
   : null;
 
-/** Una petición, devolviendo el código y el cuerpo. */
+// 🔴 A partir de cuántos segundos una pantalla se considera LENTA.
+//
+// Esto se añadió el 2026-08-29, después de que la página estuviera inservible
+// con todas las comprobaciones en verde. El middleware tardaba **13 segundos**
+// con sesión y aun así respondía 200: yo miré el código de respuesta, no el
+// reloj, y di el cambio por bueno. Vercel corta a los 25 s, así que aquello
+// era un 504 esperando a pasar.
+//
+// **Un 200 no dice nada si tarda trece segundos.**
+const LENTO = 5;
+
+/** Una petición, devolviendo el código, el cuerpo y lo que tardó. */
 async function pedir(ruta, conSesion) {
   const cabeceras = { "Cache-Control": "no-cache" };
   if (conSesion && COOKIE) cabeceras.Cookie = COOKIE;
+  const t0 = Date.now();
   const r = await fetch(BASE + ruta, { headers: cabeceras, redirect: "manual" });
-  return { codigo: r.status, texto: r.status < 400 ? await r.text() : "" };
+  const texto = r.status < 400 ? await r.text() : "";
+  return { codigo: r.status, texto, segundos: (Date.now() - t0) / 1000 };
 }
 
 /** Busca en la base los identificadores reales que hacen falta. */
@@ -108,13 +121,13 @@ console.log(`  Recorriendo ${PANTALLAS.length} pantallas en ${BASE}`);
 if (!COOKIE) console.log("  ⚠️ Sin COOKIE_FILE: las de sesión se SALTAN\n");
 else console.log("");
 
-let bien = 0, mal = 0, saltadas = 0;
+let bien = 0, mal = 0, saltadas = 0, peor = 0;
 for (const [ruta, sesion, espera, debe] of PANTALLAS) {
   if (sesion && !COOKIE) { saltadas++; continue; }
   const corta = ruta.length > 46 ? ruta.slice(0, 44) + "…" : ruta;
-  let codigo, texto;
+  let codigo, texto, segundos;
   try {
-    ({ codigo, texto } = await pedir(ruta, sesion));
+    ({ codigo, texto, segundos } = await pedir(ruta, sesion));
   } catch (e) {
     console.log(`  ✖ ${corta.padEnd(46)} ${sesion ? "con sesión" : "sin cuenta"}  no responde`);
     mal++;
@@ -123,14 +136,16 @@ for (const [ruta, sesion, espera, debe] of PANTALLAS) {
   const problemas = [];
   if (codigo !== espera) problemas.push(`esperaba ${espera}, dio ${codigo}`);
   if (debe && codigo === 200 && !texto.includes(debe)) problemas.push(`falta «${debe}»`);
+  if (segundos > LENTO) problemas.push(`LENTA: ${segundos.toFixed(1)} s`);
   if (problemas.length) {
     console.log(`  ✖ ${corta.padEnd(46)} ${sesion ? "con sesión" : "sin cuenta"}  ${problemas.join(" · ")}`);
     mal++;
   } else {
     bien++;
   }
+  if (segundos > peor) peor = segundos;
 }
 
 console.log("");
-console.log(`  ${bien} bien · ${mal} mal` + (saltadas ? ` · ${saltadas} saltadas (sin sesión)` : ""));
+console.log(`  ${bien} bien · ${mal} mal · la más lenta: ${peor.toFixed(1)} s` + (saltadas ? ` · ${saltadas} saltadas (sin sesión)` : ""));
 process.exit(mal ? 1 : 0);
