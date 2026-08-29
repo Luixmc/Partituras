@@ -3012,15 +3012,24 @@ lee ese campo nunca más**: ni el middleware, ni el layout, ni una sola polític
 funcionó** — la tarjeta se apaga y el mensaje dice «Usuario desactivado». Isaac se enteraría el día
 que lo necesitara de verdad, que es el peor día para enterarse.
 
-#### D-30 · Se comprueba en el MIDDLEWARE, y se cierra la sesión
+#### D-30 · Se comprueba en el LAYOUT del panel, y `/salir` cierra la sesión
 
-Se miraron tres sitios:
+🔴 **CORREGIDA EL 2026-08-29, y la corrigió la realidad: la primera versión iba en el MIDDLEWARE
+y TUMBÓ LA PÁGINA** (`504 GATEWAY_TIMEOUT`, ver **T-17**). El razonamiento de abajo era correcto
+en todo menos en lo que acabó importando: **el coste**.
 
 | Dónde | Por qué no / por qué sí |
 |---|---|
-| El layout del panel | ❌ Cubre `(dashboard)` pero **deja fuera `/imprimir/culto/[id]`**, que vive aparte para poder paginar el PDF. Y un componente de servidor **no puede escribir cookies**, así que no podría cerrar la sesión |
-| Las políticas de la base | ⚠️ Es lo correcto de verdad, y **falta** (ver abajo). Pero toca `is_admin()` y las políticas de lectura de cinco tablas: es un cambio de riesgo alto, con migración, y **hoy no se puede aplicar** |
-| ✅ **El middleware** | Se ejecuta en **cada navegación protegida**, ya trae la sesión, y **sí puede escribir cookies** — así que puede cerrar la sesión de verdad en vez de solo redirigir |
+| ~~El middleware~~ | ❌ **Lo que se probó primero y salió mal.** Cubre todas las rutas y puede escribir cookies, sí — pero **se ejecuta en CADA navegación de CADA usuario**, y consultar `profiles` le añadía un viaje a la base encima del `getUser()` que ya hace. **Medido: 13 s con sesión**, y Vercel corta a los 25 |
+| ✅ **El layout del panel** | **Ya carga el perfil entero** (`select("*")`), así que la comprobación **no cuesta ni una consulta más**. Es lo que se buscaba desde el principio y estaba delante |
+| ✅ **`/salir`, una ruta nueva** | Un componente de servidor **no puede escribir cookies**, así que el layout puede redirigir pero no cerrar la sesión. Un manejador de ruta sí: comprobado que devuelve la cookie con `Max-Age=0` |
+| Las políticas de la base | ⚠️ Es lo correcto de verdad, y **falta** (ver abajo). Toca `is_admin()` y las políticas de lectura de cinco tablas: cambio de riesgo alto, con migración |
+
+⬜ **Lo que el layout deja fuera, y hay que saberlo:** `/imprimir/culto/[id]` vive aparte del panel
+—para poder paginar el PDF—, así que un desactivado con la sesión todavía viva podría abrir esa
+hoja. **Es una hoja de impresión de un culto, no el panel**, y el precio de cubrirla era tumbar la
+página entera. Si algún día importa, se le añade la misma comprobación **a esa página**, no al
+middleware.
 
 🔴 **Y la regla que evita el desastre: se echa SOLO si `active` es exactamente `false`.**
 Si la consulta falla, si el campo llega `null`, si la fila no está — **se deja pasar**. Un fallo al
