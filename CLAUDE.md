@@ -453,6 +453,42 @@ se leía estaba mal.
 final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
 *Encontrado por Isaac usando la app el 2026-08-20.*
 
+**T-17 · El middleware se ejecuta en CADA navegacion: ir a la base desde ahi tumba la pagina.**
+*Sintoma:* Isaac, 2026-08-28, entrando desde casa: **`504: GATEWAY_TIMEOUT` ·
+`MIDDLEWARE_INVOCATION_TIMEOUT`** en `/catalog`. La pagina inservible **para quien tiene cuenta**.
+*Y su observacion fue la que encuadro el fallo:* *«yo use la pagina hoy para el ayuno y me
+funcionaba sin problemas, y cuando voy a mirar ahora que estoy en mi casa no funciona»*. **No se
+habia roto sola: se rompio cuando lo publique yo**, esa misma noche.
+
+*Causa, y la puse yo con P-01:* la comprobacion de `profiles.active` se metio **en el middleware**.
+Ahi parecia el sitio correcto —cubre todas las rutas y puede cerrar cookies— pero el middleware
+corre **en el borde** y se ejecuta **en cada navegacion de cada usuario**, asi que anadia un
+**segundo viaje a la base** —que esta en Oregon— encima del `getUser()` que ya hacia.
+
+**Medido en produccion, con sesion y sin ella:**
+
+| | Sin cuenta | Con sesion |
+|---|---|---|
+| `/catalog` | 0,4 s | **13,0 s** la primera · 2,1 s · 1,7 s |
+
+→ Por eso **un visitante no lo notaba**: sin usuario no se consultaba nada. Lo sufria justo quien
+tiene cuenta, que son los musicos.
+
+*Como se resolvio:* la comprobacion se fue a **`(dashboard)/layout.tsx`**, que **ya cargaba el
+perfil entero** (`select("*")`) — o sea, **cero consultas nuevas**. Y como un componente de
+servidor no puede escribir cookies, cerrar la sesion se hace en una ruta nueva, **`/salir`**, que
+si puede: comprobado que devuelve la cookie con `Max-Age=0`.
+
+📌 **La regla, y vale para cualquier cosa que se quiera meter ahi:** *lo que cuesta 200 ms en el
+middleware, cuesta 200 ms **siempre**, en cada clic de cada persona.* **No es sitio para ir a la
+base de datos.** Un coste que en una pantalla es aceptable, ahi se multiplica por todo lo que hace
+el usuario.
+
+🔴 **Y lo que enseña de mi forma de comprobar, que es peor que el fallo:** probe P-01 con `curl`
+y di por bueno el resultado —307, cookie cerrada, todo correcto—. **Lo que no mire fue el
+TIEMPO.** La respuesta era correcta y la pagina inservible. **Un 200 no dice nada si tarda 13
+segundos**, y ninguna de mis comprobaciones miraba el reloj. Ahora `pantallas.mjs` deberia medirlo.
+
 **T-16 · «Compila» comprobado con un `grep` MIENTE: el build falla despues de decir «Compiled successfully».**
 *Sintoma:* durante toda una tanda, la comprobacion de compilacion dio verde y **el build estaba
 fallando**. Se descubrio de rebote, porque `npm start` no arrancaba: faltaba

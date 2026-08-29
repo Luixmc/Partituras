@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
   // `/signup` salió de aquí: esa página no existe y el enlace que llevaba a
   // ella se quitó (P-08). Dejarla en la lista solo abría un hueco a una ruta
   // fantasma.
-  const publicRoutes = ["/login", "/s/", "/novedades"];
+  const publicRoutes = ["/login", "/s/", "/novedades", "/salir"];
   const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
 
   // Los enlaces compartidos son accesibles aunque haya sesión iniciada;
@@ -57,36 +57,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // ── Un usuario DESACTIVADO no entra (P-01) ─────────────────
+  // ── P-01: la comprobacion de `active` NO va aqui ──
   //
-  // 🔴 Hasta hoy, «desactivar» solo escribia `profiles.active` y **nadie leia
-  // ese campo nunca mas**: el usuario entraba igual, con todos sus permisos.
-  // El boton apagaba la tarjeta y decia «Usuario desactivado», asi que parecia
-  // que funcionaba — el peor tipo de fallo, porque solo se descubre el dia que
-  // hace falta de verdad.
+  // 🔴 Estuvo aqui unas horas y **tumbo la pagina en produccion**:
+  // `MIDDLEWARE_INVOCATION_TIMEOUT`. El middleware corre en el borde y se
+  // ejecuta en CADA navegacion; consultar `profiles` le anadia un segundo viaje
+  // a la base —que esta en Oregon— encima del `getUser()` que ya hace. Medido
+  // con sesion: **13 segundos** en la primera peticion, y Vercel corta antes.
   //
-  // Va aqui y no en el layout del panel por dos razones: el layout deja fuera
-  // `/imprimir/culto/[id]`, que vive aparte, y un componente de servidor **no
-  // puede escribir cookies**, asi que no podria cerrar la sesion.
-  if (user && !isPublic) {
-    const { data: perfil } = await supabase
-      .from("profiles")
-      .select("active")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    // 🔴 Se echa SOLO si `active` es exactamente `false`. Si la consulta falla,
-    // si llega `null`, o si no hay fila, **se deja pasar**. Un fallo al leer un
-    // permiso no puede convertirse en «fuera todo el mundo»: el precio de
-    // equivocarse aqui es dejar al grupo sin pagina un domingo (L-121).
-    if (perfil?.active === false) {
-      await supabase.auth.signOut();
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = "?cuenta=desactivada";
-      return NextResponse.redirect(url);
-    }
-  }
+  // → La comprobacion vive ahora en `(dashboard)/layout.tsx`, que **ya carga el
+  // perfil entero**, asi que no cuesta ni una consulta mas. Ver §9.2-decies.
+  //
+  // 📌 La regla, que vale para cualquier cosa que se quiera poner aqui:
+  // **el middleware se ejecuta en cada navegacion de cada usuario.** Lo que
+  // aqui cuesta 200 ms, cuesta 200 ms SIEMPRE. No es sitio para ir a la base.
 
   return supabaseResponse;
 }

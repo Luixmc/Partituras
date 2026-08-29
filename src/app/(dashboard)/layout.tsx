@@ -21,6 +21,18 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
+  // ── Un usuario DESACTIVADO no entra (P-01) ──
+  //
+  // Va aqui, y no en el middleware, porque **este perfil ya esta cargado**: la
+  // comprobacion no cuesta ni una consulta mas. En el middleware costaba un
+  // viaje a la base en cada navegacion y **tumbo la pagina** (ver middleware.ts).
+  //
+  // 🔴 Se echa SOLO si `active` es exactamente `false`. Si la consulta falla,
+  // si llega `null` o si no hay fila, **se deja pasar**. Un fallo al leer un
+  // permiso no puede convertirse en «fuera todo el mundo»: el precio de
+  // equivocarse aqui es dejar al grupo sin pagina un domingo (L-121).
+  if (profile?.active === false) redirect("/salir?cuenta=desactivada");
+
   return (
     <ThemeProvider>
       <div className="flex h-dvh overflow-hidden bg-slate-50 dark:bg-slate-950">
