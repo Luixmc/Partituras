@@ -2905,6 +2905,27 @@ Si la consulta falla, si el campo llega `null`, si la fila no está — **se dej
 leer un permiso **no puede convertirse en «fuera todo el mundo»**: es la misma lección de L-121 y
 T-07, y aquí el precio de equivocarse es dejar a los músicos sin página un domingo.
 
+#### ✅ PROBADO EN PRODUCCIÓN (2026-08-28), y lo probó Isaac
+
+Él desactivó `pruebaclaude` desde `/admin` y pidió intentar entrar. Con la sesión de esa cuenta,
+contra **producción**:
+
+| Petición | Respuesta |
+|---|---|
+| 1.ª · `/catalog` | **`307 → /login?cuenta=desactivada`** |
+| 2.ª · `/services` | `307 → /login` |
+| 3.ª · `/letras` | `307 → /login` |
+
+🔴 **Y las dos últimas son la prueba de verdad, no la primera:** ya no llevan el aviso **porque la
+sesión ya no existe**. Si el middleware solo redirigiera, la cookie seguiría viva y las tres darían
+lo mismo. **Se cerró la sesión de verdad.**
+
+**Y no echó a nadie de más:** `/login` y `/novedades` siguen a 200 sin cuenta, y las protegidas
+siguen rebotando como antes para quien no ha entrado.
+
+⬜ **Lo único sin comprobar es el aviso en pantalla**: se pinta con JavaScript al montar, así que no
+sale en el HTML. Se ve abriendo `/login?cuenta=desactivada` en el navegador.
+
 ⬜ **Lo que NO cubre, y hay que decirlo (L-87):** esto es la aplicación. Un desactivado que se
 guarde su token **puede seguir leyendo por la API** hasta que caduque. Para cerrarlo de verdad hay
 que meter `active` en las políticas de la base, y eso es una migración aparte — anotada en §9.3.
