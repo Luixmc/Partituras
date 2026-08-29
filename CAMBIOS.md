@@ -5,6 +5,22 @@
 
 ---
 
+## 28 de agosto de 2026
+
+### 📖 Al crear o editar una canción
+
+- **Arreglado: al crear una canción nueva, la vista previa no separaba las secciones.** Salía todo
+  en una sola cuadrícula, con `[Intro]`, `[Coro]` y demás **dibujados dentro como si fueran
+  acordes**. Al editar una canción ya guardada sí funcionaba. Ahora **funciona en las dos**: cada
+  sección con su título encima, como se ve al leerla.
+
+### 🎤 Al escribir las letras
+
+- **El campo de la letra ya crece solo.** Antes tenías que arrastrar la esquina de abajo para ver
+  lo que ibas escribiendo; ahora se estira con el texto, igual que el de los acordes.
+
+---
+
 ## 22 de agosto de 2026
 
 ### 🎼 En los acordes

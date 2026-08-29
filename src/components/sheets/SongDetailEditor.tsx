@@ -9,6 +9,11 @@ import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import LetraPanel from "@/components/sheets/LetraPanel";
 import { puedeVerLetras } from "@/lib/letras";
+// 🔴 `parseSections` vivía AQUÍ, copiada. Era P-09, y lo que dejó la
+// pantalla de crear canción sin secciones (O-44): al no haber una función
+// común, esa tercera pantalla no tenía a cuál llamar. Se comprobó que las
+// dos copias eran idénticas antes de quitarla.
+import { parseSections } from "@/lib/sections";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
@@ -48,27 +53,6 @@ type Props = {
   posicion?: number | null;
   total?: number;
 };
-
-function parseSections(text: string) {
-  const sections: { title?: string; content: string }[] = [];
-  const lines = text.split("\n");
-  let currentSection: { title?: string; content: string } | null = null;
-
-  lines.forEach((line) => {
-    // Solo "[...]" delimita una sección; "<...>" es texto centrado de la canción.
-    const match = line.match(/^\s*\[(.*?)\]\s*$/);
-    if (match) {
-      const title = match[1];
-      if (currentSection) sections.push(currentSection);
-      currentSection = { title, content: "" };
-    } else {
-      if (!currentSection) currentSection = { content: "" };
-      currentSection.content += line + " ";
-    }
-  });
-  if (currentSection) sections.push(currentSection);
-  return sections;
-}
 
 export default function SongDetailEditor({
   sheet,

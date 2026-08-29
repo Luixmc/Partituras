@@ -1882,6 +1882,76 @@ protecciones se quedaron mirando solo al modo viejo**.
 
 Compila limpio · 128 pruebas verdes · arnés de comentarios 0 de 2.
 
+**O-44 · Al crear una canción, la vista previa no partía por secciones.** ✅ **HECHO.**
+Isaac, 2026-08-28, con una captura de `/sheets/new`: *«cuando estoy agregando una nueva canción,
+no salen las secciones como deben ser; ya funciona cuando la canción ya se subió y voy a hacer
+alguna modificación en el modo edición… arréglalo para que funcione tanto cuando se agregue una
+nueva canción como cuando se edite una que ya exista»*.
+
+**Lo que se veía en su captura:** la vista previa pintaba **la canción entera en una sola
+cuadrícula**, con las etiquetas `[Intro Drum ...]`, `[A Rock]`, `[B ...]`, `[Puente]` y `[Final]`
+**dibujadas dentro de la rejilla como si fueran acordes** — en vez de partir la canción en
+secciones con su título encima, que es como se ve una vez guardada.
+
+*Causa, una línea:* `sheets/new/page.tsx:346` pintaba `<TablaturePreview notes={tabNotes} />` con
+**todo el texto de golpe**. El editor de una canción existente sí hace
+`parseSections(content).map(...)` con `label` y `compact` (`SongDetailEditor.tsx:820`).
+
+🔴 **Y la causa de fondo es P-09, que llevaba anotado desde el primer día:** `parseSections` estaba
+**escrito dos veces** —en `lib/sections.ts` y dentro de `SongDetailEditor`—, así que la pantalla de
+crear **no tenía una función común que usar**: o copiaba una tercera vez, o se quedaba sin
+secciones. Se quedó sin secciones.
+
+*Cómo se resuelve:* las **tres** pantallas pasan a usar `lib/sections.ts`.
+→ **Comprobado antes de tocar que las dos copias eran idénticas**, línea por línea: solo cambiaba
+el nombre de una variable (`currentSection` / `current`). Así que unificar **no cambia el
+comportamiento de nadie** — que era el riesgo.
+→ **P-09 queda CERRADO.** Era la tercera vez que muerde en este proyecto: primero la consulta del
+catálogo (fase G), luego la lista de secciones del panel (`lib/navegacion.ts`), y ahora esta.
+
+📌 **Y el patrón, que ya es una constante aquí:** *dos copias de la misma lógica no fallan el día
+que se escriben; fallan el día que aparece una tercera pantalla y no sabe a cuál de las dos
+llamar.*
+
+**O-45 · El campo de la letra no crece solo.** ✅ **HECHO.**
+Isaac, el mismo día: *«en la sección de letras, cuando estoy agregando la letra a una canción no
+se va acomodando como lo hace cuando agrego una canción; tengo que extender la parte de abajo
+para que me salga toda la letra»*.
+
+*Causa:* `LetraPanel` usa un `<textarea>` normal con `min-h-[55vh]`. El editor de acordes usa
+**`AutoTextarea`**, que ya existe en el proyecto (`components/ui/AutoTextarea.tsx`) y crece con el
+texto, sin barra de desplazamiento interna ni tirador.
+→ **Se cambia por `AutoTextarea`.** No hay que escribir nada nuevo: la pieza ya estaba, solo que
+esta pantalla —que se hizo después, en la fase J— no la usó.
+
+📌 **Es el mismo patrón que O-43:** la pantalla de letras se añadió **después** de que el editor ya
+tuviera sus comodidades, y **no heredó ninguna**. Primero fue la red de cambios sin guardar, ahora
+el campo que crece. → **Al añadir una pantalla parecida a otra, hay que repasar qué se quedó
+atrás** — no solo lo que falla, también lo que estorba.
+
+#### Comprobado (2026-08-28)
+
+- **11 pruebas nuevas** (`pruebas/secciones.test.mjs`), total **139**. Entre ellas, **la canción
+  exacta de la captura de Isaac**: sale en **6 secciones** —Intro Drum, A Rock, B, la vacía,
+  Puente y Final— en vez de una sola, cada una con su título y sus acordes dentro.
+- **P-09 cerrado, medido:** queda **una sola** definición de `parseSections` y la usan **siete**
+  archivos.
+- **El campo de la letra ya es `AutoTextarea`**: se sirve con `overflow:hidden` y `resize:none`,
+  que es lo que hace que crezca en vez de pedir que lo estires.
+- Compila limpio y **139 pruebas verdes**.
+
+#### Y la prueba cazó algo al escribirla
+
+`parseSections("")` **no devuelve una lista vacía**: devuelve **una sección con un espacio**. En la
+pantalla de crear eso pintaba **una cuadrícula vacía nada más abrirla**, antes de escribir nada.
+
+→ **Se arregló en la pantalla, no en `parseSections`.** La función la usan siete pantallas y su
+contrato lleva meses así; cambiarlo **justo al unificarla** habría sido mover dos cosas a la vez, y
+si algo se rompía no se sabría cuál fue. La pantalla de crear **filtra lo que no tiene ni título ni
+contenido**, y la prueba **documenta el contrato real** en vez de esconderlo.
+📌 Queda escrito para el día que alguien quiera limpiarlo: **es un cambio de una línea, pero hay
+que pasar por las siete pantallas antes.**
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la
@@ -2784,9 +2854,13 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-08 · El enlace «Regístrate» del login da 404.** `login/page.tsx:83` → `/signup`, que
       no existe (comprobado en producción). El middleware la trata como pública
       (`middleware.ts:35`).
-- [ ] **P-09 · `parseSections` está duplicado** en `lib/sections.ts:4` y
-      `SongDetailEditor.tsx:33`. El día que cambie una, el editor y la presentación dejarán de
-      enseñar lo mismo.
+- [x] ~~**P-09 · `parseSections` duplicado**~~ → **CERRADO el 2026-08-28**, y no por limpieza:
+      **fue la causa de O-44**. Al estar escrita dos veces y no haber «la de todos», la pantalla de
+      crear canción no tenía a cuál llamar y se quedó **sin secciones**. Ahora hay **una sola** y la
+      usan **siete** archivos. Se comprobó que las dos copias eran idénticas antes de quitar una.
+      📌 **Es la tercera vez que muerde este patrón** —la consulta del catálogo, la lista de
+      secciones del panel, y esta—: *dos copias de la misma lógica no fallan el día que se
+      escriben; fallan el día que aparece una tercera pantalla.*
 - [~] **P-10 · Higiene** — ✅ **`tsconfig.tsbuildinfo` RESUELTO en la Fase A**: añadido a
       `.gitignore` y sacado del control de versiones. Era la fuente número uno de conflictos al
       trabajar dos personas. **Queda pendiente el resto:** `tsconfig.tsbuildinfo` (112 KB) commiteado y cambiando en casi cada

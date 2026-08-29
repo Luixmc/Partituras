@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Grid2X2, Save } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
+import { parseSections } from "@/lib/sections";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
@@ -343,7 +344,34 @@ export default function NewSheetPage() {
             className="w-full min-h-[180px] rounded-lg border border-slate-200 bg-white p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
           />
 
-          <TablaturePreview notes={tabNotes} />
+          {/* 🔴 Una vista previa POR SECCIONES, igual que la de una canción ya
+              guardada. Antes se pintaba `notes={tabNotes}` de golpe, y las
+              etiquetas `[Intro]`, `[Coro]`… salían dibujadas DENTRO de la
+              rejilla como si fueran acordes, en vez de titular su sección
+              (O-44). Lo vio Isaac creando una canción.
+
+              Y usa `parseSections` de `lib/sections.ts`, la misma que las
+              otras dos pantallas: era P-09 lo que dejó esta sin secciones —
+              la función estaba escrita dos veces y ninguna era «la de todos»,
+              así que aquí no había a cuál llamar. */}
+          <div className="space-y-4">
+            {parseSections(tabNotes)
+              // Con el campo vacío, `parseSections` devuelve una sección con un
+              // espacio dentro: pintarla dejaría una cuadrícula vacía nada más
+              // abrir «nueva canción». Se filtra aquí y no en `parseSections`
+              // porque esa función la usan SIETE pantallas y lleva meses con
+              // ese contrato — tocarla justo al unificarla sería cambiar dos
+              // cosas a la vez.
+              .filter((s) => s.title !== undefined || s.content.trim())
+              .map((seccion, i) => (
+                <TablaturePreview
+                  key={i}
+                  notes={seccion.content}
+                  label={seccion.title}
+                  compact
+                />
+              ))}
+          </div>
 
           {error && (
             <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>

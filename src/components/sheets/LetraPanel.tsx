@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AutoTextarea from "@/components/ui/AutoTextarea";
 import { Save, Sparkles } from "lucide-react";
 
 import { andamioDesdeAcordes, estrofasDe, estrofasCantadas, tieneLetra } from "@/lib/letras";
@@ -123,7 +124,12 @@ export default function LetraPanel({
         solo—, y no aparecera al leer.
       </p>
 
-      <textarea
+      {/* Crece con lo escrito, sin barra interna ni tirador (O-45). Antes era
+          un `<textarea>` normal con alto fijo, así que al escribir una letra
+          larga había que arrastrar la esquina para verla entera. La pieza ya
+          existía —la usa el editor de acordes—; esta pantalla, que se hizo
+          después, no la había heredado. */}
+      <AutoTextarea
         value={lyrics}
         onChange={(e) => setLyrics(e.target.value)}
         spellCheck

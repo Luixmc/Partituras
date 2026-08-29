@@ -70,6 +70,40 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "28 de agosto de 2026",
+    "iso": "2026-08-28",
+    "entrada": "Dos cosas que estorbaban al escribir: una al meter una canción nueva y otra al ponerle la letra.",
+    "secciones": [
+      {
+        "titulo": "Al crear o editar una canción",
+        "resumen": "La vista previa ya separa las secciones también cuando la canción es nueva.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Al crear una canción, la vista previa no separaba las secciones.",
+            "detalle": [
+              "Salía <strong>todo en una sola cuadrícula</strong>, con <code>[Intro]</code>, <code>[Coro]</code> y demás dibujados dentro como si fueran acordes.",
+              "Al editar una canción ya guardada sí funcionaba. Ahora <strong>funciona en las dos</strong>: cada sección con su título encima, igual que al leerla."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Al escribir las letras",
+        "resumen": "El campo se estira con el texto, sin tener que arrastrar la esquina.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El campo de la letra no crecía solo.",
+            "detalle": [
+              "Había que <strong>arrastrar la esquina de abajo</strong> para ver lo que llevabas escrito. Ahora se estira con el texto, igual que el de los acordes."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "22 de agosto de 2026",
     "iso": "2026-08-22",
     "entrada": "Un arreglo que se nota tocando, algo nuevo para quien toca trompeta, y unas cuantas cosas de debajo del capó.",
