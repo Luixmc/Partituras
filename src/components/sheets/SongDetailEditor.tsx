@@ -168,6 +168,15 @@ export default function SongDetailEditor({
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
+  // Diálogo "guardar o descartar" al salir con cambios sin guardar.
+  //
+  // 📌 Se declara AQUÍ, antes del efecto que lo usa. Estaba veinte líneas más
+  // abajo y funcionaba —los efectos corren después del render, así que para
+  // cuando alguien pulsa un enlace ya existe—, pero leyéndolo de arriba abajo
+  // parecía que se usaba algo todavía sin declarar. Lo marcó el lint al
+  // estrenarlo, y tenía razón: es frágil y no costaba nada ponerlo en orden.
+  const [leavePrompt, setLeavePrompt] = useState<{ proceed: () => void } | null>(null);
+
   // Intercepta la navegación interna (enlaces del menú, "volver", etc.) para
   // mostrar el diálogo de guardar/descartar en vez de salir sin avisar.
   //
@@ -195,8 +204,6 @@ export default function SongDetailEditor({
     return () => document.removeEventListener("click", handler, true);
   }, [mode, isDirty, router]);
 
-  // Diálogo "guardar o descartar" al salir con cambios sin guardar.
-  const [leavePrompt, setLeavePrompt] = useState<{ proceed: () => void } | null>(null);
 
   const restoreSnapshot = () => {
     const snap = JSON.parse(savedSnapshot);

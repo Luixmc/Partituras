@@ -2059,6 +2059,48 @@ que el editor deja de saltar también — allí pasaba menos porque los acordes 
 ⬜ **Hay que probarlo con los ojos:** el salto lo hace el navegador y **no deja rastro en el HTML**.
 Escribe una letra larga, hasta que el campo pase de la pantalla, y sigue escribiendo.
 
+### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
+
+Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:
+`npm run lint` contestaba **«Invalid project directory: .../lint»** desde la migracion a Next 16
+del 2026-08-22. **El comando `next lint` desaparecio en Next 16.**
+
+🔴 **Es T-16 otra vez, pero peor.** Alli una comprobacion mia miraba el texto en vez del codigo de
+salida; aqui habia **un comando entero que decia comprobar el codigo y no comprobaba nada**, seis
+dias. Un comando roto que nadie ejecuta no da error: da silencio.
+
+#### Lo que hizo falta
+
+**ESLint 8 → 9 y `eslint-config-next` 14 → 16**, que es cambiar al formato nuevo de configuracion
+(«flat config», `eslint.config.mjs` en vez de `.eslintrc.json`).
+
+⚠️ **Y una trampa por el camino:** el primer intento uso el puente de compatibilidad `FlatCompat`,
+que es lo que dice casi toda la documentacion. **Revienta**, con un
+`TypeError: Converting circular structure to JSON` que no menciona la causa por ningun lado.
+→ `eslint-config-next` **16 ya viene en formato nuevo**: se importa directa
+(`eslint-config-next/core-web-vitals`), sin puente.
+
+#### Los 12 errores que saco a la primera, revisados UNO A UNO
+
+| Regla | Cuantos | Que se hizo |
+|---|---|---|
+| `react-hooks/immutability` | **1** | ✅ **Arreglado.** `setLeavePrompt` se usaba en la linea 192 y se declaraba en la 199. Funcionaba —los efectos corren despues del render— pero leido de arriba abajo parecia que usaba algo sin declarar. Ahora va antes |
+| `react-hooks/set-state-in-effect` | **9** | ⚠️ **A aviso, tras mirar los nueve.** Todos son el mismo patron: leer `localStorage` o `window.location` despues de montar. **En Next no hay alternativa** — el servidor no tiene ninguna de las dos, y leerlas durante el render romperia la pagina |
+| `react-hooks/preserve-manual-memoization` | **2** | ⚠️ A aviso: es una nota de optimizacion, no un fallo |
+
+🔴 **Lo importante de esa tabla es que se miraron los nueve, no que se bajaran a aviso.** Bajar
+reglas hasta que el lint calle es la forma habitual de tener un lint decorativo — que es
+exactamente de donde veniamos. Siguen saliendo en amarillo, asi que un caso nuevo se ve.
+
+#### Y va al CI, delante del build
+
+`npm test` → **`npm run lint`** → `npm run build`. **Es lo unico que garantiza que no vuelva a
+romperse en silencio**: un comando que solo se ejecuta cuando alguien se acuerda, se rompe y no se
+nota. Con el CI, cualquier subida que lo rompa sale con ✗.
+
+**Estado al cerrar:** **0 errores** y **57 avisos** (46 de `any` y variables sin usar heredados, 11
+del compilador de React). Pruebas **139 verdes**, build **codigo de salida 0**.
+
 ### 9.2-bis · Las fases — ✅ APROBADAS por Isaac el 2026-08-20
 
 > *«los apruebo, pero primero vamos a hacer lo que está pendiente primero (como supabase, la

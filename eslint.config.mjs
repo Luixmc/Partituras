@@ -44,6 +44,23 @@ export default [
       // note. Queda como AVISO: se ve, no bloquea.
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+
+      // -- Las dos del compilador de React --
+      //
+      // BAJADAS A AVISO DESPUES DE REVISAR LOS NUEVE CASOS UNO A UNO, no para
+      // que el lint se calle. Los nueve son el mismo patron, y en Next **no
+      // tiene alternativa**: leer `localStorage` o `window.location` despues de
+      // montar. El servidor no tiene ninguna de las dos, asi que leerlas
+      // durante el render romperia la pagina -- de hecho varios de esos
+      // efectos ya llevaban escrito al lado por que estan asi.
+      //
+      // La regla acierta en general (evitar renders en cascada) y **no acierta
+      // aqui**. Si algun dia aparece un caso que si sea un fallo, se ve igual:
+      // sigue saliendo, en amarillo.
+      "react-hooks/set-state-in-effect": "warn",
+      // Nota de optimizacion del compilador, no un fallo: avisa de que no pudo
+      // conservar un `useMemo` escrito a mano. La pagina funciona igual.
+      "react-hooks/preserve-manual-memoization": "warn",
     },
   },
 ];

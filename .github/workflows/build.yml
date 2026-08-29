@@ -40,5 +40,13 @@ jobs:
       - name: Pruebas
         run: npm test
 
+      # El lint entra al CI el 2026-08-28, y no por gusto: `next lint` DESAPARECIO
+      # en Next 16, asi que `npm run lint` llevaba una semana contestando
+      # «Invalid project directory» y NADIE SE ENTERO. Un comando que dice
+      # comprobar el codigo y no comprueba nada solo se descubre ejecutandolo;
+      # aqui se ejecuta en cada subida.
+      - name: Estilo
+        run: npm run lint
+
       - name: Compilar
         run: npm run build
