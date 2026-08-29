@@ -453,7 +453,17 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                 // completa cogen el catálogo entero, y las flechas recorren
                 // las 75 canciones en vez de las del repertorio (O-33). Y el
                 // «volver» apunta al catálogo en vez de al culto (O-34).
-                href={`/catalog/${s.sheet_id}?culto=${service.id}`}
+                // `service?.id`, no `service.id`: en un culto sin guardar todavia
+                // no hay culto al que volver. Es el mismo criterio que ya se tomo
+                // para la lista del admin en O-36, y aqui faltaba — lo marco el
+                // compilador al activar `strict`. Hoy no llegaba a reventar porque
+                // esta lista solo la ven quienes NO pueden crear cultos, pero eso
+                // es una casualidad, no una garantia.
+                href={
+                  service
+                    ? `/catalog/${s.sheet_id}?culto=${service.id}`
+                    : `/catalog/${s.sheet_id}`
+                }
                 className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900"
               >
                 <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">

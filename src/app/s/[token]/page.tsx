@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ContentScale from "@/components/theme/ContentScale";
 import ReadingControls from "@/components/theme/ReadingControls";
 import { createClient } from "@/lib/supabase/server";
-import { SERVICE_TYPE_META, formatServiceDate } from "@/lib/services";
+import { formatServiceDate, metaDeCulto } from "@/lib/services";
 
 export default async function PublicServicePage(
   props: {
@@ -38,7 +38,7 @@ export default async function PublicServicePage(
   } = await supabase.auth.getUser();
   const tieneCuenta = Boolean(user);
 
-  const meta = SERVICE_TYPE_META[service.service_type] ?? SERVICE_TYPE_META.otro;
+  const meta = metaDeCulto(service.service_type);
   const dateText = formatServiceDate(service.service_date);
 
   const songs = (service.service_songs ?? [])

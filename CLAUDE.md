@@ -3079,6 +3079,21 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       JavaScript que sirve `/login`).
       ⬜ **Falta la mitad de la BASE:** meter `active` en las políticas, para que un token guardado
       tampoco pueda leer. Por la página web **ya no entra**, que es el uso real.
+      📄 **La migración `20240020_usuario_desactivado.sql` ya está ESCRITA (2026-08-29) y SIN
+      EJECUTAR.** Hace tres cosas: una función `esta_activo()` —con `coalesce(active, true)`, para
+      que un fallo al leer no eche a nadie—, **`is_admin()` deja de dar permisos a un admin
+      desactivado** (el caso que más muerde), y la lectura de `sheets` y `services` la exige.
+
+      🔴 **NO se puede aplicar a ciegas, y hay dos motivos:**
+      1. **Usa `alter policy` sobre nombres que salen del repositorio**, y **T-01 dice que el
+         repositorio no es la base**. Si en producción esa política se llama de otra forma, la
+         migración **falla a mitad**. → Hay que **leer `pg_policies` primero**, y hoy no se puede:
+         la herramienta de Supabase lleva denegando las consultas desde el 2026-08-28.
+      2. 🔴 **Es el cambio con más capacidad de dejar a todo el mundo fuera** de cuantos se han
+         hecho aquí: toca `is_admin()`, que sostiene **todas** las políticas de escritura. Si algo
+         sale mal, no es que falle una pantalla — **es que no entra nadie**.
+      → **Necesita: la herramienta de Supabase funcionando, copia previa, y el OK expreso de
+      Isaac** (D-04). Y conviene hacerla **sola**, sin nada más en la misma tanda.
 - [ ] **P-02 · Los cultos no compartidos son legibles por cualquiera.**
       `services_select_all` (`20240012:71`) es `using (true)` **sin `to authenticated`**. El
       filtro `is_public` solo está en el código (`s/[token]/page.tsx:22`), no en la BD. Con la
@@ -3164,9 +3179,20 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
             📌 **Lo malo no era el coste, era que MENTIA:** parecia haber una politica de acceso
             pensada. El dia que cambiara el dominio habria dejado de coincidir sin que nadie se
             enterara — y alguien podria haberse apoyado en ella creyendo que protegia algo.
-      - [ ] **`"strict": false` en `tsconfig.json`** — es lo unico que queda, y **no se toca sin
-            decidirlo**: activarlo saca errores en codigo que hoy funciona, y hay que ver cuantos
-            antes de prometer nada.
+      - [x] ~~**`"strict": false` en `tsconfig.json`**~~ → **ACTIVADO el 2026-08-29**, y **P-10
+            queda CERRADA del todo**.
+            📌 **Y lo primero que hay que decir es que mi suposicion era falsa.** Llevaba escrito
+            aqui que «activarlo saca errores en codigo que hoy funciona» — **eran 14, en 6
+            archivos**, y ninguno costo mas de un minuto. **Medir antes de opinar** habria cerrado
+            esto hace una semana.
+
+            | Familia | Cuantos | Que era |
+            |---|---|---|
+            | Las cookies de `@supabase/ssr` | **9** | Los callbacks sin tipar. Se arreglo usando **el tipo que la propia libreria exporta** (`SetAllCookies`), no uno inventado: asi, el dia que cambie la forma de esos datos, el compilador avisa |
+            | El tipo de culto | **3** | Indexar un `Record` con lo que llega de la base, que es `any`. → **`metaDeCulto()` nueva en `lib/services.ts`**, que comprueba de verdad el valor en vez de confiar en el indice. De paso quita el `?? otro` **repetido en tres pantallas** |
+            | **`service` podia ser `null`** | **1** | 🔴 **El unico que era un fallo de verdad.** `ServiceEditor:456` hacia `service.id` sin comprobar. **Hoy no revienta porque esa lista solo la ven quienes NO pueden crear cultos** — pero eso es una casualidad, no una garantia. Arreglado con el mismo criterio de O-36 |
+
+            **Comprobado:** `tsc --noEmit` **0 errores** · 139 pruebas · lint 0 · build 0.
 - [x] ~~**P-11 · Ni una prueba, ni CI**~~ → **HECHO.** El **CI** el 2026-08-20 (`npm run build` en
       cada push) y **las pruebas el 2026-08-22**: hoy son **139**, con el runner de Node y **cero
       dependencias nuevas**, y el CI las ejecuta **antes** del build. Ver §9.2-octies.

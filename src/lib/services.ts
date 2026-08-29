@@ -11,6 +11,22 @@ export const SERVICE_TYPE_META: Record<ServiceType, { label: string; color: stri
 
 export const SERVICE_TYPES: ServiceType[] = ["viernes", "domingo", "ayuno", "santa_cena", "otro"];
 
+/**
+ * La etiqueta y el color de un tipo de culto, tolerando lo que venga.
+ *
+ * Lo que llega de la base **no esta tipado** —es un `any`—, asi que las tres
+ * pantallas que lo pintan repetian `SERVICE_TYPE_META[tipo] ?? ...otro`. Eso
+ * funciona, pero pone la misma regla en tres sitios, y basta con que una
+ * pantalla nueva se olvide del `??` para que enseñe «undefined».
+ *
+ * Aqui se comprueba de verdad que el valor sea uno de los conocidos, en vez de
+ * confiar en que el indice acierte.
+ */
+export function metaDeCulto(tipo: unknown) {
+  const clave = SERVICE_TYPES.find((t) => t === tipo) ?? "otro";
+  return SERVICE_TYPE_META[clave];
+}
+
 /** Convierte las filas embebidas service_songs(...sheet) en canciones de presentación. */
 /**
  * @param conLetra  Incluir la letra de cada canción. **Va apagado por

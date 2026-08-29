@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import PrintableService from "@/components/services/PrintableService";
 import { createClient } from "@/lib/supabase/server";
-import { SERVICE_TYPE_META, formatServiceDate, mapPresentSongs } from "@/lib/services";
+import { formatServiceDate, mapPresentSongs, metaDeCulto } from "@/lib/services";
 
 /**
  * Hoja imprimible del culto: sus canciones con acordes, una por página (O-08).
@@ -33,7 +33,7 @@ export default async function ImprimirCultoPage(
 
   if (!service) notFound();
 
-  const meta = SERVICE_TYPE_META[service.service_type] ?? SERVICE_TYPE_META.otro;
+  const meta = metaDeCulto(service.service_type);
 
   return (
     <PrintableService

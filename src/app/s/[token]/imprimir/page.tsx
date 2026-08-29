@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import PrintableService from "@/components/services/PrintableService";
 import { createClient } from "@/lib/supabase/server";
-import { SERVICE_TYPE_META, formatServiceDate, mapPresentSongs } from "@/lib/services";
+import { formatServiceDate, mapPresentSongs, metaDeCulto } from "@/lib/services";
 
 /**
  * La misma hoja imprimible, para quien recibió el enlace compartido y no tiene
@@ -27,7 +27,7 @@ export default async function ImprimirCultoPublicoPage(
 
   if (!service) notFound();
 
-  const meta = SERVICE_TYPE_META[service.service_type] ?? SERVICE_TYPE_META.otro;
+  const meta = metaDeCulto(service.service_type);
 
   return (
     <PrintableService
