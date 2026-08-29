@@ -134,7 +134,19 @@ puede comprobar nada. Existe **una cuenta de prueba creada por Isaac el 2026-08-
 (`pruebaclaude@gmail.com`, rol **lector**; la contraseña la tiene él y **no se escribe aquí**,
 porque este archivo va a un repositorio **público**).
 
-Con ella se puede entrar por línea de comandos:
+🔑 **Desde el 2026-08-28 la sesión se saca sola: `node pruebas/sesion.mjs`.**
+Isaac dio la contraseña y propuso él mismo dónde guardarla: *«como no vas a tener la contraseña en
+los archivos que están públicos, ponlo en un archivo aparte, ¿no?»*. → **Va en `.env.local`**
+(`PRUEBA_EMAIL` / `PRUEBA_PASSWORD`), que está en `.gitignore` **desde el primer día** —comprobado
+con `git check-ignore` antes de escribirla— y es donde ya viven las demás claves. La cookie se
+guarda en `.sesion`, también ignorado.
+→ **Por qué importa que sea un script y no un apunte:** la cookie **muere** cuando caduca o cuando
+alguien cierra la sesión — y eso acaba de pasar al probar P-01, que dejó sin poder comprobar
+ninguna pantalla protegida. Ahora se regenera en un segundo.
+→ ⚠️ **La contraseña NO se escribe en este archivo ni en ningún otro del repositorio**, que es
+público. Y con esa cuenta **solo se mira** (D-14).
+
+Por dentro, el script hace esto (por si algún día hay que repetirlo a mano):
 
 1. `POST /auth/v1/token?grant_type=password` contra Supabase con el correo y la contraseña →
    devuelve la sesión en JSON.
@@ -3006,6 +3018,9 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       ⚠️ **NO va en el CI, y no es pereza:** para entrar a las pantallas protegidas hace falta una
       sesion de verdad, y **meter credenciales en el CI de un repositorio publico no se hace**. Se
       ejecuta a mano, contra el servidor de casa, antes de publicar algo gordo.
+      ✅ **Pasado el 2026-08-28 en los dos sitios: 26 de 26 en local y 26 de 26 EN PRODUCCION.**
+      Y se puede lanzar contra produccion con `BASE=https://partituras-blush.vercel.app`, que es
+      donde de verdad importa (§3).
 - [x] ~~**P-12 · Versionar el caché del service worker**~~ → **HECHO en la fase L** (2026-08-22).
       `sw.js` lee su versión de su propia dirección (`?v=<commit>`), así que al desplegar se instala
       el nuevo y **limpia el anterior**. Antes el nombre del caché era constante y `activate` **no
