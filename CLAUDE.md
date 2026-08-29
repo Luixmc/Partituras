@@ -2952,10 +2952,14 @@ lo confirme»).
 Esto **no** es el encargo de Isaac (§9.2): son los problemas que encontré yo leyendo el
 código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 
-- [ ] **P-01 · Desactivar un usuario no lo desactiva.** `admin/actions.ts:121-136` escribe
-      `profiles.active`, y **nadie lo lee nunca más**: ni el middleware, ni el layout, ni una
-      sola política RLS. El usuario «desactivado» entra igual. *(Es L-36 `[VM]` de la carpeta
-      compartida, en otra pila.)*
+- [x] ~~**P-01 · Desactivar un usuario no lo desactiva**~~ → **HECHO y PROBADO EN PRODUCCIÓN el
+      2026-08-28** (§9.2-decies). El middleware comprueba `profiles.active` y **cierra la sesión**.
+      Lo probó Isaac desactivando la cuenta de prueba: la primera petición dio
+      `/login?cuenta=desactivada` y las siguientes `/login` a secas — **la sesión se cerró de
+      verdad**. Reactivada, vuelve a la normalidad. El aviso está publicado (comprobado dentro del
+      JavaScript que sirve `/login`).
+      ⬜ **Falta la mitad de la BASE:** meter `active` en las políticas, para que un token guardado
+      tampoco pueda leer. Por la página web **ya no entra**, que es el uso real.
 - [ ] **P-02 · Los cultos no compartidos son legibles por cualquiera.**
       `services_select_all` (`20240012:71`) es `using (true)` **sin `to authenticated`**. El
       filtro `is_public` solo está en el código (`s/[token]/page.tsx:22`), no en la BD. Con la
