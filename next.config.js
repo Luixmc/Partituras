@@ -10,41 +10,17 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_ID: (process.env.VERCEL_GIT_COMMIT_SHA || "dev").slice(0, 7),
   },
-  async headers() {
-    const corsHeaders = [
-      {
-        key: "Access-Control-Allow-Origin",
-        value: "https://partituras-blush.vercel.app",
-      },
-      {
-        key: "Access-Control-Allow-Methods",
-        value: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-      },
-      {
-        key: "Access-Control-Allow-Headers",
-        value: "Content-Type, Authorization, X-Requested-With",
-      },
-      {
-        key: "Access-Control-Allow-Credentials",
-        value: "true",
-      },
-    ];
-
-    return [
-      {
-        source: "/api/:path*",
-        headers: corsHeaders,
-      },
-      {
-        source: "/catalog/:path*",
-        headers: corsHeaders,
-      },
-      {
-        source: "/sheets/:path*",
-        headers: corsHeaders,
-      },
-    ];
-  },
+  // Aqui habia unas cabeceras CORS, quitadas el 2026-08-28 (P-10). No hacian
+  // NADA, y se comprobo antes de tocarlas:
+  //   * se aplicaban a `/api/:path*`, y **no existe ninguna ruta /api**;
+  //   * y a `/catalog/*` y `/sheets/*`, que son **paginas HTML, no una API**:
+  //     el navegador no aplica CORS a la navegacion entre paginas;
+  //   * y sobre todo, el origen permitido era **el dominio de la propia
+  //     pagina** -- y el mismo origen nunca necesita permiso CORS. O sea que
+  //     no habilitaban nada que no estuviera ya habilitado.
+  // Lo malo no era el coste, era que **mentian**: parecia haber una politica
+  // de acceso pensada, y el dia que cambiara el dominio habria dejado de
+  // coincidir sin que nadie se enterara.
   images: {
     remotePatterns: [
       {

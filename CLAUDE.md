@@ -3058,6 +3058,23 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-06 · El OCR depende de un CDN externo.** `songImport.ts:74-77` carga worker, WASM e
       idiomas de `cdn.jsdelivr.net` y `tessdata.projectnaptha.com`. Sin internet no funciona,
       en una app que se vende como instalable.
+      📊 **MEDIDO el 2026-08-28, y el numero cambia la decision:**
+
+      | Pieza | Peso | ¿Esta ya en el proyecto? |
+      |---|---|---|
+      | `worker.min.js` | **112 KB** | ✅ si, en `node_modules` |
+      | El motor (`.wasm`) | **19 MB** los ocho; **~4 MB** el que se use | ✅ si |
+      | **El idioma `spa`** | **8,4 MB** | ❌ **NO**, y encima usa `spa+eng`, asi que son dos |
+
+      🔴 **Ahi esta el problema, y no es tecnico: el repositorio es PUBLICO y es de su primo.**
+      Traerselo todo a casa son **~15-20 MB** metidos en el repositorio de otra persona. Las dos
+      primeras piezas se pueden copiar hoy mismo —ya estan en `node_modules`, como se hace con
+      `pdf.worker.min.mjs`—, pero **si el idioma sigue viniendo de fuera, no se arregla nada**:
+      sin internet seguiria sin funcionar.
+      → **Hay una salida a medias:** los `traineddata` **«fast»** pesan ~1 MB en vez de 8,4, con
+      algo menos de acierto. Para leer acordes de una foto puede sobrar.
+      → **Decision de Isaac**, y hay que preguntarsela con estos numeros. No se mete nada en el
+      repositorio del primo por cuenta propia.
 - [x] ~~**P-07 · El README miente en la sintaxis**~~ → **CERRADO el 2026-08-28**, y lo pidió Isaac:
       *«los cambios que se hacen, agrégalos al readme, para tener todo ahí como venía haciendo mi
       primo»*.
@@ -3083,13 +3100,24 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       📌 **Es la tercera vez que muerde este patrón** —la consulta del catálogo, la lista de
       secciones del panel, y esta—: *dos copias de la misma lógica no fallan el día que se
       escriben; fallan el día que aparece una tercera pantalla.*
-- [~] **P-10 · Higiene** — ✅ **`tsconfig.tsbuildinfo` RESUELTO en la Fase A**: añadido a
-      `.gitignore` y sacado del control de versiones. Era la fuente número uno de conflictos al
-      trabajar dos personas. **Queda pendiente el resto:** `tsconfig.tsbuildinfo` (112 KB) commiteado y cambiando en casi cada
-      commit; `layout.tsx` huérfano en la raíz; `"strict": false` en `tsconfig.json`; y el
-      CORS de `next.config.js:6-9` fija `Allow-Origin` a su propio dominio con
-      `Allow-Credentials: true` sobre `/catalog/*` y `/sheets/*`, que son páginas HTML, no una
-      API: no hace nada útil y miente el día que cambie el dominio.
+- [~] **P-10 · Higiene** — **casi cerrada.**
+      - [x] ~~`tsconfig.tsbuildinfo`~~ → Fase A: a `.gitignore` y fuera del control de versiones.
+            Era la fuente numero uno de conflictos al trabajar dos personas.
+      - [x] ~~`layout.tsx` huerfano en la raiz~~ → **BORRADO el 2026-08-28**, y era un fosil
+            comprobado: su `import "./globals.css"` apuntaba a **un archivo que no existe** ahi, y
+            lo unico que tenia de propio era una descripcion que hablaba de **«mosaicos
+            musicales»** — el modulo que se elimino antes de que llegaramos a este proyecto.
+      - [x] ~~El CORS de `next.config.js`~~ → **QUITADO el 2026-08-28**, despues de comprobar que
+            **no hacia nada**: se aplicaba a `/api/*` y **no existe ninguna ruta `/api`**; a
+            `/catalog/*` y `/sheets/*`, que son **paginas HTML** y el navegador no les aplica CORS;
+            y sobre todo **el origen permitido era el dominio de la propia pagina**, y el mismo
+            origen nunca necesita permiso CORS.
+            📌 **Lo malo no era el coste, era que MENTIA:** parecia haber una politica de acceso
+            pensada. El dia que cambiara el dominio habria dejado de coincidir sin que nadie se
+            enterara — y alguien podria haberse apoyado en ella creyendo que protegia algo.
+      - [ ] **`"strict": false` en `tsconfig.json`** — es lo unico que queda, y **no se toca sin
+            decidirlo**: activarlo saca errores en codigo que hoy funciona, y hay que ver cuantos
+            antes de prometer nada.
 - [x] ~~**P-11 · Ni una prueba, ni CI**~~ → **HECHO.** El **CI** el 2026-08-20 (`npm run build` en
       cada push) y **las pruebas el 2026-08-22**: hoy son **139**, con el runner de Node y **cero
       dependencias nuevas**, y el CI las ejecuta **antes** del build. Ver §9.2-octies.
