@@ -2091,6 +2091,42 @@ que el editor deja de saltar también — allí pasaba menos porque los acordes 
 ⬜ **Hay que probarlo con los ojos:** el salto lo hace el navegador y **no deja rastro en el HTML**.
 Escribe una letra larga, hasta que el campo pase de la pantalla, y sigue escribiendo.
 
+**O-47 · El silencio de negra se dibuja como un «7», no como un zigzag.**
+Isaac, 2026-08-29, con dos capturas —la de la pagina y la que quiere—: *«quiero que modifiques el
+signo de silencio de negra que aparece en la pagina, y quiero que pongas este otro, porque la
+verdad el signo de la pagina no tiene forma de silencio»*.
+
+**Y tiene razon.** Lo que habia (`MusicFigures.tsx`, `RestFigure`) era un trazo en zigzag hecho con
+curvas Bezier que **no se parece a ningun silencio real**: ni al de imprenta (𝄽) ni al manuscrito.
+El que el manda es **el «7»**, que es como se escribe a mano y como lo reconoce cualquiera que
+lea musica en papel.
+
+📌 **Es el mismo caso que el `dim` → `°` (O-04) y que el «mundito gris» de `/novedades`:** el
+usuario nombra y reconoce las cosas por como se ven de verdad, no por como estan implementadas.
+Un simbolo que «casi» se parece **no vale**, porque se lee tocando y de un vistazo.
+
+**Alcance medido antes de tocar:** hay **12 silencios de negra en 5 canciones** de las 75. No es un
+caso raro, pero tampoco toca a todo el repertorio.
+
+⚠️ **Se ve en TRES sitios y sale gratis en los tres:** la vista de la cancion, la pantalla completa
+y el PDF del culto usan el mismo `RestFigure`.
+
+**Como quedo:** dos trazos rectos —el travesano arriba con una caida ligera, y la pata bajando en
+diagonal hacia la izquierda—, **rectos y no curvos a proposito**: es como sale al escribirlo con un
+lapiz. Y **mas grueso que las demas figuras** (2.4 frente a 1.6), porque es un trazo suelto sin
+cabeza ni plica: con el grosor de una linea se perderia entre los acordes.
+
+**Comprobado (2026-08-29)** en «Sube La Alabanza», que es la que mas tiene (8 de los 12): el trazo
+nuevo llega a la pagina, **el zigzag viejo ya no aparece**, y los **98 acordes** de la cancion
+siguen dibujandose igual. Lo mismo en la pantalla completa.
+
+**Las 5 canciones donde se ve:** Sube La Alabanza (8) · Es Por Fe · Renueva Mi Espiritu ·
+Me Llamaste A Conquistar · Casa De Mi Padre.
+
+⬜ **Y hay que mirarlo con los ojos, que es lo unico que decide:** es un dibujo. Compila igual sea
+cual sea la forma, asi que **ninguna comprobacion automatica puede decir si se parece a un silencio
+de negra**. Eso solo lo dice quien lee musica.
+
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
 Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:

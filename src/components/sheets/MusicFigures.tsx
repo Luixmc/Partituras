@@ -141,18 +141,31 @@ export function RestFigure({ beats, className }: FigureProps) {
           {beats === 3 && <circle cx="18.5" cy="15.5" r="1.9" fill="currentColor" />}
         </>
       ) : (
-        // Silencio de negra: trazo en zigzag. Con puntillo si beats === 1.5
-        // (silencio de negra con puntillo) ó 0.75.
+        // Silencio de negra: EL «7» MANUSCRITO, que es como se escribe a mano.
+        //
+        // 🔴 Antes era un zigzag de curvas Bézier, y lo cortó Isaac (O-47):
+        // «el signo de la página no tiene forma de silencio». Tenía razón — no
+        // se parecía ni al de imprenta (𝄽) ni al de papel, y esto se lee
+        // TOCANDO: un símbolo que «casi» se parece no vale, porque hay que
+        // reconocerlo de un vistazo y sin pensar.
+        //
+        // Dos trazos rectos: el travesaño de arriba, con una caída ligera hacia
+        // la derecha, y la pata bajando en diagonal hacia la izquierda. Recto y
+        // no curvo a propósito: es como sale al escribirlo con un lápiz.
+        //
+        // Va más grueso que las demás figuras (2.4 frente a 1.6) porque es un
+        // trazo suelto sin cabeza ni plica: con el grosor de una línea se
+        // perdería junto a los acordes.
         <>
           <path
-            d="M9 6 C 13 9, 10 11, 13 13 C 16 15, 11 16, 14 19 C 12 18, 10 19, 12.5 22"
+            d="M7.5 8 L16.5 9.5 L9 21.5"
             stroke="currentColor"
-            strokeWidth="2.1"
+            strokeWidth="2.4"
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {(beats === 1.5 || beats === 0.75) && <circle cx="18.5" cy="14" r="1.9" fill="currentColor" />}
+          {(beats === 1.5 || beats === 0.75) && <circle cx="18.5" cy="15" r="1.9" fill="currentColor" />}
         </>
       )}
     </svg>
