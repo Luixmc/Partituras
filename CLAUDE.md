@@ -2340,6 +2340,76 @@ guarda con **`duration: null`** fijo: el `%` **nunca** ha podido llevar duracion
 **cuanto dura ese golpe es justo lo que hay que decir**. Sin duracion, el compas no puede repartir
 bien los tiempos — que es lo que hace la cuadricula.
 
+**O-51 · Las figuras son DEMASIADO PEQUEÑAS para distinguirlas.**
+Isaac, 2026-08-29, nada mas ver O-49 funcionando: *«los signos no se ven bien, o sea no se logra
+diferenciar en este ejemplo el doble puntillo o que es una semicorchea; me toca poner zoom al
+300 % para poder ver que es que»*.
+
+**Y el numero le da la razon.** La figura se dibuja con `height: 1em` sobre un `viewBox` de
+**24 x 30**, asi que con el texto a ~14 px la escala es **0,47**:
+
+| Detalle | Tamaño dibujado | Lo que se ve en pantalla |
+|---|---|---|
+| El puntillo (`r="1.8"`) | radio 1,8 | **menos de 2 px de diametro** |
+| El corchete de la corchea | trazo 1,7 | **0,8 px de grosor** |
+
+→ **No es que se vea mal: es que no se puede ver.** Y esto se lee **tocando**, de un vistazo y a
+un metro de la tablet.
+
+🔴 **Y es la parte de O-49 que MAS importa, porque la agrava:** el doble puntillo son **dos puntos
+separados 4 unidades** — a esa escala, **dos manchas de 2 px separadas 2 px**. Imposible distinguir
+uno de dos. Lo mismo la semicorchea: sus **dos corchetes** se funden en uno.
+
+#### El metodo: pagina desechable A LA PRIMERA, no a la tercera
+
+📌 **Aqui se aplica lo aprendido en O-47 sin esperar a gastar dos correcciones.** Esta escrito que
+*«cuando lo que se discute es un DIBUJO, describirlo por escrito no converge»* y que *«la senal de
+cambiar de metodo son dos correcciones seguidas»*. → **Esto es un dibujo, asi que la pagina va
+directa.** Aplicar la leccion a la primera es justo la mejora.
+
+⚠️ Se BORRA antes de publicar, como `/acordes-prueba` y `/silencio-prueba`.
+
+#### ✅ Isaac eligio la C, y corrigio los silencios cortos (2026-08-29)
+
+> *«la C es la mejor, pero que los silencios de corcheas y semicorcheas sean como estas»*
+
+**① El tamaño: la C — 1,6x.** Se descartan las de solo reforzar el trazo sin crecer: **el problema
+era el tamaño, no el grosor**. A 1,6x el doble puntillo se distingue del simple sin ampliar.
+
+**② Los silencios de corchea y semicorchea, con la forma de imprenta que mando en dos imagenes:**
+la **bolita arriba a la izquierda**, un trazo corto que sale hacia arriba-derecha, y **la pata
+bajando en diagonal**. La semicorchea, **dos bolitas** y la pata mas larga.
+→ 🔴 **Mi primer dibujo tenia la bolita en el sitio equivocado** —abajo, colgando del trazo—, y
+por eso no se reconocia. La bolita va **arriba**, que es de donde arranca el signo.
+
+📌 **Y esta vez bastaron DOS mensajes**, no cuatro: la pagina se monto a la primera y el se limito
+a elegir letra y a señalar la unica pieza que faltaba. **Enseñar el dibujo desde el principio es lo
+que lo hizo corto.**
+
+**El tamaño se fija en `MusicFigures.tsx`** como valor por defecto de `--figura-alto`, que se
+introdujo justo para poder probarlo sin tocar el codigo. **Las variables se quedan**: el dia que
+haya que reajustar, no hay que buscar numeros por el archivo.
+
+#### ✅ O-51 CERRADA (2026-08-29) — *«subelo, esta bien»*
+
+| | |
+|---|---|
+| **Tamaño** | **1,6x** (`--figura-alto: 1.6em`), en toda la app |
+| **Silencio de corchea** | Forma de imprenta: bolita arriba a la izquierda, su trazo, y la pata bajando |
+| **Silencio de semicorchea** | Lo mismo con **dos bolitas** y la pata mas larga |
+
+**Comprobado:** las **34 figuras** de «Sube La Alabanza» salen a 1,6x y sus **98 acordes siguen
+intactos** · **26 de 26 pantallas** · 158 pruebas · lint 0 · build 0.
+
+**La pagina `/figuras-prueba` esta BORRADA**, con su linea del middleware. Comprobado que **no
+aparece en las rutas del build**. Es la **tercera** pantalla desechable del proyecto —tras
+`/acordes-prueba` y `/silencio-prueba`— y **ninguna de las tres llego a produccion**.
+
+📌 **Y el metodo se paga solo, con numeros:** O-47 costo **tres intentos por descripcion + dos
+rondas de pagina**. O-51, montando la pagina **a la primera**, costo **dos mensajes**: el eligio
+letra y señalo la unica pieza que faltaba. **La leccion no era «hacer paginas de prueba», era
+hacerlas ANTES de la primera corrección.**
+
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
 Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:
