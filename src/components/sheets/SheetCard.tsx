@@ -65,6 +65,20 @@ export default function SheetCard({
               {formatKey(sheet.key_signature)}
             </span>
           )}
+          {/* Las otras tonalidades en las que esta escrita (O-48).
+              📌 La ORIGINAL se distingue: va arriba en negrita, y estas
+              llevan un punto delante y color mas apagado. Sin eso, dos
+              tonos sueltos en una tarjeta no dicen cual manda — y
+              distinguirla era justo lo que Isaac pidio. */}
+          {(sheet as { otros_tonos?: string[] }).otros_tonos?.map((tono) => (
+            <span
+              key={tono}
+              title="También está escrita en este tono"
+              className="text-[11px] text-slate-400 dark:text-slate-500"
+            >
+              · {formatKey(tono)}
+            </span>
+          ))}
           {sheet.time_signature && (
             <span className="text-[11px] text-slate-400 dark:text-slate-500">{sheet.time_signature}</span>
           )}

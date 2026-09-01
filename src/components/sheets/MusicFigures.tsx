@@ -149,16 +149,26 @@ export function RestFigure({ beats, className }: FigureProps) {
         // TOCANDO: un símbolo que «casi» se parece no vale, porque hay que
         // reconocerlo de un vistazo y sin pensar.
         //
-        // Dos trazos rectos: el travesaño de arriba, con una caída ligera hacia
-        // la derecha, y la pata bajando en diagonal hacia la izquierda. Recto y
-        // no curvo a propósito: es como sale al escribirlo con un lápiz.
+        // 🔴 Y NO es un «7»: eso fue el primer intento y lo corrigió él —
+        // «no es tanto un siete sino como un tres que la parte debajo va
+        // bajando recto». Un 7 tiene el travesaño RECTO arriba, y es justo lo
+        // que este signo no tiene.
+        //
+        // La forma son tres tramos:
+        //   1. la curva de arriba del «3», que sale hacia la derecha
+        //   2. la segunda curva, que vuelve a entrar
+        //   3. y en vez de cerrar el 3, UNA DIAGONAL RECTA que baja a la
+        //      izquierda — que es lo que lo convierte en silencio y no en un
+        //      número.
         //
         // Va más grueso que las demás figuras (2.4 frente a 1.6) porque es un
         // trazo suelto sin cabeza ni plica: con el grosor de una línea se
-        // perdería junto a los acordes.
+        // perdería junto a los acordes. El TAMAÑO no se toca: él lo dio por
+        // bueno («que sean del tamaño del acorde»), sus capturas estaban
+        // ampliadas solo para que se viera la forma.
         <>
           <path
-            d="M7.5 8 L16.5 9.5 L9 21.5"
+            d="M8.5 7.5 C 12.5 6, 15.5 8.5, 13 11 C 16.5 11.5, 16 15, 13 16 L 8.5 22"
             stroke="currentColor"
             strokeWidth="2.4"
             fill="none"

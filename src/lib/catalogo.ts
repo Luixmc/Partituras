@@ -67,7 +67,11 @@ const CAMPOS =
   "id, title, composer, key_signature, time_signature, editor_type, status, " +
   "thumbnail_path, drive_file_id, page_count, created_at, " +
   "category:categories!category_id(name, color, icon), " +
-  "sheet_categories(category:categories(name, color))";
+  "sheet_categories(category:categories(name, color)), " +
+  // Las versiones en otras tonalidades (O-48). Son 7 filas en toda la base,
+  // asi que traerlas no cuesta nada — y evita una segunda consulta por tarjeta,
+  // que con 75 canciones si se notaria.
+  "sheet_keys(key_signature)";
 
 /**
  * Devuelve las canciones del catálogo que cumplen los filtros, ordenadas por
@@ -136,8 +140,20 @@ export async function buscarCanciones(
       .map((c: any) => ({ name: c.name as string, color: c.color as string }))
       .sort((a: CategoryBadge, b: CategoryBadge) => a.name.localeCompare(b.name, "es"));
 
+    // Las otras tonalidades en las que existe la canción (O-48). Se quita la
+    // que ya es la original: repetirla al lado no dice nada, y lo que él pidió
+    // fue **distinguir** cuál es la original de las demás.
+    const otrosTonos: string[] = Array.from(
+      new Set(
+        (cancion.sheet_keys ?? [])
+          .map((k: any) => k?.key_signature)
+          .filter((k: any): k is string => typeof k === "string" && k !== cancion.key_signature)
+      )
+    );
+
     return {
       ...cancion,
+      otros_tonos: otrosTonos,
       categories: principal ? [principal, ...resto] : resto,
       category_name: cancion.category?.name ?? null,
       category_color: cancion.category?.color ?? null,

@@ -2111,10 +2111,22 @@ caso raro, pero tampoco toca a todo el repertorio.
 ⚠️ **Se ve en TRES sitios y sale gratis en los tres:** la vista de la cancion, la pantalla completa
 y el PDF del culto usan el mismo `RestFigure`.
 
-**Como quedo:** dos trazos rectos —el travesano arriba con una caida ligera, y la pata bajando en
-diagonal hacia la izquierda—, **rectos y no curvos a proposito**: es como sale al escribirlo con un
-lapiz. Y **mas grueso que las demas figuras** (2.4 frente a 1.6), porque es un trazo suelto sin
-cabeza ni plica: con el grosor de una linea se perderia entre los acordes.
+#### 🔴 Segunda pasada: NO era un «7», es un «3» con la pata recta (2026-08-29)
+
+Isaac, viendo el primer intento: *«esta un poco mejor el signo pero puede estarlo aun mas, no es
+tanto un siete sino como un tres que la parte debajo va bajando recto»*.
+
+→ **La forma correcta:** arriba, **las dos curvas de un 3**; y abajo, en vez de cerrar la segunda
+curva, **una diagonal recta que baja**. Es el silencio de negra manuscrito de toda la vida.
+→ Mi «7» tenia el travesaño recto arriba, y eso es justo lo que no es.
+
+📌 **Y aclaro un malentendido que pudo costar caro:** las capturas que mando **estaban ampliadas a
+proposito** —*«ahi se ven grande porque queria complementar»*— y el tamaño **ya estaba bien**:
+*«que sean del tamaño del acorde obvio»*. **No se toca el tamaño**, solo la forma.
+
+**Como quedo:** las dos curvas del 3 arriba y la pata recta bajando. **Mas grueso que las demas
+figuras** (2.4 frente a 1.6), porque es un trazo suelto sin cabeza ni plica: con el grosor de una
+linea se perderia entre los acordes.
 
 **Comprobado (2026-08-29)** en «Sube La Alabanza», que es la que mas tiene (8 de los 12): el trazo
 nuevo llega a la pagina, **el zigzag viejo ya no aparece**, y los **98 acordes** de la cancion
@@ -2126,6 +2138,53 @@ Me Llamaste A Conquistar · Casa De Mi Padre.
 ⬜ **Y hay que mirarlo con los ojos, que es lo unico que decide:** es un dibujo. Compila igual sea
 cual sea la forma, asi que **ninguna comprobacion automatica puede decir si se parece a un silencio
 de negra**. Eso solo lo dice quien lee musica.
+
+**O-48 · En la tarjeta del catalogo, que salgan las OTRAS tonalidades de la cancion.**
+Isaac, 2026-08-29: *«quiero tambien que en las tarjetas salgan las versiones que tiene cada
+cancion, que marque la original pero que tambien muestre que otras tonalidades tiene»*.
+
+**Medido antes de tocar:** hay **7 versiones**, en **7 canciones de las 70** — una cada una.
+
+| Cancion | Original | Ademas |
+|---|---|---|
+| No Hay Lugar Mas Alto | `F#` | `F` |
+| Trae El Cielo Aqui | `F` | `B` |
+| Si Dios Dice Que Si | `D` | `G` |
+| Incompresible Amor | `G#m` | `F#m` |
+| Nadie Robara Mi Gozo | `F` | `E` |
+| Gozo Pegajoso | `Bb` | `G` |
+| Amado de mi Alma | `E` | `C` |
+
+→ **Hay que distinguir cual es la original**, que es lo que el pidio expresamente. Se marca con un
+punto y la otra va mas apagada: sin eso, dos tonos sueltos en una tarjeta **no dicen cual manda**.
+
+⚠️ **Toca `lib/catalogo.ts`, que es la consulta COMPARTIDA** por el catalogo, la seccion de letras
+y la pantalla completa (D-21). Traer `sheet_keys` cuesta **7 filas** — nada—, pero hay que
+comprobar que **las otras dos pantallas siguen igual**, que es el riesgo real de tocar algo
+compartido.
+
+#### ✅ Comprobado (2026-08-29): **7 de 7** en el catalogo real
+
+Las siete canciones ensenan su tono original y, al lado, el otro en gris con un punto delante.
+Y **26 de 26 pantallas**, asi que las otras dos que comparten la consulta siguen igual.
+
+#### 🔴 Dos fallos MIOS por el camino, y los dos del mismo tipo
+
+**① El bloque acabo DENTRO del tono original en vez de al lado.** El guion que lo inserto buscaba
+la linea del cierre `)}`… y **`{formatKey(sheet.key_signature)}` contiene `)}`**, asi que inserto
+en medio del `<span>`. En pantalla salia el punto pegado al tono original y sin su valor.
+📌 **La leccion:** *buscar un fragmento tan corto que aparece dentro de otra cosa*. Al insertar
+codigo por guion hay que anclarse en **la linea entera**, no en dos caracteres.
+
+**② Mi propia PRUEBA dio tres 404 que no eran fallos.** `pantallas.mjs` cogia **el primer culto**
+para las rutas `/s/<token>`, y ese dia habia aparecido uno nuevo —«Culto de Caballeros»— **con el
+enlace publico apagado**. El 404 era **correcto**: es lo que tiene que pasar cuando el enlace esta
+apagado.
+🔴 **Y lo importante es lo que NO se hizo:** no se toco la pagina. Se midio primero de quien era el
+fallo —los cultos, con la clave publica— y resulto ser **de la prueba**. → Arreglada: ahora pide
+explicitamente un culto con `is_public=true`.
+📌 **Una prueba que depende de «el primero que salga» miente el dia que cambian los datos**, y en
+este proyecto los datos los cambia Isaac constantemente.
 
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 

@@ -65,10 +65,18 @@ async function identificadores() {
 
   const cancion = await uno("sheets", "id");
   const culto = await uno("services", "id,public_token");
+
+  // 🔴 Para las rutas `/s/<token>` hace falta un culto CON EL ENLACE PUBLICO
+  // ACTIVADO, y no vale el primero que salga: el 2026-08-29 aparecio uno nuevo
+  // sin enlace publico, el script lo cogio por ser el primero, y las tres rutas
+  // compartidas dieron 404 — un fallo de la PRUEBA, no de la pagina. Ese 404
+  // es justo lo que debe pasar cuando el enlace esta apagado.
+  const publico = await uno("services", "public_token&is_public=eq.true");
+
   return {
     cancion: cancion?.id,
     culto: culto?.id,
-    token: culto?.public_token,
+    token: publico?.public_token ?? culto?.public_token,
   };
 }
 
