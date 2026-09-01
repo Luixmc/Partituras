@@ -2239,6 +2239,107 @@ explicitamente un culto con `is_public=true`.
 📌 **Una prueba que depende de «el primero que salga» miente el dia que cambian los datos**, y en
 este proyecto los datos los cambia Isaac constantemente.
 
+**O-49 · El DOBLE PUNTILLO, y los silencios que faltaban.**
+Isaac, 2026-08-29: *«necesito que agregues el signo con doble puntillo, porque hay una cancion que
+lo pide, tanto las semicorcheas, corcheas, negra, blanca, etc»*, y en el mismo momento:
+*«tambien agrega la semicorchea que tambien la necesito»*.
+
+**El doble puntillo alarga la figura la mitad MAS un cuarto.** Las cinco que hacen falta:
+
+| Figura | Normal | Con puntillo | **Con DOBLE puntillo** |
+|---|---|---|---|
+| Redonda | `:4` | `:6` | **`:7`** |
+| Blanca | `:2` | `:3` | **`:3.5`** |
+| Negra | `:1` | `:1.5` | **`:1.75`** |
+| Corchea | `:0.5` | `:0.75` | **`:0.875`** |
+| Semicorchea | `:0.25` | `:0.375` | **`:0.4375`** |
+
+#### 🔴 Y al mirarlo salieron DOS agujeros que no habia pedido
+
+**① Los SILENCIOS solo tienen tres formas.** `RestFigure` dibuja redonda (`>=4`), blanca (`>=2`) y
+**todo lo demas como silencio de NEGRA**. O sea: **`Z:0.5` y `Z:0.25` se ven igual que `Z:1`** —
+un silencio de corchea se lee como negra, que es el doble de tiempo. **Eso es un dato musical
+equivocado en pantalla**, no un detalle de estilo.
+→ Y en la botonera los silencios llegan **solo hasta `Z:1`**: `Z:0.5` y `Z:0.25` **no tienen boton**.
+📌 **Ahi esta la «semicorchea» que pide.** En los ACORDES si existe `:0.25` con su boton; lo que
+falta es **el silencio**.
+
+**② La duracion se decide con LISTAS CERRADAS de numeros.**
+`hasDot = beats === 3 || beats === 1.5 || beats === 0.75`, y lo mismo `filled`, `hasFlag` y
+`hasDoubleFlag`. Cada figura nueva obliga a **acordarse de cuatro sitios**, y ya se pago una vez:
+**O-02 fueron DOS fallos de esa misma familia** —la negra con puntillo salia hueca y la corchea con
+puntillo sin corchete—, los dos por un umbral que no contemplaba el puntillo.
+→ **Con el doble puntillo serian CINCO valores mas en cada lista.** Se cambia por lo que de verdad
+es: **`figuraDe(beats)` deduce la figura base y CUANTOS puntillos lleva**, y de ahi salen el
+relleno, la plica, los corchetes y los puntos. La figura base decide su forma; los puntillos solo
+anaden puntos.
+
+⚠️ **Toca el nucleo:** `MusicFigures` lo usan la vista, la pantalla completa y el PDF. **Hay que
+medir las 79 canciones antes y despues**, como en la fase D (§12.5).
+
+#### ✅ HECHO y COMPROBADO (2026-08-29)
+
+**`figuraDe(beats)`, en `lib/figuras.ts`** — y va en `lib/` a proposito, no dentro del componente:
+es logica pura, asi que **la cubren las pruebas del CI** en vez de un arnes suelto. Es lo mismo
+que se hizo con `music.ts` y `acordes.ts`.
+
+| Lo que entro | |
+|---|---|
+| **El doble puntillo** | Las 5 figuras, con sus dos puntos dibujados |
+| **Silencio de corchea y semicorchea** | **No existian**: se dibujan por primera vez |
+| **Sus botones** | 15 duraciones (5 figuras x 3) y 2 silencios nuevos |
+| **`%:4`** (O-50) | La repeticion ya acepta duracion |
+| **19 pruebas nuevas** | Total **158** |
+
+🔴 **LA COMPROBACION QUE DE VERDAD VALIA, porque esto toca el nucleo:** se compararon **las 7
+duraciones que las canciones usan hoy**, antes y despues, decision por decision (relleno, plica,
+corchete, doble corchete y puntos):
+
+| | |
+|---|---|
+| Duraciones usadas hoy | `0.25` `0.5` `1` `1.5` `2` `3` `4` |
+| **Se dibujan igual que antes** | **7 de 7** |
+| Cambian | **0** |
+
+→ **Las 71 canciones se ven exactamente igual.** El cambio solo anade formas nuevas.
+
+**Y para O-50, la misma comprobacion:** hay **252 `%` sueltos** escritos en las canciones y
+**0 `%` con duracion** — logico, porque no funcionaba. Asi que **el cambio del parser no puede
+alterar nada de lo ya escrito**: solo habilita algo que antes salia como texto.
+
+⚠️ **El silencio de corchea NO corrige ninguna cancion de hoy**, y conviene decirlo: **ninguna usa
+todavia `Z:0.5` ni `Z:0.25`**. Estaba mal dibujado, pero nadie lo habia escrito. Esto es **para lo
+que Isaac vaya a escribir**, que es justo por lo que lo pidio.
+
+#### 🔴 Y un tropiezo mio, del mismo tipo que ya esta escrito dos veces
+
+La prueba nueva fallo con **«Falta figuras.js»**: `pruebas/preparar.mjs` compila **una LISTA FIJA**
+de modulos, y se me olvido anadir `figuras`.
+📌 **Es el patron de siempre en su version pequeña:** una lista que hay que mantener a mano se
+olvida. → Se anadio el modulo **y se mejoro el aviso**, que decia «ejecuta preparar.mjs» —lo que
+no era el problema— y ahora dice **«¿esta en la lista MODULOS?»**, que es la causa real.
+→ **No se automatizo leyendo la carpeta**, y es a proposito: `src/lib` tiene modulos que **no
+compilan solos** (`songImport` necesita el navegador, `catalogo` necesita Supabase). La lista
+fija esta ahi por eso.
+
+⬜ **Pendiente de decidir con Isaac: como se ESCRIBE a mano.** `:1.75` se teclea bien, pero
+**`:0.4375` es impracticable**. **Con boton da igual** —como el staccato `!` (D-08), que casi nunca
+se escribe a mano—, y por eso las 15 tienen boton. Pero si quiere escribirlo a mano hace falta una
+forma corta, y **esa la elige el**.
+
+**O-50 · La repeticion `%` no admite duracion: `%:4` sale como texto.**
+Isaac, 2026-08-29, con una captura: *«mira que a la repeticion (%) cuando le voy a colocar la
+duracion me sale asi»* — y en la imagen se ve **`%:4` escrito tal cual**, en el amarillo de los
+textos, en vez de dibujarse la repeticion con su figura de redonda.
+
+*Causa, y es de una linea:* `TablaturePreview.tsx:175` compara **`core === "%"`, exacto**. `%:4`
+no coincide, asi que cae al `else` que lo pinta como texto. Y aunque coincidiera, la fila se
+guarda con **`duration: null`** fijo: el `%` **nunca** ha podido llevar duracion.
+
+📌 **Y esto importa mas de lo que parece:** el `%` significa «vuelve a tocar el acorde de antes», y
+**cuanto dura ese golpe es justo lo que hay que decir**. Sin duracion, el compas no puede repartir
+bien los tiempos — que es lo que hace la cuadricula.
+
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
 Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:

@@ -1,5 +1,7 @@
 "use client";
 
+import { figuraDe } from "@/lib/figuras";
+
 // Figuras musicales dibujadas en SVG (más fiables que los caracteres Unicode
 // musicales, que no se ven en muchas fuentes). Usan `currentColor`, así que
 // heredan el color del texto del contenedor.
@@ -17,16 +19,14 @@ type FigureProps = {
  * corchetes (la viga la dibuja el contenedor del grupo).
  */
 export function NoteFigure({ beats, className, beamed = false }: FigureProps & { beamed?: boolean }) {
-  // La cabeza va rellena hasta la NEGRA CON PUNTILLO (1.5): el puntillo alarga
-  // la figura pero no la convierte en blanca. Con el corte en 1 la negra con
-  // puntillo salía hueca y se leía como una blanca con puntillo (O-02).
-  const filled = beats <= 1.5;
-  const hasStem = beats !== 4; // la redonda no lleva plica
-  // Corchea (0.5) y corchea con puntillo (0.75) llevan corchete. Con el corte
-  // en 0.5 la corchea con puntillo salía sin él (mismo fallo que arriba).
-  const hasFlag = !beamed && beats <= 0.75;
-  const hasDoubleFlag = !beamed && beats <= 0.25; // semicorchea (dos corchetes)
-  const hasDot = beats === 3 || beats === 1.5 || beats === 0.75; // puntillo
+  // 📌 Todo sale de la FIGURA BASE. Los puntillos no cambian la forma: una
+  // negra con doble puntillo sigue siendo una negra —rellena, con plica y sin
+  // corchete—, solo que con dos puntos detrás.
+  const { base, puntillos } = figuraDe(beats);
+  const filled = base <= 1; // la blanca y la redonda van huecas
+  const hasStem = base !== 4; // la redonda no lleva plica
+  const hasFlag = !beamed && base <= 0.5; // corchea y semicorchea
+  const hasDoubleFlag = !beamed && base <= 0.25; // la semicorchea, dos corchetes
 
   return (
     <svg
@@ -66,7 +66,11 @@ export function NoteFigure({ beats, className, beamed = false }: FigureProps & {
           strokeLinecap="round"
         />
       )}
-      {hasDot && <circle cx="19" cy="21" r="1.8" fill="currentColor" />}
+      {/* Un punto por puntillo, separados. Antes solo cabía uno porque la
+          duración se comparaba contra una lista de valores fijos. */}
+      {Array.from({ length: puntillos }, (_, i) => (
+        <circle key={i} cx={19 + i * 4} cy="21" r="1.8" fill="currentColor" />
+      ))}
     </svg>
   );
 }
@@ -115,10 +119,27 @@ export function FermataFigure({ className }: { className?: string }) {
 }
 
 /**
- * Figura de silencio según los tiempos:
- *  4 = de redonda · 3 = de blanca con puntillo · 2 = de blanca · 1 (o menos) = de negra
+ * Figura de silencio según los tiempos.
+ *
+ * 🔴 Hasta el 2026-08-29 solo había TRES formas —redonda, blanca y negra— y
+ * **todo lo que bajara de 2 se dibujaba como silencio de negra**. Así que
+ * `Z:0.5` y `Z:0.25` se veían igual que `Z:1`: un silencio de corchea leído
+ * como negra, **el doble de tiempo**. Eso no es un detalle de estilo, es un
+ * dato musical equivocado en la pantalla desde la que se toca.
+ * Lo pidió Isaac (O-49) y de paso salieron las dos figuras que faltaban.
+ *
+ * Como en las notas, la FIGURA BASE decide la forma y los puntillos solo
+ * añaden puntos.
  */
 export function RestFigure({ beats, className }: FigureProps) {
+  const { base, puntillos } = figuraDe(beats);
+
+  // Los puntos van a la derecha de la figura, a su altura.
+  const puntos = (x: number, y: number) =>
+    Array.from({ length: puntillos }, (_, i) => (
+      <circle key={i} cx={x + i * 4} cy={y} r="1.9" fill="currentColor" />
+    ));
+
   return (
     <svg
       viewBox="0 0 24 30"
@@ -127,51 +148,25 @@ export function RestFigure({ beats, className }: FigureProps) {
       fill="none"
       aria-hidden="true"
     >
-      {beats >= 4 ? (
-        // Silencio de redonda: bloque colgando de la línea.
+      {base >= 4 ? (
+        // Redonda: bloque COLGANDO de la línea.
         <>
           <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="1.6" />
           <rect x="8" y="12" width="8" height="5" fill="currentColor" />
+          {puntos(19, 15)}
         </>
-      ) : beats >= 2 ? (
-        // Silencio de blanca: bloque apoyado sobre la línea (con puntillo si beats === 3).
+      ) : base >= 2 ? (
+        // Blanca: bloque APOYADO sobre la línea. La diferencia con la redonda
+        // es a qué lado de la línea cae el bloque, y es la de toda la vida.
         <>
           <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth="1.6" />
           <rect x="8" y="13" width="8" height="5" fill="currentColor" />
-          {beats === 3 && <circle cx="18.5" cy="15.5" r="1.9" fill="currentColor" />}
+          {puntos(19, 15.5)}
         </>
-      ) : (
-        // Silencio de negra: EL «7» MANUSCRITO, que es como se escribe a mano.
-        //
-        // 🔴 Antes era un zigzag de curvas Bézier, y lo cortó Isaac (O-47):
-        // «el signo de la página no tiene forma de silencio». Tenía razón — no
-        // se parecía ni al de imprenta (𝄽) ni al de papel, y esto se lee
-        // TOCANDO: un símbolo que «casi» se parece no vale, porque hay que
-        // reconocerlo de un vistazo y sin pensar.
-        //
-        // 🔴 ESTA FORMA LA ELIGIÓ ISAAC SOBRE EL DIBUJO, no la describí yo.
-        // Es la «D2» de la página desechable `/silencio-prueba`, que se montó
-        // justo porque **tres intentos por descripción escrita fallaron los
-        // tres**: yo no puedo ver cómo queda, y compila igual sea cual sea la
-        // forma. Con las variantes delante lo cerró en dos rondas.
-        //
-        // La forma son tres tramos:
-        //   1. la curva de arriba del «3», bien marcada hacia la derecha
-        //   2. la segunda curva, que vuelve a entrar
-        //   3. y en vez de cerrar el 3, UNA DIAGONAL RECTA que baja a la
-        //      izquierda — que es lo que lo convierte en silencio y no en un
-        //      número.
-        //
-        // ⚠️ NO es un «7»: eso fue el segundo intento y lo cortó —«no es tanto
-        // un siete»—. Un 7 tiene el travesaño RECTO arriba, y eso es justo lo
-        // que este signo no tiene. En la primera ronda descartó las tres
-        // variantes de trazo recto, así que **la parte de arriba va curva**.
-        //
-        // Va más grueso que las demás figuras (2.4 frente a 1.6) porque es un
-        // trazo suelto sin cabeza ni plica: con el grosor de una línea se
-        // perdería junto a los acordes. El TAMAÑO no se toca: él lo dio por
-        // bueno («que sean del tamaño del acorde»), sus capturas estaban
-        // ampliadas solo para que se viera la forma.
+      ) : base >= 1 ? (
+        // Negra: el «3» con la pata recta que eligió Isaac sobre el dibujo
+        // (O-47, variante D2 de la página desechable). Ver el porqué del
+        // método en §9.2 — tres intentos por descripción escrita fallaron.
         <>
           <path
             d="M8 7.5 C 13.5 5.5, 17 8.5, 13 11.2 C 17.5 11.8, 17 15.5, 13.2 16.4 L 8.5 22"
@@ -181,9 +176,38 @@ export function RestFigure({ beats, className }: FigureProps) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {(beats === 1.5 || beats === 0.75) && <circle cx="18.5" cy="15" r="1.9" fill="currentColor" />}
+          {puntos(19, 15)}
+        </>
+      ) : (
+        // Corchea y semicorchea: la barra diagonal con uno o dos ganchos.
+        // El de semicorchea lleva el segundo gancho más arriba, igual que la
+        // nota lleva su segundo corchete.
+        <>
+          <line x1="15" y1="7" x2="8" y2="22" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+          <circle cx="9.5" cy="9.5" r="2.1" fill="currentColor" />
+          <path
+            d="M9.5 9.5 C 12.5 8.5, 14.5 7.5, 15 7"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {base <= 0.25 && (
+            <>
+              <circle cx="12" cy="15.5" r="2.1" fill="currentColor" />
+              <path
+                d="M12 15.5 C 14.5 14.5, 16 13.5, 16.5 13"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </>
+          )}
+          {puntos(18.5, 15)}
         </>
       )}
     </svg>
   );
 }
+

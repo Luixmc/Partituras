@@ -18,9 +18,21 @@ const BASIC_ALT = ["#", "b", "m", "7"];
 // LECTURA: lo pone formatSuffix al dibujar la cuadrícula. Se escribe "dim", se
 // lee "°" — decisión suya del 2026-08-20, ver D-08b.
 const EXT_ALT = ["maj7", "m7", "m7b5", "dim", "dim7", "aug", "sus2", "sus4", "add9"];
-// Duraciones: :0.25 = semicorchea · :0.5 = corchea · :1 = negra · :1.5 = negra
-// con puntillo · :2 = blanca · :3 = blanca con puntillo · :4 = redonda.
-const DURATIONS = [":0.25", ":0.5", ":1", ":1.5", ":2", ":3", ":4"];
+// Duraciones. Cada figura con sus DOS puntillos (O-49):
+//   · un puntillo alarga la mitad      · dos puntillos, la mitad más un cuarto
+//   semicorchea 0.25 · 0.375 · 0.4375     corchea 0.5 · 0.75 · 0.875
+//   negra 1 · 1.5 · 1.75                  blanca 2 · 3 · 3.5      redonda 4 · 6 · 7
+//
+// 📌 Están TODAS con botón a propósito: `:0.4375` es impracticable de teclear,
+// y con el botón da igual — es el mismo criterio que el staccato `!` (D-08),
+// que casi nunca se escribe a mano porque tiene el suyo.
+const DURATIONS = [
+  ":0.25", ":0.375", ":0.4375",
+  ":0.5", ":0.75", ":0.875",
+  ":1", ":1.5", ":1.75",
+  ":2", ":3", ":3.5",
+  ":4", ":6", ":7",
+];
 // Silencios: token de la notación → tiempos que muestra la figura.
 const RESTS: { token: string; beats: number; label: string }[] = [
   { token: "Z:4", beats: 4, label: "4" },
@@ -28,6 +40,11 @@ const RESTS: { token: string; beats: number; label: string }[] = [
   { token: "Z:2", beats: 2, label: "2" },
   { token: "Z:1.5", beats: 1.5, label: "1." },
   { token: "Z:1", beats: 1, label: "1" },
+  // 🔴 Estos dos NO EXISTÍAN, y hasta el 2026-08-29 tampoco se dibujaban: todo
+  // silencio de menos de 2 tiempos salía como silencio de NEGRA, así que un
+  // `Z:0.5` se leía como el doble de lo que dura (O-49).
+  { token: "Z:0.5", beats: 0.5, label: "1/2" },
+  { token: "Z:0.25", beats: 0.25, label: "1/4" },
 ];
 // Secciones de la estructura: "[...]". ("<...>" es texto centrado de la canción.)
 const SECTIONS = ["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"];

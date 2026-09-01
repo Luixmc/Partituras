@@ -35,6 +35,7 @@ const MODULOS = [
   "chordInput",
   "letras",
   "transpositores",
+  "figuras",
 ];
 
 function preparar() {
@@ -80,7 +81,7 @@ const require = createRequire(import.meta.url);
 export async function cargar(nombre) {
   const ruta = join(SALIDA, "js", `${nombre}.js`);
   if (!existsSync(ruta)) {
-    throw new Error(`Falta ${nombre}.js — ejecuta primero 'node pruebas/preparar.mjs'`);
+    throw new Error(`Falta ${nombre}.js. ¿Está "${nombre}" en la lista MODULOS de pruebas/preparar.mjs? Es lo que se olvida al añadir un módulo nuevo`);
   }
   return require(ruta);
 }

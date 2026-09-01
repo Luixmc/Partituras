@@ -171,9 +171,29 @@ function parseMeasures(value: string): Measure[] {
       continue;
     }
 
-    // Repetición de acorde: "%" se dibuja con las mismas características que un acorde.
-    if (core === "%") {
-      current.notes.push({ root: "", suffix: "", duration: null, repeat: true, fermata, staccato, tieNext, raw: part });
+    // Repetición de acorde: "%" se dibuja con las mismas características que un
+    // acorde, y ADMITE DURACIÓN igual que ellos ("%:4", "%:2"…).
+    //
+    // 🔴 Antes se comparaba `core === "%"`, exacto, así que **`%:4` no encajaba
+    // y salía escrito tal cual en amarillo**, como un texto. Lo vio Isaac con
+    // una captura (O-50). Y aunque hubiera encajado, la fila se guardaba con
+    // `duration: null` fijo: el "%" nunca pudo llevar duración.
+    //
+    // 📌 Y hace falta de verdad: el "%" dice «vuelve a tocar el acorde de
+    // antes», y **cuánto dura ese golpe es justo lo que hay que indicar** —
+    // sin eso el compás no puede repartir sus tiempos.
+    const repeticion = /^%(?::([0-9]*\.?[0-9]+))?$/.exec(core);
+    if (repeticion) {
+      current.notes.push({
+        root: "",
+        suffix: "",
+        duration: repeticion[1] ? parseFloat(repeticion[1]) : null,
+        repeat: true,
+        fermata,
+        staccato,
+        tieNext,
+        raw: part,
+      });
       continue;
     }
 
