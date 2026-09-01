@@ -2452,6 +2452,41 @@ minutos.
 decision musical —parte donde la frase respira—. Si la pagina reparte sola, **tiene que dejarle
 seguir mandando** cuando el quiera: lo automatico es la comodidad, no la ley.
 
+**O-53 · Al agrandar las figuras, se MONTAN ENCIMA de los acordes.** ⬜ **ANOTADO, SIN TOCAR.**
+Isaac, 2026-08-29, con una captura de «Dios no rechaza oracion» ya publicada:
+*«mira como salen los signos»*. Y su instruccion fue explicita:
+**«anota solamente, y cuando te diga arregla, arreglas»** → **no se ha tocado ni una linea.**
+
+🔴 **LO CAUSE YO, ayer mismo, con O-51.** Al subir las figuras de `1em` a **1,6em** crecieron —que
+era lo que el pidio— **pero el hueco reservado para ellas NO crecio**, asi que ahora **se solapan
+con el nombre del acorde**. En su captura las plicas atraviesan `G`, `C/G`, `Bm7`, `Am7` y `D7`.
+
+*Donde esta, para no volver a buscarlo:* `TablaturePreview.tsx:390-392`. La figura va en un
+`<span>` **absoluto**, pegado arriba de la celda:
+
+```tsx
+className="figura absolute inset-x-0 top-0 …"
+style={{ fontSize: "0.85em", height: "0.95em" }}
+```
+
+📌 **Y ahi esta el fallo, en una linea:** `height: "0.95em"` es **el hueco**, y sigue valiendo lo
+que valia cuando la figura media `1em`. Al pasar a `1,6em`, la figura **mide mas que su hueco** y
+se sale por abajo, encima del acorde. Como es `absolute`, **no empuja nada**: simplemente se
+superpone.
+
+⚠️ **Es el mismo patron que O-49 vino a arreglar, y se me colo por otro sitio:** un numero fijo
+—`0.95em`— que **daba por supuesto otro numero** que ha cambiado. Alli eran las listas de
+duraciones; aqui es el alto reservado. **El hueco tiene que salir del tamaño de la figura, no de
+una constante escrita al lado.**
+
+**Cuando Isaac diga, esto es lo que hay que mirar:**
+1. Que el hueco **se calcule desde `--figura-alto`**, para que no se separen nunca mas.
+2. Que la celda **crezca de alto** si hace falta, en vez de que la figura se salga.
+3. Y comprobarlo **en las canciones con figura en casi todos los compases**, que son donde peor se
+   ve — la de su captura es una.
+
+⬜ **Sin empezar. Espera su orden.**
+
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
 Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:
