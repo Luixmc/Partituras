@@ -2410,6 +2410,48 @@ rondas de pagina**. O-51, montando la pagina **a la primera**, costo **dos mensa
 letra y señalo la unica pieza que faltaba. **La leccion no era «hacer paginas de prueba», era
 hacerlas ANTES de la primera corrección.**
 
+**O-52 · Que una seccion larga se reparta SOLA, sin partirla a mano en dos.** ⬜ **PENDIENTE.**
+Isaac, 2026-08-29, con dos capturas —la canción dibujada y su texto—:
+
+> *«quiero ver si es posible que yo escriba la seccion completa; por ejemplo en esta cancion la
+> parte C la divido en dos para que ocupe bien en la pantalla. Mi pregunta es si es posible que la
+> pagina tome la seccion completa sin que yo tenga que hacer dos secciones de C, y la acomode bien
+> dependiendo de la pantalla del dispositivo — que no quede todo junto y estrecho sino como la
+> imagen en la que lo distribui»*
+
+⚠️ **Lo dejo EN PENDIENTE porque el lo pidio asi:** *«si es asi, dejalo en pendiente ya que me
+voy»*. **No se ha programado nada.**
+
+#### ✅ SI ES POSIBLE, y lo que ya hay juega a favor
+
+**Los compases YA envuelven solos.** La fila es `flex flex-wrap`
+(`TablaturePreview.tsx:748`), asi que meter 8 compases en una seccion **no los apretaria en una
+linea**: saltarian de fila cuando no quepan.
+
+🔴 **Entonces el problema NO es que no envuelvan: es CUANTO MIDE LA CAJA de cada seccion.** En su
+captura las secciones van en **dos columnas**, asi que cada una tiene **media pantalla**. Una
+seccion de 8 compases en media pantalla **envuelve mal**: quedan filas descompensadas —muchos
+arriba, uno abajo— y por eso el la parte en dos `[C]`, que es una manera de decirle a mano
+«esta mitad va aqui y esta alli».
+
+#### Los caminos, para decidir con el cuando vuelva
+
+| Camino | Que haria | Coste / riesgo |
+|---|---|---|
+| **(a) Que una seccion LARGA ocupe las dos columnas** | Si la seccion tiene mas de N compases, se le da el ancho entero y envuelve con sitio | **El mas barato.** Es CSS, no toca el parser. Pero hay que elegir el N, y ese numero acierta en el PC y falla en el movil |
+| **(b) Repartir por ANCHO MEDIDO**, no por cuenta de compases | Se mide lo que ocupa la seccion y se decide en el momento, como ya se hace con el suelo del desplegable (O-41) y con el tamaño de letra | Lo mas correcto y lo que mejor se adapta a cada aparato. **Mas trabajo**, y hay que rehacerlo al cambiar de columnas o de tamaño |
+| **(c) Dejar que el marque el corte, pero SIN partir la seccion** | Ya existe el `;` (salto de fila). Seria usarlo dentro de una seccion en vez de crear dos | **Coste casi cero — puede que ya funcione.** ⚠️ **Hay que PROBARLO antes de proponer nada**: si el `;` ya reparte dentro de la seccion, esto no es programar, es enseñarselo |
+
+🔴 **Lo primero que hay que hacer cuando se retome, y es medio trabajo:** **probar (c) con su
+propia cancion**. Si el `;` ya hace lo que quiere, la respuesta es «escribelo asi» y no se toca ni
+una linea — como paso con D-19 (las ligaduras encadenadas ya funcionaban) y con O-24. **Comprobar
+lo que ya hace la app antes de programar** ha convertido dos peticiones en descartes de dos
+minutos.
+
+📌 **Y un dato suyo que hay que respetar:** el reparto que hizo a mano **es el bueno**, y es una
+decision musical —parte donde la frase respira—. Si la pagina reparte sola, **tiene que dejarle
+seguir mandando** cuando el quiera: lo automatico es la comodidad, no la ley.
+
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
 Isaac, 2026-08-28: *«hazlo el lint»*. Salio al listar lo pendiente, y **no estaba en la lista**:
