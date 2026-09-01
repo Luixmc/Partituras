@@ -149,17 +149,23 @@ export function RestFigure({ beats, className }: FigureProps) {
         // TOCANDO: un símbolo que «casi» se parece no vale, porque hay que
         // reconocerlo de un vistazo y sin pensar.
         //
-        // 🔴 Y NO es un «7»: eso fue el primer intento y lo corrigió él —
-        // «no es tanto un siete sino como un tres que la parte debajo va
-        // bajando recto». Un 7 tiene el travesaño RECTO arriba, y es justo lo
-        // que este signo no tiene.
+        // 🔴 ESTA FORMA LA ELIGIÓ ISAAC SOBRE EL DIBUJO, no la describí yo.
+        // Es la «D2» de la página desechable `/silencio-prueba`, que se montó
+        // justo porque **tres intentos por descripción escrita fallaron los
+        // tres**: yo no puedo ver cómo queda, y compila igual sea cual sea la
+        // forma. Con las variantes delante lo cerró en dos rondas.
         //
         // La forma son tres tramos:
-        //   1. la curva de arriba del «3», que sale hacia la derecha
+        //   1. la curva de arriba del «3», bien marcada hacia la derecha
         //   2. la segunda curva, que vuelve a entrar
         //   3. y en vez de cerrar el 3, UNA DIAGONAL RECTA que baja a la
         //      izquierda — que es lo que lo convierte en silencio y no en un
         //      número.
+        //
+        // ⚠️ NO es un «7»: eso fue el segundo intento y lo cortó —«no es tanto
+        // un siete»—. Un 7 tiene el travesaño RECTO arriba, y eso es justo lo
+        // que este signo no tiene. En la primera ronda descartó las tres
+        // variantes de trazo recto, así que **la parte de arriba va curva**.
         //
         // Va más grueso que las demás figuras (2.4 frente a 1.6) porque es un
         // trazo suelto sin cabeza ni plica: con el grosor de una línea se
@@ -168,7 +174,7 @@ export function RestFigure({ beats, className }: FigureProps) {
         // ampliadas solo para que se viera la forma.
         <>
           <path
-            d="M8.5 7.5 C 12.5 6, 15.5 8.5, 13 11 C 16.5 11.5, 16 15, 13 16 L 8.5 22"
+            d="M8 7.5 C 13.5 5.5, 17 8.5, 13 11.2 C 17.5 11.8, 17 15.5, 13.2 16.4 L 8.5 22"
             stroke="currentColor"
             strokeWidth="2.4"
             fill="none"

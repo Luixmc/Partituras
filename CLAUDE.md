@@ -2124,9 +2124,62 @@ curva, **una diagonal recta que baja**. Es el silencio de negra manuscrito de to
 proposito** —*«ahi se ven grande porque queria complementar»*— y el tamaño **ya estaba bien**:
 *«que sean del tamaño del acorde obvio»*. **No se toca el tamaño**, solo la forma.
 
-**Como quedo:** las dos curvas del 3 arriba y la pata recta bajando. **Mas grueso que las demas
-figuras** (2.4 frente a 1.6), porque es un trazo suelto sin cabeza ni plica: con el grosor de una
-linea se perderia entre los acordes.
+#### 🔴 Tercera pasada, y AQUI SE CAMBIA DE METODO (2026-08-29)
+
+Isaac, con una imagen mas grande y clara: *«aun falta por mejorar el signo, copialo tal cual como
+te lo voy a dar mejor, en esta imagen»*.
+
+🔴 **Tres intentos describiendo un dibujo por escrito es la senal de que el metodo esta mal.**
+Yo **no puedo ver** como queda: compila igual sea cual sea la forma, y ninguna comprobacion
+automatica sabe si eso parece un silencio de negra. Cada pasada era yo adivinando y el corrigiendo.
+
+→ **Se hace lo que ya funciono con los diagramas de acordes (fase I):** una **pagina desechable**
+con VARIAS formas dibujadas, a su tamano real y ampliadas, y **el elige la que es**. Alli esa
+pantalla ahorro cuatro rehechos —las octavas, el recorte del teclado, la mano izquierda y la
+leyenda—, y esta escrito en §9.2-quater que salio mucho mas barato que integrar y deshacer.
+
+⚠️ **La pagina se BORRA antes de publicar nada**, igual que `/acordes-prueba`. Nunca llega a
+produccion.
+
+**El estado del dibujo, para no perderlo:**
+1. Zigzag de curvas Bezier — el original del primo. *«No tiene forma de silencio»*.
+2. Un «7» con el travesano recto — *«no es tanto un siete»*.
+3. Un «3» con la pata recta — *«aun falta por mejorar»*.
+4. **Primera ronda de la pagina de prueba (A–E):** *«la que mas se acerca es la D, pero la C
+   tampoco se aleja del signo de silencio»*.
+   → **D** = el «3» con la pata recta (lo que hay publicado) · **C** = el de imprenta (𝄽).
+   📌 **Y eso acota mucho:** las tres que descarto —A, B y E— eran las de **trazo recto arriba**,
+   la familia del «7». Queda claro que **la parte de arriba va CURVA**, y lo que se afina ahora es
+   cuanto y como baja la pata.
+5. **Segunda ronda (D, D1, D2, D3, C1):** ✅ **«nos vamos con D2, ese se queda».**
+   → **`D2` = las dos curvas del «3» BIEN MARCADAS arriba, y la pata recta bajando.** Frente a la
+   D original, las panzas salen mas hacia la derecha, asi que el «3» se reconoce de un vistazo —
+   que es lo unico que importa en algo que se lee tocando.
+   → **Path final:** `M8 7.5 C 13.5 5.5, 17 8.5, 13 11.2 C 17.5 11.8, 17 15.5, 13.2 16.4 L 8.5 22`
+   con grosor **2.4**.
+
+#### ✅ O-47 CERRADA (2026-08-29), y lo que dejo el metodo
+
+**Dos rondas y esta.** Frente a **tres intentos por descripcion escrita, los tres fallidos**.
+
+📌 **La leccion, y ya es la segunda vez que este proyecto la aprende** —la primera fue
+`/acordes-prueba` en la fase I—: **cuando lo que se discute es un DIBUJO, describirlo por escrito
+no converge.** Yo no puedo verlo, compila igual sea cual sea la forma, y ninguna comprobacion
+automatica sabe si eso parece un silencio de negra. **Se ensena, no se cuenta.**
+→ **La senal de que hay que cambiar de metodo son DOS correcciones seguidas sobre lo mismo.** A la
+tercera ya se ha gastado el triple de tiempo del que cuesta montar la pagina desechable.
+
+**La pagina `/silencio-prueba` ya esta BORRADA**, y con ella su linea del middleware. Comprobado:
+la carpeta no existe, **no aparece en las rutas del build**, y la direccion devuelve
+**`307 → /login`**. Nunca llego a produccion — igual que `/acordes-prueba`.
+
+**Comprobado con D2 puesta:** en «Sube La Alabanza» —la que mas silencios de negra tiene, 8 de los
+12— el trazo nuevo llega, **el anterior ya no aparece**, y los **98 acordes** siguen igual.
+**26 de 26 pantallas**, build 0, lint 0, 139 pruebas.
+
+**Lo que SI esta cerrado y no se vuelve a preguntar:** el **tamano** es correcto
+(*«que sean del tamano del acorde»*), y sus capturas salen grandes **solo para que se vea la
+forma**.
 
 **Comprobado (2026-08-29)** en «Sube La Alabanza», que es la que mas tiene (8 de los 12): el trazo
 nuevo llega a la pagina, **el zigzag viejo ya no aparece**, y los **98 acordes** de la cancion
