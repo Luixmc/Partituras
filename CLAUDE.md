@@ -2452,6 +2452,40 @@ minutos.
 decision musical —parte donde la frase respira—. Si la pagina reparte sola, **tiene que dejarle
 seguir mandando** cuando el quiera: lo automatico es la comodidad, no la ley.
 
+#### 🔴 ACLARACION SUYA (2026-08-29), y CORRIGE mi analisis de arriba
+
+Isaac, con **tres capturas de la misma cancion a tres tamaños distintos**:
+
+> *«si por ejemplo agrando el tamaño en modo pantalla completa, que en vez de que lo que siga este
+> debajo en la misma seccion, que siga en el orden que debe ser abajo izquierda… pero que se pueda
+> ver bien, y que **los acordes que no puedan ocupar en una linea que pasen a la otra linea
+> RESPETANDO LA LECTURA QUE TENGA EL MUSICO determinado, ya sea debajo izquierda o por lectura de
+> columnas**»*
+
+🔴 **Lo que yo habia entendido estaba incompleto.** Yo lo lei como un problema de **anchos**: que
+una seccion larga no cabe en media pantalla. Y hay algo de eso, pero **lo que de verdad pide es
+otra cosa**: que cuando los compases de una seccion **envuelvan a otra fila**, ese salto
+**respete el modo de recorrido que el musico eligio en O-26** —por filas o por columnas—.
+
+📌 **Es O-26 llevada DENTRO de la seccion.** Hoy el recorrido de O-26 decide como se recorren **las
+secciones** entre si; lo que el pide es que decida tambien **como se leen los compases cuando una
+seccion no cabe en una linea**. Sin eso, al agrandar la letra en pantalla completa el orden de
+lectura **puede contradecir lo que el musico eligio** — y eso, tocando, es peor que apretado.
+
+**Sus tres capturas son el enunciado, y conviene guardarlas como tal:**
+
+| Tamaño | Que se ve |
+|---|---|
+| Letra pequeña | Cada seccion en **una sola fila**. Aqui no hay problema |
+| Letra media | Los compases **envuelven dentro de su seccion**, 2-3 filas. Es lo que quiere que funcione bien |
+| Letra grande (pantalla completa) | Envuelven mas, y ahi es donde **el orden importa de verdad** |
+
+→ ⚠️ **Y lo que esto añade al analisis:** el camino **(a)** —dar mas ancho a las secciones largas—
+**no resuelve lo que pide**. Alivia el apretado, pero no toca el orden de lectura. Los caminos
+buenos son **(b) medir** y, sobre todo, **hacer que el envolver mire el ajuste de O-26**.
+
+⬜ **Sigue PENDIENTE.** El no ha dicho que se haga; esto es la aclaracion del encargo.
+
 **O-53 · Al agrandar las figuras, se MONTAN ENCIMA de los acordes.** ⬜ **ANOTADO, SIN TOCAR.**
 Isaac, 2026-08-29, con una captura de «Dios no rechaza oracion» ya publicada:
 *«mira como salen los signos»*. Y su instruccion fue explicita:
