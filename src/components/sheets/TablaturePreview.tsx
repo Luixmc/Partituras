@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useAbrirAcorde } from "@/components/sheets/ChordPopover";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NoteFigure, RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
+import { NoteFigure, RestFigure, FermataFigure, SlurFigure, FIGURA_ALTO } from "@/components/sheets/MusicFigures";
 
 type Props = {
   notes: string;
@@ -382,13 +382,27 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
         // La duración suelta reserva algo más de ancho: sin texto que la
         // sostenga, se quedaba pegada al acorde de al lado.
         minWidth: token.soloFigura ? (dense ? "1.4em" : "1.8em") : dense ? "1em" : "1.3em",
-        padding: dense ? "0.6em 0.08em" : "0.95em 0.15em",
+        // 🔴 EL HUECO DE ARRIBA SE CALCULA, no se escribe a mano.
+        //
+        // La figura va en un `<span>` ABSOLUTO pegado arriba, así que **no
+        // empuja nada**: si no cabe en este padding, se sale y cae encima del
+        // acorde. Es justo lo que pasó al agrandarlas a 1,6 (O-53): el hueco
+        // seguía valiendo `0.95em`, de cuando medían 1.
+        //
+        // La figura ocupa `FIGURA_ALTO × 0.85em` —el 0.85 es el `fontSize` de
+        // su span—, más un respiro. Atado así, el día que cambie el tamaño el
+        // hueco cambia solo.
+        paddingTop: `calc(${FIGURA_ALTO} * 0.85em + 0.12em)`,
+        paddingBottom: dense ? "0.6em" : "0.95em",
+        paddingLeft: dense ? "0.08em" : "0.15em",
+        paddingRight: dense ? "0.08em" : "0.15em",
       }}
     >
       {!token.rest && !token.timeSig && (token.fermata || token.duration) && (
         <span
           className="figura absolute inset-x-0 top-0 flex justify-center text-slate-400 dark:text-slate-300"
-          style={{ fontSize: "0.85em", height: "0.95em" }}
+          // El alto del span y el hueco de la celda salen del MISMO número.
+          style={{ fontSize: "0.85em", height: `calc(${FIGURA_ALTO} * 1em)` }}
         >
           {token.fermata ? <FermataFigure /> : <NoteFigure beats={token.duration!} beamed={beamed} />}
         </span>

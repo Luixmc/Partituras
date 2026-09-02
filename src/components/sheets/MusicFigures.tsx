@@ -16,9 +16,16 @@ import { figuraDe } from "@/lib/figuras";
 // Están como variables y no como constantes para poder **probar tamaños sin
 // tocar el código** (así se eligió, sobre el dibujo). Los valores por defecto
 // son los que se decidieron mirándolo.
-// 1.6em es LA «C» que eligió Isaac mirando las cinco opciones al tamaño real
-// (O-51). A 1em el puntillo medía menos de 2 px y no se distinguía del doble.
-const ALTO = "var(--figura-alto, 1.6em)";
+// 1.6 es LA «C» que eligió Isaac mirando las cinco opciones al tamaño real
+// (O-51). A 1 el puntillo medía menos de 2 px y no se distinguía del doble.
+//
+// 🔴 Es un NÚMERO, no una medida, y esa es la parte que importa: quien coloca
+// la figura necesita **calcular** con él para reservarle el hueco justo. Con
+// `1.6em` no se podía multiplicar, así que el hueco era una constante escrita
+// aparte… y al crecer la figura se quedó corta y las figuras acabaron encima
+// de los acordes (O-53). Ahora el hueco SALE DE AQUÍ y no se pueden separar.
+export const FIGURA_ALTO = "var(--figura-alto, 1.6)";
+const ALTO = `calc(${FIGURA_ALTO} * 1em)`;
 const ESC = "calc(var(--figura-escala, 1))";
 
 /** Un grosor de trazo, reforzado por `--figura-escala`. */

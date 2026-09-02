@@ -2485,7 +2485,31 @@ una constante escrita al lado.**
 3. Y comprobarlo **en las canciones con figura en casi todos los compases**, que son donde peor se
    ve — la de su captura es una.
 
-⬜ **Sin empezar. Espera su orden.**
+#### ✅ ARREGLADO (2026-08-29), cuando Isaac lo pidio: *«arregla lo de los signos»*
+
+**El hueco ya NO se escribe: se CALCULA desde el tamaño de la figura.**
+
+| | Antes | Ahora |
+|---|---|---|
+| El tamaño | `--figura-alto: 1.6em` | **`--figura-alto: 1.6`** — un NUMERO, para poder multiplicar |
+| El hueco de la celda | `padding: 0.95em …` escrito a mano | **`calc(var(--figura-alto,1.6) * 0.85em + 0.12em)`** |
+| Si mañana cambia el tamaño | el hueco se quedaba corto **en silencio** | **el hueco cambia solo** |
+
+🔴 **Y ese es el arreglo de verdad, no el numero.** El fallo no fue poner `0.95em`: fue que
+**el hueco y la figura eran dos numeros independientes que tenian que coincidir**. Mientras sea
+asi, cualquiera que toque uno rompe el otro sin enterarse — que es exactamente lo que hice yo.
+Ahora **salen del mismo sitio y no se pueden separar**.
+
+📌 **El `0.85` que aparece en la cuenta no es magia:** es el `fontSize` del `<span>` que envuelve
+la figura, asi que la figura ocupa `alto x 0.85em` de la celda. Esta escrito al lado para que no
+se convierta en otro numero suelto.
+
+**Comprobado en «Cada Vez»**, que es **la cancion con MAS duraciones escritas de las 71** (48) y
+por tanto donde peor se veia: **64 celdas calculan su hueco**, **0 con el valor viejo**, y sus
+**52 figuras y 55 acordes** siguen ahi. **26 de 26 pantallas**, 158 pruebas, lint 0, build 0.
+
+⚠️ **El SILENCIO no tenia este problema y no se toco:** se dibuja **en linea normal**, no en
+posicion absoluta, asi que al crecer empuja en vez de superponerse.
 
 ### 9.2-undecies · El lint estaba ROTO desde Next 16, y nadie se enteraba
 
