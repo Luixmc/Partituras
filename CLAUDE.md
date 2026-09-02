@@ -2484,7 +2484,52 @@ lectura **puede contradecir lo que el musico eligio** — y eso, tocando, es peo
 **no resuelve lo que pide**. Alivia el apretado, pero no toca el orden de lectura. Los caminos
 buenos son **(b) medir** y, sobre todo, **hacer que el envolver mire el ajuste de O-26**.
 
-⬜ **Sigue PENDIENTE.** El no ha dicho que se haga; esto es la aclaracion del encargo.
+#### 🔬 LAS PRUEBAS, hechas el 2026-08-29 — *«sube lo pendiente y haz las pruebas»*
+
+**① El `;` YA REPARTE DENTRO DE UNA SECCION. Media peticion no necesita programar nada.**
+
+Medido con el **parser REAL** —extraido de `TablaturePreview.tsx` y compilado con el TypeScript
+del proyecto, no con recortes de texto—, usando **su propia seccion C**:
+
+| Lo que se escribe | Como sale |
+|---|---|
+| `Bb:3 Dm7:1 \| C7 \| Am7 \| Dm7 \| Gm7 \| C7 \| F \| %` | **8 compases en UNA fila** |
+| `… \| Dm7 **;** Gm7 \| …` | **fila 1:** `Bb Dm7 · C7 · Am7 · Dm7` · **fila 2:** `Gm7 · C7 · F · %` |
+
+→ **Puede escribir la seccion COMPLETA** y poner un `;` donde hoy la parte en dos `[C]`.
+**Sin dos secciones, sin tocar codigo.**
+✅ Y comprobado que llega a la pantalla: «Todo Lo Has Cambiado» tiene **2 saltos escritos** y en su
+HTML salen **2 elementos de salto de fila**. Ya hay **2 canciones de 72** usandolo.
+
+**② El orden de lectura: como esta montado hoy** (`PresentationView.tsx:718-741`)
+
+| Recorrido | Las SECCIONES | Los COMPASES dentro de una seccion |
+|---|---|---|
+| **Por filas** | `grid-cols-2` — izquierda, derecha, y baja | `flex-wrap`: izquierda→derecha, luego abajo |
+| **Por columnas** | `columnCount: 2` — llena la columna izquierda entera, luego la derecha | **igual**: `flex-wrap` |
+
+→ **Dentro de una seccion siempre se lee izquierda→derecha**, en los dos modos. Y eso **es lo
+correcto**: dentro de una frase musical no hay otra forma de leer.
+
+#### ❓ LA PREGUNTA QUE QUEDA, y NO se responde por cuenta propia
+
+Su frase admite **dos lecturas**, y llevan a trabajos distintos. **Ya me equivoque una vez
+interpretandola**, asi que se le pregunta:
+
+**(A) Que la seccion larga se PARTA SOLA en varios bloques**, y cada trozo ocupe **la siguiente
+casilla** de la rejilla —arriba-derecha o abajo-izquierda segun el recorrido—. Es **exactamente lo
+que el consigue a mano** creando dos `[C]`, y encaja con *«que siga en el orden que debe ser abajo
+izquierda»*.
+
+**(B) Que la seccion se quede en su caja** y solo se asegure de que, al envolver, **se lee en el
+orden que el eligio**. Como dentro ya se lee izquierda→derecha en los dos modos, esto **quizas ya
+funciona** y lo unico que falta es que **quepa mejor**.
+
+📌 **La diferencia no es de tamaño: es de QUE ES UNA SECCION.** En (A) una seccion puede ocupar
+dos casillas; en (B) una seccion es siempre una caja. La primera cambia como se dibuja la
+pantalla entera; la segunda es un ajuste.
+
+⬜ **PENDIENTE de su respuesta.** Lo que si esta resuelto y puede usar hoy es el `;`.
 
 **O-53 · Al agrandar las figuras, se MONTAN ENCIMA de los acordes.** ⬜ **ANOTADO, SIN TOCAR.**
 Isaac, 2026-08-29, con una captura de «Dios no rechaza oracion» ya publicada:
