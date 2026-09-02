@@ -5,6 +5,55 @@
 
 ---
 
+## 2 de septiembre de 2026
+
+### 🎼 Las secciones largas se acomodan solas
+
+- **Ya no hace falta partir una sección en dos para que quepa.** Escribes la sección entera —tu
+  `[C]` con sus ocho compases, sin repetir la etiqueta— y **la página mira cuántos compases caben
+  en una línea y la reparte sola** entre los cuadros. Lo que sigue cae en el cuadro siguiente,
+  respetando cómo tengas puesta la lectura (por filas o por columnas), y el trozo que continúa se
+  marca con **«(sigue)»** para que no te pierdas.
+- **Se adapta al aparato y al tamaño de letra.** En el computador a pantalla completa una sección
+  de diez compases sale en dos cuadros de cinco; con la ventana a la mitad, en cuatro más
+  pequeños; y en el teléfono, donde no cabría bien de ninguna manera, **se deja entera** como se ha
+  visto siempre. No hay que tocar nada: cambia solo.
+- **Si tú marcas el corte, manda el tuyo.** Escribiendo un `;` dentro de la sección, ahí se corta y
+  la página no la reorganiza. Sirve para cuando el corte es una decisión musical y no de espacio.
+- **De regalo, la repetición queda mejor escrita:** al partir sola, el `|:` abre en el primer
+  cuadro y el `:|` cierra en el último — **una sola repetición**, no dos, que es lo que salía al
+  partirlo a mano.
+
+### 🔎 Las canciones cortas ya llenan la pantalla
+
+- **Arreglado: una canción con poca estructura se quedaba pequeña**, con media pantalla en blanco,
+  por más que quisieras agrandarla. El ajuste automático tenía un tope y chocaba contra él. Ahora
+  puede crecer **el doble** que antes.
+
+---
+
+## 29 de agosto de 2026
+
+### 🎵 Los signos de las figuras
+
+- **El silencio de negra se dibuja como se escribe a mano.** El que había no tenía forma de
+  silencio.
+- **Llegan el doble puntillo y los silencios que faltaban.** Ahora se pueden escribir las cinco
+  figuras con dos puntos, y los **silencios de corchea y semicorchea**, que no existían — antes
+  cualquiera de los dos se dibujaba como un silencio de negra, o sea **el doble de tiempo**.
+- **Las figuras se ven un 60% más grandes.** Antes había que hacer zoom para distinguir un
+  puntillo de dos, o una corchea de una semicorchea.
+- **Arreglado: al agrandarlas se montaban encima del nombre del acorde.** El hueco reservado ya se
+  calcula a partir del tamaño, así que no se pueden volver a separar.
+- **La repetición `%` ya admite duración** (`%:4`). Antes salía escrita tal cual.
+
+### 🗂️ En las tarjetas de canciones
+
+- **Salen las otras tonalidades que tiene cada canción**, con la original marcada y las demás en
+  gris.
+
+---
+
 ## 28 de agosto de 2026
 
 ### 📖 Al crear o editar una canción

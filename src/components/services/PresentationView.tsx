@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand,
 
 import { estrofasDe } from "@/lib/letras";
 
-import TablaturePreview from "@/components/sheets/TablaturePreview";
+import SeccionRepartida from "@/components/sheets/SeccionRepartida";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
@@ -51,7 +51,15 @@ type Props = {
 
 // Límites del tamaño de letra: 40% – 200%.
 const MIN_SCALE = 0.4;
-const MAX_SCALE = 2;
+// 🔴 SUBIDO de 2 a 4 el 2026-09-01, y lo pidio Isaac con «Avivamiento»: *«por
+// mas que quiera que se ponga grande para aprovechar el tamano de la pantalla y
+// la poca estructura que tiene, no se pone mas grande»*.
+//
+// Tenia razon y el numero lo explica: una cancion corta cabe de sobra, asi que
+// el auto-ajuste queria crecer — y **chocaba contra este techo**, dejando media
+// pantalla vacia. El techo no protegia de nada: el auto-ajuste ya para solo
+// cuando el contenido llena el alto, y ademas itera hasta converger.
+const MAX_SCALE = 4;
 
 // ─────────────────────────────────────────────────────────────
 // Tamaño de letra guardado, POR CANCIÓN y POR MÚSICO.
@@ -813,33 +821,32 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                   : undefined
               }
             >
-              {sections.map((sec, i) =>
-                columns > 1 && recorrido === "columnas" ? (
+              {/* 📌 O-52 · `SeccionRepartida` en vez de `TablaturePreview` a
+                  secas. Una sección que cabe se dibuja EXACTAMENTE igual que
+                  antes; una que no cabe se reparte entre varias casillas, así
+                  que lo que sigue cae en la casilla siguiente —arriba-derecha o
+                  abajo-izquierda según el recorrido— en vez de apretarse.
+                  Isaac ya no tiene que partir a mano una sección en dos. */}
+              {sections.map((sec, i) => (
+                <SeccionRepartida
+                  key={i}
+                  notes={sec.content}
+                  label={sec.title}
+                  fontScale={fontScale}
+                  dense
                   // El envoltorio es lo que se mantiene entero dentro de una
                   // columna; el margen hace de separación entre secciones,
                   // porque en multi-columna `gap` no aplica.
-                  <div
-                    key={i}
-                    className={cn("break-inside-avoid", isFullscreen ? "mb-1.5" : "mb-4")}
-                    style={{ breakInside: "avoid" }}
-                  >
-                    <TablaturePreview
-                      notes={sec.content}
-                      label={sec.title}
-                      fontScale={fontScale}
-                      dense
-                    />
-                  </div>
-                ) : (
-                  <TablaturePreview
-                    key={i}
-                    notes={sec.content}
-                    label={sec.title}
-                    fontScale={fontScale}
-                    dense
-                  />
-                )
-              )}
+                  claseCelda={
+                    columns > 1 && recorrido === "columnas"
+                      ? cn("break-inside-avoid", isFullscreen ? "mb-1.5" : "mb-4")
+                      : undefined
+                  }
+                  estiloCelda={
+                    columns > 1 && recorrido === "columnas" ? { breakInside: "avoid" } : undefined
+                  }
+                />
+              ))}
             </div>
             </ChordPopoverProvider>
           ) : (

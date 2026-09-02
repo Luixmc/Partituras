@@ -2529,7 +2529,322 @@ funciona** y lo unico que falta es que **quepa mejor**.
 dos casillas; en (B) una seccion es siempre una caja. La primera cambia como se dibuja la
 pantalla entera; la segunda es un ajuste.
 
-⬜ **PENDIENTE de su respuesta.** Lo que si esta resuelto y puede usar hoy es el `;`.
+✅ **Su respuesta (2026-08-29):** *«mas o menos entiendo tus dos opciones, pero creo que mejor
+hagamos el ejemplo con las dos opciones para ver»*.
+→ **Pagina desechable con las dos, sobre su cancion de verdad** —«Santo Por Siempre», que es la de
+sus capturas y la que tiene la C partida en dos—. **Es el metodo que ya funciono tres veces**, y
+esta vez **lo propuso el**.
+
+#### 🖥️ LA PAGINA ESTA MONTADA (2026-08-29) — `/secciones-prueba`, en local
+
+**Cuatro paneles con la MISMA cancion**, y los controles arriba para moverlo todo: columnas
+(1/2/3), recorrido (por filas / por columnas), **tamano** —que es donde el vio el problema—,
+cuantos compases por bloque parte la A, y claro/oscuro.
+
+| Panel | Que ensena |
+|---|---|
+| **Hoy** | Sus dos `[C]` a mano, tal cual estan en la base |
+| **Ya funciona** | **Una sola** seccion con el `;`. Sin programar nada |
+| **A** | Una sola seccion; **la pagina la parte** en bloques que ocupan la casilla siguiente |
+| **B** | Una sola seccion; **no se parte nunca**, se le da el ancho entero cuando es larga |
+
+**Comprobado sirviendola:** `HTTP 200` · los 4 paneles · **5 etiquetas `[C]` + 1 «(sigue)»**
+—que es 2+1+2+1, exactamente lo que debe— · el salto del `;` sale **1 vez** (solo en su panel) ·
+el ancho entero **1 vez** (solo en B) · **140 acordes** dibujados · build codigo de salida **0**.
+
+📌 **Y un punto a favor de (A) que salio al montarlo, y que no habia visto:** al partir sola, los
+signos de repeticion se quedan **donde tienen que estar** —`|:` abre en el primer bloque y `:|`
+cierra en el ultimo—. Sus dos `[C]` a mano llevan **repeticion cada una**: son dos repeticiones
+distintas, cuando musicalmente es **UNA** que abarca los ocho compases. **La pagina lo escribiria
+mejor de lo que se puede a mano.**
+
+⚠️ **Se BORRA antes de publicar nada**, como las tres anteriores. Y **la linea de
+`/secciones-prueba` en el middleware se va con ella**.
+
+#### ✅ ELIGIO LA (A), y le puso una condicion (2026-08-29)
+
+> *«la opcion a, es a lo que me refiero, pero que si es posible que tenga cuatro compases minimos,
+> o las que pueda para que aproveche lo maximo los espacios, no que quede tan estrecho pero si los
+> que pueda la pagina»*
+
+🔴 **Su condicion NO es «parte de cuatro en cuatro»: es «parte por lo que QUEPA».** Un numero fijo
+acierta en una pantalla y falla en las otras tres — es justo lo que ya se pago con el hueco de las
+figuras (O-53) y con las listas de duraciones (O-49). Lo que pide es que **la pagina mida**.
+
+**La regla, tal como queda decidida:**
+
+| | |
+|---|---|
+| **Cuantos compases por bloque** | **Los que quepan en una fila**, medidos en el momento |
+| **Minimo** | **4** — *«cuatro compases minimos«*. Si caben menos de 4, se ponen 4 igual y envuelven dentro del bloque; asi una seccion no se rompe en muchos trozos diminutos |
+| **Se reparte PAREJO, no a lo bruto** | 8 compases con sitio para 6 dan **4+4**, no 6+2. Un bloque final de 2 en media pantalla es justo el hueco desperdiciado que el no quiere |
+| **Cuando NO se parte** | Si la seccion **cabe entera**, se deja como esta |
+| 🔴 **Si el escribio un `;`, MANDA EL** | La pagina **no reorganiza** una seccion donde el marco el corte. *Lo automatico es la comodidad, no la ley* — y ademas asi **las 2 canciones que ya usan `;` no cambian** |
+
+📌 **Y un punto a favor de (A) que salio al montar el ejemplo:** al partir sola, los signos de
+repeticion se quedan **donde tienen que estar** —`|:` abre en el primer bloque y `:|` cierra en el
+ultimo—. Sus dos `[C]` a mano llevan **repeticion cada una**: son dos repeticiones distintas cuando
+musicalmente es **UNA** de ocho compases. **La pagina lo escribe mejor de lo que se puede a mano.**
+
+⚠️ **Donde se aplica y donde NO, decidido a proposito:**
+* ✅ **La presentacion** —pantalla completa y culto compartido—, que es *«LA pantalla del culto»*
+  (O-30) y donde el vio el problema.
+* ❌ **El modo vista y el editor**: ahi cada seccion ya ocupa el ancho entero, asi que no hay
+  casilla siguiente que ocupar. No hay nada que repartir.
+* ❌ **El PDF**: se dibuja para papel y **medir en impresion no es fiable** —lo mismo que enseno
+  T-10 con el `100vh`—. El PDF se queda con su rejilla de dos columnas.
+
+#### ✅ HECHO (2026-09-01) — y lo probo con SU cancion
+
+🔴 **Isaac preparo el terreno el mismo dia**, y conviene saberlo porque es el dato que hace real
+la prueba: *«te he dejado para la prueba la cancion cada vez, junte las secciones que parti y las
+deje unidas en uno solo y solamente quedan las secciones como son a, b, c y asi»*. → **«Cada Vez»
+ya esta escrita como el queria escribirla**, sin partir nada a mano.
+
+**Como quedo montado:**
+
+| Pieza | Que hace |
+|---|---|
+| `src/lib/reparto.ts` **(nuevo)** | La cuenta pura: `repartirBloques(total, cabenEnUnaFila)`. En `lib/` **a proposito**, para que la cubra el CI |
+| `SeccionRepartida.tsx` **(nuevo)** | Mide, decide y devuelve **varios hermanos** — cada bloque es una casilla de la rejilla del padre |
+| `TablaturePreview` | Prop `segmentos` para dibujar solo un tramo, y la rejilla marcada con `data-rejilla-compases` para poder medirla |
+| `PresentationView` | Usa `SeccionRepartida` en vez de `TablaturePreview` |
+| `pruebas/reparto.test.mjs` | **12 pruebas nuevas**, total **170** |
+
+🔴 **La medida NO se estima, se mide:** la sonda dibuja la seccion entera **oculta y a la anchura
+real de la casilla**, y se cuentan los compases que caen en la primera fila. Va oculta y en
+posicion absoluta para no ocupar sitio, y **siempre dibuja la seccion entera** — si dependiera del
+reparto, cada reparto cambiaria la medida y la medida el reparto, dando vueltas sin parar.
+
+#### 🔴 Y un fallo que se cazo por medirlo, no por leerlo
+
+Con la primera version, la seccion B de «Santo Por Siempre» —que tiene **5** bloques— salia
+partida en **`3 + 2`**. Un bloque de 2 es exactamente el *«que no quede tan estrecho»* que el no
+quiere.
+→ **Corregido:** el minimo pone un **techo a cuantos bloques caben** (`floor(total / 4)`), asi que
+con 5 compases **no se parte**: envuelve dentro de su caja. **Ningun bloque baja de cuatro, nunca**
+—y hay una prueba que lo recorre con 60 x 15 combinaciones—.
+
+#### 📊 Medido con Edge sin ventana, que es lo unico que puede verlo
+
+🔴 **Esto ocurre ENTERO en el navegador**, asi que `curl` no ve nada: el HTML del servidor trae la
+seccion sin partir y el reparto pasa despues. → Se dejo **`data-reparto` en el HTML** (`10→5+5`) y
+se midio con Edge en modo sin ventana, el mismo truco de la fase F con los PDF.
+
+**«Cada Vez», sus dos secciones largas** — la A tiene **10** bloques y la C **12** (los `4/4` de en
+medio cuentan como bloque propio, cosa que no habia visto):
+
+| | Seccion A | Seccion C |
+|---|---|---|
+| 1 columna, letra pequena | **10 → 10** *(no parte: cabe entera)* | **12 → 12** |
+| 1 columna, normal | 10 → **5+5** | 12 → **4+4+4** |
+| 2 columnas | 10 → **5+5** | 12 → **4+4+4** |
+| 2 columnas, letra grande | 10 → **5+5** | 12 → **4+4+4** |
+| 3 columnas | 10 → **5+5** | 12 → **4+4+4** |
+| **Con `;` escrito por el** | — | **12 → 12** *(no se toca: manda el)* |
+
+📌 **La primera fila es la que prueba que la medida funciona:** con sitio de sobra **no parte
+nada**. Y en el resto **manda el minimo de cuatro**, que es lo que el pidio.
+
+**Que no se rompio nada, y esto era el riesgo de verdad** —las ligaduras ya se rompieron tres
+veces en este proyecto—. Con «Cancion Feliz», que lleva **5 ligaduras escritas**, comparando el
+mismo dibujo a dos anchuras donde se parten **1 seccion y 6**:
+
+| | a 1400 (parte 1) | a 700 (parte 6) |
+|---|---|---|
+| Arcos de ligadura | **50** | **50** |
+| Acordes | **325** | **325** |
+
+→ **Identicos.** Partir no pierde ni duplica nada. Y es por construccion: `saleLigado` y
+`entraLigado` se calculan sobre la lista **entera** de compases, que no se recorta — solo se
+recorta lo que se DIBUJA.
+
+**Y en la presentacion de verdad** (el culto compartido, sin cuenta): **72 acordes** a 1400 y a
+800, y a 800 una seccion de 8 se reparte en **4+4**.
+
+**Lo demas:** 26 de 26 pantallas · **170 pruebas** · lint **0 errores** · build **codigo de salida
+0**. *(El lint marca 60 avisos, y se comprobo guardando los cambios aparte que **ya eran 60 antes
+de tocar nada**: mis archivos meten **cero**. El «57» que decia §9.2-undecies se quedo viejo.)*
+
+#### 🔴 LO PROBO A MEDIA PANTALLA Y SALIA MAL (2026-09-01)
+
+Isaac, con dos capturas: *«esta bien pero fijate que cuando la pagina ocupa la pantalla completa
+sale bien, pero cuando lo pongo para que ocupe la mitad de la pantalla mira como sale»*.
+
+**Y el fallo era EL MINIMO DE CUATRO**, justo lo que el habia pedido. A media pantalla en una fila
+caben **3** compases, pero el minimo obligaba a hacer **pocos** bloques —y pocos bloques son
+bloques grandes—, asi que salian de 5 y **cada bloque se partia por dentro en dos filas**: una
+llena y otra a medias, estirada y con un hueco.
+
+📌 **La clave estaba en su propia frase, en dos palabras que yo habia dejado de lado:** *«que **si
+es posible** tenga cuatro compases minimos, **o las que pueda**»*. Cuando en una fila caben 3,
+cuatro **no es posible** — y forzarlo es lo que dejaba la pantalla como el la vio.
+
+#### 🖼️ Y AQUI CAMBIA COMO SE COMPRUEBA ESTO: se saca CAPTURA y se mira
+
+Hasta ahora todo lo del navegador acababa en *«tiene que mirarlo Isaac»*. **Edge en modo sin
+ventana saca captura** (`--screenshot`), igual que ya se usaba para contar paginas de los PDF en la
+fase F — pero **mirandola**, no contandola.
+
+🔴 **Y valio de inmediato: la primera captura enseño un fallo que los numeros NO decian.** El
+reparto era correcto —ningun bloque envolvia— pero la seccion C salia en **seis tarjetas, cada una
+con su cabecera «C (Porque todo...) (sigue)» repetida entera**. Las cabeceras ocupaban tanto como
+la musica. → **La etiqueta de los trozos siguientes pasa a ser corta: «C (sigue)».**
+
+#### ⬜ LAS DOS REGLAS, para que elija viendo
+
+Las dos estan montadas en `/secciones-prueba`, una encima de otra:
+
+| | Que hace | El precio |
+|---|---|---|
+| **Regla 1 · `porFila`** *(puesta por defecto)* | Los bloques mas grandes que quepan **enteros en una fila**. Ninguno se parte por dentro | En pantallas estrechas salen **mas bloques y mas pequenos** |
+| **Regla 2 · `minimo`** | Los bloques **nunca bajan de 4** compases | Cuando caben menos de 4, **el bloque se parte por dentro** — lo que el vio mal |
+
+**Medido a 950 px de ancho, 2 columnas** (la media pantalla suya):
+
+| Seccion | Regla 1 | Regla 2 |
+|---|---|---|
+| A (10 bloques, caben 3) | **3+3+2+2** | 5+5 *(los dos envuelven)* |
+| C (12 bloques, caben 2) | **2x6** | 4+4+4 *(los tres envuelven)* |
+
+**A pantalla completa las dos dan lo mismo** —A `5+5`, C `4+4+4`— que es lo que el dijo que sale
+bien. **La diferencia solo aparece cuando se estrecha.**
+
+🔴 **Y un choque de reglas que cazaron las PRUEBAS, no la pantalla:** la primera version de la
+regla 1 llevaba ademas un suelo —«nunca bloques de un solo compas»—, y con 5 compases y sitio para
+2 el suelo obligaba a `3+2`… y ese 3 **volvia a envolver**. → **Una sola regla de tamano.** Dos
+tirando en sentidos opuestos siempre tienen un caso donde una gana y rompe a la otra.
+
+#### 🔴 TRES COSAS MAS QUE VIO EL, y dos eran fallos de verdad (2026-09-01)
+
+**① El telefono partia una seccion en DIEZ tarjetas.** En un movil **en vertical solo cabe UN
+compas por fila**, asi que «no envolver» obligaba a un cuadro por compas — con su cabecera cada
+uno. **No se veia probando anchos de ordenador**: hubo que emular el tamano real de un telefono.
+→ **Tope: `MAXIMO_BLOQUES = 4`.** Si hicieran falta mas trozos, la pantalla es demasiado estrecha
+para que repartir gane nada y **la seccion se queda entera**, como se ha visto siempre.
+📌 La idea que ordena todo: *repartir sirve para llevar la continuacion a la casilla de al lado*.
+Mas de cuatro trozos ya no es eso.
+
+**② Una seccion CORTA tambien tiene que repartirse.** Isaac, con «Su Presencia»: *«son dos
+compases diferentes, o sea no estan en el mismo compas, y no se pone en el lado derecho para
+seguir el orden de la lectura»*. Su «Intro Sinte» son **2** compases que envolvian dentro de la
+caja.
+→ **Se quito el «por debajo de 4 no se parte»**, que era mio y no suyo. Ahora **si envuelve, se
+reparte**, sin excepcion por tamano. Un `2 → 1+1` es correcto: son dos casillas seguidas.
+
+**③ Una cancion corta no crecia para llenar la pantalla.** Isaac, con «Avivamiento»: *«por mas que
+quiera que se ponga grande para aprovechar el tamano de la pantalla y la poca estructura que
+tiene, no se pone mas grande»*.
+→ **Causa, un numero: `MAX_SCALE = 2`** en `PresentationView`. El auto-ajuste queria crecer y
+chocaba contra el techo, dejando media pantalla vacia. **Subido a 4.** El techo no protegia de
+nada: el auto-ajuste ya para solo cuando el contenido llena el alto, e itera hasta converger.
+⚠️ **No es de O-52** —venia de antes— pero se arregla aqui porque se ve en la misma pantalla.
+
+**Medido despues de las tres, con `data-reparto`:**
+
+| | Seccion A (10) | Seccion C (12) | Secciones de 2 |
+|---|---|---|---|
+| PC completa | **5+5** (caben 6) | **4+4+4** (caben 5) | enteras |
+| PC media pantalla | **3+3+2+2** (caben 3) | entera *(harian falta 6)* | enteras |
+| **Telefono vertical** | **entera** *(harian falta 10)* | **entera** | **1+1** ← lo que pidio |
+
+#### 🖼️ Y de aqui sale la forma de comprobar esto, que antes no existia
+
+**Edge sin ventana con el tamano y el agente de un telefono** reproduce lo que el ve, y
+`--screenshot` deja **mirarlo**. Fue asi como aparecio el ① —los numeros decian «reparto
+correcto» y la imagen ensenaba diez cabeceras—.
+→ Y en la pagina desechable hay ahora una **chapa a la vista**: `v4 · reparto medido · ventana
+NNNxNNN`, mas la medida debajo de cada cuadro (`10 → 5+5 · caben 6`). Con una captura suya se sabe
+si midio, que midio, y si le llego la version nueva.
+
+#### 🔴 EL FALLO QUE LO EXPLICABA TODO: la sonda no medía (2026-09-02)
+
+Isaac: *«aun hay canciones que no pasan al otro lado de la lectura a pesar de que dice (sigue)…
+probe en el telefono y aun sale lo mismo»*. **Y sus capturas traian la respuesta**, gracias a la
+medida que se habia puesto a la vista: en TODAS las secciones ponia **`caben SIN MEDIR`**.
+
+*Causa:* `medir()` descartaba los saltos manuales filtrando por **`offsetHeight > 0`**, y la sonda
+iba dentro de una caja con **`height: 0; overflow: hidden`**. Si el navegador devuelve 0 para todos
+—cosa que depende de como quede esa caja—, **la lista sale vacia, `medir` se rinde y `caben` se
+queda en `null` para siempre**: la seccion no se reparte nunca.
+
+*Como se resolvio, tres cosas:*
+1. **Los saltos se descartan por su MARCA**, `data-salto`, no por su alto. Un dato no se deduce de
+   un efecto secundario del dibujo.
+2. **La sonda deja de forzar `height: 0`.** Al ser absoluta ya no ocupa sitio; forzarle el alto era
+   justo lo que hacia medir 0.
+3. **Un reintento tras pintar** (`requestAnimationFrame`) y **`try/catch`**: ante cualquier cosa
+   rara del navegador la seccion se queda entera, que es como se ha visto siempre, y la pagina
+   nunca se rompe por esto.
+
+📌 **La leccion de metodo, y es la que vale:** esto **funcionaba en mi navegador de pruebas y no en
+el suyo**, asi que ninguna medida mia lo habria cazado. Lo caso **poner la medida a la vista en la
+propia pantalla** y que el mandara una captura. → **Cuando algo solo ocurre en el navegador del
+usuario, la instrumentacion va EN LA PANTALLA, no en el arnes.**
+⚠️ Y el «1 Issue» rojo de sus capturas **NO era esto**: es un desajuste de hidratacion en las
+clases de las FUENTES, del layout raiz, y viene de antes. Se comprobo antes de perseguirlo.
+
+⬜ **PENDIENTE: que elija regla 1 o regla 2.** Cuando elija, **la que pierda se borra**
+(`repartirConMinimo`, el tipo `Regla` y la prop del componente).
+
+#### 🔴 Y un dato de la BASE que aparecio de rebote: los 4 cultos estaban en BORRADOR
+
+Al pasar `pruebas/pantallas.mjs` fallo entera con *«No se pudieron leer identificadores»*. **No
+era la prueba ni mi cambio**: con la clave publica, `services` devolvia **vacio** porque los
+**cuatro** cultos —«Escuela Dominical» incluido— estaban en `draft`. Con ese estado, **ningun
+musico ve ningun culto**.
+→ Isaac lo devolvio a publico el mismo dia (*«ya puse en publico el de escuela dominical»*).
+✅ **Arreglada la prueba igualmente:** si con la clave publica no sale ningun culto, lo vuelve a
+pedir **con la cuenta de pruebas**, y si no hay ninguno publicado con enlace **se salta las tres
+rutas `/s/<token>` avisando**, en vez de abortar sin comprobar nada. Con los cultos en borrador da
+**«23 bien · 0 mal · 3 saltadas»**; con Escuela Dominical publicada, **26 de 26**.
+
+⬜ **PENDIENTE de que lo mire con los ojos**, que es lo unico que decide. Esta en
+`/secciones-prueba` con «Cada Vez», y admite `?cols=1&escala=1.8` para verlo sin pulsar botones.
+
+#### 📱 Probarlo en el TELEFONO — lo pidio el 2026-09-01
+
+*«necesito el local host para telefono para probarlo en telefono tambien»*.
+
+**El servidor ya escucha en la red:** `npm run dev` levanta **`http://192.168.1.7:3000`** ademas de
+`localhost`, y responde (comprobado, 200 en 0,2 s). La ruta `/secciones-prueba` es publica, asi que
+no hace falta cuenta.
+
+🔴 **PERO el cortafuegos lo va a bloquear, y hay que saber por que:** la red **«CR7» esta
+clasificada como PUBLICA** en Windows, y en ese perfil el cortafuegos **rechaza toda conexion
+entrante** por defecto. → Hace falta **una regla de entrada para el puerto 3000**, y eso es un
+cambio en su sistema: **se le pide antes de tocarlo**.
+
+```
+netsh advfirewall firewall add rule name="Partituras dev 3000" ^
+  dir=in action=allow protocol=TCP localport=3000 remoteip=localsubnet
+```
+`remoteip=localsubnet` la deja **solo para aparatos de su misma red**, no para todo. Se quita con
+`netsh advfirewall firewall delete rule name="Partituras dev 3000"`.
+⚠️ **La IP cambia si se reinicia el router**; se vuelve a mirar en la linea `Network:` que imprime
+`npm run dev`.
+⬜ **PENDIENTE su permiso para publicar.** Y al publicar, **el comunicado** (`CAMBIOS.md` y
+`/novedades`): se nota mucho usando la pagina, asi que sin eso no esta terminado.
+
+**O-54 · Los COMPASES no reparten bien el ancho: el silencio de blanca se come la seccion.**
+⬜ **ANOTADO, SIN TOCAR** — el lo pidio asi: *«esto tenlo en pendiente»*.
+
+Isaac, 2026-09-02, con «Su Presencia» a pantalla completa:
+
+> *«mira los silencios de blanca y fijate que **sobresale para abajo** en los compases, cuando
+> tiene mucho espacio que no lo aprovecha… en la parte b y c que tiene silencio de blanca **coge
+> mucho espacio tanto arriba y abajo como a los lados**; de la estructura b, el **75%** lo ocupa el
+> compas del silencio, y el restante el acorde F#7; y en la c, el **60%** lo ocupa el silencio, y lo
+> restante lo dividen la repeticion y el G#m7. Asi mismo tambien pasa con los que son `{}1 {}2`»*
+
+**Son DOS cosas distintas y conviene no mezclarlas:**
+
+| | Que pasa | Donde mirar |
+|---|---|---|
+| **① El ancho** | Un compas crece segun sus TIEMPOS (`flexGrow: totalBeats`) y su base es el nº de acordes (`flexBasis`). Un silencio de blanca son **2 tiempos con UN solo simbolo**, asi que **se lleva el doble de ancho que un acorde y lo deja vacio**. Lo mismo los recuadros `{}1 {}2`, que ademas suman su etiqueta | `MeasureBlock`, `flexGrow`/`flexBasis` |
+| **② El alto** | El silencio *«sobresale para abajo»* y hay canciones con mucho hueco arriba y abajo sin aprovechar | `RestFigure` (el dibujo) y el hueco de la celda (O-53) |
+
+📌 **Y ojo con el ① antes de tocarlo:** que el ancho siga a los tiempos **es correcto en general** —es lo que hace que la cuadricula se lea como un compas—. Lo que falla es el caso de **pocos simbolos y muchos tiempos**. Cambiarlo a lo bruto estropearia los compases normales, asi que **hay que medirlo sobre las 71 canciones antes y despues**, como en la fase D.
 
 **O-53 · Al agrandar las figuras, se MONTAN ENCIMA de los acordes.** ⬜ **ANOTADO, SIN TOCAR.**
 Isaac, 2026-08-29, con una captura de «Dios no rechaza oracion» ya publicada:
@@ -4734,3 +5049,13 @@ proyecto era correcta, y **descartó** el asunto de la base de datos compartida 
 de cartas (D-05).
 
 **Qué quedó pendiente:** todo §9. Nada de código.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

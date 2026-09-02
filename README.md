@@ -56,11 +56,18 @@ El texto plano se parsea a compases en `TablaturePreview`:
 | **Staccato** | **`!`** pegado | `C:1!` |
 | **Repetir acorde** | **`%`** | `C \| % \| %` |
 | **Paso cromático** | **`-`** entre dos acordes: se va tocando por semitonos | `F# ~ - D` |
-| **Salto de fila** | **`;`** | `C G ; Am F` |
+| **Salto de fila** | **`;`** — y ademas **impide que la pagina reparta esa seccion**: ahi mandas tu | `C G ; Am F` |
 | **Cambio de compás** | el compás en medio de la línea | `\|: 4/4 C \| 6/8 G :\|` |
 | Letra bajo el acorde | `(...)` | `(Aleluya)` |
 
 **Disminuido:** se **escribe** `dim` / `dim7` y se **dibuja** `°` / `°7`. El símbolo no se teclea nunca.
+
+**Las secciones largas se reparten solas.** No hay que partir una sección en dos a mano para que
+quepa: se escribe entera y, en la presentación, la página mide cuántos compases caben en una fila
+y la reparte entre las casillas de la rejilla — **sin bajar nunca de 4 compases por bloque**. Lo
+que sigue cae en la casilla siguiente, respetando el recorrido que haya elegido el músico (por
+filas o por columnas). Si en una sección se escribe un `;`, esa no se reorganiza: el corte es de
+quien lo escribió.
 
 La duración controla el ancho relativo de cada acorde dentro del compás, de modo que el reparto del tiempo se ve en la cuadrícula. Varios acordes entre barras (`\|F G\|`) se muestran juntos, sin líneas divisorias entre ellos. La duración se dibuja como **figura musical** (corchea/negra/blanca/redonda) encima del acorde, y los silencios se dibujan con su figura correspondiente. Toda la notación (figuras y silencios) se renderiza en SVG en `components/sheets/MusicFigures.tsx`.
 

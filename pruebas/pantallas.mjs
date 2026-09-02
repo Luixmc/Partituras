@@ -64,23 +64,51 @@ async function identificadores() {
     (await (await fetch(`${url}/rest/v1/${tabla}?select=${campos}&limit=1`, { headers: cab })).json())[0];
 
   const cancion = await uno("sheets", "id");
-  const culto = await uno("services", "id,public_token");
+  let culto = await uno("services", "id,public_token");
+
+  // 🔴 Si con la clave publica no sale ningun culto, NO es que la prueba este
+  // rota: es que **no hay ninguno publicado**. Paso el 2026-09-01, con los
+  // cuatro cultos en borrador — y entonces esto abortaba entero y no se
+  // comprobaba ni una pantalla.
+  // → Se vuelve a preguntar con la cuenta de pruebas, que si los ve. Las rutas
+  //   publicas `/s/<token>` se saltan solas mas abajo, avisando.
+  if (!culto && env.PRUEBA_EMAIL && env.PRUEBA_PASSWORD) {
+    const r = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: env.PRUEBA_EMAIL, password: env.PRUEBA_PASSWORD }),
+    });
+    const j = await r.json();
+    if (j.access_token) {
+      const cabSesion = { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, Authorization: `Bearer ${j.access_token}` };
+      const lista = await (
+        await fetch(`${url}/rest/v1/services?select=id,public_token&limit=1`, { headers: cabSesion })
+      ).json();
+      culto = lista[0];
+    }
+  }
 
   // 🔴 Para las rutas `/s/<token>` hace falta un culto CON EL ENLACE PUBLICO
   // ACTIVADO, y no vale el primero que salga: el 2026-08-29 aparecio uno nuevo
   // sin enlace publico, el script lo cogio por ser el primero, y las tres rutas
   // compartidas dieron 404 — un fallo de la PRUEBA, no de la pagina. Ese 404
   // es justo lo que debe pasar cuando el enlace esta apagado.
+  // Un culto con el enlace publico activado Y publicado. Si no hay ninguno, las
+  // tres rutas compartidas se saltan: no se puede comprobar lo que no existe.
   const publico = await uno("services", "public_token&is_public=eq.true");
 
   return {
     cancion: cancion?.id,
     culto: culto?.id,
-    token: publico?.public_token ?? culto?.public_token,
+    // Sin culto publicado y con enlace, no hay token que probar.
+    token: publico?.public_token ?? null,
   };
 }
 
 const { cancion, culto, token } = await identificadores();
+if (!token) {
+  console.log("  ⚠️ Ningun culto PUBLICADO con enlace publico: se saltan las 3 rutas /s/<token>");
+}
 if (!cancion || !culto) {
   console.error("  No se pudieron leer identificadores de la base. ¿Está el .env.local?");
   process.exit(1);
@@ -132,6 +160,8 @@ else console.log("");
 let bien = 0, mal = 0, saltadas = 0, peor = 0;
 for (const [ruta, sesion, espera, debe] of PANTALLAS) {
   if (sesion && !COOKIE) { saltadas++; continue; }
+  // Sin culto publicado con enlace publico, esas tres rutas no existen.
+  if (!token && ruta.startsWith("/s/")) { saltadas++; continue; }
   const corta = ruta.length > 46 ? ruta.slice(0, 44) + "…" : ruta;
   let codigo, texto, segundos;
   try {

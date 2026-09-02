@@ -36,6 +36,7 @@ const MODULOS = [
   "letras",
   "transpositores",
   "figuras",
+  "reparto",
 ];
 
 function preparar() {

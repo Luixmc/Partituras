@@ -70,6 +70,55 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "2 de septiembre de 2026",
+    "iso": "2026-09-02",
+    "entrada": "Las secciones largas se acomodan solas a la pantalla, y las canciones cortas por fin la llenan.",
+    "secciones": [
+      {
+        "titulo": "Las secciones largas se acomodan solas",
+        "resumen": "Escribes la sección entera y la página la reparte; ya no hay que partirla en dos a mano.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Ya no hace falta partir una sección en dos para que quepa.",
+            "detalle": [
+              "Escribes la sección <strong>entera</strong> —tu <code>[C]</code> con sus ocho compases, sin repetir la etiqueta— y la página <strong>mira cuántos compases caben en una línea y la reparte sola</strong> entre los cuadros.",
+              "Lo que sigue cae en el cuadro siguiente, respetando cómo tengas puesta la lectura (por filas o por columnas), y el trozo que continúa se marca con <strong>«(sigue)»</strong> para que no te pierdas.",
+              "<strong>Se adapta al aparato y al tamaño de letra:</strong> en el computador a pantalla completa una sección de diez compases sale en dos cuadros de cinco; con la ventana a la mitad, en cuatro más pequeños; y en el teléfono, donde no cabría bien de ninguna manera, <strong>se deja entera</strong> como se ha visto siempre."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Si tú marcas el corte, manda el tuyo.",
+            "detalle": [
+              "Escribiendo un <code>;</code> dentro de la sección, ahí se corta y la página <strong>no la reorganiza</strong>. Sirve para cuando el corte es una decisión musical y no de espacio."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Y la repetición queda mejor escrita.",
+            "detalle": [
+              "Al partir sola, el <code>|:</code> abre en el primer cuadro y el <code>:|</code> cierra en el último: <strong>una sola repetición</strong>, no dos, que es lo que salía al partirlo a mano."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Las canciones cortas ya llenan la pantalla",
+        "resumen": "El ajuste automático de tamaño tenía un tope y se quedaba corto.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Una canción con poca estructura se quedaba pequeña.",
+            "detalle": [
+              "Quedaba <strong>media pantalla en blanco</strong> por más que quisieras agrandarla: el ajuste automático chocaba contra un tope. Ahora puede crecer <strong>el doble</strong> que antes."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "28 de agosto de 2026",
     "iso": "2026-08-28",
     "entrada": "Dos cosas que estorbaban al escribir: una al meter una canción nueva y otra al ponerle la letra.",

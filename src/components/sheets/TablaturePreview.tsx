@@ -15,6 +15,19 @@ type Props = {
   fontScale?: number;
   /** Compacta los márgenes (título de sección y contenido) para ganar espacio. */
   dense?: boolean;
+  /**
+   * Dibuja SOLO un tramo de la sección: `[desde, hasta)` en índices de segmento
+   * (O-52). Sirve para que una sección larga se reparta en varias casillas de
+   * la rejilla en vez de apretarse en una sola.
+   *
+   * 🔴 Se corta por SEGMENTO y no por compás a propósito: un recuadro de
+   * casilla 1ª/2ª vez (`{ Bb }1 { Gm7 }2`) son varios compases que forman UN
+   * solo bloque visual, y partirlo por el medio dejaría media casilla suelta.
+   *
+   * Los compases se siguen leyendo enteros para las ligaduras, así que un arco
+   * que cruce el corte sigue sabiendo lo que tiene al lado.
+   */
+  segmentos?: [number, number];
 };
 
 type NoteToken = {
@@ -50,7 +63,7 @@ type Measure = {
 // paréntesis (aunque tenga varias palabras) no se parta al separar por espacios.
 const SP = "";
 
-function parseMeasures(value: string): Measure[] {
+export function parseMeasures(value: string): Measure[] {
   if (typeof value !== "string") return [];
 
   // 1) Protegemos el texto entre paréntesis: sus espacios internos se sustituyen
@@ -699,7 +712,28 @@ function MeasureBlock({
 
 type Segment = { boxId?: number; label?: string; items: Measure[] };
 
-function groupSegments(measures: Measure[]): Segment[] {
+/**
+ * ¿Este segmento es un SALTO DE LÍNEA manual (";") y no un compás?
+ *
+ * Se exporta porque quien reparte una sección larga (O-52) necesita dos cosas
+ * de aquí: contar los bloques de verdad —un salto no ocupa sitio— y saber si
+ * Isaac ya marcó los cortes a mano. **Si los marcó, manda él y la página no
+ * reorganiza nada.**
+ */
+export function esSalto(seg: Segment): boolean {
+  return seg.boxId == null && Boolean(seg.items[0]?.isBreak);
+}
+
+/** Los bloques visuales de una sección: compases y recuadros, sin los saltos. */
+export function bloquesVisuales(notes: string): { total: number; conSaltoManual: boolean } {
+  const segs = groupSegments(parseMeasures(notes));
+  return {
+    total: segs.filter((s) => !esSalto(s)).length,
+    conSaltoManual: segs.some(esSalto),
+  };
+}
+
+export function groupSegments(measures: Measure[]): Segment[] {
   const segments: Segment[] = [];
   for (const m of measures) {
     const last = segments[segments.length - 1];
@@ -727,9 +761,11 @@ export default function TablaturePreview({
   label,
   fontScale = 1,
   dense = false,
+  segmentos,
 }: Props) {
   const measures = parseMeasures(notes);
-  const segments = groupSegments(measures);
+  const todos = groupSegments(measures);
+  const segments = segmentos ? todos.slice(segmentos[0], segmentos[1]) : todos;
 
   return (
     <div
@@ -762,6 +798,12 @@ export default function TablaturePreview({
             "flex flex-wrap items-stretch rounded-lg bg-white dark:bg-slate-900",
             dense ? "gap-y-1" : "gap-y-3"
           )}
+          // 📌 La marca es para poder MEDIR desde fuera cuántos compases caben
+          // en una fila (O-52). Cada hijo directo de esta caja es un compás —o
+          // un recuadro de casilla—, así que agrupándolos por su posición
+          // vertical se sabe dónde envuelve la fila. Se mide el dibujo de
+          // verdad, no se estima con un número escrito a mano.
+          data-rejilla-compases=""
           // Base de la fuente: todo el contenido escala con esto.
           style={{ fontSize: `${16 * fontScale}px` }}
         >
@@ -777,7 +819,18 @@ export default function TablaturePreview({
                 // Salto de línea manual (";"): item de ancho completo y alto 0
                 // que obliga a los compases siguientes a bajar a otra fila.
                 if (m.isBreak) {
-                  return <div key={si} aria-hidden style={{ flexBasis: "100%", flexShrink: 0, height: 0 }} />;
+                  // `data-salto` para poder distinguirlo al MEDIR: quien reparte
+                  // necesita contar compases, y esto no lo es. Antes se
+                  // distinguia por su alto 0, y eso fallaba en cuanto un
+                  // navegador devolvia 0 para todo (O-52, 2026-09-02).
+                  return (
+                    <div
+                      key={si}
+                      aria-hidden
+                      data-salto=""
+                      style={{ flexBasis: "100%", flexShrink: 0, height: 0 }}
+                    />
+                  );
                 }
                 // Una ligadura puede cruzar la barra de compás ("Ebmaj7 ~ | %"):
                 // hay que mirar el compás de al lado para saberlo.
