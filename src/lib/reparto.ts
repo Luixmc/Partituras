@@ -23,21 +23,11 @@
  */
 export const MINIMO_POR_BLOQUE = 4;
 
-/**
- * En cuantos trozos como MUCHO se parte una seccion.
- *
- * 🔴 POR QUE EXISTE, y lo enseno el telefono de Isaac (2026-09-01): **en un
- * movil en vertical solo cabe UN compas por fila**. Sin este tope, una seccion
- * de 10 se partia en **diez tarjetas**, cada una con su cabecera — mucho peor
- * que dejarla entera. Y no se veia probando anchos de ordenador: hubo que mirar
- * lo que mide un telefono de verdad.
- *
- * 📌 La idea de fondo: **repartir sirve para llevar la continuacion a la
- * casilla de al lado.** Si hicieran falta mas de cuatro trozos, la pantalla es
- * demasiado estrecha para que eso signifique nada, y la seccion se queda entera
- * envolviendo dentro de su caja — que es como se ha visto siempre.
- */
-export const MAXIMO_BLOQUES = 4;
+// 🔴 Aqui hubo un `MAXIMO_BLOQUES = 4` y **lo tumbo Isaac** el 2026-09-02:
+// *«no importa que el que pase sea solamente uno, eso no importa»*. Lo puse yo
+// mirando una captura de su telefono donde una seccion salia en diez tarjetas y
+// me parecio feo — pero eso no era una decision mia. Queda escrito para que
+// nadie lo vuelva a meter creyendo que es una mejora.
 
 /**
  * De cuántos compases es cada bloque, dado lo que cabe de verdad en una fila.
@@ -116,10 +106,15 @@ export function repartirBloques(
   // rompe a la otra; con una sola, no hay empate que resolver.
   const bloques = Math.ceil(total / cabe);
 
-  // 🔴 Y el tope: si haria falta trocear en mas de `MAXIMO_BLOQUES`, la pantalla
-  // es demasiado estrecha para que repartir gane nada. Se deja entera.
-  if (bloques > MAXIMO_BLOQUES) return [total];
-
+  // 🔴 SIN TOPE. Lo habia —cuatro trozos como mucho— y **Isaac lo tumbo** el
+  // 2026-09-02: *«AUN NO SE HA ARREGLADO LO DE QUE PASEN LOS COMPASES, NO
+  // IMPORTA QUE EL QUE PASE SEA SOLAMENTE UNO, ESO NO IMPORTA»*.
+  //
+  // 📌 El tope lo puse yo mirando una captura de su telefono donde una seccion
+  // salia en diez tarjetas y me parecio feo. **Pero eso no es una decision mia**:
+  // el pidio que lo que no cabe pase a la casilla siguiente, punto. Y ahora la
+  // rejilla usa el ancho entero de la pantalla, asi que el caso de las diez
+  // tarjetas casi no aparece.
 
   // Se reparte PAREJO, para que no quede un ultimo bloque suelto de uno o dos.
   // Con 10 compases en 4 bloques salen `3+3+2+2`, no `3+3+3+1`.
@@ -154,7 +149,7 @@ export function repartirConMinimo(
 
   // El minimo pone un TECHO a cuantos bloques caben.
   const bloques = Math.min(Math.floor(total / minimo), Math.ceil(total / cabe));
-  if (bloques <= 1 || bloques > MAXIMO_BLOQUES) return [total];
+  if (bloques <= 1) return [total];
 
   const base = Math.floor(total / bloques);
   const resto = total % bloques;

@@ -715,11 +715,16 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         )}
       >
         <div ref={contentRef}>
-          {song.composer && (
-            <p className={cn("text-center text-sm text-slate-400", isFullscreen ? "mb-1" : "mb-3")}>
-              {song.composer}
-            </p>
-          )}
+          {/* 🔴 El AUTOR no se dibuja en la presentacion, ni en pantalla
+              completa ni fuera de ella. Isaac, 2026-09-02, con mayusculas:
+              *«QUE NO SALGA EN EL MODO PANTALLA COMPLETA PARA NADA, NI CUANDO
+              NO SE PRESIONA F, NI CUANDO SE LE DA EL BOTON»*.
+              Mi primera version solo lo quitaba con `isFullscreen`, y esta
+              pantalla se usa para tocar tambien sin pantalla completa — que es
+              justo la captura que mando. **El modo presentacion es para leer
+              acordes; de quien es la cancion ya se sabe.** Sigue estando en la
+              vista normal y en la tarjeta. */}
+
           {mostrandoLetra ? (
             // ── LA LETRA (J.4) ──
             //
@@ -732,12 +737,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
               className={cn(
                 "mx-auto",
                 columns === 1
-                  ? cn("flex max-w-4xl flex-col", isFullscreen ? "gap-3" : "gap-5")
+                  ? cn("flex w-full flex-col", isFullscreen ? "gap-3" : "gap-5")
                   : recorrido === "columnas"
-                    ? cn(columns === 2 ? "max-w-6xl" : "max-w-7xl")
+                    ? "w-full"
                     : cn(
                         "grid items-start gap-x-8",
-                        columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
+                        columns === 2 ? "grid-cols-2" : "grid-cols-3",
                         isFullscreen ? "gap-y-3" : "gap-y-5"
                       )
               )}
@@ -802,16 +807,26 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             // equilibra sola. `break-inside: avoid` impide lo único malo que
             // podría hacer: partir una sección entre dos columnas.
             <ChordPopoverProvider bemoles={flats}>
+            {/* 🔴 SIN TOPE DE ANCHO. Lo cazo Isaac el 2026-09-02: *«¿por que las
+                estructuras no aprovechan del ancho de la pantalla? mira que
+                tambien mucho espacio y no se aprovecha para nada»*.
+                Y tenia razon: la rejilla llevaba `max-w-6xl` / `max-w-7xl`
+                —1152 y 1280 px—, asi que en un monitor ancho **se dejaba a los
+                lados todo lo que sobrara de ahi**. Un tope de ancho tiene
+                sentido en un texto que se lee de corrido —lineas muy largas
+                cansan— pero **esto es una cuadricula de acordes que se lee de un
+                vistazo**: cuanto mas ancha, mas compases por fila y menos
+                envolver. */}
             <div
               className={cn(
                 "mx-auto",
                 columns === 1
-                  ? cn("flex max-w-5xl flex-col", isFullscreen ? "gap-1.5" : "gap-4")
+                  ? cn("flex w-full flex-col", isFullscreen ? "gap-1.5" : "gap-4")
                   : recorrido === "columnas"
-                    ? cn(columns === 2 ? "max-w-6xl" : "max-w-7xl")
+                    ? "w-full"
                     : cn(
                         "grid items-start gap-x-6",
-                        columns === 2 ? "max-w-6xl grid-cols-2" : "max-w-7xl grid-cols-3",
+                        columns === 2 ? "grid-cols-2" : "grid-cols-3",
                         isFullscreen ? "gap-y-1.5" : "gap-y-4"
                       )
               )}

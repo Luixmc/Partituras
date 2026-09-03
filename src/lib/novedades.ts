@@ -104,6 +104,42 @@ export const TANDAS: Tanda[] = [
         ]
       },
       {
+        "titulo": "Los acordes aprovechan toda la pantalla",
+        "resumen": "La cuadrícula llega de borde a borde, y ni los silencios ni las casillas de 1ª y 2ª vez se estiran de más.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "La cuadrícula ya usa el ancho completo del monitor.",
+            "detalle": [
+              "Antes se paraba a mitad de camino y <strong>dejaba los lados en blanco</strong>, por mucho que agrandaras la ventana. Ahora llega de borde a borde: <strong>más compases por fila</strong> y menos hace falta que la sección se parta.",
+              "Y el <strong>nombre del autor no sale al presentar</strong> —ni en pantalla completa ni fuera de ella—: ese renglón se lo lleva la música."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Los silencios se comían el compás.",
+            "detalle": [
+              "Un silencio de compás entero se llevaba hasta el <strong>80% del ancho</strong> de una sección para dibujar un solo símbolo. Ahora cada compás ocupa según <strong>cuánto hay que dibujar</strong>, así que el silencio ocupa lo que un acorde."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Las casillas de 1ª y 2ª vez hinchaban la sección.",
+            "detalle": [
+              "A lo ancho y a lo alto. El número de casilla era además <strong>más grande que los propios acordes</strong> y estiraba de alto toda la fila — por eso los compases de al lado salían con hueco arriba y abajo.",
+              "Y un compás con silencio salía más alto que los demás: <strong>175 píxeles contra 155</strong>. Ahora todos miden exactamente lo mismo."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Lo que no cabe pasa siempre a la casilla siguiente.",
+            "detalle": [
+              "Aunque sea <strong>un solo compás</strong>. Antes había un tope que dejaba algunas secciones sin repartir."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Las canciones cortas ya llenan la pantalla",
         "resumen": "El ajuste automático de tamaño tenía un tope y se quedaba corto.",
         "cambios": [

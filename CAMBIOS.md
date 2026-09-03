@@ -24,6 +24,24 @@
   cuadro y el `:|` cierra en el último — **una sola repetición**, no dos, que es lo que salía al
   partirlo a mano.
 
+### 📐 Los acordes aprovechan toda la pantalla, y nada se estira de más
+
+- **La cuadrícula ya usa el ancho completo del monitor.** Antes se paraba a mitad de camino y
+  dejaba los lados en blanco, por mucho que agrandaras la ventana. Ahora llega de borde a borde:
+  **más compases por fila** y menos hace falta que la sección se parta.
+- **El nombre del autor no sale al presentar.** Ni en pantalla completa ni fuera de ella. En el
+  culto se lee tocando, y ese renglón se lo lleva ahora la música.
+- **Arreglado: los silencios se comían el compás.** Un silencio de compás entero se llevaba hasta
+  el **80% del ancho** de una sección para dibujar un solo símbolo. Ahora cada compás ocupa según
+  **cuánto hay que dibujar**, así que el silencio ocupa lo que un acorde.
+- **Arreglado: las casillas de 1ª y 2ª vez (`{ }1 { }2`) hinchaban la sección**, a lo ancho y a lo
+  alto. El número de casilla, además, era más grande que los propios acordes y **estiraba de alto
+  toda la fila** — por eso los compases de al lado salían con hueco arriba y abajo. Ya no.
+- **Arreglado: un compás con silencio salía más alto que los demás.** Medido: 175 píxeles contra
+  155. Ahora **todos miden exactamente lo mismo**.
+- **Y lo que no cabe pasa siempre a la casilla siguiente**, aunque sea un solo compás. Antes había
+  un tope que dejaba secciones sin repartir.
+
 ### 🔎 Las canciones cortas ya llenan la pantalla
 
 - **Arreglado: una canción con poca estructura se quedaba pequeña**, con media pantalla en blanco,

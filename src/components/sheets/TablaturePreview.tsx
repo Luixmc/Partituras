@@ -300,13 +300,47 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
       </span>
     );
   } else if (token.rest) {
-    // Silencio: figura gráfica grande (la propia figura indica la duración).
+    // Silencio: la propia figura indica la duración.
+    //
+    // 🔴 EL ALTO DEL SILENCIO SE ATA AL DE UN ACORDE. No se escribe a mano.
+    //
+    // Isaac, 2026-09-02: *«el silencio no se comporta de la misma manera que lo
+    // hacen los {}1{}2»*, y luego *«falta poco»*. **Medido, faltaban 16 px**: un
+    // cuadro con silencio media 171 px contra los 155 px de uno normal.
+    //
+    // La causa no se veia leyendo esta linea: `RestFigure` dibuja su SVG con
+    // alto `--figura-alto` (1,6), asi que poniendo el span a `1.5em` el silencio
+    // acababa midiendo **1,5 x 1,6 = 2,4em**, cuando un acorde mide `1.5em`.
+    // Dos numeros escritos en archivos distintos que tenian que cuadrar.
+    //
+    // 🔴 El arreglo NO es encogerlo. Se probo —dividir el tamaño por
+    // `--figura-alto`— y quedaba **ridiculo**: el silencio de blanca es una
+    // barrita dentro de un lienzo alto, asi que al encoger el lienzo la barra
+    // casi desaparece. Se veia en la captura.
+    //
+    // → **La caja mide lo de un acorde (`1.5em`) y el dibujo se sale por
+    // encima.** El silencio conserva su tamaño de siempre pero **no empuja
+    // nada**: se desborda hacia el hueco que la celda ya reserva arriba para la
+    // figura — hueco que en un silencio esta VACIO, porque la figura ES el
+    // silencio. Espacio que estaba desaprovechado y ahora se usa.
+    //
+    // Es el mismo patron que la figura del acorde y que el numero de casilla:
+    // **lo que no es contenido no ocupa sitio en el flujo.**
     content = (
+      // La caja mide lo de un acorde y **no crece**; el dibujo va ABSOLUTO,
+      // centrado sobre ella. Con `height` a secas no bastaba —medido: subiendo
+      // el silencio de 2,1 a 3em la celda pasaba de 160 a 181 px—, porque el
+      // SVG seguia contando para el alto. Absoluto no cuenta, y punto.
       <span
-        className="flex items-center justify-center leading-none text-slate-500 dark:text-slate-200"
-        style={{ fontSize: "2.1em" }}
+        className="relative block leading-none text-slate-500 dark:text-slate-200"
+        style={{ height: "1.5em", width: "1.5em" }}
       >
-        <RestFigure beats={token.duration ?? 4} />
+        <span
+          className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+          style={{ fontSize: `calc(3em / ${FIGURA_ALTO})` }}
+        >
+          <RestFigure beats={token.duration ?? 4} />
+        </span>
       </span>
     );
   } else if (token.repeat) {
@@ -622,7 +656,30 @@ function MeasureBlock({
   noBar?: boolean;
   dense?: boolean;
 }) {
-  const totalBeats = measure.notes.reduce((sum, n) => sum + (n.duration ?? 1), 0) || 1;
+  // 🔴 O-54 · CUANTO CRECE ESTE COMPAS. **No es `totalBeats`, y aqui esta el
+  // porque**, que Isaac tuvo que decir tres veces:
+  //
+  //   *«el silencio de blanca coge mucho espacio… de la estructura b, el 75 % lo
+  //    ocupa el compas del silencio»*  ·  *«AUN EL SILENCIO SE COME EL ESPACIO,
+  //    LO MISMO AHORA OCURRE CON LAS SECCIONES QUE SE MARCAN EN AMARILLO Y CON
+  //    LAS REPETICIONES DEL {}1{}2»*
+  //
+  // La causa: el ancho iba por TIEMPOS, y `totalBeats` mezcla dos cosas — cuando
+  // el compas trae duraciones escritas son tiempos de verdad, y cuando no, es
+  // **el numero de acordes**. `A7` solo dura el compas entero pero cuenta 1,
+  // mientras `z:4` cuenta 4. Comparar los dos es lo que hacia que un silencio
+  // —UN simbolo— se llevara cuatro veces el ancho de un acorde.
+  //
+  // → **El ancho lo decide CUANTO HAY QUE DIBUJAR.** Un compas con un simbolo
+  // ocupa lo de un simbolo, tenga los tiempos que tenga. Lo mismo vale para los
+  // recuadros `{}1 {}2` y para las secciones de texto amarillo, que tambien se
+  // hinchaban por lo mismo.
+  //
+  // ⚠️ Lo que se pierde, dicho claro: **el ancho deja de contar el tiempo**. Ese
+  // era el diseño del primo —«la duracion controla el ancho relativo»— pero se
+  // rompia justo donde mas se nota. El tiempo se sigue leyendo donde toca: en la
+  // FIGURA que va encima de cada acorde.
+  const crecimiento = Math.max(1, measure.notes.length);
   // El compás (timeSig) se muestra a la IZQUIERDA; los acordes se centran aparte.
   const timeSigs = measure.notes.filter((n) => n.timeSig);
   const chords = measure.notes.filter((n) => !n.timeSig);
@@ -638,7 +695,7 @@ function MeasureBlock({
         !noBar && "border-r border-slate-300 dark:border-slate-600"
       )}
       style={{
-        flexGrow: totalBeats,
+        flexGrow: crecimiento,
         // De base, el ancho según nº de acordes; crece para llenar la fila. En
         // modo compacto los compases son más estrechos (acordes más juntos).
         flexBasis: `${Math.max(measure.notes.length, 1) * (dense ? 1.7 : 3)}em`,
@@ -847,21 +904,37 @@ export default function TablaturePreview({
               }
 
               // Recuadro (casilla / final 1 ó 2): número arriba + caja con borde.
-              const segBeats =
-                seg.items.reduce(
-                  (s, m) => s + (m.notes.reduce((a, n) => a + (n.duration ?? 1), 0) || 1),
-                  0
-                ) || 1;
+              // 🔴 O-54 · El recuadro se mide como los compases sueltos: por
+              // CUANTOS SIMBOLOS lleva, no por sus tiempos.
+              //
+              // Se me habia quedado sin arreglar, y lo vio Isaac el 2026-09-02:
+              // *«aun sale el problema de los espacios con los {}1{}2 y demas»*.
+              // Su captura de «Aceleracion» lo enseña: `{ C | Gm }1` y
+              // `{ Z:4 | Dm }2` — el segundo recuadro lleva un silencio de
+              // compas entero, asi que con los tiempos contaba **cinco** contra
+              // los dos del primero y se llevaba media fila para dibujar lo
+              // mismo. **El mismo fallo que el silencio suelto, en otro sitio.**
               const segNotes = seg.items.reduce((s, m) => s + Math.max(m.notes.length, 1), 0);
               return (
                 <div
                   key={si}
-                  className="flex flex-col"
-                  style={{ flexGrow: segBeats, flexBasis: `${segNotes * 2.4}em` }}
+                  className="relative flex"
+                  style={{ flexGrow: segNotes, flexBasis: `${segNotes * 2.4}em` }}
                 >
+                  {/* 🔴 El numero de casilla NO OCUPA SITIO: va absoluto, en la
+                      esquina de la caja.
+                      Isaac, 2026-09-02: *«fijate, de largo, para cuando en el
+                      compas tiene {}1{}2 sobresale abajo»*. Y su captura lo
+                      explica: el numero iba ENCIMA de la caja, dentro del flujo,
+                      asi que el recuadro medía «etiqueta + caja» y **estiraba de
+                      alto la fila entera** — por eso los compases de al lado
+                      (`Dm`, `Bb`) salian centrados con hueco arriba y abajo.
+                      Sacandolo del flujo, el recuadro mide **exactamente lo
+                      mismo que un compas normal** y la fila deja de crecer.
+                      Se queda pequeño (`0.6em`): es una etiqueta, no contenido. */}
                   <span
-                    className="mb-0.5 pl-1 font-bold leading-none text-slate-700 dark:text-slate-100"
-                    style={{ fontSize: "1.2em" }}
+                    className="pointer-events-none absolute left-1 top-0 z-10 font-bold leading-none text-slate-700 dark:text-slate-100"
+                    style={{ fontSize: "0.6em" }}
                   >
                     {seg.label || ""}
                   </span>

@@ -62,6 +62,7 @@ export default function SeccionRepartida({
 
   // Cuántos caben en una fila. `null` = todavía sin medir.
   const [caben, setCaben] = useState<number | null>(null);
+  const [alto, setAlto] = useState<number | null>(null);
   const sondaRef = useRef<HTMLDivElement>(null);
   const celdaRef = useRef<HTMLDivElement>(null);
 
@@ -99,6 +100,14 @@ export default function SeccionRepartida({
     const enLaPrimeraFila = items.filter((h) => Math.abs(h.offsetTop - arriba) <= 1).length;
 
     setCaben((antes) => (antes === enLaPrimeraFila ? antes : enLaPrimeraFila));
+
+    // Solo para la pagina desechable: el ALTO real del cuadro, para poder
+    // comparar de un vistazo que secciones se salen y cuales no.
+    const celda = celdaRef.current;
+    if (celda) {
+      const h = Math.round(celda.getBoundingClientRect().height);
+      setAlto((a) => (a === h ? a : h));
+    }
   };
 
   const medir = useCallback(() => {
@@ -191,7 +200,7 @@ export default function SeccionRepartida({
             {mostrarMedida && i === 0 && (
               <div className="mt-0.5 text-[10px] font-mono text-brand-600 dark:text-brand-400">
                 {repartible
-                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · caben ${caben ?? "SIN MEDIR"}`
+                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · caben ${caben ?? "SIN MEDIR"} · alto ${alto ?? "?"}px`
                   : `${total} · no se reparte${conSaltoManual ? " (tiene « ; »)" : ""}`}
               </div>
             )}

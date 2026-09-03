@@ -2784,6 +2784,19 @@ usuario, la instrumentacion va EN LA PANTALLA, no en el arnes.**
 ⚠️ Y el «1 Issue» rojo de sus capturas **NO era esto**: es un desajuste de hidratacion en las
 clases de las FUENTES, del layout raiz, y viene de antes. Se comprobo antes de perseguirlo.
 
+#### 🔴 Y el TOPE de cuatro trozos: lo tumbo el (2026-09-02)
+
+> *«AUN NO SE HA ARREGLADO LO DE QUE PASEN LOS COMPASES, NO IMPORTA QUE EL QUE PASE SEA SOLAMENTE
+> UNO, ESO NO IMPORTA»*
+
+📌 **El tope lo puse yo mirando una captura de su telefono** donde una seccion salia en diez
+tarjetas y me parecio feo. **Pero eso no era una decision mia**: el pidio que lo que no cabe pase a
+la casilla siguiente, punto. → **Fuera.** Y con O-56 (la rejilla a pantalla completa) el caso de
+las diez tarjetas casi ni aparece, porque caben muchos mas compases por fila.
+
+📌 **La leccion, y ya van dos en dos dias:** *«se ve feo» no es motivo para poner un limite que el
+usuario no pidio.* Si el resultado no gusta, se le enseña y decide el.
+
 ⬜ **PENDIENTE: que elija regla 1 o regla 2.** Cuando elija, **la que pierda se borra**
 (`repartirConMinimo`, el tipo `Regla` y la prop del componente).
 
@@ -2826,8 +2839,28 @@ netsh advfirewall firewall add rule name="Partituras dev 3000" ^
 ⬜ **PENDIENTE su permiso para publicar.** Y al publicar, **el comunicado** (`CAMBIOS.md` y
 `/novedades`): se nota mucho usando la pagina, asi que sin eso no esta terminado.
 
-**O-54 · Los COMPASES no reparten bien el ancho: el silencio de blanca se come la seccion.**
-⬜ **ANOTADO, SIN TOCAR** — el lo pidio asi: *«esto tenlo en pendiente»*.
+**O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
+Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos
+meses, ¿por que las estructuras no aprovechan del ancho de la pantalla? porque mira que tambien
+mucho espacio y no se aprovecha para nada»*.
+*Causa, y llevaba ahi desde siempre:* la rejilla de la presentacion iba con **`max-w-6xl` /
+`max-w-7xl`** —1152 y 1280 px—, asi que en un monitor ancho **todo lo que sobrara de ahi se
+quedaba en blanco a los lados**.
+📌 Un tope de ancho tiene sentido en un texto que se lee de corrido —lineas muy largas cansan—,
+pero **esto es una cuadricula de acordes que se lee de un vistazo**: cuanto mas ancha, mas compases
+por fila y menos hace falta envolver. → **Fuera los topes.** Y de rebote arregla medio O-52: con
+mas ancho, muchas secciones ya caben enteras.
+
+**O-55 · El nombre del AUTOR no sale en la presentacion.** ✅ **HECHO (2026-09-02).**
+Isaac: *«quiero que quites el nombre del autor cuando sale en modo pantalla completa»*, y al ver que
+lo habia atado solo a `isFullscreen`, con mayusculas: *«QUE NO SALGA EN EL MODO PANTALLA COMPLETA
+PARA NADA, NI CUANDO NO SE PRESIONA F, NI CUANDO SE LE DA EL BOTON»*.
+🔴 **Mi primera version estaba mal y la captura lo enseñaba:** la pantalla de presentacion se usa
+tambien SIN pantalla completa del navegador, y ahi seguia saliendo. → **Fuera del modo presentacion
+entero.** Sigue en la vista normal y en la tarjeta, que es donde informa.
+
+**O-54 · Los COMPASES no reparten bien el ancho: el silencio se come la seccion.**
+🟡 **MEDIO HECHO (2026-09-02).** La parte del ANCHO, arreglada y medida. La del ALTO, pendiente.
 
 Isaac, 2026-09-02, con «Su Presencia» a pantalla completa:
 
@@ -2844,7 +2877,160 @@ Isaac, 2026-09-02, con «Su Presencia» a pantalla completa:
 | **① El ancho** | Un compas crece segun sus TIEMPOS (`flexGrow: totalBeats`) y su base es el nº de acordes (`flexBasis`). Un silencio de blanca son **2 tiempos con UN solo simbolo**, asi que **se lleva el doble de ancho que un acorde y lo deja vacio**. Lo mismo los recuadros `{}1 {}2`, que ademas suman su etiqueta | `MeasureBlock`, `flexGrow`/`flexBasis` |
 | **② El alto** | El silencio *«sobresale para abajo»* y hay canciones con mucho hueco arriba y abajo sin aprovechar | `RestFigure` (el dibujo) y el hueco de la celda (O-53) |
 
-📌 **Y ojo con el ① antes de tocarlo:** que el ancho siga a los tiempos **es correcto en general** —es lo que hace que la cuadricula se lea como un compas—. Lo que falla es el caso de **pocos simbolos y muchos tiempos**. Cambiarlo a lo bruto estropearia los compases normales, asi que **hay que medirlo sobre las 71 canciones antes y despues**, como en la fase D.
+#### ✅ El ① (el ancho), arreglado — y hubo que ir DOS veces mas lejos de lo que yo queria
+
+🔴 **Version final: el ancho de un compas lo decide CUANTO HAY QUE DIBUJAR** —
+`flexGrow = max(1, simbolos)`— y no los tiempos.
+
+**Hicieron falta tres avisos suyos para llegar aqui, y conviene ver la secuencia** porque el error
+de fondo fue mio en las dos primeras: intente **conservar** el diseño del primo (el ancho por
+tiempos) poniendole parches, en vez de aceptar que se rompia justo donde mas se nota.
+
+| Intento | Que hice | Que dijo el |
+|---|---|---|
+| 1 | `min(tiempos, simbolos x 1,5)` | *(lo tumbo la medicion: cambiaba 293 compases normales)* |
+| 2 | `min(tiempos, simbolos x 2)` | *«AUN EL SILENCIO SE COME EL ESPACIO, LO MISMO AHORA OCURRE CON LAS SECCIONES QUE SE MARCAN EN AMARILLO Y CON LAS REPETICIONES DEL {}1{}2»* |
+| **3** | **`max(1, simbolos)`** | ✅ El silencio ocupa lo de un acorde |
+
+⚠️ **Lo que se pierde, dicho claro: el ancho deja de contar el tiempo.** Era el diseño del primo
+—«la duracion controla el ancho relativo»—, y **se sacrifica a proposito**: el tiempo se sigue
+leyendo donde de verdad se lee, en la **FIGURA** que va encima de cada acorde.
+
+#### 🔴 Y hubo un CUARTO aviso: se me quedo el recuadro sin arreglar
+
+Isaac, el mismo dia: *«mira que aun sale el problema de los espacios con los {}1{}2 y demas»*.
+
+**Tenia razon y era un descuido mio:** cambie `MeasureBlock` —el compas suelto— y **deje el
+envoltorio del recuadro con `flexGrow: segBeats`**. Su captura de «Aceleracion» lo enseña:
+`{ C | Gm }1` y `{ Z:4 | Dm }2` — el segundo lleva un silencio de compas entero, asi que contaba
+**cinco tiempos contra dos** y se llevaba media fila para dibujar lo mismo. **El mismo fallo, en
+otro sitio.** → El recuadro pasa a medirse por **simbolos**, igual que el compas suelto.
+
+📌 **La leccion:** cuando se cambia una regla de medida, hay que buscar **todos** los sitios que la
+usaban. Aqui eran dos y solo mire uno — y el segundo lo encontro el usuario.
+
+#### 🔴 Y un QUINTO aviso, este sobre el ALTO: *«cuando el compas tiene {}1{}2 sobresale abajo»*
+
+Bajar el numero de casilla a `0.7em` **no basto**, y el se dio cuenta enseguida. La causa no era el
+tamaño: era **donde estaba**.
+
+*Causa:* el numero iba **ENCIMA de la caja, dentro del flujo**, asi que el recuadro medía
+«etiqueta + caja» mientras un compas normal mide solo «caja». Como los compases de una fila se
+alinean al mas alto (`items-stretch`), **el recuadro estiraba de alto la fila entera** — y por eso
+en su captura `Dm` y `Bb`, que no tienen nada que ver, salian centrados con hueco arriba y abajo, y
+la seccion B era el doble de alta que la A y la C.
+
+*Arreglo:* el numero pasa a **posicion absoluta, en la esquina de la caja**, fuera del flujo. Con
+eso **el recuadro mide exactamente lo mismo que un compas normal** y la fila deja de crecer.
+Comprobado con la seccion de su captura: la B con sus `{}1{}2` queda **a la misma altura** que la
+Intro y la C.
+
+📌 **La leccion, y es la tercera vez en dos dias:** *un elemento decorativo que ocupa sitio en el
+flujo deforma todo lo que tiene al lado.* Ya paso con la figura encima del acorde (O-53) y con la
+sonda del reparto. **Lo que rotula va fuera del flujo; lo que es contenido, dentro.**
+
+#### ✅ Y el SEXTO, que cerro el ②: el silencio medía mas que un acorde
+
+Isaac, en cuanto los recuadros quedaron bien: *«ahora si funciona; lo que es que el silencio no se
+comporta de la misma manera que lo hacen los {}1{}2»*.
+
+*Causa, un numero:* el silencio se dibujaba a **`2.1em`** mientras un acorde va a **`1.5em`**. Su
+celda salia mas alta que las de al lado, asi que **estiraba el compas y con el la fila entera** — y
+encima la celda le reserva arriba el hueco de una figura que el silencio **no dibuja** (la figura
+ES el silencio), asi que ese hueco era espacio muerto.
+→ **Igualado a `1.5em`.** Comprobado con sus dos casos —un silencio dentro de un `{}2` y uno
+suelto—: las tres secciones quedan **a la misma altura**.
+
+📌 **Es el mismo fallo que el numero de casilla, en otra pieza**, y por eso salieron seguidos:
+*algo que mide mas que sus vecinos estira todo lo que tiene al lado*. En una rejilla que se alinea
+al mas alto, **el tamaño de una pieza no es asunto suyo: es de toda la fila.**
+
+#### 📋 O-54, cerrada — las SEIS pasadas que costo
+
+| # | Lo que arregle | Lo que dijo el |
+|---|---|---|
+| 1 | `min(tiempos, simbolos x 1,5)` | *(lo tumbo la medicion: 293 compases normales)* |
+| 2 | `min(tiempos, simbolos x 2)` | *«AUN EL SILENCIO SE COME EL ESPACIO»* |
+| 3 | **el ancho por SIMBOLOS** | ✅ el silencio suelto, resuelto |
+| 4 | el recuadro `{}1{}2`, tambien por simbolos | *«aun sale el problema de los espacios»* — se me habia quedado |
+| 5 | el numero de casilla, **fuera del flujo** | *«sobresale abajo»* — no era el tamaño, era el sitio |
+| 6 | el silencio a `1.5em`, como un acorde | *«ahora si funciona; lo que es que el silencio no se comporta igual»* |
+| **7** | **el silencio ABSOLUTO, fuera del flujo** | ✅ *«falta poco»* → medido: los 5 casos a **155 px clavados** |
+
+#### 🔬 El septimo: y aqui hizo falta MEDIR EN PIXELES, no mirar
+
+Isaac: *«aun no, falta por poco para que quede bien»*. A ojo ya casi estaba, asi que se puso el
+**alto real de cada cuadro a la vista** en la pagina de prueba y se comparo con cinco casos
+—normal, con silencio suelto, con recuadro, con recuadro Y silencio, y con figuras escritas—:
+
+| Caso | Antes | Ahora |
+|---|---|---|
+| Normal | 155 px | **155** |
+| Con silencio suelto | **171** | **155** |
+| Con recuadro `{}1{}2` | 155 | **155** |
+| Recuadro **con** silencio dentro | **175** | **155** |
+| Con figuras escritas | 155 | **155** |
+
+**Y los intentos que NO funcionaron, que es lo que hace falta saber:**
+1. Bajar el silencio a `1.5em` → **quedaba ridiculo**: es una barrita dentro de un lienzo alto, asi
+   que al encoger el lienzo el dibujo casi desaparece.
+2. Caja con `height: 1.5em` y el dibujo desbordando → **seguia creciendo**. Medido subiendo el
+   silencio de 2,1 a 3em: la celda pasaba de **160 a 181 px**. Un `height` no impide que un hijo
+   normal cuente para el alto, ni con `min-height: 0`.
+3. ✅ **El dibujo ABSOLUTO, centrado sobre una caja del tamaño de un acorde.** Lo absoluto no cuenta
+   para el alto, y punto. **Es el mismo patron que la figura del acorde y que el numero de casilla.**
+
+📌 **Y la leccion del metodo:** *«falta poco» no se arregla mirando —se arregla midiendo.* Poner el
+alto en pixeles a la vista convirtio tres iteraciones a ojo en una comprobacion de una linea.
+
+🔴 **Lo que enseña la lista:** las siete son **la misma causa** —una pieza que mide distinto que sus
+vecinas— en seis sitios. Yo la arregle de una en una porque **miraba la captura que el mandaba en
+vez de buscar todos los sitios que compartian la regla**. La proxima vez que aparezca algo asi:
+**buscar la regla, no el sintoma.**
+
+**Comprobado en «Fiesta»:** su seccion B —`… | A7 | z:4`— **cabe entera en una fila**, cuando antes
+el silencio se llevaba el 80 % y forzaba el reparto en dos.
+
+#### La medicion del intento 2, que sigue valiendo como aviso
+
+**La cancion es «Fiesta»** (el «Su Presencia» de su captura es el COMPOSITOR, no el titulo), y su
+seccion B acaba asi:
+
+```
+|: 4/4 Bm ~ D ~ F#m7 | Em7 ~ A7 :| A7 | z:4 (Haz fiesta en mi-)
+```
+
+→ **`A7` cuenta 1 tiempo y `z:4` cuenta 4**, asi que el silencio se llevaba **el 80 % de la fila**
+para dibujar UN simbolo. Su «75 %» estaba bien contado.
+
+📌 **La causa de fondo:** `totalBeats` mezcla dos cosas — cuando el compas trae duraciones escritas
+son tiempos de verdad, y cuando no, **es el numero de acordes**. `A7` solo dura el compas entero
+pero cuenta 1. Compararlos como si fueran lo mismo es lo que descuadra el reparto.
+
+**Arreglo:** un TECHO al crecimiento segun cuantos simbolos hay que dibujar —
+`flexGrow = min(totalBeats, simbolos x 2)`.
+
+🔴 **Y el factor salio de MEDIRLO, no de elegirlo a ojo.** Sobre los **2.140 compases** de las 71
+canciones:
+
+| Factor | Compases que cambian de ancho | |
+|---|---|---|
+| **1,5** | **293 (13,7 %)** | ❌ Muerde compases **normales** de dos acordes (`F#:2 F#7:2`) |
+| **2** | **23 (1,1 %)** | ✅ Solo los raros: `z:4`, `Z:4`, `Dmaj7:4`, `G:3` — **un simbolo con muchos tiempos** |
+| 2,5 | 22 (1,0 %) | Practicamente igual que 2, sin ganar nada |
+
+→ **Se quedo en 2.** El primer intento fue 1,5 y **la medicion lo tumbo**: se veia bien en «Fiesta»
+y habria cambiado 293 compases de canciones que no tenian ningun problema.
+
+**Comprobado:** 171 pruebas · lint 0 · build 0 · 26 de 26 pantallas · el culto compartido sigue con
+sus **37 acordes** y los mismos repartos.
+
+✅ **RESUELTO por el intento 3:** `A7 | z:4` queda **mitad y mitad**, que es lo correcto.
+
+#### ⬜ El ② (el alto), sin tocar
+
+Que el silencio *«sobresalga para abajo»* y que sobre hueco arriba y abajo. Va en `RestFigure` y en
+el hueco de la celda (O-53). **No se ha mirado todavia.**
 
 **O-53 · Al agrandar las figuras, se MONTAN ENCIMA de los acordes.** ⬜ **ANOTADO, SIN TOCAR.**
 Isaac, 2026-08-29, con una captura de «Dios no rechaza oracion» ya publicada:

@@ -15,7 +15,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE, MAXIMO_BLOQUES } = await cargar("reparto");
+const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE } = await cargar("reparto");
 
 test("una seccion CORTA que no cabe tambien se reparte", () => {
   // «Su Presencia», Intro Sinte: DOS compases que envolvian dentro de la caja.
@@ -60,8 +60,6 @@ test("«Cada Vez» a MEDIA pantalla: lo que el vio mal", () => {
   // Con sitio para 3 en una fila, antes salia 5+5 (envolviendo). Ahora:
   assert.deepEqual(repartirBloques(10, 3), [3, 3, 2, 2]);
   assert.deepEqual(repartirBloques(12, 3), [3, 3, 3, 3]);
-  // Pero si hicieran falta mas de 4 trozos, se deja entera (tope).
-  assert.deepEqual(repartirBloques(12, 2), [12]);
 });
 
 test("se hacen los MENOS bloques posibles, o sea los mas grandes", () => {
@@ -91,28 +89,19 @@ test("se reparte PAREJO: no queda un ultimo bloque suelto", () => {
   }
 });
 
-test("🔴 EN EL TELEFONO no se trocea en diez: se deja entera", () => {
-  // Lo enseno el telefono de Isaac el 2026-09-01: en vertical solo cabe UN
-  // compas por fila, y sin tope la seccion salia en diez tarjetas con diez
-  // cabeceras. Peor que dejarla entera.
-  assert.deepEqual(repartirBloques(10, 1), [10]);
-  assert.deepEqual(repartirBloques(12, 1), [12]);
-  assert.deepEqual(repartirBloques(12, 2), [12]); // harian falta 6
+test("🔴 SIN TOPE de trozos: lo que no cabe PASA, aunque sea uno solo", () => {
+  // Isaac lo tumbo el 2026-09-02: *«no importa que el que pase sea solamente
+  // uno, eso no importa»*. Habia un tope de cuatro trozos que puse yo mirando
+  // una captura, y no era una decision mia.
+  assert.deepEqual(repartirBloques(10, 1), [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(repartirBloques(12, 2), [2, 2, 2, 2, 2, 2]);
+  assert.deepEqual(repartirBloques(5, 4), [3, 2]);
 
-  // Lo que SI protege el tope: una seccion larga en un movil no se hace polvo.
-  for (let total = 5; total <= 40; total++) {
-    assert.deepEqual(repartirBloques(total, 1), [total], `${total} con sitio para 1`);
-  }
-});
-
-test("nunca se pasa del tope de trozos", () => {
-  assert.equal(MAXIMO_BLOQUES, 4);
-  for (let total = 1; total <= 80; total++) {
-    for (let cabe = 0; cabe <= 20; cabe++) {
-      assert.ok(
-        repartirBloques(total, cabe).length <= MAXIMO_BLOQUES,
-        `${total} compases con sitio para ${cabe}`
-      );
+  // Y sigue sin envolver ninguno, que es la regla que manda.
+  for (let total = 2; total <= 60; total++) {
+    for (let cabe = 1; cabe <= 15; cabe++) {
+      const r = repartirBloques(total, cabe);
+      if (r.length > 1) assert.ok(r.every((t) => t <= cabe), `${total}/${cabe} → ${r.join("+")}`);
     }
   }
 });
