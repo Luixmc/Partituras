@@ -55,7 +55,7 @@ export default function SeccionRepartida({
   estiloCelda,
   mostrarMedida = false,
 }: Props) {
-  const { total, conSaltoManual } = bloquesVisuales(notes);
+  const { total } = bloquesVisuales(notes);
 
   // Cuántos caben en una fila. `null` = todavía sin medir.
   const [caben, setCaben] = useState<number | null>(null);
@@ -63,12 +63,14 @@ export default function SeccionRepartida({
   const sondaRef = useRef<HTMLDivElement>(null);
   const celdaRef = useRef<HTMLDivElement>(null);
 
-  // 🔴 Se reparte SOLO si hay algo que repartir y si Isaac no marcó ya los
-  // cortes con ";". Si los marcó, manda él: lo automático es la comodidad, no
-  // la ley. Y de paso, las canciones que ya usan ";" no cambian de aspecto.
-  // Con un solo bloque no hay nada que repartir; con dos ya si —lo pidio Isaac
-  // con el «Intro Sinte» de «Su Presencia», que son dos compases—.
-  const repartible = !conSaltoManual && total >= 2;
+  // Se reparte si hay algo que repartir. Con un solo bloque no lo hay; con dos
+  // ya sí — lo pidió Isaac con el «Intro Sinte» de «Su Presencia».
+  //
+  // 📌 Aquí había además una excepción: si él marcaba los cortes a mano con ";"
+  // la página no reorganizaba nada. **Murió con el salto de línea (O-62)**, y la
+  // razón es suya: el reparto mide lo que cabe en CADA aparato, y eso no se
+  // puede acertar a mano para todos los tamaños a la vez.
+  const repartible = total >= 2;
 
   /**
    * Mide la sonda: agrupa los hijos de la rejilla por su posición vertical y
@@ -80,15 +82,14 @@ export default function SeccionRepartida({
     const rejilla = sonda.querySelector<HTMLElement>("[data-rejilla-compases]");
     if (!rejilla) return;
 
-    // 🔴 Los saltos manuales se descartan por su MARCA, no por su alto.
-    // Antes se filtraba con `offsetHeight > 0`, y eso convertia la medida en
-    // una apuesta: si el navegador devolvia 0 para todos —cosa que pasa segun
-    // como quede la caja oculta—, la lista salia vacia, `medir` se rendia y la
-    // seccion **no se repartia nunca**. Isaac lo vio el 2026-09-02: en su
+    // 🔴 NO se filtra por `offsetHeight > 0`, y conviene que siga escrito:
+    // así era antes, y convertia la medida en una apuesta —si el navegador
+    // devolvia 0 para todos, la lista salia vacia, `medir` se rendia y la
+    // seccion **no se repartia nunca**—. Isaac lo vio el 2026-09-02: en su
     // navegador salia «caben SIN MEDIR» en todas.
-    const items = (Array.from(rejilla.children) as HTMLElement[]).filter(
-      (h) => !h.hasAttribute("data-salto")
-    );
+    // *(Aquí se descartaban además los saltos manuales por su marca; ya no hay
+    // saltos que descartar — O-62.)*
+    const items = Array.from(rejilla.children) as HTMLElement[];
     if (!items.length) return;
 
     const arriba = items[0].offsetTop;
@@ -198,7 +199,7 @@ export default function SeccionRepartida({
               <div className="mt-0.5 text-[10px] font-mono text-brand-600 dark:text-brand-400">
                 {repartible
                   ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · caben ${caben ?? "SIN MEDIR"} · alto ${alto ?? "?"}px`
-                  : `${total} · no se reparte${conSaltoManual ? " (tiene « ; »)" : ""}`}
+                  : `${total} · no se reparte`}
               </div>
             )}
 

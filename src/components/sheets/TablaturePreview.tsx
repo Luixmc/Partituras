@@ -51,8 +51,7 @@ type Measure = {
   notes: NoteToken[];
   repeatStart: boolean;
   repeatEnd: boolean;
-  // Salto de línea manual (";"): fuerza una nueva fila en la cuadrícula.
-  isBreak?: boolean;
+
   // Recuadro (casilla / final 1 ó 2): compases con el mismo boxId van juntos
   // dentro de un recuadro, con boxLabel encima.
   boxId?: number;
@@ -82,7 +81,12 @@ export function parseMeasures(value: string): Measure[] {
     .replace(/\|/g, " §BAR§ ")
     .replace(/\{/g, " { ")
     .replace(/\}(\d*)/g, " }$1 ")
-    .replace(/;/g, " ; "); // salto de línea: siempre token suelto
+    // 🔴 Este separador SE QUEDA aunque el salto de línea se eliminara (O-62):
+    // es lo que convierte un ";" pegado a otra cosa en un token suelto, para
+    // que la rama que lo DESCARTA lo reconozca. Sin esto, un "A;B" escrito en
+    // un borrador —que no se puede leer para comprobarlo— se pintaría como
+    // texto en la cuadrícula.
+    .replace(/;/g, " ; ");
 
   const parts = spaced
     .split(/\s+/)
@@ -128,6 +132,24 @@ export function parseMeasures(value: string): Measure[] {
       continue;
     }
     if (part === "§RE§") {
+      // 🔴 Si el compás actual está VACÍO, el cierre se pega al último que ya
+      // hay en vez de abrir uno nuevo (O-64).
+      //
+      // Pasa siempre que el ":|" viene justo detrás de algo que ya cerró compás
+      // —"}2:|" al final de una casilla, o "| :|"—: ahí `current` no tiene notas,
+      // pero `hasContent` lo daba por bueno solo por llevar el signo, y se
+      // empujaba un **compás fantasma** que solo contenía el ":|".
+      //
+      // Y eso no era cosmético desde O-52: **ese fantasma cuenta como un bloque
+      // para el reparto**, así que ocupaba sitio en la fila y podía irse él solo a
+      // la siguiente. Isaac lo vio en el teléfono con «Es Por Tu Gracia»: las
+      // casillas arriba y el ":|" colgando debajo.
+      //
+      // 📌En una partitura el signo cierra el compás anterior; no vive solo.
+      if (!current.notes.length && measures.length) {
+        measures[measures.length - 1].repeatEnd = true;
+        continue;
+      }
       current.repeatEnd = true;
       flush();
       continue;
@@ -137,12 +159,19 @@ export function parseMeasures(value: string): Measure[] {
       continue;
     }
 
-    // Salto de línea manual: ";" (suelto) fuerza una nueva fila.
-    if (part === ";") {
-      flush();
-      measures.push({ notes: [], repeatStart: false, repeatEnd: false, isBreak: true });
-      continue;
-    }
+    // 🔴 El SALTO DE LÍNEA (";") se ELIMINÓ (O-62). Existía para cortar una
+    // sección a mano, y la página ya la reparte sola midiendo lo que cabe en
+    // cada aparato — que es algo que no se puede acertar a mano para todos los
+    // tamaños a la vez.
+    //
+    // ⚠️ Pero se sigue ACEPTANDO y se DESCARTA en silencio, y no es por nostalgia:
+    // los 8 borradores no se pueden leer con la clave pública, así que **no se
+    // sabe si alguno lleva un `;` escrito**. Si esta rama desapareciera, ese `;`
+    // caería en el `else` de abajo y **se dibujaría como texto suelto en la
+    // cuadrícula** — peor que la función que se está quitando.
+    // 📌 Es T-07 aplicada a los datos: quitar solo es seguro cuando ya nadie lo
+    // pide, y de los borradores no se sabe. Aceptar y descartar cuesta una línea.
+    if (part === ";") continue;
 
     // Ligadura / ligado: "~" suelto une el acorde anterior con el siguiente.
     if (part === "~") {
@@ -770,24 +799,15 @@ function MeasureBlock({
 type Segment = { boxId?: number; label?: string; items: Measure[] };
 
 /**
- * ¿Este segmento es un SALTO DE LÍNEA manual (";") y no un compás?
+ * Cuántos bloques visuales tiene una sección: compases y recuadros.
  *
- * Se exporta porque quien reparte una sección larga (O-52) necesita dos cosas
- * de aquí: contar los bloques de verdad —un salto no ocupa sitio— y saber si
- * Isaac ya marcó los cortes a mano. **Si los marcó, manda él y la página no
- * reorganiza nada.**
+ * 📌 Antes devolvía además `conSaltoManual`, para que quien reparte respetara
+ * los cortes escritos a mano con ";". **Esa excepción murió con el salto de
+ * línea (O-62): ahora TODAS las secciones se reparten midiendo**, y no queda
+ * ninguna forma de desactivarlo.
  */
-export function esSalto(seg: Segment): boolean {
-  return seg.boxId == null && Boolean(seg.items[0]?.isBreak);
-}
-
-/** Los bloques visuales de una sección: compases y recuadros, sin los saltos. */
-export function bloquesVisuales(notes: string): { total: number; conSaltoManual: boolean } {
-  const segs = groupSegments(parseMeasures(notes));
-  return {
-    total: segs.filter((s) => !esSalto(s)).length,
-    conSaltoManual: segs.some(esSalto),
-  };
+export function bloquesVisuales(notes: string): { total: number } {
+  return { total: groupSegments(parseMeasures(notes)).length };
 }
 
 export function groupSegments(measures: Measure[]): Segment[] {
@@ -873,22 +893,6 @@ export default function TablaturePreview({
               // Compás suelto (sin recuadro): item flexible directo.
               if (seg.boxId == null) {
                 const m = seg.items[0];
-                // Salto de línea manual (";"): item de ancho completo y alto 0
-                // que obliga a los compases siguientes a bajar a otra fila.
-                if (m.isBreak) {
-                  // `data-salto` para poder distinguirlo al MEDIR: quien reparte
-                  // necesita contar compases, y esto no lo es. Antes se
-                  // distinguia por su alto 0, y eso fallaba en cuanto un
-                  // navegador devolvia 0 para todo (O-52, 2026-09-02).
-                  return (
-                    <div
-                      key={si}
-                      aria-hidden
-                      data-salto=""
-                      style={{ flexBasis: "100%", flexShrink: 0, height: 0 }}
-                    />
-                  );
-                }
                 // Una ligadura puede cruzar la barra de compás ("Ebmaj7 ~ | %"):
                 // hay que mirar el compás de al lado para saberlo.
                 const anterior = measures[measures.indexOf(m) - 1];
