@@ -23,7 +23,7 @@
 import { Fragment, useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 
 import TablaturePreview, { bloquesVisuales } from "@/components/sheets/TablaturePreview";
-import { cortesPorAncho } from "@/lib/reparto";
+import { repartirPorAncho } from "@/lib/reparto";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -65,7 +65,25 @@ export default function SeccionRepartida({
   // bloques normales miden 104–161 px y la casilla `{}2` mide **526 ella sola**.
   // Con la cuenta salían dos trozos de 4, y el segundo medía 1.052 px en una
   // fila de 526 — envolvía por dentro, que es justo lo que la regla 1 prohíbe.
-  const [medida, setMedida] = useState<{ anchos: number[]; fila: number } | null>(null);
+  // 🔴 SE GUARDA EL REPARTO YA CALCULADO, no los anchos. Y ese es EL FRENO.
+  //
+  // La primera version guardaba los anchos en pixeles, con decimales, y eso
+  // cerraba un lazo: anchos → reparto → alto del contenido → **el auto-ajuste
+  // cambia `fontScale`** → anchos otra vez. Con decimales nunca se estabiliza
+  // —siempre hay una milesima de diferencia— y las canciones se ponian a
+  // BAILAR a pantalla completa. Isaac lo vio a los minutos de publicarlo y
+  // hubo que revertir.
+  //
+  // 📌 Lo que habia antes era un ENTERO («caben 4»), y ese entero no era una
+  // imprecision: **era el freno**. Un valor discreto solo cambia cuando el
+  // cambio es grande, asi que el lazo no llega a arrancar. Aqui se recupera esa
+  // propiedad guardando algo aun mas grueso: el reparto `[4,3,1]`. Si al
+  // re-medir sale el mismo, **no se re-dibuja nada**.
+  // Van JUNTOS en el estado —no en un `ref`— porque los dos se leen al
+  // dibujar, y leer un `ref` durante el render es un fallo de React de verdad:
+  // el componente puede no re-dibujarse cuando cambie. Lo caza el lint.
+  // Y los dos estan REDONDEADOS, asi que comparar por igualdad es estable.
+  const [reparto, setReparto] = useState<{ tamanos: number[]; fila: number } | null>(null);
   const [alto, setAlto] = useState<number | null>(null);
   const sondaRef = useRef<HTMLDivElement>(null);
   const celdaRef = useRef<HTMLDivElement>(null);
@@ -99,13 +117,22 @@ export default function SeccionRepartida({
     const items = Array.from(rejilla.children) as HTMLElement[];
     if (!items.length) return;
 
-    const anchos = items.map((h) => h.getBoundingClientRect().width);
-    const fila = rejilla.getBoundingClientRect().width;
-    setMedida((antes) =>
-      antes && antes.fila === fila && antes.anchos.length === anchos.length &&
-      antes.anchos.every((v, i) => v === anchos[i])
+    // Se REDONDEA a unidades gruesas antes de repartir: una milesima de pixel
+    // no puede cambiar el resultado. Es la segunda mitad del freno.
+    const REJILLA = 8;
+    const redondear = (n: number) => Math.max(REJILLA, Math.round(n / REJILLA) * REJILLA);
+    const anchos = items.map((h) => redondear(h.getBoundingClientRect().width));
+    const fila = redondear(rejilla.getBoundingClientRect().width);
+    const nuevo = repartirPorAncho(anchos, fila);
+    // 🔴 Solo se guarda si el REPARTO cambia. Si sale el mismo, no hay
+    // re-dibujo, y sin re-dibujo el lazo no puede realimentarse.
+    setReparto((antes) =>
+      antes &&
+      antes.fila === fila &&
+      antes.tamanos.length === nuevo.length &&
+      antes.tamanos.every((v, i) => v === nuevo[i])
         ? antes
-        : { anchos, fila }
+        : { tamanos: nuevo, fila }
     );
 
     // Solo para la pagina desechable: el ALTO real del cuadro, para poder
@@ -141,7 +168,17 @@ export default function SeccionRepartida({
     if (!celda || typeof ResizeObserver === "undefined") {
       return () => cancelAnimationFrame(raf);
     }
-    const ro = new ResizeObserver(() => medir());
+    // 🔴 SOLO se re-mide si cambia el ANCHO. El ALTO lo cambia el propio
+    // reparto —al partir en mas cuadros, la celda crece o mengua—, asi que
+    // reaccionar a el es realimentarse a si mismo. Es la cuarta pata del freno,
+    // y sin ella el `ResizeObserver` reabre el lazo que hacia bailar la pagina.
+    let anchoVisto = celda.getBoundingClientRect().width;
+    const ro = new ResizeObserver(() => {
+      const ancho = celda.getBoundingClientRect().width;
+      if (Math.abs(ancho - anchoVisto) < 1) return;
+      anchoVisto = ancho;
+      medir();
+    });
     ro.observe(celda);
     return () => {
       cancelAnimationFrame(raf);
@@ -150,10 +187,15 @@ export default function SeccionRepartida({
   }, [repartible, medir, notes, fontScale]);
 
   // Sin medir todavía, o nada que repartir: una sola casilla, como siempre.
-  const cortes =
-    repartible && medida
-      ? cortesPorAncho(medida.anchos, medida.fila)
-      : [[0, total] as [number, number]];
+  const cortes: [number, number][] = [];
+  if (repartible && reparto) {
+    let desde = 0;
+    for (const n of reparto.tamanos) {
+      cortes.push([desde, desde + n]);
+      desde += n;
+    }
+  }
+  if (!cortes.length) cortes.push([0, total]);
 
   return (
     <>
@@ -176,7 +218,7 @@ export default function SeccionRepartida({
             // cabe en una fila, que es el fallo que Isaac vio a media pantalla.
             data-reparto={
               i === 0
-                ? `${total}→${cortes.map(([a, b]) => b - a).join("+")} · fila ${Math.round(medida?.fila ?? 0)}px`
+                ? `${total}→${cortes.map(([a, b]) => b - a).join("+")} · fila ${reparto?.fila ?? 0}px`
                 : undefined
             }
           >
@@ -209,7 +251,7 @@ export default function SeccionRepartida({
             {mostrarMedida && i === 0 && (
               <div className="mt-0.5 text-[10px] font-mono text-brand-600 dark:text-brand-400">
                 {repartible
-                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · fila ${medida ? Math.round(medida.fila) + "px" : "SIN MEDIR"} · alto ${alto ?? "?"}px`
+                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · fila ${reparto ? reparto.fila + "px" : "SIN MEDIR"} · alto ${alto ?? "?"}px`
                   : `${total} · no se reparte`}
               </div>
             )}

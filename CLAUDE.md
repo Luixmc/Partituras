@@ -4062,6 +4062,33 @@ se recupera hay que exigirle varias respuestas seguidas»*.
    asi que reaccionar a el es realimentarse. Solo el **ancho** manda.
 4. **Se comprueba midiendo VARIAS VECES** y exigiendo que el reparto salga igual en todas.
 
+#### ✅ REHECHO CON EL FRENO (2026-09-04) — r55
+
+**Las cuatro patas, puestas:**
+
+| | |
+|---|---|
+| ① El estado guarda **el reparto ya calculado** (`[4,3,1]`), no los anchos | Si al re-medir sale el mismo, **no hay re-dibujo** y el lazo no arranca |
+| ② Los anchos se **redondean a 8 px** antes de repartir | Una milésima no puede cambiar el resultado |
+| ③ El `ResizeObserver` **ignora los cambios de ALTO** | El alto lo cambia el propio reparto: reaccionar a él es realimentarse |
+| ④ El ancho de la fila va **en el estado, no en un `ref`** | Leer un `ref` durante el render es un fallo de React de verdad — **lo cazó el lint**, con 1 error |
+
+🔬 **Y LA COMPROBACIÓN QUE FALTÓ LA PRIMERA VEZ, hecha ahora:** una página desechable que **mide 30
+veces en 3 segundos** y exige que el reparto salga **igual en todas**.
+
+| Ventana | Repartos distintos que salieron | ¿Quieto? | ¿Envuelve? |
+|---|---|---|---|
+| 1200 × 540 (su teléfono en horizontal) | **1** — `3+4` y `4+3+1` | ✅ | no |
+| 740 × 360 (móvil pequeño) | **1** | ✅ | no |
+| 1920 × 1080 | **1** | ✅ | no |
+
+📌 **Y se repitió DESPUÉS del último retoque**, aunque fuera pequeño: el fallo de la primera vez no
+fue el código, fue dar por buena una medición vieja. **La comprobación que importa se repite cuando
+se toca lo que mide.**
+
+**Lo demás:** 192 pruebas · lint **0 errores** · build 0 · **26 de 26 pantallas** · y las canciones
+enteras: **53, 98 y 55** acordes, los mismos ya documentados.
+
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos
 meses, ¿por que las estructuras no aprovechan del ancho de la pantalla? porque mira que tambien
