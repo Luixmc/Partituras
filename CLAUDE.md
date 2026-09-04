@@ -727,7 +727,8 @@ continúes con el trabajo es porque ya es mañana»*.
 | **4** | ~~**O-52 · regla 1 ó regla 2**~~ | ✅ **CERRADA el 2026-09-03: eligió la regla 1**, la que ya estaba publicada. La perdedora está **borrada**, no comentada |
 | **5** | ~~**EL PUSH**~~ | ✅ **PUBLICADO el 2026-09-03 con su permiso** (*«sube lo que queda pendiente»*), `48990b1..d59a9de` (**r48**), en tres commits. CI **verde**, **26 de 26 pantallas en producción**, y las tres desechables **307** — ninguna llegó. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir** |
 | **6** | ⬜ **Que Isaac lo pruebe CON LA MANO, y en la tablet** | El ratón no deja rastro en el HTML: arrastrar una nota, `Supr`, deshacer y el botón de los tres modos **solo se comprueban tocando** |
-| **7** | ⬜ **O-59 — usar la página como app** | 🟢 **NO hay que programar nada: ya es instalable** (PWA, con su manifiesto, sus iconos y el caché versionado desde r45). Lo que falta es que **Isaac la instale**. Quedan anotadas las **tres cosas que hoy no hace** —el aviso de «hay versión nueva», que **sin internet no hay canciones**, y que el manifiesto fuerza vertical—. **Ninguna se toca sin que él lo pida** |
+| **7** | ~~**O-59 — usar la página como app**~~ | ✅ **INSTALADA el 2026-09-04**, en el menú de aplicaciones y sin escudo. 🔴 **Y salió el porqué de que fallara: BRAVE no fabrica la app, da un acceso directo y no lo dice.** Se instala **con Chrome**. Siguen anotadas las dos cosas que no hace —el aviso de «hay versión nueva» y que **sin internet no hay canciones**—; la tercera (la orientación) se arregló en r49 |
+| **8** | ~~**El ICONO**~~ | ✅ **DECIDIDO el 2026-09-04: SE QUEDA COMO ESTÁ** (*«deja el icono así»*), o sea la **A**, `purpose: "any"` y el PNG transparente de D-12. **No se vuelve a proponer.** Si algún día cambia de idea, la **C** está descrita abajo con su aviso del margen |
 
 **Estado del árbol al cerrar el 2026-09-02:**
 - ✅ **Todo lo de O-52 / O-54 / O-55 / O-56 está PUBLICADO** (`48990b1`), CI verde, 26 de 26 pantallas
@@ -3416,6 +3417,94 @@ conviene no confundir:
 al usarla le molesta no enterarse de las novedades, se hace el punto 1, que es pequeño. El punto 2
 solo si de verdad se queda sin datos en el templo, porque es el caro. **No se programa nada hasta
 que el lo diga.**
+
+#### ✅ INSTALADA (2026-09-04) — y por el camino salio POR QUE no le funcionaba
+
+Isaac la instalo y **entro al menu de aplicaciones, sin escudo de navegador**. Pero al primer
+intento le quedo mal, y el diagnostico vale para no volver a perder el rato:
+
+🔴 **BRAVE NO FABRICA LA APP. Da un ACCESO DIRECTO y no lo dice.**
+En Android, instalar una web de verdad genera un **WebAPK** —un paquete que fabrica un servicio de
+Google—. Brave lo tiene desactivado por privacidad, asi que **cae en el acceso directo**: se queda
+solo en el escritorio, **con el escudo de Brave encima del icono**, y abre dentro del navegador.
+
+⚠️ **Y lo que lo hace tan dificil de ver: el menu de Brave ofrece las dos cosas juntas**
+—«Install» y «Create shortcut»— y **aunque se pulse «Install», sale el acceso directo**. El dialogo
+de «Install app» con el nombre y el icono correctos **aparece igual**, asi que parece que fue bien.
+
+📌 **Como se distingue, y son las tres senales de la captura:**
+
+| | Acceso directo (lo que daba Brave) | App de verdad (Chrome) |
+|---|---|---|
+| El aviso | «Add to Home screen? — 1 x 1», el del escritorio de Android | 🔴 **«Adding Partituras to the Home screen · Downloading»**, con barra de progreso — es el WebAPK fabricandose |
+| El icono | **con el escudo del navegador** en la esquina | limpio |
+| Donde queda | **solo en el escritorio** | **en el MENU DE APLICACIONES**, con las demas |
+
+#### ¿Y POR QUE Chrome si y Brave no? — lo pregunto Isaac, y es lo que da sentido a todo
+
+**Porque una app de Android tiene que estar FIRMADA, y una pagina web no puede firmarse a si misma.**
+
+Para que algo entre en el menu de aplicaciones tiene que ser un **paquete de Android de verdad**,
+con su nombre, su icono y su firma. Android no deja que una pagina se instale sola: alguien de
+confianza tiene que **construir y firmar** ese paquete.
+
+→ **Ese alguien es un servidor de Google.** Chrome le manda **el manifiesto** —nombre, iconos,
+`start_url`, colores—, el servidor **fabrica el paquete, lo firma y lo devuelve**, y los servicios
+de Google Play lo instalan. 📌 **Eso es literalmente lo que decia el aviso de su captura:
+«Adding Partituras to the Home screen · Downloading»** — se estaba **bajando la app recien
+fabricada**. No es que estuviera bajando la pagina.
+
+→ **Brave no hace esa llamada, y es a proposito, no un fallo.** Todo el producto de Brave consiste
+en no mandarle cosas a Google; **pedirle a un servidor suyo que te construya una app —mandandole de
+paso que sitio estas visitando— es justo lo que evitan**. Sin esa pieza no hay paquete que
+instalar, asi que **cae en lo unico que puede hacer solo: un acceso directo**.
+
+⚠️ **Y por eso engaña tanto:** Brave es **Chromium por dentro**, asi que **el menu y los dialogos
+son los mismos** —«Install app», con el nombre y el icono correctos—. Lo que falta esta **detras**,
+y **degrada en silencio**: mismo boton, mismo cartel, resultado distinto.
+
+📌 **No es «Brave esta roto»:** es un intercambio deliberado —privacidad a cambio de no poder
+instalar ninguna web como app—. Pero hay que saberlo, porque **el que lo sufre cree que la culpa es
+de la pagina**.
+
+→ **La instruccion para Isaac y para cualquiera del grupo: se instala con CHROME.** Con Brave
+—y con cualquier navegador que renuncie a los servicios de Google— sale el acceso directo.
+
+⚠️ **Y antes de repetirlo hay que BORRAR el acceso directo anterior**, o quedan dos iconos y no se
+sabe cual es cual.
+
+#### El ICONO: se ofrecieron tres y se le enseñaron dibujadas
+
+🔴 **Antes de esto yo le habia dicho que el circulo blanco «probablemente era culpa del icono», y
+me equivoque.** Al generar las tres versiones y recortarlas como hace Android se vio que **no**:
+el logo **ya es transparente** —es el mismo PNG «removebg» de la pestaña (D-12), comprobado:
+512x512 RGB+alfa— y **el circulo lo pinta el lanzador**, porque un icono `purpose: "any"` no puede
+usarse como forma de icono adaptativo.
+
+| | Que sale |
+|---|---|
+| **A · como esta hoy** (`purpose: "any"`) | El sello **llena el recorte redondo**, y encaja porque **el logo ya es redondo**. Solo en el recorte cuadrado asoman las esquinas blancas |
+| **B · maskable con fondo blanco** | 🔴 **PEOR.** Para que el recorte no muerda el aro gris hay que encoger el logo, y queda pequeño con mucho blanco muerto |
+| **C · maskable con el azul de la app** (`#191c4d`) | Llena de borde a borde en las dos formas, con el sello centrado. Como WhatsApp o Instagram |
+
+📌 **Y la leccion de metodo, que ya es la tercera vez que se aplica** (O-47, O-51): **esto es un
+dibujo, asi que se ENSENA.** Se generaron las tres con `System.Drawing` desde el PNG original y se
+compusieron **recortadas en circulo y en cuadrado redondeado**, que es lo que hace el lanzador.
+Describirlo por escrito habria costado varias vueltas — y encima me habria dejado con mi suposicion
+falsa, porque **fue el render el que la tumbo**.
+
+⚠️ **Si algun dia se elige la C hay que generar el icono CON MARGEN**, no declarar `maskable` el que
+hay: el lanzador recorta ~10 % por cada lado y **le comeria el aro gris al sello**. El logo va al
+**66 %** dentro del lienzo. Las tres versiones estan generadas en el `scratchpad` de esa sesion; el
+guion que las hace es media pagina.
+
+#### ✅ ELIGIO LA A: se queda como esta (2026-09-04) — *«deja el icono asi»*
+
+**Nada que programar.** El manifiesto sigue con `purpose: "any"` y el PNG transparente de D-12.
+📌 **Y tiene sentido, no es conformarse:** su logo **ya es un sello redondo**, asi que encaja solo
+con el recorte redondo de Android — que es el que usa su lanzador. En su menu de aplicaciones queda
+**igual que Mi Claro, Nequi o Translate**, que tambien van sobre fondo claro. **No desentona.**
+→ **No se vuelve a proponer.** Si algun dia lo pide, la C esta descrita arriba con su aviso.
 
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos

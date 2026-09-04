@@ -83,7 +83,8 @@ export const TANDAS: Tanda[] = [
             "titulo": "Se puede instalar en el telefono, en la tablet y en el computador.",
             "detalle": [
               "Se abre <strong>como una app</strong>: con su icono y <strong>sin la barra de direcciones</strong> del navegador. No hay que bajar nada de ninguna tienda.",
-              "<strong>Android</strong> (Chrome, Edge, Brave): menu de tres puntos → <strong>«Instalar aplicacion»</strong>.",
+              "<strong>Android: tiene que ser con CHROME.</strong> Menu de tres puntos → «Anadir a pantalla de inicio» → <strong>«Instalar»</strong>. Con <strong>Brave</strong> el boton dice lo mismo pero <strong>no instala la app</strong>: deja un acceso directo que abre dentro del navegador, con el escudito de Brave en el icono.",
+              "<strong>Se sabe que fue bien por tres cosas:</strong> sale un aviso de «Anadiendo Partituras…» con barra de progreso, el icono queda <strong>limpio, sin escudo</strong>, y aparece <strong>en el menu de aplicaciones</strong> con las demas — no solo en el escritorio.",
               "<strong>Computador</strong> (Chrome, Edge): un icono de instalar <strong>en la barra de direcciones</strong>, a la derecha.",
               "<strong>iPhone</strong>: tiene que ser con <strong>Safari</strong> — Compartir → <strong>«Anadir a pantalla de inicio»</strong>."
             ]

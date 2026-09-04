@@ -12,7 +12,12 @@
 - **Puedes instalarla en el teléfono, en la tablet o en el computador**, y se abre **como una app**:
   con su icono y **sin la barra de direcciones** del navegador. No hay que bajar nada de ninguna
   tienda; se instala desde el propio navegador.
-  - **Android** (Chrome, Edge, Brave) → menú de tres puntos → **«Instalar aplicación»**.
+  - **Android → con CHROME**, menú de tres puntos → **«Añadir a pantalla de inicio» → «Instalar»**.
+    🔴 **Tiene que ser Chrome.** Con **Brave** el botón dice «Install» igual, pero **no instala la
+    app: deja un acceso directo** que abre dentro del navegador y lleva el escudito de Brave en el
+    icono. **Se sabe que fue bien por tres señales:** sale un aviso de **«Añadiendo Partituras…»**
+    con barra de progreso, el icono queda **limpio, sin escudo**, y aparece **en el menú de
+    aplicaciones** con las demás — no solo en el escritorio.
   - **Computador** (Chrome, Edge) → un icono de instalar **en la barra de direcciones**, a la derecha.
   - **iPhone** → tiene que ser con **Safari**: Compartir → **«Añadir a pantalla de inicio»**.
 - 🔴 **Arreglado: la app se quedaba en vertical.** Estaba puesta para abrirse **solo de pie**, así
