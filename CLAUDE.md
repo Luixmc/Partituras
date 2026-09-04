@@ -5636,6 +5636,36 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 43 — el reparto por ANCHO: publicado, revertido y rehecho con freno · 🚀 r54 → revert → r55
+
+**Publicado:** `94b13c0..6b878d2`. Tres commits que hay que leer juntos: **r54** (el arreglo),
+**`c4ca6ef`** (la reversión) y **r55** (el arreglo con el freno). CI verde, 26 de 26 pantallas.
+
+**El fallo que traía Isaac:** una sección con casillas `{}1 {}2` se apretaba en dos filas dentro de
+su cuadro en vez de pasar al siguiente. **La causa, medida:** el reparto **contaba** cuántos
+bloques caben, y los bloques **no miden lo mismo** — los normales 104–161 px y la casilla `{}2`
+**526 px, la fila entera**.
+
+🔴 **Y r54 lo arregló y rompió algo peor: las canciones se pusieron a BAILAR.** Al cambiar la medida
+entera por píxeles con decimales se abrió un lazo —medida → reparto → alto → auto-ajuste → medida—
+que **con un entero se frenaba solo y con decimales no converge nunca**.
+📌 **El entero no era una imprecisión: era el freno.** Es **L-231**.
+
+**Se revirtió en minutos** y se rehizo con las cuatro patas: guardar **el reparto discreto** en vez
+de los anchos, redondear a 8 px, que el observador **ignore los cambios de alto**, y el ancho **en
+el estado y no en un `ref`** —esto último lo cazó el lint con un error de React de verdad—.
+
+🔬 **Y lo que más vale de la tanda es cómo se comprueba ahora.** La primera vez se dio por bueno con
+192 pruebas, build limpio, 26 pantallas y una medición que decía justo lo que se buscaba… **medida
+UNA vez, con la página quieta**. El baile es lo que pasa **entre** una medida y la siguiente.
+→ Ahora se muestrea **30 veces en 3 segundos, en tres tamaños**, y solo vale si **sale igual en
+todas**. Es **L-232**, y es **T-17 en otra piel**: allí nadie miraba el reloj, aquí nadie miraba si
+el resultado se queda quieto.
+
+⚠️ **Y un fallo de método mío que conviene no repetir:** le dije a Isaac que había dejado escrita la
+causa del baile **y no lo había hecho** — lo dije y seguí. Se escribió después (`0b7e1a8`). *Decir
+que algo está anotado no lo anota.*
+
 ### 2026-09-04 · Tanda 42 — fuera el salto de línea, el `:|` en su sitio, y la documentación corregida · 🚀 r53
 
 **Publicado:** `6ae6b8f..4902853` a `main`. CI verde, **26 de 26 pantallas en producción**, y el
