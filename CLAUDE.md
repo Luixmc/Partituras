@@ -5251,6 +5251,36 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 40 — O-61: la red de seguridad donde faltaba · 🚀 r52
+
+**Publicado:** `0c75799..85788bf` a `main`. CI verde, **26 de 26 pantallas en producción**,
+`/sheets/new` **200** y **los cuatro modos de la canción a 200**.
+
+Isaac pidió *«fíjate si sale en otros lugares, sino, impleméntalos donde sea pertinente»*.
+📌 **Y lo primero fue leer bien la petición:** el diálogo que él describía —el del culto— **ya
+funcionaba**. Lo que pedía era **buscar dónde FALTA**, que es otro trabajo.
+
+**Faltaba en tres sitios, y el peor es el más caro del proyecto:**
+🔴 **Crear una canción no tenía NADA.** Se tecleaba título, tono, compás, categorías y **todos los
+acordes**, se pulsaba «volver», y **se perdía sin decir nada**. Son 28.203 caracteres de acordes
+transcritos a mano en 75 canciones: es el trabajo que este proyecto existe para proteger.
+🔴 **La melodía y las versiones por tono** sabían que estaban sucias —lo usan para su propio
+botón— pero **no se lo decían a nadie**.
+🔴 **Y el modo `melodia` no estaba en la lista de modos protegidos** — que es **O-43 literalmente
+otra vez**, donde faltaba `letra`. Y lo escribí yo hace dos días **sabiendo** que había pasado.
+
+**Y salieron DOS huecos más que él no había pedido:**
+① **Solo la pestaña «Vista» pedía permiso.** Ir de «Melodía» a «Letra» desmontaba el panel y se
+perdía lo escrito. **Cambiar de pestaña es salir**, y ahora las cuatro pasan por la red.
+② **Uno que iba a introducir yo:** la marca de «sucio» se quedaba puesta al desmontarse el panel,
+así que tras descartar el editor creería que hay cambios hasta recargar.
+
+📌 **La decisión que evita repetir P-01:** en `/sheets/new` el diálogo es de **dos botones**. Ahí
+«Guardar y salir» **puede no ser posible** —sin título no se crea la canción— y **un botón que a
+veces no hace nada es el fallo más caro de este proyecto**. Se ofrece lo que siempre es verdad.
+
+⬜ **Punto ciego:** esto **solo se ve usándolo**. El HTML no dice si el diálogo salta.
+
 ### 2026-09-04 · Tanda 39 — O-60: un solo diálogo para toda la app · 🚀 r51
 
 **Publicado:** `e1fc471..38aecfa` a `main`. CI verde, **26 de 26 pantallas en producción**, y el
