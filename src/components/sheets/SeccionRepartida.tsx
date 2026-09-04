@@ -23,7 +23,7 @@
 import { Fragment, useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 
 import TablaturePreview, { bloquesVisuales } from "@/components/sheets/TablaturePreview";
-import { cortesDe, type Regla } from "@/lib/reparto";
+import { cortesDe } from "@/lib/reparto";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -35,8 +35,6 @@ type Props = {
   claseCelda?: string;
   /** Estilo de cada casilla (multi-columna necesita `breakInside`). */
   estiloCelda?: CSSProperties;
-  /** Cual de las dos reglas de reparto. Temporal, mientras Isaac elige. */
-  regla?: Regla;
   /**
    * Ensena la medida EN PANTALLA, debajo del cuadro.
    *
@@ -55,7 +53,6 @@ export default function SeccionRepartida({
   dense = false,
   claseCelda,
   estiloCelda,
-  regla = "porFila",
   mostrarMedida = false,
 }: Props) {
   const { total, conSaltoManual } = bloquesVisuales(notes);
@@ -144,7 +141,7 @@ export default function SeccionRepartida({
 
   // Sin medir todavía, o nada que repartir: una sola casilla, como siempre.
   const cortes =
-    repartible && caben != null ? cortesDe(total, caben, regla) : [[0, total] as [number, number]];
+    repartible && caben != null ? cortesDe(total, caben) : [[0, total] as [number, number]];
 
   return (
     <>

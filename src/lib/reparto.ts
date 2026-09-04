@@ -127,50 +127,28 @@ export function repartirBloques(
 
 
 /**
- * La otra regla posible: **bloques de `minimo` como poco, aunque envuelvan.**
- *
- * Se conserva para poder ENSENARLE las dos a Isaac una al lado de la otra, que
- * es lo unico que decide en algo que se juzga con los ojos. Cuando elija, la
- * que pierda se borra.
- *
- * La diferencia se ve en pantallas estrechas: aqui una seccion de 12 con sitio
- * para 2 sale `4+4+4` —tres bloques que envuelven por dentro—, mientras que
- * `repartirPorFila` saca `2x6` —seis bloques que no envuelven ninguno—.
- */
-export function repartirConMinimo(
-  total: number,
-  cabenEnUnaFila: number,
-  minimo: number = MINIMO_POR_BLOQUE
-): number[] {
-  if (total <= 0) return [];
-  if (!Number.isFinite(cabenEnUnaFila) || cabenEnUnaFila < 1) return [total];
-  const cabe = Math.floor(cabenEnUnaFila);
-  if (total <= cabe) return [total];
-
-  // El minimo pone un TECHO a cuantos bloques caben.
-  const bloques = Math.min(Math.floor(total / minimo), Math.ceil(total / cabe));
-  if (bloques <= 1) return [total];
-
-  const base = Math.floor(total / bloques);
-  const resto = total % bloques;
-  return Array.from({ length: bloques }, (_, i) => base + (i < resto ? 1 : 0));
-}
-
-/** Cual de las dos reglas se usa. */
-export type Regla = "porFila" | "minimo";
-
-/**
  * Lo mismo, pero en cortes `[desde, hasta)` listos para recortar la sección.
+ *
+ * ✅ ISAAC ELIGIO LA REGLA 1 el 2026-09-03, viendo las dos en pantalla:
+ * **los bloques mas grandes que quepan ENTEROS en una fila, sin que ninguno se
+ * parta por dentro.** La otra —«nunca menos de cuatro compases»— se borro ese
+ * mismo dia, con su tipo `Regla` y la prop del componente.
+ *
+ * 📌 Y se borra a proposito en vez de dejarla «por si acaso»: dos reglas vivas
+ * para lo mismo son dos formas de que la pantalla haga cosas distintas segun
+ * quien monte el componente. La que perdio esta en el historial de git si
+ * alguna vez hace falta — no hace falta que estorbe aqui.
+ *
+ * ⚠️ El motivo de que perdiera, para no reabrirlo: con el minimo de cuatro, a
+ * media pantalla —donde caben 3— salian bloques de 5 que **se partian por
+ * dentro en dos filas**, una llena y otra a medias. Es lo que Isaac vio mal el
+ * 2026-09-01, y estaba en su propia frase: «cuatro compases minimos, **o las
+ * que pueda**». Cuando caben 3, cuatro no es posible.
  */
-export function cortesDe(
-  total: number,
-  cabenEnUnaFila: number,
-  regla: Regla = "porFila"
-): [number, number][] {
-  const reparte = regla === "minimo" ? repartirConMinimo : repartirBloques;
+export function cortesDe(total: number, cabenEnUnaFila: number): [number, number][] {
   const cortes: [number, number][] = [];
   let i = 0;
-  for (const t of reparte(total, cabenEnUnaFila)) {
+  for (const t of repartirBloques(total, cabenEnUnaFila)) {
     cortes.push([i, i + t]);
     i += t;
   }
