@@ -23,7 +23,7 @@
 import { Fragment, useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 
 import TablaturePreview, { bloquesVisuales } from "@/components/sheets/TablaturePreview";
-import { cortesPorAncho } from "@/lib/reparto";
+import { cortesDe } from "@/lib/reparto";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -57,15 +57,8 @@ export default function SeccionRepartida({
 }: Props) {
   const { total } = bloquesVisuales(notes);
 
-  // 🔴 Lo MEDIDO ya no es «cuántos caben» sino EL ANCHO DE CADA BLOQUE y el de
-  // la fila (O-65). `null` = todavía sin medir.
-  //
-  // Contar solo predice el espacio cuando todas las piezas miden lo mismo, y no
-  // lo miden: en la sección C de «Es Por Tu Gracia», con la fila a 526 px, los
-  // bloques normales miden 104–161 px y la casilla `{}2` mide **526 ella sola**.
-  // Con la cuenta salían dos trozos de 4, y el segundo medía 1.052 px en una
-  // fila de 526 — envolvía por dentro, que es justo lo que la regla 1 prohíbe.
-  const [medida, setMedida] = useState<{ anchos: number[]; fila: number } | null>(null);
+  // Cuántos caben en una fila. `null` = todavía sin medir.
+  const [caben, setCaben] = useState<number | null>(null);
   const [alto, setAlto] = useState<number | null>(null);
   const sondaRef = useRef<HTMLDivElement>(null);
   const celdaRef = useRef<HTMLDivElement>(null);
@@ -99,14 +92,12 @@ export default function SeccionRepartida({
     const items = Array.from(rejilla.children) as HTMLElement[];
     if (!items.length) return;
 
-    const anchos = items.map((h) => h.getBoundingClientRect().width);
-    const fila = rejilla.getBoundingClientRect().width;
-    setMedida((antes) =>
-      antes && antes.fila === fila && antes.anchos.length === anchos.length &&
-      antes.anchos.every((v, i) => v === anchos[i])
-        ? antes
-        : { anchos, fila }
-    );
+    const arriba = items[0].offsetTop;
+    // Un margen de 1 píxel: los redondeos del navegador con la letra a escala
+    // hacen que dos items de la misma fila no siempre den el mismo `offsetTop`.
+    const enLaPrimeraFila = items.filter((h) => Math.abs(h.offsetTop - arriba) <= 1).length;
+
+    setCaben((antes) => (antes === enLaPrimeraFila ? antes : enLaPrimeraFila));
 
     // Solo para la pagina desechable: el ALTO real del cuadro, para poder
     // comparar de un vistazo que secciones se salen y cuales no.
@@ -151,9 +142,7 @@ export default function SeccionRepartida({
 
   // Sin medir todavía, o nada que repartir: una sola casilla, como siempre.
   const cortes =
-    repartible && medida
-      ? cortesPorAncho(medida.anchos, medida.fila)
-      : [[0, total] as [number, number]];
+    repartible && caben != null ? cortesDe(total, caben) : [[0, total] as [number, number]];
 
   return (
     <>
@@ -176,7 +165,7 @@ export default function SeccionRepartida({
             // cabe en una fila, que es el fallo que Isaac vio a media pantalla.
             data-reparto={
               i === 0
-                ? `${total}→${cortes.map(([a, b]) => b - a).join("+")} · fila ${Math.round(medida?.fila ?? 0)}px`
+                ? `${total}→${cortes.map(([a, b]) => b - a).join("+")} · caben ${caben ?? "?"}`
                 : undefined
             }
           >
@@ -209,7 +198,7 @@ export default function SeccionRepartida({
             {mostrarMedida && i === 0 && (
               <div className="mt-0.5 text-[10px] font-mono text-brand-600 dark:text-brand-400">
                 {repartible
-                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · fila ${medida ? Math.round(medida.fila) + "px" : "SIN MEDIR"} · alto ${alto ?? "?"}px`
+                  ? `${total} → ${cortes.map(([a, b]) => b - a).join("+")} · caben ${caben ?? "SIN MEDIR"} · alto ${alto ?? "?"}px`
                   : `${total} · no se reparte`}
               </div>
             )}

@@ -15,7 +15,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE, repartirPorAncho } = await cargar("reparto");
+const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE } = await cargar("reparto");
 
 test("una seccion CORTA que no cabe tambien se reparte", () => {
   // «Su Presencia», Intro Sinte: DOS compases que envolvian dentro de la caja.
@@ -145,65 +145,4 @@ test("ante un ancho sin medir o absurdo, NO se toca la seccion", () => {
   }
   // Un decimal se redondea hacia abajo: si caben "6,9", caben 6.
   assert.deepEqual(repartirBloques(8, 6.9), [4, 4]);
-});
-
-
-// ─────────────────────────────────────────────────────────────
-// O-65 · Repartir por ANCHO, no por cuenta.
-//
-// 🔴 El fallo que cubren: `repartirBloques` CUENTA, y contar solo predice el
-// espacio si todas las piezas miden lo mismo. Las casillas `{}1 {}2` miden
-// hasta CINCO VECES lo que un compas normal, y ahi la cuenta miente — la
-// seccion envolvia por dentro, que es justo lo que la regla 1 prohibe.
-// ─────────────────────────────────────────────────────────────
-
-/** Ningun trozo puede pasarse del ancho de la fila. */
-function ningunoDesborda(anchos, fila, trozos) {
-  let i = 0;
-  for (const n of trozos) {
-    const grupo = anchos.slice(i, i + n);
-    const suma = grupo.reduce((a, b) => a + b, 0);
-    // Un bloque que YA es mas ancho que la fila no cabe en ningun sitio.
-    if (suma > fila && grupo.length > 1) return false;
-    i += n;
-  }
-  return true;
-}
-
-test("EL CASO DE ISAAC: la seccion C de «Es Por Tu Gracia» ya no envuelve", () => {
-  // Anchos MEDIDOS en el navegador, con la fila a 526 px. La casilla `}2` mide
-  // 526: ella sola llena la fila entera.
-  const anchos = [156, 161, 104, 104, 114, 161, 251, 526];
-  const trozos = repartirPorAncho(anchos, 526);
-
-  assert.ok(ningunoDesborda(anchos, 526, trozos), `un trozo desborda: ${trozos}`);
-  assert.equal(trozos.reduce((a, b) => a + b, 0), anchos.length);
-  // Con la cuenta salian 2 trozos (4+4) y el segundo media 1.052 px.
-  assert.ok(trozos.length >= 3, `hacen falta 3 trozos o mas, salieron ${trozos.length}`);
-});
-
-test("con bloques IGUALES da lo mismo que la cuenta: 8 con sitio para 6 -> 4+4", () => {
-  assert.deepEqual(repartirPorAncho(Array(8).fill(100), 620), [4, 4]);
-});
-
-test("si la seccion cabe entera no se parte", () => {
-  assert.deepEqual(repartirPorAncho([100, 100, 100], 600), [3]);
-});
-
-test("no se pierde ni un bloque, en 200 combinaciones", () => {
-  for (let caso = 0; caso < 200; caso++) {
-    const n = 2 + (caso % 14);
-    const anchos = Array.from({ length: n }, (_, k) => 80 + ((caso * 37 + k * 53) % 260));
-    const fila = 300 + ((caso * 97) % 700);
-    const trozos = repartirPorAncho(anchos, fila);
-    assert.equal(trozos.reduce((a, b) => a + b, 0), n, `n=${n} fila=${fila} -> ${trozos}`);
-    assert.ok(trozos.every((t) => t >= 1), "ningun trozo puede estar vacio");
-    assert.ok(ningunoDesborda(anchos, fila, trozos), `desborda: n=${n} fila=${fila} -> ${trozos}`);
-  }
-});
-
-test("ante una medida imposible NO se toca la seccion", () => {
-  assert.deepEqual(repartirPorAncho([100, 100], 0), [2]);
-  assert.deepEqual(repartirPorAncho([100, 100], NaN), [2]);
-  assert.deepEqual(repartirPorAncho([0, 100], 500), [2]);
 });

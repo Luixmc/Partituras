@@ -7,19 +7,6 @@
 
 ## 4 de septiembre de 2026
 
-### 📐 Arreglado: las secciones con casillas de 1ª y 2ª vez no pasaban al lado
-
-- 🔴 **Una sección con casillas `{ }1 { }2` se apretaba en su propio cuadro** en vez de pasar al
-  cuadro siguiente, así que quedaba en dos filas apretadas. Se veía sobre todo **en el teléfono**.
-- **La causa:** la página contaba *cuántos compases caben en una fila*… y **no todos los compases
-  miden lo mismo**. Medido en «Es Por Tu Gracia»: los compases normales miden entre 104 y 161
-  píxeles, y **la casilla de 2ª vez mide 526 — ella sola llena la fila entera**. Contando salían dos
-  cuadros, y el segundo necesitaba el doble de sitio del que había.
-- **Ahora la página mide el ANCHO de cada compás**, no cuántos son. En esa canción pasa de 2 cuadros
-  apretados a **3 que caben perfectos**, cada uno en una sola fila.
-- ✅ **Y donde todos los compases miden igual, no cambia nada:** ocho compases con sitio para seis
-  siguen repartiéndose **4 y 4**, como hasta ahora.
-
 ### 🎵 Arreglado: el signo de repetición se iba solo a otra línea
 
 - 🔴 **En 22 de las canciones, el `:|` del final de una repetición se quedaba colgando en una línea
