@@ -3930,6 +3930,55 @@ convierte «parece que salio bien» en «no se perdio nada».**
 Stash mueve el arbol de trabajo — con cinco archivos tocados sin subir, un `pop` que falle deja el
 trabajo a medias. `git show` **no toca nada**.
 
+#### 🔴 r54 SE REVIRTIO: las canciones «bailaban» a pantalla completa (2026-09-04)
+
+Isaac, minutos despues de publicarlo: *«todas las canciones cuando miro en modo pantalla completa
+comienzan a bailar, o sea que estan intentando de acomodar por si solas, que quedan como si se
+hubiese bugueado la pagina»*.
+→ **Revertido de inmediato** (`git revert`, commit `c4ca6ef`) y comprobado en produccion: 187
+pruebas, 26 de 26 pantallas. **La pantalla del culto no puede quedarse asi ni un rato.**
+
+**LA CAUSA, y es un bucle que yo mismo abri:**
+
+Antes la sonda medía **un ENTERO** —«caben 4»—. Yo lo cambie por **anchos en pixeles con
+decimales**. Y ahi se cierra la realimentacion:
+
+> mido los anchos → cambia el reparto → cambia el alto del contenido → **el auto-ajuste cambia
+> `fontScale`** → cambian los anchos → mido otra vez → …
+
+🔴 **El entero era lo que AMORTIGUABA el bucle, y no me di cuenta de que hacia eso.** Con un
+entero hace falta un cambio grande para que «4» pase a «3», asi que el sistema se queda quieto. Con
+decimales **nunca se estabiliza**: siempre hay una milesima de pixel de diferencia. Y encima el
+`ResizeObserver` vigila **la propia celda**, que es justo lo que el reparto hace cambiar de tamaño.
+
+📌 **La leccion, y es la que vale:** *un valor redondeado dentro de un lazo de realimentacion no es
+una imprecision, es el freno.* Cambiarlo por uno «mas exacto» quita el freno.
+
+#### 🔴 Y lo que fallo de MI FORMA DE COMPROBAR, que es peor que el fallo
+
+Lo comprobe con **192 pruebas**, build 0, **26 de 26 pantallas** y una medicion en el navegador que
+decia exactamente lo que yo queria oir: *3 cuadros, ninguno envuelve*.
+
+**Pero medí UNA vez, con la pagina quieta.** El baile es lo que pasa **ENTRE** una medida y la
+siguiente, y una foto no lo ve.
+📌 **Es T-17 otra vez en otra piel:** alli la respuesta era `307`, correcta, y la pagina tardaba 13
+segundos — **ninguna comprobacion miraba el reloj**. Aqui ninguna miraba **si el resultado se queda
+QUIETO**.
+→ **Regla: lo que se mide dentro de un lazo de realimentacion se mide VARIAS VECES SEGUIDAS, y solo
+vale si sale igual.** Es lo mismo que se aprendio con Supabase: *«para dar por bueno un servicio que
+se recupera hay que exigirle varias respuestas seguidas»*.
+
+#### Como se rehace, con el freno puesto
+
+1. **Lo que se guarda en el estado NO son los anchos: es EL REPARTO ya calculado** (`[4,3,1]`). Es
+   un valor **discreto y grueso**, igual que lo era el entero. Si al re-medir sale el mismo reparto,
+   **no se re-dibuja nada** y el bucle no llega a arrancar.
+2. **Los anchos se redondean** a unidades gruesas antes de repartir, para que una milesima no pueda
+   cambiar el resultado.
+3. **El `ResizeObserver` ignora los cambios de ALTO**: el alto es lo que el propio reparto modifica,
+   asi que reaccionar a el es realimentarse. Solo el **ancho** manda.
+4. **Se comprueba midiendo VARIAS VECES** y exigiendo que el reparto salga igual en todas.
+
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos
 meses, ¿por que las estructuras no aprovechan del ancho de la pantalla? porque mira que tambien
