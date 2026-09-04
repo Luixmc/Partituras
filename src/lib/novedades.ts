@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
     "secciones": [
       {
+        "titulo": "El signo de repeticion, en su sitio",
+        "resumen": "En 22 canciones el «:|» se iba solo a otra linea en vez de cerrar el compas.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El «:|» se quedaba colgando en una linea aparte.",
+            "detalle": [
+              "Pasaba en <strong>22 canciones</strong>, y se veia sobre todo <strong>en el telefono</strong> al agrandar la letra para aprovechar la pantalla: el signo del final de la repeticion se iba debajo de los acordes, solo.",
+              "La causa: cuando el <code>:|</code> va pegado a una casilla de 1ª/2ª vez, la pagina creaba <strong>un compas vacio</strong> que solo llevaba el signo — y ese hueco contaba como un compas mas al repartir la seccion. <strong>Ahora el signo cierra el compas anterior</strong>, como en una partitura.",
+              "✅ <strong>No se perdio nada:</strong> se compararon las 72 canciones y las 13 versiones en otro tono una a una — los <strong>3.388 acordes</strong> siguen ahi y las <strong>330 repeticiones</strong> tambien."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Ya no se pierde lo que estas escribiendo",
         "resumen": "Crear una cancion, escribir una melodia o tocar una version ya avisan antes de que se pierda.",
         "cambios": [

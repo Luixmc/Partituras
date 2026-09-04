@@ -9,7 +9,7 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 
 ## ¿Qué hace?
 
-- **Catálogo** de las ~75 canciones, con búsqueda por título, compositor **y letra**, y filtro por
+- **Catálogo** de las ~80 canciones, con búsqueda por título, compositor **y letra**, y filtro por
   categorías. Los administradores pueden filtrar además por estado (publicada / borrador / archivada).
 - **Editor de acordes en cuadrícula** (no es notación de pentagrama): escribes acordes con botones o
   a mano y se renderizan en compases, con sus figuras musicales, ligaduras, repeticiones y casillas.
@@ -61,19 +61,29 @@ El texto plano se parsea a compases en `TablaturePreview`:
 | Bajo invertido | `/` | `C/G` |
 | **Sección** | **`[Coro]`**, en su propia línea — **con corchetes** | `[Intro]`, `[A (Anhelo...)]` |
 | **Texto centrado** | **`<lo que sea>`** — se dibuja como un acorde, no parte sección | `<Conteo 1, 2, 3>` |
-| Duración | `:0.25` `:0.5` `:0.75` `:1` `:1.5` `:2` `:3` `:4` — también **suelta**, sin acorde | `C:2 G:2`, `:1` |
-| Silencio | `Z` con duración | `C:2 Z:2` |
+| Duración | `:0.25` `:0.5` `:1` `:2` `:4`… — también **suelta**, sin acorde | `C:2 G:2`, `:1` |
+| **Con puntillo** | la mitad más: `:0.375` `:0.75` `:1.5` `:3` `:6` | `C:1.5` |
+| **Con DOBLE puntillo** | la mitad más un cuarto: `:0.4375` `:0.875` `:1.75` `:3.5` `:7` | `C:1.75` |
+| Silencio | `Z` con duración, **de la redonda a la semicorchea** | `Z:4`, `Z:1`, `Z:0.25` |
 | Barra de compás | `\|` | `C \| G` |
 | Repetición | `\|:` … `:\|` | `\|: C G :\|` |
 | Casilla 1ª / 2ª vez | `{` … `}1` / `}2` | `\|: C \|: F G :\| { Am }1 { C }2` |
 | **Ligadura** | **`~`** suelto o pegado. Encadenar da **un solo arco largo** | `C~ D~ E` |
 | **Calderón** | **`^`** pegado | `E^` |
 | **Staccato** | **`!`** pegado | `C:1!` |
-| **Repetir acorde** | **`%`** | `C \| % \| %` |
+| **Repetir acorde** | **`%`**, y **acepta duración** | `C \| % \| %:4` |
 | **Paso cromático** | **`-`** entre dos acordes: se va tocando por semitonos | `F# ~ - D` |
-| **Salto de fila** | **`;`** — y ademas **impide que la pagina reparta esa seccion**: ahi mandas tu | `C G ; Am F` |
 | **Cambio de compás** | el compás en medio de la línea | `\|: 4/4 C \| 6/8 G :\|` |
 | Letra bajo el acorde | `(...)` | `(Aleluya)` |
+
+> 🗑️ **El salto de fila (`;`) SE ELIMINÓ** el 2026-09-04. Existía para cortar una sección a mano, y
+> la página ya la reparte sola midiendo lo que cabe en cada aparato — algo que no se puede acertar a
+> mano para todos los tamaños a la vez. Si queda un `;` escrito en alguna canción **se descarta en
+> silencio**: no se dibuja nada.
+
+> 📌 **Las duraciones raras no se teclean, se pulsan.** `:0.4375` es impracticable a mano, así que
+> las **15 duraciones** (5 figuras × normal, puntillo y doble puntillo) y los silencios tienen su
+> botón en la botonera del editor. Escribirlas a mano sigue funcionando, pero no hace falta.
 
 **Disminuido:** se **escribe** `dim` / `dim7` y se **dibuja** `°` / `°7`. El símbolo no se teclea nunca.
 
@@ -104,7 +114,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 139 pruebas |
+| `npm test` | Las 187 pruebas |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
 | `npm start` | Sirve el build de producción en local |
@@ -221,6 +231,9 @@ src/
     imprimir/culto/[id]     → hoja imprimible del culto (fuera del panel, para paginar bien)
     novedades               → comunicado público de cambios
   components/
+    ui/
+      Dialogo.tsx           → EL diálogo de la app  ← el único, no lo copies
+      AutoTextarea.tsx      → campo que crece con el texto, sin saltar el scroll
     sheets/
       TablaturePreview.tsx  → EL CORAZÓN: texto → cuadrícula de acordes
       MusicFigures.tsx      → figuras y silencios en SVG
@@ -283,8 +296,13 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 - [x] **Diagramas de acordes**: piano, bajo y guitarra, con el instrumento recordado
 - [x] **Modo trompeta** (instrumentos en Bb): la canción ya transpuesta a su tono
 - [x] **Letras** de las canciones: escribir, leer, buscar y alternar con los acordes
-- [x] **Pruebas automáticas** (139) y CI en cada push
+- [x] **Pruebas automáticas** (187) y CI en cada push: pruebas → lint → build
 - [x] `/novedades`: comunicado público de cambios
+- [x] **Secciones largas que se reparten solas** entre los cuadros, midiendo lo que cabe
+- [x] **Melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón,
+      leerla como suena o como la lee la trompeta, y el tercer modo a pantalla completa
+- [x] **Diálogos con el diseño de la app**, uno solo para toda la app, y **red de seguridad** para
+      que no se pierda lo que se está escribiendo
 
 **Pendiente**
 
@@ -299,15 +317,24 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 
 - **`pdfjs-dist`**: el *worker* se sirve desde `public/pdf.worker.min.mjs` (copia local). Si actualizas `pdfjs-dist`, regenera la copia con `npm run copy-pdf-worker`.
 - **Tabla `songs`** (migraciones `20240008`/`20240009`, del antiguo módulo de mosaicos) sigue en el esquema pero no se usa en la app.
-- **`@react-pdf/renderer`** está instalado y **ya no lo usa nadie**: el PDF del culto se hace con la
-  impresión del navegador. Quitarlo es seguro, y de paso desbloquea React 19.
 - **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
   `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
   antes la clave `service_role`, porque `npm run export` depende de esa lectura.
-- **Desactivar un usuario no le impide entrar**: `profiles.active` se escribe y no lo lee nadie.
-- **`eslint-config-next` sigue en la 14** con Next 16: subirlo exige migrar a ESLint 9. No afecta ni
-  a la app ni al CI, que ejecuta `npm test` y `npm run build`.
-- **`"strict": false`** en `tsconfig.json`.
+- **Dos migraciones escritas y SIN APLICAR**: `20240020` (que un usuario desactivado tampoco pueda
+  leer por la API) y `20240021` (la columna `sheets.melody`). El código publicado **no las
+  necesita**: detecta que falta y lo dice, en vez de fingir que guardó.
+- **Queda medio P-01**: por la web un usuario desactivado ya no entra, pero **un token guardado
+  puede seguir leyendo por la API** hasta que caduque. Eso lo cierra la migración `20240020`.
+- **El respaldo de `replaceSongs`** (borrar e insertar) ya no se usa nunca desde que existe la
+  función `reemplazar_canciones_culto`, y sigue en el código. Se quita cuando lleve tiempo en pie.
+- **61 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
+
+> 🔎 **Cuatro puntos que estaban aquí y ERAN FALSOS, corregidos el 2026-09-04** — se apuntan porque
+> un README que miente sobre seguridad es peor que uno incompleto:
+> `"strict"` **ya está en `true`** (desde el 2026-08-29) · `eslint-config-next` **está en la 16**
+> con ESLint 9 · `@react-pdf/renderer` **ya no está instalado** · y sobre todo:
+> **desactivar un usuario SÍ le impide entrar** por la web desde el 2026-08-28, probado en
+> producción.
 
 ---
 
@@ -328,7 +355,7 @@ guarde y se vuelva a leer con su misma duración y su misma alteración.
 📌 Esa última tiene motivo: si al guardar se perdiera un sostenido, **no salta ningún error**. La
 partitura se dibuja igual de bien con la nota equivocada, y quien lo descubre es quien la toca.
 
-⚠️ Las 75 canciones reales **no están en el repositorio** (es público). Los arneses que las usan
+⚠️ Las canciones reales **no están en el repositorio** (es público). Los arneses que las usan
 viven fuera y leen de una copia local.
 
 ---
@@ -355,3 +382,8 @@ pública `/novedades`; esto es el resumen técnico.
 | **r46** | Las secciones al crear una canción · el campo de la letra crece solo y ya no salta el scroll · un usuario desactivado no entra por la web · `parseSections` deja de estar duplicada · **el lint estaba roto desde Next 16** y nadie se enteraba · `strict` activado · el recorrido de pantallas mira **el reloj**, no solo el código |
 | **r47** | El silencio de negra que eligió Isaac mirándolo · **doble puntillo** y los silencios de corchea y semicorchea, que no existían · `%` con duración · figuras a 1,6× y el hueco de la celda **calculado**, no escrito · las otras tonalidades en la tarjeta · **las secciones largas se reparten solas** entre los cuadros · la cuadrícula usa todo el ancho · el silencio deja de comerse el compás |
 | **r48** | **La melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón, leerla, la sección `/melodias`, la pestaña en la canción y el tercer modo a pantalla completa. Entra `abcjs` como dependencia, cargada de forma diferida. **187 pruebas** |
+| **r49** | La app instalada **ya gira**: `orientation` de `portrait-primary` a `any`. Ese campo solo manda en la app instalada, así que la línea llevaba meses sin hacer nada — y despertó justo al recomendarle instalarla |
+| **r50** | Corregido el comunicado: la app **se instala con Chrome, no con Brave** — Brave da un acceso directo y no lo dice, porque el paquete lo firma un servidor de Google y Brave no hace esa llamada. Se publicaron **las tres señales** para que cualquiera sepa si le funcionó |
+| **r51** | **Un solo diálogo para toda la app**: fuera los del navegador, botón rojo en lo que borra, y las **dos copias** que había del cuadro «Cambios sin guardar» pasan a ser una |
+| **r53** | **Fuera el salto de fila (`;`)**: lo jubiló el reparto automático de secciones. Con él muere la excepción de «si lo marcas a mano, la página no reorganiza» — ahora **todas** las secciones se reparten midiendo. Y el README, al día: cuatro puntos de su «deuda técnica» eran falsos |
+| **r52** | **La red de seguridad donde faltaba**: crear una canción no tenía **ninguna** —se perdían todos los acordes tecleados—, ni la melodía ni las versiones por tono avisaban, y **cambiar de pestaña no pedía permiso** |

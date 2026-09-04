@@ -7,6 +7,18 @@
 
 ## 4 de septiembre de 2026
 
+### 🎵 Arreglado: el signo de repetición se iba solo a otra línea
+
+- 🔴 **En 22 de las canciones, el `:|` del final de una repetición se quedaba colgando en una línea
+  aparte**, debajo de los acordes, en vez de cerrar el compás donde le toca. Se veía sobre todo **en
+  el teléfono**, al agrandar la letra para aprovechar la pantalla.
+- **La causa:** cuando el `:|` va pegado a una casilla de 1ª/2ª vez (`}2:|`), la página creaba **un
+  compás vacío** que solo llevaba el signo. Ese hueco contaba como un compás más, así que al
+  repartir la sección se iba él solo a la fila siguiente.
+- **Ahora el signo cierra el compás anterior**, que es como se escribe en una partitura.
+- ✅ **No se perdió nada al arreglarlo:** se compararon las **72 canciones y las 13 versiones en
+  otro tono**, una a una — **los 3.388 acordes siguen ahí** y **las 330 repeticiones también**.
+
 ### 🛟 Ya no se pierde lo que estás escribiendo
 
 - 🔴 **Al crear una canción nueva ya no se pierde el trabajo.** Antes escribías el título, el tono y

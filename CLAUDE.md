@@ -82,11 +82,16 @@ cada push a `main`.
    Isaac** (ver §11). Que Isaac sea el mantenedor **no** convierte el permiso en permanente.
 2. **Cada push a `main` PUBLICA en producción en menos de un minuto**, sin que nadie apriete
    nada, y sin que Isaac pueda ver los logs (§6). Un push a `main` es un despliegue.
-3. **La base de datos de producción tiene datos reales en uso** (~75 canciones, 2 cultos).
+3. **La base de datos de producción tiene datos reales en uso** (~80 canciones, 4 cultos).
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. **No hay ni una prueba, ni CI.** 7.029 líneas de TypeScript sin red de seguridad.
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **187 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **14.919 líneas** de TypeScript
+   en 82 archivos.
+   ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
+   equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
+   primero», y actuaba como si no hubiera nada que le cubriera las espaldas.*
 
 ### Cuándo se puede decir que algo quedó corregido
 
@@ -118,7 +123,10 @@ npm run export       # copia de seguridad de los datos a JSON (§12.1)
 el build deja al servidor de desarrollo roto (T-04). **Para comprobar que algo compila con el
 servidor encendido: `npm run verificar`**, que compila aparte.
 
-No hay `npm test`: **no existe ninguna prueba** (P-11).
+**`npm test` ejecuta 187 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
+⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
+línea se quedó atrás.
 
 ### 2.2 El `.env.local` (no se sube: `.gitignore:9`)
 
@@ -201,7 +209,7 @@ repo/
       (auth)/login/              Único punto de entrada. /signup NO existe (P-08)
       (dashboard)/               Todo lo que exige sesión
         layout.tsx               Carga el perfil y monta barra lateral + tema
-        catalog/                 Las ~75 canciones: búsqueda y filtro por categoría
+        catalog/                 Las ~80 canciones: búsqueda y filtro por categoría
         catalog/[id]/            Ver / editar una canción
         sheets/new/              Crear canción (solo admin)
         services/                Cultos (setlists)
@@ -213,15 +221,15 @@ repo/
       s/[token]/present/         Presentación del culto compartido
     components/
       sheets/
-        TablaturePreview.tsx ★   EL CORAZÓN (566 líneas): texto → cuadrícula de acordes
+        TablaturePreview.tsx ★   EL CORAZÓN (961 líneas): texto → cuadrícula de acordes
         MusicFigures.tsx         Figuras y silencios en SVG
-        SongDetailEditor.tsx     Editor + vista de una canción (674 líneas)
+        SongDetailEditor.tsx     Editor + vista de una canción (886 líneas): vista, edición, letra y melodía
         SongKeyVersions.tsx      Versiones de la canción en otras tonalidades
         ChordToolbar.tsx         Botonera de acordes
         ImportControls.tsx       Importar PDF / imagen (OCR) / texto
       services/
-        ServiceEditor.tsx        Armar el culto (786 líneas)
-        PresentationView.tsx ★   Modo presentación (450 líneas). Lo último que se tocó
+        ServiceEditor.tsx        Armar el culto (876 líneas), arrastrando
+        PresentationView.tsx ★   Modo presentación (1.016 líneas): acordes ↔ letra ↔ melodía
     lib/
       music.ts ★                 Transposición de acordes
       sections.ts                Partir el contenido en secciones "[Coro]"
@@ -229,9 +237,10 @@ repo/
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
-  supabase/migrations/           14 migraciones ⚠️ desincronizadas con la BD (T-01)
+  supabase/migrations/           21 migraciones ⚠️ desincronizadas con la BD (T-01)
+                                 ⚠️ las DOS últimas (20240020, 20240021) SIN APLICAR
   public/sw.js                   Service worker ⚠️ causa de T-02
-  layout.tsx                     ⚠️ HUÉRFANO en la raíz, no lo usa nadie (P-10)
+  pruebas/                       187 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -256,8 +265,8 @@ repo/
 | Calderón | `^` pegado (`E^`) | `TablaturePreview.tsx:138` |
 | **Staccato** | **`!` pegado** (`C:1!`) | D-08 · O-03. ✅ **Hecho** |
 | **Paso por semitonos** | **`-`** entre dos acordes: se va tocando cromático del uno al otro. Ej.: `F# ~ - D` | Isaac, 2026-08-20. **No estaba escrito en ninguna parte** |
-| Salto de fila | `;` | `TablaturePreview.tsx:124` |
 | Cambio de compás | `6/8` inline | `TablaturePreview.tsx:155` |
+| ~~Salto de fila~~ | 🗑️ **`;` ELIMINADO el 2026-09-04 (O-62).** Se acepta y **se descarta en silencio**, por los borradores que no se pueden leer | — |
 
 ---
 
@@ -342,7 +351,7 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | Pruebas automáticas | **0** |
 | Migraciones en el repositorio | **14** |
 | Migraciones registradas en la BD | **18**, y **no coinciden** con las del repo (T-01) |
-| **Canciones (CONTADAS, 2026-08-21)** | **75 = 67 publicadas + 8 en borrador** ⚠️ el 2026-08-20 eran 69 + 6: Isaac pasó dos a borrador, así que **el respaldo de ese día está desfasado** |
+| **Canciones (CONTADAS, 2026-09-04)** | **80 = 72 publicadas + 8 en borrador.** ⚠️ **Isaac sigue montando canciones**: eran 69+6 el 20-ago, 67+8 el 21-ago y 72+8 hoy. → **Cualquier respaldo tiene días contados, y cualquier cifra escrita aquí también.** Antes de citarla, contarla |
 | **Caracteres de acordes transcritos** | **28.203** — el trabajo que hay que proteger |
 | **Categorías (CONTADAS)** | **14** |
 | **Vínculos canción↔categoría** | **94** |
@@ -728,6 +737,8 @@ continúes con el trabajo es porque ya es mañana»*.
 | **5** | ~~**EL PUSH**~~ | ✅ **PUBLICADO el 2026-09-03 con su permiso** (*«sube lo que queda pendiente»*), `48990b1..d59a9de` (**r48**), en tres commits. CI **verde**, **26 de 26 pantallas en producción**, y las tres desechables **307** — ninguna llegó. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir** |
 | **6** | ⬜ **Que Isaac lo pruebe CON LA MANO, y en la tablet** | El ratón no deja rastro en el HTML: arrastrar una nota, `Supr`, deshacer y el botón de los tres modos **solo se comprueban tocando** |
 | **7** | ~~**O-59 — usar la página como app**~~ | ✅ **INSTALADA el 2026-09-04**, en el menú de aplicaciones y sin escudo. 🔴 **Y salió el porqué de que fallara: BRAVE no fabrica la app, da un acceso directo y no lo dice.** Se instala **con Chrome**. Siguen anotadas las dos cosas que no hace —el aviso de «hay versión nueva» y que **sin internet no hay canciones**—; la tercera (la orientación) se arregló en r49 |
+| 🔜 **A** | 🔴 **O-63 — encoger las barras de la presentacion** | **DECIDIDO por Isaac, SIN PROGRAMAR.** Eligio «encoger las barras» de tres opciones dibujadas. Hoy tapan **un tercio** de su pantalla y **tocar un acorde de abajo dispara «Siguiente»** — se le pasa la cancion en mitad del culto. El plan y el porque, en O-63. **Es lo primero que hay que hacer** |
+| 🔜 **B** | ⬜ **Que Isaac mire el `:\|` arreglado en su telefono** | O-64 esta hecha y medida (25 de 85 piezas cambian, y **solo** por perder el bloque fantasma). Pero el reparto **solo se ve en el navegador**: la captura del fallo la trajo el, y la de que quedo bien tambien le toca |
 | **8** | ~~**El ICONO**~~ | ✅ **DECIDIDO el 2026-09-04: SE QUEDA COMO ESTÁ** (*«deja el icono así»*), o sea la **A**, `purpose: "any"` y el PNG transparente de D-12. **No se vuelve a proponer.** Si algún día cambia de idea, la **C** está descrita abajo con su aviso del margen |
 
 **Estado del árbol al cerrar el 2026-09-02:**
@@ -3704,6 +3715,221 @@ nuestro**. No son el mismo caso.
 cancion y pulsar «volver»; escribir una melodia y cambiar de pestaña; tocar una version por tono y
 salir. **El HTML no dice si el dialogo salta** — lo prueba Isaac.
 
+**O-62 · Fuera el SALTO DE LÍNEA (`;`). Se elimina del todo.** ✅ **HECHO (2026-09-04).**
+Isaac: *«quiero que elimines del todo la funcion de nueva linea, porque se buscaba para que las
+canciones quedasen bien estructurado para cada dispositivo, pero como ya esta implementada la
+funcion de que la propia pagina se acomoda sola sin limite de tamaño o de minimo de compas en cada
+seccion, entonces ya no es necesario»*.
+
+📌 **Su razonamiento es correcto, y conviene dejarlo escrito porque es el que jubila la función.**
+El `;` existía para que ÉL decidiera dónde cortaba una sección — era la respuesta manual al problema
+que O-52 resolvió midiendo. Con el reparto automático **sin mínimo de compases** (regla 1) y sin
+tope de trozos, **el corte manual ya no aporta**: la página mide lo que cabe en cada aparato, y él
+no puede acertar a mano para todos los tamaños a la vez.
+
+🔴 **Y esto supera una regla escrita en O-52.** Allí se decidió: *«Si él escribió un `;`, MANDA ÉL:
+la página no reorganiza esa sección»*. **Esa excepción desaparece con la función.** A partir de
+ahora **todas** las secciones se reparten midiendo — no queda ninguna forma de desactivarlo.
+
+#### 🔴 Lo que había que medir ANTES de tocar, porque esto toca las 80 canciones
+
+| | |
+|---|---|
+| Canciones publicadas leídas | **72** |
+| **Con `;` suelto (el salto)** | **1** — «Aceleración», y estaba **al final de la línea**, donde ni siquiera hacía nada |
+| **Isaac lo quitó él mismo** antes de empezar (*«ya lo quité de la canción, adelante»*) | → **0 canciones afectadas** |
+| Con `;` en cualquier otra forma | **0** |
+
+#### 🔬 El barrido COMPLETO, que es lo que decide si esto es seguro
+
+Los 8 borradores no se pueden leer con la clave pública, así que **eso lo confirmó Isaac**
+(*«los 8 borradores tampoco tienen el `;`»*) — y él es el único que escribe canciones (D-13).
+Lo demás se midió:
+
+| Dónde vive texto de acordes | Filas | Con `;` |
+|---|---|---|
+| `sheets.content` · publicadas | **72** | **0** |
+| `sheets.content` · borradores | 8 | **0** — confirmado por Isaac |
+| 🔴 **`sheet_keys.content`** · las versiones por tono | **13** | **0** |
+| `service_songs` | 16 | no guarda texto propio |
+
+⚠️ **Las versiones por tono NO se me habían ocurrido**, y tienen su propio texto de acordes: si una
+hubiera llevado un `;`, se habría visto en la pantalla del culto. **Salieron limpias las 13**, pero
+el hueco era real — *al retirar algo del formato hay que barrer TODAS las columnas donde vive ese
+formato, no solo la principal*.
+
+#### 🔴 Y por eso el parser SIGUE aceptándolo y descartándolo, aunque hoy no quede ninguno
+
+**Las COPIAS DE SEGURIDAD sí lo tienen dentro.** Medido:
+
+| Copia | Canciones con `;` |
+|---|---|
+| `Partituras-datos-2026-08-22` | **2 de 67** — «Aceleración» y «Todo Lo Has Cambiado» |
+| `Partituras-datos-2026-09-03` *(la de ayer)* | **2 de 72** — las mismas |
+
+→ **Una copia de seguridad existe para restaurarla.** El día que se restaure, el `;` vuelve — y si
+la rama se hubiera borrado del todo, ese `;` caería en el `else` que pinta lo desconocido y
+**saldría dibujado en la cuadrícula**, en una canción que se acaba de rescatar.
+
+📌 **Es T-07 en su versión de datos:** *quitar solo es seguro cuando ya nadie lo pide*. Y aquí «ya
+nadie» incluye **a las copias**, que son datos que van a volver. **Aceptar y descartar cuesta UNA
+LÍNEA y es invisible**; borrar la rama no gana nada salvo pureza.
+→ **La FUNCIÓN sí está eliminada del todo**: no hay botón, no está documentada, no hace nada y la
+excepción que tenía en el reparto murió con ella. Lo que queda **no es la función: es tolerancia a
+datos viejos.**
+
+#### Lo que se quitó, y lo que se comprobó
+
+| Pieza | |
+|---|---|
+| El botón **«↵ Nueva línea»** de la botonera | fuera |
+| La rama del parser que creaba el salto | **cambiada por descartarlo**, no borrada |
+| `isBreak`, `esSalto`, `data-salto` y el bloque que lo dibujaba | fuera |
+| `bloquesVisuales` devolvía `conSaltoManual` | **ya no**: era la excepción, y murió con la función |
+| La tabla de sintaxis del README y la de §4 | al día, con el aviso de que se descarta |
+
+🔬 **Y la comprobación que valía, hecha con el `parseMeasures` REAL sacado del `.tsx`** —el mismo
+método de las fases D e I, no una copia pegada:
+
+| Caso | Compases | ¿Se dibuja un `;`? |
+|---|---|---|
+| `4/4 Dm \| Bb \| F \| C` | 4 | no |
+| …con `;` **al final** | **4** — igual que sin él | no |
+| …con `;` **en medio** | 3 — `Bb` y `F` se quedan en el mismo compás, que es lo correcto al no haber salto | no |
+| `;` **pegado** (`Bb;F`) | 3 | no |
+| **solo** un `;` | **0** | no |
+
+**Y las canciones se ven igual**, contando acordes contra lo que este documento ya tenía escrito:
+**«Sube La Alabanza» 98** (O-47/O-51) · **«Cada Vez» 55** (O-53) · «Aceleración» 19 · **0 errores**.
+187 pruebas · lint 0 · build 0 · **26 de 26 pantallas**.
+
+📌 **Y NO va al comunicado, a propósito.** El botón solo existía en modo edición —que es solo
+admin— y **ninguna canción usa ya el `;`**, así que **un músico no nota absolutamente nada**. La
+regla de `/novedades` dice que ahí va lo que nota quien abre la página para tocar; esto no lo es.
+
+**O-63 · En el TELEFONO las barras tapan los acordes, y se comen el toque.** MEDIDO, sin tocar nada.
+Isaac, 2026-09-04, con una captura del telefono en horizontal a pantalla completa:
+
+> *«pongo el texto al acomodo de mi telefono para que ocupe toda la pantalla, pero cuando quiero ver
+> por ejemplo un acorde estan debajo de la pantalla y le doy clic para verlo me toma es el boton, y
+> lo mismo aplica con lo de arriba… quisiera saber si hay alguna manera de modificar los botones por
+> su posicion»*
+
+#### La causa, medida en el codigo
+
+**En pantalla completa las dos barras FLOTAN ENCIMA del contenido:** la cabecera es
+`absolute inset-x-0 top-0 z-30` y el pie `absolute inset-x-0 bottom-0 z-30`. Y el `<main>` solo
+lleva `py-1`: **no reserva ni un pixel** para ellas.
+
+🔴 **Y el auto-ajuste rellena TODA esa altura, incluida la que las barras tapan:**
+`availH = main.clientHeight - padY`. O sea que **la pagina calcula el tamaño de la letra para un
+espacio que en realidad no esta libre**, y por construccion mete acordes debajo de las barras.
+
+#### 🔴 Y es PEOR de lo que el cuenta: no es que no se vea, es que PASA DE CANCION
+
+`onTouchStart` llama a `pokeChrome()`, asi que **cualquier toque despierta las barras**. Cuando
+estan ocultas llevan `pointer-events-none` y el toque pasa al acorde; pero el toque que las
+despierta las deja **visibles y pulsables antes de que llegue el `click`** —el `click` llega tras el
+`touchend`—, asi que **el toque acaba en el boton**.
+
+→ **Tocar un acorde de la franja de abajo dispara «Siguiente».** En mitad de un culto, eso no es un
+estorbo: es que **se le pasa la cancion**. Y arriba lo mismo con los controles de tono.
+
+#### Cuanto espacio se pierde, medido en SU captura (1200 x 540, telefono en horizontal)
+
+| Franja | Alto | % de la pantalla |
+|---|---|---|
+| Cabecera (titulo + tono + instrumento, **tres filas**) | **~125 px** | **23 %** |
+| Pie («Anterior» / «Siguiente») | **~53 px** | **10 %** |
+| **Tapado en total** | **~178 px** | 🔴 **un tercio de la pantalla** |
+
+📌 **Por eso no vale con «reservar el sitio» a secas:** perderia un tercio del alto justo en el
+aparato mas pequeño. **La cabecera ocupa tres filas** —titulo, la fila del tono, y «Tu
+instrumento»— y en pantalla completa casi nada de eso hace falta permanentemente.
+
+⚠️ **Y hay que separar DOS problemas, porque tienen arreglos distintos:**
+1. **El toque se lo come el boton** → se arregla **sin perder ni un pixel**.
+2. **El acorde queda tapado** → o se reserva sitio, o **se encogen las barras**, o las dos.
+
+#### ✅ SU DECISION (2026-09-04): ENCOGER LAS BARRAS y reservarles el sitio
+
+Se le ofrecieron tres —encoger, reservar tal cual, o los botones a los lados— y eligio **encoger**.
+📌 **Y las tres se le enseñaron dibujadas**, con el alto de cada franja en pixeles: la eleccion
+aqui no era de gusto, era **cuanto alto pierde en el telefono**, y eso solo se decide viendo el
+numero al lado de cada opcion (33 % · 33 % · 7 %).
+
+🔴 **Y lo mejor de esta opcion es algo que no estaba en la pregunta: al reservar el sitio, el
+PROBLEMA ① DESAPARECE SOLO.** Si las barras dejan de flotar por encima del contenido, **un toque en
+un acorde ya no puede caer en un boton** — no porque se arregle el toque, sino porque **ya no hay
+nada encima del acorde**. Un arreglo que elimina la clase entera de fallos vale mas que uno que
+tapa el caso concreto.
+
+⚠️ **Y de ahi sale una consecuencia que hay que decidir bien: si las barras reservan sitio, el
+AUTO-OCULTADO deja de tener sentido.** Ocultarlas ya no gana espacio —el hueco sigue reservado— y
+en cambio haria **saltar el contenido**. → **En pantalla completa las barras se quedan quietas y
+visibles**, delgadas. Se va el temporizador, se va `pokeChrome` en el toque, y con ellos toda una
+familia de fallos.
+
+⚠️ **Lo que NO se puede perder al encoger la cabecera:** el **selector de instrumento** (la
+trompeta, D-28) y los **botones de tono**. No caben en una fila con el titulo, asi que **pasan
+detras de un boton**: se abren cuando se piden, encima del contenido, y se cierran. Que es
+deliberado, no accidental — al reves que ahora.
+
+**O-64 · El `:|` se va SOLO a otra linea: un bloque fantasma en 22 de las 72 canciones.**
+Isaac, 2026-09-04, con una captura del telefono: *«cuando quiero acomodar el texto a lo que pueda en
+la pantalla de mi telefono la repeticion se desacomoda»*. En su captura, la seccion «C (sigue)» de
+«Es Por Tu Gracia» sale con las casillas `{}1 {}2` y **el `:|` colgando solo en una fila de abajo**.
+
+#### La causa, sacada del parser REAL
+
+Su seccion C acaba en **`}2:|`** — el cierre **pegado a la casilla**. Y ahi:
+1. `}2` hace `flush()`, que cierra y empuja el compas de la casilla.
+2. Llega el `:|` con el compas actual **ya vacio**… y `hasContent` cuenta como «con contenido» un
+   compas que solo lleva un signo de repeticion. → **se empuja un COMPAS VACIO que solo lleva el
+   `:|`**.
+
+🔴 **Ese compas fantasma es un BLOQUE para el reparto (O-52)**, asi que cuenta para lo que cabe en
+una fila y **puede irse solo a la siguiente**. Que es exactamente lo que el vio.
+
+**Medido con `parseMeasures` y `groupSegments` sacados del `.tsx`:**
+
+| | |
+|---|---|
+| Su seccion C | **9 bloques, y el 9.º VACIO** — solo lleva el `:|` |
+| Una repeticion normal (`… A:2 B:2 :\|`) | 4 bloques, el `:\|` **pegado al ultimo compas de verdad**. Correcto |
+| 🔴 **Canciones publicadas afectadas** | **22 de 72**, con **26 bloques fantasma** |
+| 🔴 **Versiones por tono afectadas** | **3 de 13**, con 4 bloques |
+
+📌 **No es un caso raro: es un tercio del repertorio.** Y llevaba ahi desde siempre — antes solo se
+notaba como una celda vacia al final; **con el reparto automatico (O-52) empezo a saltar de linea**,
+y por eso aparece ahora.
+
+#### El arreglo
+
+**Si llega un `:\|` y el compas actual esta VACIO, el cierre se pega al ULTIMO compas que ya hay**,
+en vez de abrir uno nuevo. Es lo que hace una partitura de verdad: el signo cierra el compas
+anterior, no vive solo.
+#### ✅ HECHO y MEDIDO (2026-09-04) — las 85 piezas, antes y despues
+
+Se extrajeron `parseMeasures` y `groupSegments` **de las DOS versiones del `.tsx`** —la publicada
+(`git show HEAD:`) y la nueva— y se pasaron las **72 canciones + 13 versiones por tono**:
+
+| | |
+|---|---|
+| **Identicas** | **60 de 85** |
+| Cambian | **25** |
+| **…y las 25 cambian SOLO por perder el bloque fantasma** | ✅ **ninguna por otro motivo** |
+| **Acordes dibujados** | **3.388 → 3.388** — ni uno perdido |
+| **Bloques que llevan el `:\|`** | **330 → 330** — 🔴 **no se pierde ni una repeticion**: el signo se MUEVE al compas anterior, no desaparece |
+
+📌 **Esas dos ultimas filas son las que valen.** «Cambian 25» a secas no dice nada: podria ser que
+se hubieran perdido acordes o repeticiones. **Contar los acordes y los `:\|` por separado es lo que
+convierte «parece que salio bien» en «no se perdio nada».**
+
+⚠️ **Y el metodo, que se repite:** para el «antes» se uso **`git show HEAD:`**, no `git stash`.
+Stash mueve el arbol de trabajo — con cinco archivos tocados sin subir, un `pop` que falle deja el
+trabajo a medias. `git show` **no toca nada**.
+
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos
 meses, ¿por que las estructuras no aprovechan del ancho de la pantalla? porque mira que tambien
@@ -5250,6 +5476,45 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-04 · Tanda 41 — la documentación mentía, y en el peor sitio
+
+**Sin código.** Isaac lo pidió antes de cerrar: *«verifícame en todos los archivos que están en el
+repositorio… y actualiza la información que esté desactualizada, creo que hasta el readme está
+desactualizado al menos en lo que dice de pendientes»*. **Tenía razón, y se quedó corto.**
+
+🔴 **Cuatro de los siete puntos de «deuda técnica conocida» del README eran FALSOS:**
+
+| Decía | La realidad, medida |
+|---|---|
+| `"strict": false` | **`true`** desde el 2026-08-29 |
+| `eslint-config-next` en la 14 | **la 16**, con ESLint 9 |
+| `@react-pdf/renderer` instalado | **ya no está** |
+| 🔴 **«Desactivar un usuario no le impide entrar»** | **SÍ le impide** desde el 2026-08-28, probado en producción |
+
+🔴 **Y lo peor no estaba en el README, sino AQUÍ.** §1 se titula **«Guía rápida para la IA, léeme
+primero»** y decía *«No hay ni una prueba, ni CI»* con **187 pruebas y CI puestos desde el 22 de
+agosto**. O sea: **un chat nuevo empezaba creyendo que trabajaba sin red**, en la única sección
+escrita para que eso no pasara. También decía **14 migraciones** (son 21), y listaba un
+`layout.tsx` huérfano **borrado hace una semana**.
+
+**Lo demás que se corrigió:** las líneas de cada archivo del núcleo (de 566 a **961** en
+`TablaturePreview`, de 450 a **1.016** en `PresentationView`…), **7.029 → 14.919 líneas** de
+TypeScript, **75 → 80 canciones** (72 publicadas + 8 borradores, contadas hoy), el historial del
+README con **r49…r52**, y la tabla de sintaxis, que se había quedado sin **el doble puntillo**, sin
+los **silencios cortos** y sin **`%` con duración**.
+
+📌 **Por qué pasó, que es lo único que evita que vuelva:** *lo que se arregla se anota donde se
+arregla* —en la ficha del problema, en el historial— **y nadie vuelve al resumen de arriba a
+tacharlo**. El resumen se escribe una vez, al principio, cuando todo está por hacer.
+→ **Tachar el punto EN LA LISTA es parte de cerrarlo.** Es **L-230**.
+
+📌 **Y lo que lo hizo barato:** no se releyeron los documentos buscando errores — **se midió la
+realidad primero** (`tsconfig`, `package.json`, el código, la base) y se compararon los números.
+**Buscar mentiras leyendo no funciona: lo escrito suena razonable, por eso se escribió.**
+
+⚠️ **Un documento incompleto hace que alguien pregunte; uno que miente hace que ACTÚE.** Y las dos
+mentiras más caras eran justo **de seguridad** y **de red de seguridad**.
 
 ### 2026-09-04 · Tanda 40 — O-61: la red de seguridad donde faltaba · 🚀 r52
 
