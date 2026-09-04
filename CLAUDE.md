@@ -4964,6 +4964,31 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 37 — la app instalada ya gira · 🚀 r49
+
+**Publicado:** `62748df..523790a` a `main`. **CI verde**, **26 de 26 pantallas en producción**, y el
+manifiesto sirviendo `"orientation": "any"`.
+
+**Una línea**, y la encontró él preguntando: *«¿cómo se hace para que pueda leerse de manera
+horizontal, porque todos los que usamos dispositivo móvil leemos de manera horizontal?»*.
+
+🔴 **Lo interesante no es el arreglo, es POR QUÉ nadie lo había visto en meses.** `orientation`
+**solo manda en la app INSTALADA**; en el navegador no hace nada, y ahí gira desde siempre. La línea
+llevaba desde el primer día sin hacer absolutamente nada… **y despertó el día que se le recomendó
+instalarla** (O-59, el día anterior). Es **L-228**: *una opción que hoy no hace nada está esperando
+al contexto donde sí manda*.
+
+**Eligió `any`, no `landscape`, y es lo correcto** aunque su pregunta dijera «horizontal»: pidió que
+**PUEDA** leerse así. Con `landscape` forzado, el login, el catálogo y `/admin` también saldrían de
+lado.
+
+⚠️ **Y el remate que convierte el arreglo en otro problema si no se dice:** el manifiesto **se lee
+al instalar**, así que **quien ya tenga la app puesta no se entera**. Hay que **desinstalar y volver
+a instalar**, y eso está dicho en el comunicado — sin ello, creería que no funcionó.
+
+**De paso, el comunicado cuenta CÓMO SE INSTALA** en Android, PC e iPhone, que es lo que de verdad
+le sirve al músico, y **dice lo que NO hace**: sin internet la app abre pero las canciones no cargan.
+
 ### 2026-09-03 · Tanda 36 — O-57: la melodía en pentagrama, y O-52 cerrada · 🚀 r48
 
 **Publicado:** `48990b1..d59a9de` a `main`, en tres commits. **CI verde** (1 min 5 s).
