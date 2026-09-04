@@ -725,7 +725,7 @@ continúes con el trabajo es porque ya es mañana»*.
 | **3b** | ~~**O-57 · R.3 — escribir por texto**~~ | ✅ **HECHO el 2026-09-03.** Botón «Escribir a mano», sobre el mismo texto que escribe el ratón |
 | **4** | ~~**O-57 · R.4** — la melodía en la presentación~~ | ✅ **HECHO el 2026-09-03.** Un botón que rota **acordes → letra → melodía** a pantalla completa, con la melodía pedida APARTE para que la columna ausente no pueda vaciar el culto. Mirado en captura, con trompeta incluida. **El PDF sigue descartado por ahora**, decisión suya |
 | **4** | ~~**O-52 · regla 1 ó regla 2**~~ | ✅ **CERRADA el 2026-09-03: eligió la regla 1**, la que ya estaba publicada. La perdedora está **borrada**, no comentada |
-| **5** | 🔴 **EL PUSH — 25 entradas sin publicar desde `48990b1`** (medido con `git status`), de las que **3 son las páginas desechables que se borran** | ⬜ Antes: **borrar `/secciones-prueba`, `/pentagrama-prueba` y `/melodia-prueba` con sus líneas del middleware**, escribir el comunicado en **`CAMBIOS.md` Y en `/novedades`**, y **pedirle permiso** (D-01) |
+| **5** | ~~**EL PUSH**~~ | ✅ **PUBLICADO el 2026-09-03 con su permiso** (*«sube lo que queda pendiente»*), `48990b1..d59a9de` (**r48**), en tres commits. CI **verde**, **26 de 26 pantallas en producción**, y las tres desechables **307** — ninguna llegó. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir** |
 | **6** | ⬜ **Que Isaac lo pruebe CON LA MANO, y en la tablet** | El ratón no deja rastro en el HTML: arrastrar una nota, `Supr`, deshacer y el botón de los tres modos **solo se comprueban tocando** |
 | **7** | ⬜ **O-59 — usar la página como app** | 🟢 **NO hay que programar nada: ya es instalable** (PWA, con su manifiesto, sus iconos y el caché versionado desde r45). Lo que falta es que **Isaac la instale**. Quedan anotadas las **tres cosas que hoy no hace** —el aviso de «hay versión nueva», que **sin internet no hay canciones**, y que el manifiesto fuerza vertical—. **Ninguna se toca sin que él lo pida** |
 
@@ -4948,6 +4948,44 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-03 · Tanda 36 — O-57: la melodía en pentagrama, y O-52 cerrada · 🚀 r48
+
+**Publicado:** `48990b1..d59a9de` a `main`, en tres commits. **CI verde** (1 min 5 s).
+
+**Lo que entró:** todo **O-57 (R.1 a R.4)** —escribir la melodía con el ratón, la sección
+`/melodias`, la pestaña en la canción, escribirla a mano y el tercer modo a pantalla completa—,
+**O-52 cerrada** con la regla 1 y la perdedora borrada, y **`abcjs`** como dependencia.
+
+🔴 **Las dos decisiones que evitaron un desastre, y las dos son T-07 en su sitio más caro:**
+1. **La melodía se GUARDA aparte.** La letra viaja dentro del `update` general; copiar eso habría
+   roto **guardar cualquier canción** mientras la columna no exista — el editor de acordes roto por
+   una función que nadie usa todavía.
+2. **Y se LEE aparte.** Meterla en el `select` del culto habría hecho fallar la consulta entera, y
+   **el culto sale vacío en mitad del servicio**, sin error visible.
+
+📌 **Y la comprobación que de verdad valía no fue la del caso feliz, sino la del caso REAL:** todo
+se midió **con la columna todavía sin crear**, que es exactamente como está producción ahora mismo.
+**26 de 26 pantallas**, la presentación del culto con sus **37 acordes**, y `/melodias` sacando el
+aviso de *«todavía no se puede guardar»* en vez de fingir. Comprobado también **en producción**
+después de publicar.
+
+**Un fallo que nadie habría visto hasta un culto:** la melodía se mueve con el mismo desplazamiento
+que los acordes, pero ese número viene normalizado a 0..11 — **vale para nombrar un acorde y miente
+para colocar una nota**. Bajar un semitono se convertía en subir once. Con la trompeta sola (+2)
+**no se ve**.
+
+**Y el método, que se pagó solo:** el tercer modo **no se podía alcanzar** sin la columna, así que
+se montó una desechable que le pasa al componente de verdad una canción con melodía a mano. La
+captura enseñó los dos pentagramas y, con trompeta, el tono en **D** con sus dos sostenidos. Al
+montarla salió **L-224**: pulsar un botón «dos veces con 400 ms de espera» daba **un modo distinto
+en cada ejecución**, porque los primeros clics caen antes de la hidratación y **no dan error**.
+
+**Lecciones a la carpeta compartida:** **L-224** y **L-225**. Tocados además `CONVENCIONES.md`
+(la regla de esperar por el estado) y `PROYECTOS.md` (187 pruebas).
+
+**Y O-59 anotada sin programar nada:** Isaac preguntó si la página se puede usar como app. **Ya se
+puede** — es instalable desde el primer día. Quedan escritas las tres cosas que hoy no hace.
 
 ### 2026-08-21 · Tanda 33 — Guitarra · el estado del culto · y las seis que salieron probando de LECTOR · 🚀 r44
 
