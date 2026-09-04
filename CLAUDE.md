@@ -5053,6 +5053,36 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 38 — la app se instala con CHROME, no con Brave · 🚀 r50
+
+**Publicado:** `64bd351..2d75ef3` a `main`. CI verde, **26 de 26 pantallas en producción**.
+
+**Solo texto del comunicado**, y aun así es de las tandas que más valen: **corrige una instrucción
+FALSA que yo publiqué ayer** —«Android: Chrome, Edge, Brave»— y que le iba a hacer perder el rato a
+todo el que la siguiera. Lo descubrió Isaac intentándolo.
+
+🔴 **El hallazgo:** en Brave, pulsar «Install» **deja un acceso directo**, no una app. Y el cartel
+«Install app» con el nombre y el icono correctos **sale igual**, así que parece que fue bien.
+**Por qué:** el paquete de Android lo **construye y firma un servidor de Google** a partir del
+manifiesto; Brave no hace esa llamada a propósito, y **cae en la alternativa sin avisar**. Y engaña
+porque **Brave es Chromium por dentro**: menú, botón y diálogo idénticos.
+
+📌 **Lo que se publicó no es la explicación, son LAS TRES SEÑALES** —el aviso de «Añadiendo
+Partituras…» con barra, el icono **sin escudo**, y que aparezca **en el menú de aplicaciones**—.
+Con eso cualquiera del grupo distingue en cinco segundos si le funcionó, y **deja de hacer falta
+que lo mire yo**. Es **L-229**.
+
+**El icono: se queda como está**, decisión suya. Y **corrige una suposición mía que era falsa**: yo
+dije que el círculo blanco sería culpa del icono. **No lo es** — el PNG ya es transparente (medido:
+512×512 RGB+alfa) y el círculo lo pinta el lanzador. **Lo tumbó el render, no el razonamiento**: se
+generaron las tres versiones y se recortaron como hace Android, que es el método de O-47 y O-51
+aplicado por tercera vez.
+
+📌 **Y al diagnosticar, lo que ahorró el rato:** el primer instinto fue «será nuestro manifiesto».
+Se midió antes de tocar —requisitos, tipo de contenido, iconos— y **la prueba estaba en su propia
+captura**: ese cartel solo aparece cuando el navegador **ya aceptó** que la página es instalable.
+**Leer bien la captura del usuario evitó cambiar lo que no fallaba.**
+
 ### 2026-09-04 · Tanda 37 — la app instalada ya gira · 🚀 r49
 
 **Publicado:** `62748df..523790a` a `main`. **CI verde**, **26 de 26 pantallas en producción**, y el
