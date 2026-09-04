@@ -5184,6 +5184,34 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 39 — O-60: un solo diálogo para toda la app · 🚀 r51
+
+**Publicado:** `e1fc471..38aecfa` a `main`. CI verde, **26 de 26 pantallas en producción**, y el
+editor del culto con sus **8 asas de arrastre** y **0 errores**.
+
+Isaac señaló el cartel gris del navegador al borrar un culto y pidió que **todos** los diálogos
+fueran como el de «Cambios sin guardar». **Eran tres**, y los tres destruyen algo.
+
+🔴 **Y al medirlo apareció lo que duplicaba el valor: el diálogo bonito estaba escrito DOS VECES.**
+Sin unificarlo, atender la petición **habría escrito una tercera copia** — es la cuarta vez que este
+patrón muerde aquí (P-09).
+
+🔴 **Lo que no era cosmético:** `confirm()` **detiene el programa**, un diálogo dibujado no. Escrito
+seguido, **el culto se borraría sin preguntar**. La pregunta y la acción van separadas en los tres.
+
+📌 **Y un ajuste que solo enseñó la captura:** el primer «Eliminar» reusaba el rojo **contorneado**
+de «Descartar cambios» — compilaba, y se leía como **secundario** siendo la acción principal.
+→ **Dos rojos, por el PAPEL del botón**: sólido para la principal, contorneado para la salida
+destructiva que no lo es. **Quinta desechable** del proyecto, borrada antes de publicar.
+
+**Y la otra mitad de la tanda no fue código: fue corregirle una suposición.** Isaac ofreció *«yo las
+puedo dejar públicas»* para desbloquear la migración. **Se midió y no sirve:** leer ya funciona
+(HTTP 200 con la clave pública); lo que falta es **cambiar la ESTRUCTURA**, y eso **no está expuesto
+en esa API** — ni con la clave maestra. **No es un permiso que falte, es una puerta que no existe.**
+📌 Y el error de comunicación fue mío: escribí *«el conector ya no llega»*, y él lo tradujo a lo
+único que sí puede tocar. **Cuando el bloqueo es de una vía de acceso, hay que decirlo como una
+acción suya** —«pídele esto a tu primo»— no como un síntoma técnico.
+
 ### 2026-09-04 · Tanda 38 — la app se instala con CHROME, no con Brave · 🚀 r50
 
 **Publicado:** `64bd351..2d75ef3` a `main`. CI verde, **26 de 26 pantallas en producción**.
