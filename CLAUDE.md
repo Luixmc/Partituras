@@ -3930,6 +3930,89 @@ convierte «parece que salio bien» en «no se perdio nada».**
 Stash mueve el arbol de trabajo — con cinco archivos tocados sin subir, un `pop` que falle deja el
 trabajo a medias. `git show` **no toca nada**.
 
+**O-65 · El reparto mide una CUENTA, y los bloques no miden todos lo mismo.**
+Isaac, 2026-09-04, con una captura de «Es Por Tu Gracia» ya con el `:\|` arreglado: *«ahora mira el
+problema que sale, que no pasa a la siguiente estructura para respetar la lectura»*. En su captura,
+«C (sigue)» **envuelve DENTRO de su propio cuadro** —las casillas `{}1` y `{}2` caen en una segunda
+fila— en vez de pasar a la casilla siguiente de la rejilla.
+
+#### 🔴 La causa, MEDIDA en el navegador (no razonada)
+
+`medirDeVerdad()` cuenta **cuantos hijos caen en la primera fila** de la sonda → `caben`. Y
+`repartirBloques(total, caben)` hace `ceil(total / caben)` y reparte **por cuenta**.
+**Eso solo es valido si todos los bloques miden lo mismo. Y no lo miden.**
+
+Medido con una pagina desechable sobre **su propia seccion C**, con la fila a **526 px**:
+
+| Bloque | 1 | 2 | 3 | 4 | 5 | 6 | **7 = `{}1`** | **8 = `{}2`** |
+|---|---|---|---|---|---|---|---|---|
+| Ancho (px) | 156 | 161 | 104 | 104 | 114 | 161 | **251** | **526** |
+
+| | |
+|---|---|
+| El mas estrecho | **104 px** |
+| El mas ancho | **526 px** — la casilla `{}2` **ocupa ella sola la fila entera** |
+| `caben` segun la CUENTA | **4** |
+| → reparte | `ceil(8/4)` = **2 bloques → 4 + 4** |
+| **Pero el segundo grupo mide** | `114+161+251+526` = **1.052 px en una fila de 526** → 🔴 **envuelve** |
+| **Filas que hace el NAVEGADOR solo** | **4 + 3 + 1** |
+
+📌 **La regla que Isaac eligio (regla 1) dice «los bloques mas grandes que quepan ENTEROS en una
+fila, sin que ninguno se parta por dentro».** El codigo la implementa **contando**, y contar solo
+predice el espacio cuando todas las piezas son iguales. **Las casillas `{}1 {}2` rompen esa
+suposicion**, y son justo donde el lo vio.
+
+⚠️ **Y no es un caso raro:** cualquier seccion con casillas de 1ª/2ª vez lo tiene, y tambien las que
+mezclan compases de un acorde con compases de cuatro.
+
+#### El arreglo: repartir por ANCHO, no por cuenta
+
+1. La sonda deja de devolver un numero y devuelve **el ancho de cada bloque** y **el ancho de la
+   fila**.
+2. Se busca el **minimo numero de grupos** en que se puede partir sin que ninguno pase del ancho de
+   la fila — que es exactamente lo que hace el navegador al envolver.
+3. Con ese numero, se **equilibra POR ANCHO**: la particion que deja el grupo mas ancho lo mas
+   pequeño posible.
+
+📌 **El paso 3 conserva lo que el pidio** —*«que aproveche lo maximo los espacios, no que quede tan
+estrecho»*— pero **medido en pixeles y no en numero de compases**, que es lo que de verdad
+significaba. Y en el caso normal —todos los bloques iguales— **da exactamente lo mismo que ahora**:
+8 bloques con sitio para 6 siguen siendo `4+4`, no `6+2`.
+
+#### ✅ HECHO y MEDIDO (2026-09-04)
+
+**`repartirPorAncho(anchos, anchoFila)` en `lib/reparto.ts`**, y la sonda deja de contar: ahora
+devuelve **el ancho de cada bloque** (`getBoundingClientRect`) y el de la fila.
+
+**Medido en el navegador sobre su propia seccion C**, con la sonda oculta descartada:
+
+| | Antes | Ahora |
+|---|---|---|
+| Cuadros | **2** (`4+4`) | **3** (`4+3+1`) |
+| ¿Alguno envuelve por dentro? | 🔴 **SI** — el 2.º medía 1.052 px en una fila de 526 | ✅ **NO**, los tres en **una sola fila** |
+
+**Y las canciones siguen enteras:** «Es Por Tu Gracia» **53** acordes, «Sube La Alabanza» **98**,
+«Cada Vez» **55** — los mismos que ya estaban documentados. 192 pruebas · lint 0 · build 0 ·
+**26 de 26 pantallas**.
+
+#### 🔴 Y una prueba cazo un fallo MIO antes de que llegara a la pantalla
+
+La primera version del equilibrado llevaba una contabilidad de «grupos restantes» que, con
+`n=11` y la fila a `305 px`, dejaba **un grupo de dos que desbordaba**. Lo encontro la prueba de
+**200 combinaciones**, no mirando la pantalla.
+→ Reescrito con **DOS techos**: `tope` es el objetivo de equilibrado y **`anchoFila` es el limite
+fisico que no se puede saltar**. Sin el segundo, un objetivo mal calculado vuelve a meter dos
+bloques que no caben.
+📌 **Y por eso `reparto.ts` vive en `lib/`**: si esto se hubiera escrito dentro del componente, el
+fallo habria salido en el telefono de Isaac y no en el CI.
+
+⚠️ **Lo que se conserva de la regla que el aprobo:** con todos los bloques iguales, `repartirPorAncho`
+da **exactamente lo mismo que la cuenta** —8 con sitio para 6 siguen siendo `4+4`, no `6+2`—. Hay
+una prueba que lo fija. Lo que cambia es **solo** el caso que antes estaba mal: anchos desiguales.
+
+📌 `repartirBloques` y `cortesDe` **se quedan**: son la logica por cuenta, siguen probadas, y son lo
+que documenta el caso uniforme. No se borran porque no estorban y explican de donde viene esto.
+
 #### 🔴 r54 SE REVIRTIO: las canciones «bailaban» a pantalla completa (2026-09-04)
 
 Isaac, minutos despues de publicarlo: *«todas las canciones cuando miro en modo pantalla completa

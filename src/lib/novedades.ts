@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
     "secciones": [
       {
+        "titulo": "Las secciones con casillas ya pasan al lado",
+        "resumen": "Una seccion con casillas de 1ª y 2ª vez se apretaba en su cuadro en vez de pasar al siguiente.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Las casillas { }1 { }2 no dejaban que la seccion pasara al cuadro siguiente.",
+            "detalle": [
+              "La seccion se apretaba en dos filas dentro de su propio cuadro. Se veia sobre todo <strong>en el telefono</strong>.",
+              "La causa: la pagina contaba <strong>cuantos compases caben en una fila</strong>… y no todos miden lo mismo. Medido en «Es Por Tu Gracia»: los compases normales miden entre 104 y 161 pixeles, y <strong>la casilla de 2ª vez mide 526 — ella sola llena la fila entera</strong>.",
+              "<strong>Ahora la pagina mide el ANCHO de cada compas</strong>, no cuantos son. En esa cancion pasa de 2 cuadros apretados a <strong>3 que caben perfectos</strong>. ✅ Y donde todos los compases miden igual no cambia nada: ocho con sitio para seis se siguen repartiendo 4 y 4."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "El signo de repeticion, en su sitio",
         "resumen": "En 22 canciones el «:|» se iba solo a otra linea en vez de cerrar el compas.",
         "cambios": [

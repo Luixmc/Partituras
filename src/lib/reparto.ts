@@ -154,3 +154,118 @@ export function cortesDe(total: number, cabenEnUnaFila: number): [number, number
   }
   return cortes;
 }
+
+// ─────────────────────────────────────────────────────────────
+// O-65 · REPARTIR POR ANCHO, no por cuenta
+//
+// 🔴 EL FALLO QUE ESTO ARREGLA, y es de los que se ven solo con casillas:
+// `repartirBloques` reparte contando —`ceil(total / caben)`— y eso **solo es
+// valido si todos los bloques miden lo mismo**. No lo miden. Medido sobre la
+// seccion C de «Es Por Tu Gracia», con la fila a 526 px:
+//
+//     bloques normales ... 104 a 161 px
+//     casilla `{}1` ...... 251 px
+//     casilla `{}2` ...... 526 px  ← ocupa ella sola la fila entera
+//
+// Con `caben = 4` repartia `4 + 4`, y el segundo grupo media **1.052 px en una
+// fila de 526**: envolvia por dentro. Que es exactamente lo que la regla 1 de
+// Isaac prohibe —«los bloques mas grandes que quepan ENTEROS en una fila»—.
+// El navegador, dejado solo, hacia `4 + 3 + 1`.
+//
+// 📌 Contar predice el espacio **solo cuando todas las piezas son iguales**. En
+// cuanto una mide cinco veces mas que otra, la cuenta miente.
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * ¿Caben estos anchos en trozos de `tope` como mucho, usando `grupos` o menos?
+ *
+ * Un bloque MAS ANCHO que la fila no cabe en ningun reparto —una casilla que
+ * llena la fila entera, por ejemplo—: se acepta solo, en su propio trozo.
+ */
+function cabenEn(anchos: number[], tope: number, grupos: number, anchoFila: number): boolean {
+  return agrupar(anchos, tope, anchoFila).length <= grupos;
+}
+
+/**
+ * El reparto greedy: se van metiendo bloques mientras quepan en `tope`.
+ *
+ * 🔴 Con DOS techos, y el segundo es el que no se puede saltar: `tope` es el
+ * objetivo de equilibrado, y `anchoFila` es el limite fisico. Sin el segundo,
+ * un objetivo mal calculado mete dos bloques que no caben y **la fila envuelve
+ * igual que antes**. Lo cazo una prueba con 200 combinaciones, no la pantalla.
+ */
+function agrupar(anchos: number[], tope: number, anchoFila: number): number[] {
+  const tamanos: number[] = [];
+  let enEste = 0;
+  let acumulado = 0;
+  const cerrar = () => {
+    if (enEste > 0) tamanos.push(enEste);
+    enEste = 0;
+    acumulado = 0;
+  };
+  for (const a of anchos) {
+    if (a > anchoFila) {
+      // No cabe en ninguna fila: va solo y envolvera por dentro. No hay nada
+      // mejor que se pueda hacer con el.
+      cerrar();
+      tamanos.push(1);
+      continue;
+    }
+    if (enEste > 0 && (acumulado + a > tope || acumulado + a > anchoFila)) cerrar();
+    enEste += 1;
+    acumulado += a;
+  }
+  cerrar();
+  return tamanos;
+}
+
+/**
+ * Cuantos bloques va en cada trozo, repartiendo por el ANCHO real de cada uno.
+ *
+ * @param anchos     Lo que mide cada bloque en pantalla, en pixeles
+ * @param anchoFila  Lo que mide la fila donde tienen que caber
+ * @returns Los tamaños de cada trozo. Un solo elemento = no hay que partir
+ */
+export function repartirPorAncho(anchos: number[], anchoFila: number): number[] {
+  const total = anchos.length;
+  if (total <= 0) return [];
+
+  // Ante la duda, NO se toca: sin medida fiable la seccion se queda entera. Es
+  // preferible que se vea como siempre a repartirla por un numero inventado.
+  if (!Number.isFinite(anchoFila) || anchoFila <= 0) return [total];
+  if (anchos.some((a) => !Number.isFinite(a) || a <= 0)) return [total];
+
+  // 1. Los MENOS trozos posibles sin que ninguno desborde. Es lo mismo que hace
+  //    el navegador al envolver, y es la regla 1 que eligio Isaac.
+  const grupos = agrupar(anchos, anchoFila, anchoFila).length;
+  if (grupos <= 1) return [total];
+
+  // 2. Con ese numero, se EQUILIBRA: se busca el trozo mas ancho mas pequeño
+  //    posible que siga cabiendo en `grupos` trozos.
+  //
+  // 📌 Esto es lo que conserva lo que pidio Isaac —«que aproveche lo maximo los
+  // espacios, no que quede tan estrecho»— pero medido en PIXELES y no en numero
+  // de compases, que es lo que de verdad significaba. Y con bloques iguales da
+  // exactamente lo mismo que la cuenta de antes: 8 con sitio para 6 son `4+4`.
+  let bajo = 1;
+  let alto = anchoFila;
+  while (bajo < alto) {
+    const medio = Math.floor((bajo + alto) / 2);
+    if (cabenEn(anchos, medio, grupos, anchoFila)) alto = medio;
+    else bajo = medio + 1;
+  }
+
+  const tamanos = agrupar(anchos, bajo, anchoFila);
+  return tamanos.length ? tamanos : [total];
+}
+
+/** Lo mismo, pero en cortes `[desde, hasta)` listos para recortar la seccion. */
+export function cortesPorAncho(anchos: number[], anchoFila: number): [number, number][] {
+  const cortes: [number, number][] = [];
+  let desde = 0;
+  for (const n of repartirPorAncho(anchos, anchoFila)) {
+    cortes.push([desde, desde + n]);
+    desde += n;
+  }
+  return cortes;
+}
