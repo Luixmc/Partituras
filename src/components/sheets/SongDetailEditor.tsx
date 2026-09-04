@@ -3,12 +3,14 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Edit3, Eye, Mic2, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit3, Eye, Mic2, Music4, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import LetraPanel from "@/components/sheets/LetraPanel";
+import MelodiaPanel from "@/components/sheets/MelodiaPanel";
 import { puedeVerLetras } from "@/lib/letras";
+import { puedeVerMelodia } from "@/lib/melodia";
 // 🔴 `parseSections` vivía AQUÍ, copiada. Era P-09, y lo que dejó la
 // pantalla de crear canción sin secciones (O-44): al no haber una función
 // común, esa tercera pantalla no tenía a cuál llamar. Se comprobó que las
@@ -95,9 +97,12 @@ export default function SongDetailEditor({
   const parametros = useSearchParams();
   // ¿A este usuario le toca ver las letras? Lo decide ROLES_LETRAS.
   const verLetras = puedeVerLetras(rol);
-  const [mode, setMode] = useState<"view" | "edit" | "letra">(() => {
+  // Y la melodia, con su propio interruptor (O-57 / D-22 aplicado otra vez).
+  const verMelodia = puedeVerMelodia(rol);
+  const [mode, setMode] = useState<"view" | "edit" | "letra" | "melodia">(() => {
     const ver = parametros.get("ver");
     if (ver === "letra") return "letra";
+    if (ver === "melodia") return "melodia";
     if (ver === "edit" && canEdit) return "edit";
     return "view";
   });
@@ -529,6 +534,22 @@ export default function SongDetailEditor({
               Letra
             </button>
             )}
+            {/* Melodia (O-57). Mismo trato que la letra: quien la ve sale de
+                ROLES_MELODIA, hoy solo el admin. */}
+            {verMelodia && (
+            <button
+              type="button"
+              onClick={() => setMode("melodia")}
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+                mode === "melodia"
+                  ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              <Music4 className="h-4 w-4" />
+              Melodia
+            </button>
+            )}
             {/* Pantalla completa: al lado de Vista (y de Edicion si es admin).
                 Disponible para los tres roles (O-11). Solo tiene sentido si la
                 cancion tiene acordes escritos. */}
@@ -551,8 +572,21 @@ export default function SongDetailEditor({
         </div>
       </div>
 
-      {/* ── MODO LETRA (O-18) ── */}
-      {mode === "letra" ? (
+      {/* ── MODO MELODIA (O-57) ──
+          ⚠️ Va ANTES del modo letra en el `if`, y guarda POR SU CUENTA: meter
+          `melody` en el guardado general habria hecho fallar el guardado de la
+          cancion entera mientras la columna no exista. Ver `MelodiaPanel`. */}
+      {mode === "melodia" ? (
+        <div className="mx-auto w-full max-w-5xl px-4 py-8 md:px-8">
+          <MelodiaPanel
+            sheetId={sheet.id}
+            contenidoAcordes={viewContent}
+            compas={sheet.time_signature}
+            tono={sheet.key_signature}
+            puedeEscribir={canEdit}
+          />
+        </div>
+      ) : mode === "letra" ? (
         <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-8">
           <LetraPanel
             lyrics={lyrics}

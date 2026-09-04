@@ -17,9 +17,10 @@
 // que es: «Nueva cancion» no cabe debajo de un icono, «Nueva» sí.
 // ─────────────────────────────────────────────────────────────
 
-import { CalendarDays, LayoutGrid, Mic2, PlusCircle, Settings, type LucideIcon } from "lucide-react";
+import { CalendarDays, LayoutGrid, Mic2, Music4, PlusCircle, Settings, type LucideIcon } from "lucide-react";
 
 import { ROLES_LETRAS } from "@/lib/letras";
+import { ROLES_MELODIA } from "@/lib/melodia";
 import type { UserRole } from "@/types";
 
 export type SeccionPanel = {
@@ -40,6 +41,11 @@ export const SECCIONES: SeccionPanel[] = [
   // Quién ve «Letras» sale de ROLES_LETRAS: hoy solo el admin, mientras
   // Isaac escribe las 75 (D-22). Abrirlo es cambiar esa constante.
   { href: "/letras",    label: "Letras",        corto: "Letras",    icon: Mic2,        roles: ROLES_LETRAS },
+  // Y «Melodia» igual, con su propio interruptor (O-57). Va DESPUES de
+  // «Letras» a proposito: son las dos secciones de un instrumento concreto
+  // —quien canta y quien toca la trompeta— y las dos estan cerradas hasta
+  // que haya algo escrito dentro.
+  { href: "/melodias",  label: "Melodia",       corto: "Melodia",   icon: Music4,      roles: ROLES_MELODIA },
   { href: "/sheets/new", label: "Nueva cancion", corto: "Nueva",     icon: PlusCircle,  roles: ["admin"] },
   { href: "/admin",     label: "Administrar",   corto: "Admin",     icon: Settings,    roles: ["admin"] },
 ];

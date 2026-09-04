@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { mapPresentSongs } from "@/lib/services";
+import { melodiasDe } from "@/lib/melodiaBase";
+import { puedeVerMelodia } from "@/lib/melodia";
 import { puedeVerLetras } from "@/lib/letras";
 import { puedeVerCulto } from "@/lib/cultos";
 
@@ -38,6 +40,15 @@ export default async function ServicePresentPage(
   if (!puedeVerCulto(service, perfil?.role === "admin")) redirect("/services");
 
   const songs = mapPresentSongs(service.service_songs, puedeVerLetras(perfil?.role));
+
+  // La melodia se pide APARTE, y solo a quien le toca verla (ROLES_MELODIA).
+  // 🔴 No va dentro del `select` de arriba a proposito: mientras la columna no
+  // exista, meterla ahi haria fallar la consulta entera y **el culto saldria
+  // vacio en mitad del servicio**. Ver `lib/melodiaBase.ts`.
+  if (puedeVerMelodia(perfil?.role)) {
+    const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
+    for (const cancion of songs) cancion.melody = melodias.get(cancion.id) ?? null;
+  }
 
   return <PresentationView title={service.name} songs={songs} backHref={`/services/${params.id}`} />;
 }

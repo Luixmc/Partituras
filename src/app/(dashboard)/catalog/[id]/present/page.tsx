@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { puedeVerLetras } from "@/lib/letras";
+import { melodiasDe } from "@/lib/melodiaBase";
+import { puedeVerMelodia } from "@/lib/melodia";
 import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { PresentSong } from "@/types";
 
@@ -80,6 +82,15 @@ export default async function SongPresentPage(
       // La letra solo viaja si a este rol le toca verla (ROLES_LETRAS).
       lyrics:       verLetras ? c.lyrics ?? null : null,
     }));
+
+  // La melodia se pide APARTE, y solo a quien le toca verla (ROLES_MELODIA).
+  // 🔴 Igual que en la pantalla del culto: meterla en el `select` de arriba
+  // haria fallar la consulta entera mientras la columna no exista, y la
+  // pantalla saldria vacia. Ver `lib/melodiaBase.ts`.
+  if (puedeVerMelodia(perfil?.role)) {
+    const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
+    for (const cancion of songs) cancion.melody = melodias.get(cancion.id) ?? null;
+  }
 
   const inicio = Math.max(0, songs.findIndex((s) => s.id === params.id));
   if (!songs.length) notFound();

@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Mic2, Minus, Music2, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Mic2, Minus, Music2, Music4, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
 
 import { estrofasDe } from "@/lib/letras";
 
 import SeccionRepartida from "@/components/sheets/SeccionRepartida";
+import Pentagrama from "@/components/sheets/Pentagrama";
+import { parsearMelodia, tramosDe } from "@/lib/melodia";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
@@ -73,6 +75,35 @@ const MAX_SCALE = 4;
 const CLAVE_TAMANOS = "presentacion-tamanos";
 
 // ─────────────────────────────────────────────────────────────
+// Qué se está leyendo: los acordes, la letra (J.4) o la melodía (O-57 · R.4).
+//
+// 📌 Es UN botón que va rotando, no tres. Se lee tocando y con una mano
+// ocupada: tres botones en esa barra serían tres sitios donde mirar.
+type Modo = "acordes" | "letra" | "melodia";
+
+/**
+ * El siguiente modo QUE ESTA CANCIÓN TIENE.
+ *
+ * 🔴 Salta los que no existen aquí a proposito: *un botón que lleva a una
+ * pantalla vacía es peor que no tenerlo*. Si la canción no tiene melodía
+ * escrita, la rotación va acordes → letra → acordes y ya.
+ */
+function siguienteModo(actual: Modo, hayLetra: boolean, hayMelodia: boolean): Modo {
+  const orden: Modo[] = ["acordes", "letra", "melodia"];
+  const tiene = (m: Modo) => m === "acordes" || (m === "letra" ? hayLetra : hayMelodia);
+  const desde = orden.indexOf(actual);
+  for (let i = 1; i <= orden.length; i++) {
+    const m = orden[(desde + i) % orden.length];
+    if (tiene(m)) return m;
+  }
+  return "acordes";
+}
+
+/** Lo que dice el botón: a dónde lleva. */
+function etiquetaModo(m: Modo): string {
+  return m === "acordes" ? "Ver los acordes" : m === "letra" ? "Ver la letra" : "Ver la melodía";
+}
+
 // Cómo se recorren las secciones cuando hay más de una columna (O-26).
 //
 //   "filas"    → izquierda, derecha, y luego la fila de abajo  (A B / C D)
@@ -151,7 +182,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
   const desplazamiento = semitonosDe(transpositor);
 
-  // Acordes o letra (J.4).
+  // Acordes · letra (J.4) · melodía (O-57 · R.4).
   //
   // 🔴 SE MANTIENE al pasar de canción. Primero se reiniciaba a acordes
   // para no dejar una pantalla vacía si la siguiente no tenía letra, y era
@@ -161,8 +192,9 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   //
   // El caso vacío se resuelve abajo, sin perder su elección: si la canción
   // no tiene letra se enseñan los acordes, y en cuanto llega una que sí la
-  // tiene, vuelve a salir la letra sola.
-  const [verLetra, setVerLetra] = useState(false);
+  // tiene, vuelve a salir la letra sola. **La melodía va igual**: el
+  // trompetista pasa de canción y sigue leyendo su pentagrama.
+  const [modo, setModo] = useState<Modo>("acordes");
   useEffect(() => setRecorrido(leerRecorrido()), []);
   // Auto-ocultar la cabecera/tono/navegación en pantalla completa (reaparecen
   // al mover el ratón o tocar) para ganar espacio.
@@ -364,7 +396,11 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // detiene al converger o tras unos pocos cuadros (el reflujo al envolver hace
   // que el ajuste no sea monótono, así que el tope garantiza terminar).
   useLayoutEffect(() => {
-    if (!autoFit) return;
+    // 🔴 En MELODÍA no se auto-ajusta, y no es pereza: `abcjs` se carga
+    // diferido y dibuja DESPUÉS de este efecto, así que aquí se mediría una
+    // caja vacía y la escala se dispararía al tope. El pentagrama usa la
+    // escala que haya, y los ± del músico la siguen moviendo.
+    if (!autoFit || modo === "melodia") return;
     let raf = 0;
     let steps = 0;
     const step = () => {
@@ -391,7 +427,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, verLetra, isFullscreen]);
+  }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, modo, isFullscreen]);
 
 
   // Semitonos efectivos: (original → tono del culto) + ajuste manual + el
@@ -448,9 +484,45 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     () => estrofasDe(song?.lyrics ?? "").filter((e) => e.texto),
     [song?.lyrics]
   );
-  // Lo que se enseña de verdad: si él eligió letra pero esta canción no la
-  // tiene, salen los acordes — sin perder su elección para la siguiente.
-  const mostrandoLetra = verLetra && estrofas.length > 0;
+  // Los tramos de la MELODÍA, uno por sección (O-57 · R.4).
+  //
+  // 🔴 `song.melody` solo llega relleno si el rol puede ver la melodía: la
+  // página lo comprueba EN EL SERVIDOR y, si no le toca, el texto ni siquiera
+  // sale de ahí — igual que la letra (D-22). Aquí no hay nada que esconder
+  // porque no hay nada que haya llegado.
+  const tramos = useMemo(
+    () => tramosDe(song?.melody ?? "").filter((t) => t.abc),
+    [song?.melody]
+  );
+
+  // Lo que se enseña de verdad: si él eligió letra o melodía y esta canción no
+  // la tiene, salen los acordes — sin perder su elección para la siguiente.
+  const hayLetra = estrofas.length > 0;
+  const hayMelodia = tramos.length > 0;
+  const mostrandoLetra = modo === "letra" && hayLetra;
+  const mostrandoMelodia = modo === "melodia" && hayMelodia;
+  // A dónde lleva el botón. Se calcula desde lo que se está ENSEÑANDO, no
+  // desde lo elegido: si eligió letra y esta canción no la tiene, está
+  // mirando acordes, y el botón tiene que llevarle a lo siguiente de ahí.
+  // Cuánto se mueve la MELODÍA, y por qué no es `totalSemitones` a secas.
+  //
+  // 🔴 `totalSemitones` está normalizado a 0..11, que para los ACORDES da
+  // igual —`Bb` es `Bb` esté donde esté— pero en un pentagrama **no**: bajar
+  // un semitono se convertiría en subir una séptima mayor, y la melodía se
+  // iría al techo del pentagrama con líneas adicionales. Se coge la dirección
+  // MÁS CORTA, que es la que el músico espera ver.
+  const semitonosMelodia = totalSemitones > 6 ? totalSemitones - 12 : totalSemitones;
+
+  // La escala del pentagrama va acotada a propósito: el auto-ajuste de los
+  // acordes puede haber dejado `fontScale` en 4 (O-52, para canciones cortas),
+  // y una partitura a ese tamaño no cabe ni en un compás por renglón.
+  const escalaMelodia = Math.min(2, Math.max(0.8, fontScale));
+
+  const proximo = siguienteModo(
+    mostrandoLetra ? "letra" : mostrandoMelodia ? "melodia" : "acordes",
+    hayLetra,
+    hayMelodia
+  );
 
   // Etiqueta del tono mostrado (el original, ya transpuesto).
   //
@@ -627,23 +699,31 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
           {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
         </button>
 
-        {/* Acordes ↔ letra (J.4). Solo si esa canción tiene letra escrita:
-            un botón que lleva a una pantalla vacía es peor que no tenerlo. */}
-        {estrofas.length > 0 && (
+        {/* Acordes ↔ letra (J.4) ↔ melodía (R.4). Solo si esa canción tiene
+            algo más que acordes: un botón que lleva a una pantalla vacía es
+            peor que no tenerlo.
+            📌 El icono es el del modo AL QUE SE VA, no el actual — que es como
+            venía funcionando con la letra y como se lee de un vistazo. */}
+        {(hayLetra || hayMelodia) && (
           <button
             type="button"
-            onClick={() => setVerLetra((v) => !v)}
-            title={verLetra ? "Ver los acordes" : "Ver la letra"}
-            aria-label={verLetra ? "Ver los acordes" : "Ver la letra"}
-            aria-pressed={verLetra}
+            onClick={() => setModo((m) => siguienteModo(m, hayLetra, hayMelodia))}
+            title={etiquetaModo(proximo)}
+            aria-label={etiquetaModo(proximo)}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors",
-              verLetra
+              mostrandoLetra || mostrandoMelodia
                 ? "bg-brand-600 text-white ring-brand-600"
                 : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
             )}
           >
-            {verLetra ? <Music2 className="h-4 w-4" /> : <Mic2 className="h-4 w-4" />}
+            {proximo === "acordes" ? (
+              <Music2 className="h-4 w-4" />
+            ) : proximo === "letra" ? (
+              <Mic2 className="h-4 w-4" />
+            ) : (
+              <Music4 className="h-4 w-4" />
+            )}
           </button>
         )}
 
@@ -725,7 +805,40 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
               acordes; de quien es la cancion ya se sabe.** Sigue estando en la
               vista normal y en la tarjeta. */}
 
-          {mostrandoLetra ? (
+          {mostrandoMelodia ? (
+            // ── LA MELODÍA (O-57 · R.4) ──
+            //
+            // 🔴 A UNA COLUMNA SIEMPRE, aunque el músico tenga puestas dos o
+            // tres. Un pentagrama estrecho no se lee: `abcjs` reparte sus
+            // renglones según el ancho que se le dé, así que darle el ancho
+            // entero es lo que hace que quepan más compases por línea — la
+            // misma razón por la que se quitaron los topes de ancho (O-56).
+            //
+            // Y se transpone con `totalSemitones`, EL MISMO que los acordes:
+            // ahí ya están el tono del culto, los ± del músico y su
+            // instrumento. Si la melodía se moviera por su cuenta, el
+            // trompetista leería una cosa y el grupo tocaría otra.
+            <div className={cn("flex w-full flex-col", isFullscreen ? "gap-2" : "gap-4")}>
+              {tramos.map((t, i) => (
+                <section key={i}>
+                  {t.titulo && (
+                    <h3
+                      className="mb-1 font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400"
+                      style={{ fontSize: `${0.75 * fontScale}rem` }}
+                    >
+                      {t.titulo}
+                    </h3>
+                  )}
+                  <Pentagrama
+                    elementos={parsearMelodia(t.abc)}
+                    tono={song?.original_key || "C"}
+                    transponer={semitonosMelodia}
+                    escala={escalaMelodia}
+                  />
+                </section>
+              ))}
+            </div>
+          ) : mostrandoLetra ? (
             // ── LA LETRA (J.4) ──
             //
             // Reparte las estrofas EXACTAMENTE igual que los acordes: una,

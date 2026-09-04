@@ -103,6 +103,10 @@ export interface PresentSong {
       Solo se rellena donde hay sesión: el enlace público del culto NO la
       lleva, porque Isaac la quiso solo para quien tenga cuenta. */
   lyrics?:      string | null;
+  /** La melodia en ABC, para el tercer modo de la pantalla completa (R.4).
+      Como la letra, solo se rellena donde hay sesion y el rol la puede ver:
+      el enlace publico del culto NO la lleva. */
+  melody?:      string | null;
 }
 
 export interface ServiceSong {
