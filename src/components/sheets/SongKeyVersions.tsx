@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Music4, Plus, Save, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
@@ -25,6 +25,8 @@ type Props = {
   baseContent: string;
   initialVersions: SheetKey[];
   canEdit: boolean;
+  /** Avisa al editor de si hay alguna versión sin guardar, para protegerla (O-61). */
+  onSucio?: (sucio: boolean) => void;
 };
 
 /** Transpone el contenido base al tono destino como punto de partida. */
@@ -40,6 +42,7 @@ export default function SongKeyVersions({
   baseContent,
   initialVersions,
   canEdit,
+  onSucio,
 }: Props) {
   const supabase = useMemo(() => createClient(), []);
 
@@ -54,6 +57,31 @@ export default function SongKeyVersions({
   // La pregunta abierta (O-60). Lleva dentro la versión, porque el diálogo se
   // dibuja fuera de la fila y allí ya no se sabe de cuál se trataba.
   const [pregunta, setPregunta] = useState<{ tipo: "borrar" | "regenerar"; v: SheetKey } | null>(null);
+
+  // 🔴 Avisa hacia FUERA de si hay alguna versión editada sin guardar (O-61).
+  //
+  // `patchLocal` cambia la versión SOLO en memoria hasta que se pulsa «Guardar
+  // versión», así que se podían reescribir los acordes de una tonalidad entera
+  // y perderlos al salir, sin aviso. Se compara contra lo que llegó del
+  // servidor: lo que no coincide, está sin guardar.
+  const guardadas = useMemo(
+    () => new Map(initialVersions.map((v) => [v.id, JSON.stringify({ c: v.content, l: v.label })])),
+    [initialVersions]
+  );
+  const haySinGuardar = versions.some((v) => {
+    const antes = guardadas.get(v.id);
+    // Una versión recién creada ya está guardada: se inserta al crearla.
+    return antes !== undefined && antes !== JSON.stringify({ c: v.content, l: v.label });
+  });
+  useEffect(() => {
+    onSucio?.(haySinGuardar);
+  }, [haySinGuardar, onSucio]);
+
+  // 🔴 Y al DESMONTARSE se avisa de que ya no hay nada que proteger aquí.
+  // Sin esto, tras descartar y cambiar de pestaña el panel desaparece pero la
+  // marca de «sucio» se quedaría puesta para siempre, y el editor creería que
+  // hay cambios pendientes hasta recargar la página.
+  useEffect(() => () => onSucio?.(false), [onSucio]);
 
   const usedKeys = useMemo(() => new Set(versions.map((v) => v.key_signature)), [versions]);
 

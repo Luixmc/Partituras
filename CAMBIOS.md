@@ -7,6 +7,16 @@
 
 ## 4 de septiembre de 2026
 
+### 🛟 Ya no se pierde lo que estás escribiendo
+
+- 🔴 **Al crear una canción nueva ya no se pierde el trabajo.** Antes escribías el título, el tono y
+  todos los acordes, pulsabas «volver» o cerrabas la pestaña… **y se perdía todo, sin avisar**.
+  Ahora pregunta antes de salir.
+- **Y lo mismo con la melodía y con las versiones en otro tono**, que se guardan con su propio
+  botón: si escribes una melodía y te vas sin guardarla, ahora te avisa.
+- **Cambiar de pestaña también cuenta como salir.** Antes, ir de «Melodía» a «Letra» —o de
+  «Edición» a «Melodía»— **se llevaba por delante lo que no habías guardado**. Ahora pregunta.
+
 ### 💬 Los avisos ya son de la página, no del navegador
 
 - **Cuando la página te pregunta algo antes de borrar, ya sale con su propio diseño.** Antes salía

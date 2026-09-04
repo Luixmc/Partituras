@@ -48,6 +48,8 @@ type Props = {
   compas?: string | null;
   tono?: string | null;
   puedeEscribir: boolean;
+  /** Avisa al editor de si hay melodía sin guardar, para que la proteja (O-61). */
+  onSucio?: (sucio: boolean) => void;
 };
 
 type Estado = "cargando" | "listo" | "sin-columna";
@@ -64,6 +66,7 @@ export default function MelodiaPanel({
   compas,
   tono,
   puedeEscribir,
+  onSucio,
 }: Props) {
   const [melodia, setMelodia] = useState("");
   const [guardado, setGuardado] = useState("");
@@ -75,6 +78,24 @@ export default function MelodiaPanel({
   const [modoTexto, setModoTexto] = useState(false);
 
   const sucio = melodia !== guardado;
+
+  // 🔴 Avisa hacia FUERA de que hay melodía sin guardar (O-61).
+  //
+  // Este panel sabía que estaba sucio —lo usa para apagar su propio botón— pero
+  // **no se lo decía a nadie**, así que el editor de la canción no podía
+  // protegerlo: se escribía una melodía nota por nota, se pulsaba «volver», y
+  // se perdía sin decir nada.
+  // 📌 Es la lección de O-43 otra vez: un panel nuevo en una pantalla que YA
+  // protege datos no hereda la red — hay que extendérsela a mano.
+  useEffect(() => {
+    onSucio?.(sucio);
+  }, [sucio, onSucio]);
+
+  // 🔴 Y al DESMONTARSE se avisa de que ya no hay nada que proteger aquí.
+  // Sin esto, tras descartar y cambiar de pestaña el panel desaparece pero la
+  // marca de «sucio» se quedaría puesta para siempre, y el editor creería que
+  // hay cambios pendientes hasta recargar la página.
+  useEffect(() => () => onSucio?.(false), [onSucio]);
 
   // Cada músico recuerda su instrumento, como el tamaño de letra (D-09b) y las
   // pestañas del acorde (O-42). Se lee tras montar porque el servidor no tiene

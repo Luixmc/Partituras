@@ -75,6 +75,27 @@ export const TANDAS: Tanda[] = [
     "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
     "secciones": [
       {
+        "titulo": "Ya no se pierde lo que estas escribiendo",
+        "resumen": "Crear una cancion, escribir una melodia o tocar una version ya avisan antes de que se pierda.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Al crear una cancion nueva ya no se pierde el trabajo.",
+            "detalle": [
+              "Antes escribias el titulo, el tono y <strong>todos los acordes</strong>, pulsabas «volver» o cerrabas la pestaña… <strong>y se perdia todo, sin avisar</strong>. Ahora pregunta antes de salir.",
+              "Y lo mismo con <strong>la melodia</strong> y con <strong>las versiones en otro tono</strong>, que se guardan con su propio boton."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Cambiar de pestaña tambien cuenta como salir.",
+            "detalle": [
+              "Ir de «Melodia» a «Letra» —o de «Edicion» a «Melodia»— <strong>se llevaba por delante lo que no habias guardado</strong>. Ahora pregunta."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Los avisos ya son de la pagina",
         "resumen": "Cuando la pagina pregunta antes de borrar algo, sale con su propio diseno y el boton en rojo.",
         "cambios": [

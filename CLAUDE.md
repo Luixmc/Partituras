@@ -3637,6 +3637,73 @@ contrario: **demostrar que unificar NO cambió nada** de lo que a él ya le gust
 que lo que viene a sustituir. **No cierra mientras la acción está en curso** (`ocupado`), para no
 dejar un borrado a medias sin pantalla.
 
+**O-61 · Faltaba la red de seguridad en TRES sitios donde se pierde trabajo.** ⬜ **MEDIDO.**
+Isaac, 2026-09-04, despues de O-60: *«tambien me sale el cuadro de dialogo para confirmar una
+edicion de por ejemplo el orden de las canciones en un culto… fijate si sale en otros lugares,
+sino, implementalos donde sea pertinente y lo subes enseguida»*.
+
+📌 **El que el describe YA funciona** —el del culto, convertido en O-60—. Lo que pidio de verdad es
+**buscar donde FALTA**. Y faltaba en tres, medido recorriendo todo lo que escribe en la base:
+
+| Donde | Que pasa hoy | Que se pierde |
+|---|---|---|
+| 🔴 **`/sheets/new` · crear cancion** | **NADA. Ni dialogo ni aviso al cerrar la pestaña** | **La cancion entera**: titulo, tono, compas, categorias y **todos los acordes tecleados** |
+| 🔴 **`MelodiaPanel`** | Sabe que esta `sucio` —lo usa para su boton— pero **nadie de fuera lo escucha** | La melodia escrita nota por nota |
+| 🔴 **`SongKeyVersions`** | `patchLocal` cambia la version en local, con su propio «Guardar version» | Los acordes de esa version por tono |
+
+🔴 **Y hay un cuarto, que es el mismo fallo de O-43 repetido:** el guardian de `SongDetailEditor`
+solo actua si `mode === "edit" || mode === "letra"`. **El modo `melodia` NO esta en esa lista**, asi
+que aunque la melodia entrara en el `snapshot`, el dialogo no saltaria.
+
+📌 **Es literalmente la leccion de O-43, otra vez:** *cuando se anade un modo o un panel a una
+pantalla que YA protege datos, hay que repasar que protecciones se quedaron mirando solo a lo
+viejo.* Alli fue la letra; aqui, la melodia — que la escribi yo hace dos dias **sabiendo** que esto
+habia pasado antes.
+
+#### Lo que se hace
+
+1. **`SongDetailEditor`** — el `snapshot` pasa a mirar tambien **la melodia** y **las versiones por
+   tono**, y el modo `melodia` entra en la lista de modos protegidos.
+2. **`MelodiaPanel` y `SongKeyVersions`** avisan hacia fuera cuando tienen algo sin guardar.
+3. **`/sheets/new`** estrena la red entera: aviso al cerrar la pestaña **y** dialogo al salir.
+
+⚠️ **En `/sheets/new` el dialogo es de DOS botones, no de tres, y es a proposito.** Alli «Guardar y
+salir» **puede no ser posible** —sin titulo no se puede crear la cancion—, y un boton que a veces
+no hace nada es **P-01, el fallo mas caro de este proyecto**. Se ofrece **«Salir y descartar»** en
+rojo y **«Seguir escribiendo»**, que siempre son verdad.
+
+#### ✅ O-61 HECHA (2026-09-04) — y por el camino salieron DOS huecos mas
+
+| Sitio | Antes | Ahora |
+|---|---|---|
+| **`/sheets/new`** | 🔴 **Nada** | Aviso al cerrar la pestaña **y** dialogo al salir, interceptando **cualquier** enlace |
+| **`MelodiaPanel`** | Sabia que estaba sucio y **no se lo decia a nadie** | `onSucio` → el editor lo protege |
+| **`SongKeyVersions`** | Igual | `onSucio` → el editor lo protege |
+| **El modo `melodia`** | 🔴 **Fuera de la lista de modos protegidos** | Dentro |
+| 🔴 **Las pestañas Edicion / Letra / Melodia** | **Cambiaban de modo SIN pasar por la red** | Pasan por `requestLeave` |
+
+🔴 **Los dos huecos que aparecieron al hacerlo, y que el no habia pedido:**
+
+**① Solo la pestaña «Vista» pedia permiso para salir.** Las otras tres llamaban a `setMode`
+directamente, asi que **ir de «Melodia» a «Letra» desmontaba el panel y se perdia lo escrito sin
+decir nada**. → Las cuatro pasan ahora por `requestLeave`: *cambiar de pestaña es salir*.
+
+**② Y un fallo que YO iba a introducir:** al desmontarse el panel, la marca de «sucio» se quedaba
+puesta **para siempre**, asi que despues de descartar el editor creeria que hay cambios pendientes
+hasta recargar. → Los dos paneles avisan `false` **al desmontarse**.
+
+📌 **Y el aviso al cerrar la pestaña en `/sheets/new` merece su linea:** no es un dialogo nuestro,
+es el del navegador —el unico que puede parar un cierre—. **Ahi si vale el del navegador**, porque
+es el unico que existe; lo que Isaac no queria era el cartel gris **donde si podemos poner el
+nuestro**. No son el mismo caso.
+
+**Comprobado:** 187 pruebas · lint 0 · build 0 · **26 de 26 pantallas** · `/sheets/new` **200** y
+**los cuatro modos de la cancion a 200** con sus 19 acordes.
+
+⬜ **Y el punto ciego de siempre, que hay que decir:** esto **solo se ve usandolo**. Escribir media
+cancion y pulsar «volver»; escribir una melodia y cambiar de pestaña; tocar una version por tono y
+salir. **El HTML no dice si el dialogo salta** — lo prueba Isaac.
+
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos
 meses, ¿por que las estructuras no aprovechan del ancho de la pantalla? porque mira que tambien

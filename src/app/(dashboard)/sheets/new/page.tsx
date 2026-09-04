@@ -11,6 +11,7 @@ import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import { autoGrow } from "@/components/ui/AutoTextarea";
+import { DialogoConfirmar } from "@/components/ui/Dialogo";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
@@ -32,6 +33,54 @@ export default function NewSheetPage() {
 
   // Solo los administradores pueden crear canciones.
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  // ── La red de seguridad (O-61) ────────────────────────────
+  //
+  // 🔴 Esta pantalla NO TENIA NINGUNA. Se tecleaba una canción entera —título,
+  // tono, compás, categorías y todos los acordes— y al pulsar «volver», el menú
+  // o cerrar la pestaña **se perdía sin decir nada**. Y transcribir acordes es
+  // el trabajo más caro de este proyecto: 28.203 caracteres en 75 canciones.
+  const [salidaPendiente, setSalidaPendiente] = useState<null | (() => void)>(null);
+  const hayTrabajo =
+    title.trim() !== "" ||
+    composer.trim() !== "" ||
+    tabNotes.trim() !== "" ||
+    categoryIds.length > 0;
+
+  // Aviso del navegador al cerrar o recargar la pestaña.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!hayTrabajo || loading) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hayTrabajo, loading]);
+
+  // Y la navegación de dentro: el «volver», el menú lateral, la barra del
+  // móvil. Se intercepta el clic en cualquier enlace, igual que en el editor
+  // del culto — así entra en la red **cualquier** enlace de la pantalla, sin
+  // tener que acordarse de cada uno.
+  useEffect(() => {
+    if (!hayTrabajo || loading) return;
+    const handler = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || anchor.target === "_blank") return;
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setSalidaPendiente(() => () => router.push(url.pathname + url.search));
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [hayTrabajo, loading, router]);
 
   const toggleCategory = (id: string) =>
     setCategoryIds((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
@@ -179,6 +228,23 @@ export default function NewSheetPage() {
 
   return (
     <div className="min-h-full bg-slate-100 dark:bg-slate-950">
+      {/* ⚠️ DOS botones, no tres, y es a propósito: aquí «Guardar y salir»
+          PUEDE NO SER POSIBLE —sin título no se crea la canción— y un botón que
+          a veces no hace nada es P-01, el fallo más caro de este proyecto.
+          Las dos opciones que se ofrecen son siempre verdad. */}
+      {salidaPendiente && (
+        <DialogoConfirmar
+          titulo="Salir sin guardar"
+          mensaje="Esta canción todavía no se ha creado. Si sales ahora se pierde lo que llevas escrito."
+          textoConfirmar="Salir y descartar"
+          onConfirmar={() => {
+            const salir = salidaPendiente;
+            setSalidaPendiente(null);
+            salir();
+          }}
+          onCancelar={() => setSalidaPendiente(null)}
+        />
+      )}
       <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex max-w-5xl items-center gap-3">
           <Link

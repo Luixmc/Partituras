@@ -161,7 +161,17 @@ export default function SongDetailEditor({
     content,
     lyrics,
   });
-  const isDirty = currentSnapshot !== savedSnapshot;
+  // 🔴 Lo que los PANELES avisan que tienen sin guardar (O-61).
+  //
+  // El `snapshot` de arriba solo mira lo que guarda el botón general —título,
+  // acordes, letra…—. La melodía y las versiones por tono **se guardan aparte,
+  // con su propio botón**, así que su trabajo era invisible para esta red: se
+  // escribía una melodía nota por nota, se pulsaba «volver», y se perdía.
+  // 📌 Es la lección de O-43 otra vez: lo que se añade DESPUÉS no hereda la red.
+  const [melodiaSucia, setMelodiaSucia] = useState(false);
+  const [versionesSucias, setVersionesSucias] = useState(false);
+
+  const isDirty = currentSnapshot !== savedSnapshot || melodiaSucia || versionesSucias;
 
   // Aviso al cerrar/recargar la pestaña si hay cambios sin guardar.
   useEffect(() => {
@@ -191,7 +201,9 @@ export default function SongDetailEditor({
   // sin decir nada**. Salió al arreglar O-43, y es peor que O-43: Isaac está
   // ahora mismo tecleando las 75 letras.
   useEffect(() => {
-    if ((mode !== "edit" && mode !== "letra") || !isDirty) return;
+    // 🔴 «melodia» tiene que estar aquí. En O-43 faltaba «letra» y escribir una
+    // estrofa y pasar de canción la perdía sin avisar — el mismo fallo, otra vez.
+    if ((mode !== "edit" && mode !== "letra" && mode !== "melodia") || !isDirty) return;
     const handler = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
         return;
@@ -228,11 +240,16 @@ export default function SongDetailEditor({
 
   // Pide salir: si hay cambios, muestra el diálogo; si no, sigue de una.
   const requestLeave = (proceed: () => void) => {
-    if ((mode === "edit" || mode === "letra") && isDirty) setLeavePrompt({ proceed });
+    if ((mode === "edit" || mode === "letra" || mode === "melodia") && isDirty) setLeavePrompt({ proceed });
     else proceed();
   };
 
   const requestLeaveEdit = () => requestLeave(() => setMode("view"));
+
+  // 🔴 Y las OTRAS pestañas también pasan por aquí (O-61). Solo «Vista» lo
+  // hacía, así que ir de «Melodía» a «Letra» —o de «Edición» a «Melodía»—
+  // desmontaba el panel y **se perdía lo escrito sin decir nada**. Cambiar de
+  // pestaña es salir igual que pulsar «volver».
 
   const handleDiscardAndLeave = () => {
     const proceed = leavePrompt?.proceed;
@@ -486,7 +503,7 @@ export default function SongDetailEditor({
             {canEdit && (
               <button
                 type="button"
-                onClick={() => setMode("edit")}
+                onClick={() => requestLeave(() => setMode("edit"))}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
                   mode === "edit"
                     ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
@@ -503,7 +520,7 @@ export default function SongDetailEditor({
             {verLetras && (
             <button
               type="button"
-              onClick={() => setMode("letra")}
+              onClick={() => requestLeave(() => setMode("letra"))}
               className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
                 mode === "letra"
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
@@ -519,7 +536,7 @@ export default function SongDetailEditor({
             {verMelodia && (
             <button
               type="button"
-              onClick={() => setMode("melodia")}
+              onClick={() => requestLeave(() => setMode("melodia"))}
               className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
                 mode === "melodia"
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
@@ -564,6 +581,7 @@ export default function SongDetailEditor({
             compas={sheet.time_signature}
             tono={sheet.key_signature}
             puedeEscribir={canEdit}
+            onSucio={setMelodiaSucia}
           />
         </div>
       ) : mode === "letra" ? (
@@ -858,6 +876,7 @@ export default function SongDetailEditor({
               baseContent={content}
               initialVersions={initialKeys}
               canEdit={canEdit}
+              onSucio={setVersionesSucias}
             />
           </div>
         </div>
