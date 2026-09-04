@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
     "secciones": [
       {
+        "titulo": "Los avisos ya son de la pagina",
+        "resumen": "Cuando la pagina pregunta antes de borrar algo, sale con su propio diseno y el boton en rojo.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Se acabo el cartel gris del navegador.",
+            "detalle": [
+              "Cuando la pagina te pregunta algo antes de borrar, ya sale con <strong>su propio diseno</strong> — el mismo cuadro del aviso de «Cambios sin guardar». Antes salia el cartel del navegador, ese que empieza con «partituras-blush.vercel.app dice…».",
+              "<strong>Y el boton que borra sale en ROJO.</strong> Es la unica pista que se lee <strong>antes</strong> de pulsar: con todo del mismo color, eliminar un culto se veia igual que guardar cambios.",
+              "Vale en los tres sitios donde la pagina pregunta: al eliminar un culto, al eliminar una version en otro tono, y al regenerar los acordes de una version — este ultimo <strong>ahora avisa de que se pierden los ajustes que hayas hecho a mano</strong>. La tecla Escape cierra el aviso."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Instalala como app",
         "resumen": "Se instala desde el propio navegador, sin bajar nada de ninguna tienda, y ya gira de lado.",
         "cambios": [

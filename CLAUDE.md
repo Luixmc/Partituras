@@ -834,6 +834,52 @@ continúes con el trabajo es porque ya es mañana»*.
 - [ ] 🔴 **CONSECUENCIA: ninguna migracion se puede ejecutar hasta que esto se resuelva.**
       Hay **dos esperando**: `20240020` (usuario desactivado, §9.3) y `20240021` (la columna
       `melody`, con el OK de Isaac ya dado y la copia hecha).
+
+      #### 🔴 «¿Y si dejo los datos publicos?» — NO sirve, y hay que saber por que (2026-09-04)
+
+      Isaac lo ofrecio: *«tu me dices que la migracion no se puede hacer porque hay unas cosas de la
+      base de datos que no puedes pasar porque no estan publicas; si es asi, yo las puedo dejar
+      publicas y lo haces, corrigeme si me equivoco»*.
+
+      **Se equivoca, y la culpa es de como se lo explique.** El bloqueo **nunca fue de LECTURA**.
+
+      **Medido contra la base real ese mismo dia, con la clave publica:**
+
+      | Que se probo | Resultado |
+      |---|---|
+      | `GET /rest/v1/sheets` — **leer datos** | ✅ **HTTP 200** — ya funciona, y lleva funcionando siempre |
+      | `select melody` | `42703` · *«column sheets.melody does not exist»* |
+      | `POST /rpc/exec_sql` y `/rpc/sql` — **ejecutar SQL** | **404 · NO EXISTEN** |
+
+      🔴 **Ahi esta la respuesta: leer ya funciona.** Lo que falta no es permiso sobre los datos,
+      **es poder cambiar la ESTRUCTURA de la base** — anadir una columna (`alter table`).
+
+      📌 **Y eso no se puede por la via que usa la app, HAGA LO QUE HAGA CON LOS PERMISOS.** La API
+      que Supabase expone por internet (PostgREST) solo sabe hacer cosas con **FILAS**: leer,
+      insertar, cambiar y borrar. **Crear o modificar COLUMNAS no esta expuesto ahi** — ni con la
+      clave publica, ni con la `service_role`, ni poniendolo todo publico. No es un permiso que
+      falte: **es una puerta que no existe**.
+
+      **Las cuatro vias que SI pueden cambiar la estructura, y que le falta a cada una:**
+
+      | Via | Que hace falta |
+      |---|---|
+      | **El SQL Editor del panel** de Supabase | Entrar a la cuenta del primo, o que invite a Isaac |
+      | **La API de gestion** (lo que usaba el conector) | Un token con acceso al proyecto — el conector **ya no llega** |
+      | **Conexion directa a Postgres** (puerto 5432) | **La contrasena de la base**, que esta en el panel del primo |
+      | **La CLI de Supabase** | Un token de acceso, otra vez del primo |
+
+      → **Las cuatro pasan por el primo.** Y **ninguna se arregla haciendo publicos los datos**.
+
+      ⚠️ **Ademas, y por si acaso: hacer publico lo que hoy no lo es seria un PASO ATRAS.** Los
+      borradores y los cultos sin publicar estan cerrados a proposito (migracion `20240017`, D-25),
+      y abrirlos **no acercaria la migracion ni un milimetro** — solo dejaria ver a cualquiera lo
+      que hoy solo ve el. **No se hace.**
+
+      📌 **La leccion de como lo conte:** yo escribi *«el conector ya no llega al proyecto»*, y el
+      lo tradujo a *«no estan publicas»*, que es lo unico que el puede tocar. **Cuando el bloqueo es
+      de una via de ACCESO y no de un permiso, hay que decirlo con lo que el puede hacer al
+      respecto** —«pidele esto a tu primo»— y no con el sintoma tecnico.
 - [x] ~~Mandar el logo~~ → **entregado el 2026-08-20**, cuatro archivos, elegidos por D-12.
 - [x] ~~Confirmar «una canción por página»~~ → **confirmado**: es del PDF; el catálogo las
       muestra todas (O-10).
@@ -3505,6 +3551,91 @@ guion que las hace es media pagina.
 con el recorte redondo de Android — que es el que usa su lanzador. En su menu de aplicaciones queda
 **igual que Mi Claro, Nequi o Translate**, que tambien van sobre fondo claro. **No desentona.**
 → **No se vuelve a proponer.** Si algun dia lo pide, la C esta descrita arriba con su aviso.
+
+**O-60 · TODOS los dialogos con el diseno de la app, no los del navegador.** ⬜ **PROPUESTA.**
+Isaac, 2026-09-04, con dos capturas —el cartel gris del navegador al borrar un culto, y el dialogo
+bonito de «Cambios sin guardar»—:
+
+> *«quiero que modifiques el cuadro del dialogo que sale en la primera imagen para que sea como la
+> segunda… ahora que no sea solamente para este caso, que sea para TODO en lo que vaya a saltar un
+> cuadro de dialogo que salga con el diseno de la segunda imagen»*
+
+**Medido antes de proponer nada — son TRES, y estan todos localizados:**
+
+| Donde | Que pregunta | Que pasa si se acepta |
+|---|---|---|
+| `ServiceEditor.tsx:395` | *«¿Eliminar el culto "X"?»* | **Se borra el culto entero** — es el de su captura |
+| `SongKeyVersions.tsx:113` | *«¿Eliminar la version en X?»* | Se borra esa version por tono |
+| `SongKeyVersions.tsx:126` | *«¿Regenerar los acordes…?»* | 🔴 **Se pierden los arreglos manuales** de esa version |
+
+→ **Los tres son DESTRUCTIVOS.** Ninguno es un simple aviso. Y **no hay ningun `alert()` ni
+`prompt()`** en toda la app, comprobado — asi que con estos tres se acaba el trabajo.
+
+#### 🔴 Y de propina, el hallazgo que hace que esto valga el doble: P-09 OTRA VEZ
+
+**El dialogo bonito esta escrito DOS VECES**, en `ServiceEditor.tsx:513` y en
+`SongDetailEditor.tsx:409`. **Comprobado que son identicos salvo UNA FRASE** —«en el culto»— igual
+que se hizo antes de unificar `parseSections`.
+
+📌 **Es la cuarta vez que muerde este patron en el proyecto** —la consulta del catalogo, la lista de
+secciones del panel, `parseSections`, y ahora este—. Y aqui iba a morder otra vez de inmediato: sin
+unificar, **atender esta peticion habria escrito una TERCERA copia**.
+
+#### El plan, en un solo componente
+
+**`src/components/ui/Dialogo.tsx` (nuevo)** — el cuadro con el diseno que el eligio, y **dos
+formas de usarlo**:
+* **Confirmar** (2 botones): el de sus tres `confirm()`.
+* **Tres opciones**: el de «Cambios sin guardar», que ya existe y no cambia de aspecto.
+
+#### ✅ SU DECISION (2026-09-04): boton ROJO en los que borran
+
+Se le ofrecieron las dos —rojo de peligro o azul como el de guardar— y eligio **rojo**.
+📌 **Y es lo correcto porque los tres casos son irreversibles:** con todo del mismo color, *borrar
+el culto* se ve igual que *guardar cambios*. El color es la unica pista que se lee **antes** de
+pulsar; despues ya no sirve de nada.
+**El resto del dialogo no cambia**: es el mismo que el de «Cambios sin guardar», que es el que el
+señalo en su captura.
+
+⚠️ **Y lo que hay que respetar al cambiar un `confirm()` por esto, que no es cosmetico:**
+`confirm()` **detiene el programa** hasta que el usuario contesta; un dialogo dibujado **no**. Asi
+que la accion no puede seguir escrita debajo del `if`: tiene que **guardarse y ejecutarse cuando se
+pulsa el boton**. Si se hace mal, **se borra el culto sin preguntar** — que es exactamente lo
+contrario de lo que se pide.
+
+#### ✅ O-60 HECHA (2026-09-04) — y son DOS rojos, no uno
+
+**`src/components/ui/Dialogo.tsx` (nuevo)** — el cuadro de la app, con dos formas de usarlo:
+`Dialogo` (los botones que se le pasen) y `DialogoConfirmar` (el caso de dos botones que sustituye
+a `confirm()`).
+
+| Sitio | Antes | Ahora |
+|---|---|---|
+| Borrar un culto | `confirm()` del navegador | **«Eliminar el culto»**, botón rojo |
+| Borrar una versión por tono | `confirm()` | **«Eliminar esta versión»** |
+| Regenerar los acordes | `confirm()` | **«Regenerar los acordes»**, avisando de que **se pierden los ajustes a mano** |
+| «Cambios sin guardar» ×2 | **escrito a mano DOS VECES** | **el mismo componente** |
+
+**Comprobado:** **0 `confirm()`, `alert()` ni `prompt()`** en `src/` —solo quedan menciones en
+comentarios— y **0 copias del cuadro escritas a mano** fuera de `Dialogo.tsx`.
+
+#### 🔴 Y un ajuste que solo enseñó la CAPTURA
+
+La primera versión reusaba para «Eliminar» el rojo **contorneado** de «Descartar cambios». Compilaba,
+y **estaba mal**: contorneado se lee como **secundario**, y ahí «Eliminar» es la acción **principal**
+del diálogo. En la vista previa que se le enseñó a Isaac iba sólido.
+→ **Dos rojos, y el motivo es el PAPEL del botón, no el color:**
+* **`peligro`** — sólido. La acción principal («Eliminar», «Regenerar»).
+* **`peligro-suave`** — contorneado. Una salida destructiva que **no** es la principal, como
+  «Descartar cambios» junto a «Guardar y salir».
+
+📌 **Se cazó mirando, no compilando** — quinta desechable del proyecto (`/dialogo-prueba`), borrada
+con su línea del middleware antes de publicar. Y la captura del de tres botones sirvió para lo
+contrario: **demostrar que unificar NO cambió nada** de lo que a él ya le gustaba.
+
+⚠️ **Escape cierra el diálogo**, como hacía `confirm()`. Sin eso, lo nuevo se sentiría más atrapado
+que lo que viene a sustituir. **No cierra mientras la acción está en curso** (`ocupado`), para no
+dejar un borrado a medias sin pantalla.
 
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos

@@ -29,6 +29,7 @@ import {
 } from "@/app/(dashboard)/services/actions";
 import ServicePdfButton from "@/components/services/ServicePdfButton";
 import ShareBox from "@/components/services/ShareBox";
+import Dialogo, { DialogoConfirmar } from "@/components/ui/Dialogo";
 import EstadoCulto from "@/components/services/EstadoCulto";
 import AutoTextarea from "@/components/ui/AutoTextarea";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
@@ -113,6 +114,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pidiendoBorrar, setPidiendoBorrar] = useState(false); // el diálogo de borrar (O-60)
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"ok" | "error">("ok");
 
@@ -390,9 +392,18 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
     return false;
   }
 
-  async function handleDelete() {
+  // 🔴 La pregunta y el borrado van SEPARADOS. `confirm()` detenia el programa,
+  // asi que lo de debajo del `if` solo corria al aceptar; un dialogo dibujado no
+  // detiene nada. Si esto se escribiera seguido, el culto se borraria SIN
+  // preguntar — justo lo contrario de lo que se pidio.
+  function handleDelete() {
     if (!service) return;
-    if (!confirm(`¿Eliminar el culto "${service.name}"? Esta accion no se puede deshacer.`)) return;
+    setPidiendoBorrar(true);
+  }
+
+  async function borrarDeVerdad() {
+    if (!service) return;
+    setPidiendoBorrar(false);
     setDeleting(true);
     const res = await deleteServiceAction(service.id);
     if (res.ok) {
@@ -506,42 +517,36 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   // ── Editor (admin) ─────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-3xl p-4 md:p-8">
-      {/* Diálogo: guardar o descartar cambios al salir */}
+      {/* Los dos diálogos de esta pantalla, con EL componente de la app (O-60).
+          Este bloque estaba escrito a mano y CALCADO en `SongDetailEditor`;
+          ahora los dos salen del mismo sitio. */}
       {leavePrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-slate-800">
-            <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-50">Cambios sin guardar</h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Tienes cambios sin guardar en el culto. ¿Quieres guardarlos antes de salir?
-            </p>
-            <div className="mt-5 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleSaveAndLeave}
-                disabled={saving}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {saving ? "Guardando..." : "Guardar y salir"}
-              </button>
-              <button
-                type="button"
-                onClick={handleDiscardAndLeave}
-                disabled={saving}
-                className="inline-flex w-full items-center justify-center rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-              >
-                Descartar cambios
-              </button>
-              <button
-                type="button"
-                onClick={() => setLeavePrompt(null)}
-                disabled={saving}
-                className="inline-flex w-full items-center justify-center rounded-lg py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Dialogo
+          titulo="Cambios sin guardar"
+          onCancelar={saving ? undefined : () => setLeavePrompt(null)}
+          acciones={[
+            { texto: saving ? "Guardando..." : "Guardar y salir", onClick: handleSaveAndLeave, disabled: saving },
+            { texto: "Descartar cambios", onClick: handleDiscardAndLeave, estilo: "peligro-suave", disabled: saving },
+            { texto: "Cancelar", onClick: () => setLeavePrompt(null), estilo: "suave", disabled: saving },
+          ]}
+        >
+          Tienes cambios sin guardar en el culto. ¿Quieres guardarlos antes de salir?
+        </Dialogo>
+      )}
+
+      {pidiendoBorrar && service && (
+        <DialogoConfirmar
+          titulo="Eliminar el culto"
+          mensaje={
+            <>
+              El culto <b>«{service.name}»</b> se borra con su repertorio, y no se puede recuperar.
+            </>
+          }
+          textoConfirmar="Eliminar"
+          ocupado={deleting}
+          onConfirmar={borrarDeVerdad}
+          onCancelar={() => setPidiendoBorrar(false)}
+        />
       )}
 
       {message && (

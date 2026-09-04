@@ -5,6 +5,7 @@ import { Music4, Plus, Save, Trash2, RefreshCw, ChevronDown, ChevronRight } from
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import AutoTextarea from "@/components/ui/AutoTextarea";
+import { DialogoConfirmar } from "@/components/ui/Dialogo";
 import { parseSections } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -50,6 +51,9 @@ export default function SongKeyVersions({
   const [adding, setAdding] = useState(false);
   const [newKey, setNewKey] = useState<string>("");
   const [message, setMessage] = useState<{ text: string; type: "ok" | "error" } | null>(null);
+  // La pregunta abierta (O-60). Lleva dentro la versión, porque el diálogo se
+  // dibuja fuera de la fila y allí ya no se sabe de cuál se trataba.
+  const [pregunta, setPregunta] = useState<{ tipo: "borrar" | "regenerar"; v: SheetKey } | null>(null);
 
   const usedKeys = useMemo(() => new Set(versions.map((v) => v.key_signature)), [versions]);
 
@@ -109,8 +113,10 @@ export default function SongKeyVersions({
     setMessage({ text: `Versión en ${v.key_signature} guardada.`, type: "ok" });
   }
 
-  async function handleDelete(v: SheetKey) {
-    if (!confirm(`¿Eliminar la versión en ${v.key_signature}?`)) return;
+  // 🔴 La accion se GUARDA y se ejecuta al pulsar, no se escribe debajo de un
+  // `if`: un dialogo dibujado no detiene el programa como hacia `confirm()`.
+  async function borrarDeVerdad(v: SheetKey) {
+    setPregunta(null);
     setBusy(v.id);
     const { error } = await supabase.from("sheet_keys").delete().eq("id", v.id);
     setBusy(null);
@@ -122,13 +128,53 @@ export default function SongKeyVersions({
   }
 
   /** Reemplaza el contenido de la versión por una transposición fresca del base. */
-  function reseed(v: SheetKey) {
-    if (!confirm(`Regenerar los acordes en ${v.key_signature} desde la versión base? Se perderán los ajustes manuales de esta versión.`)) return;
+  function regenerarDeVerdad(v: SheetKey) {
+    setPregunta(null);
     patchLocal(v.id, { content: seedContent(baseKey, baseContent, v.key_signature) });
+  }
+
+  // Lo que se está preguntando ahora mismo, o `null` si no hay diálogo abierto.
+  // Se guarda la VERSIÓN y qué se le iba a hacer, porque el diálogo se dibuja
+  // aparte y para entonces ya no hay ni `v` ni contexto.
+  function handleDelete(v: SheetKey) {
+    setPregunta({ tipo: "borrar", v });
+  }
+  function reseed(v: SheetKey) {
+    setPregunta({ tipo: "regenerar", v });
   }
 
   return (
     <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+      {/* Los dos diálogos de esta pantalla (O-60). Antes eran `confirm()` del
+          navegador — el cartel gris que Isaac no quería. */}
+      {pregunta?.tipo === "borrar" && (
+        <DialogoConfirmar
+          titulo="Eliminar esta versión"
+          mensaje={
+            <>
+              Se borra la versión en <b>{pregunta.v.key_signature}</b> y no se puede recuperar.
+            </>
+          }
+          textoConfirmar="Eliminar"
+          ocupado={busy === pregunta.v.id}
+          onConfirmar={() => borrarDeVerdad(pregunta.v)}
+          onCancelar={() => setPregunta(null)}
+        />
+      )}
+      {pregunta?.tipo === "regenerar" && (
+        <DialogoConfirmar
+          titulo="Regenerar los acordes"
+          mensaje={
+            <>
+              Los acordes de <b>{pregunta.v.key_signature}</b> se vuelven a calcular desde la versión
+              base. <b>Se pierden los ajustes que hayas hecho a mano</b> en esta versión.
+            </>
+          }
+          textoConfirmar="Regenerar"
+          onConfirmar={() => regenerarDeVerdad(pregunta.v)}
+          onCancelar={() => setPregunta(null)}
+        />
+      )}
       <div className="flex items-center gap-2">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
           <Music4 className="h-4 w-4" />

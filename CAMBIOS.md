@@ -7,6 +7,19 @@
 
 ## 4 de septiembre de 2026
 
+### 💬 Los avisos ya son de la página, no del navegador
+
+- **Cuando la página te pregunta algo antes de borrar, ya sale con su propio diseño.** Antes salía
+  el cartel gris del navegador —ese que empieza con *«partituras-blush.vercel.app dice…»*— y
+  desentonaba con todo lo demás. Ahora es el mismo cuadro que ya conocías del aviso de **«Cambios
+  sin guardar»**.
+- **Y el botón que borra sale en ROJO.** Es la única pista que se lee **antes** de pulsar: con todo
+  del mismo color, *eliminar un culto* se veía igual que *guardar cambios*.
+- **Vale para los tres sitios donde la página pregunta:** al eliminar un culto, al eliminar una
+  versión en otro tono, y al regenerar los acordes de una versión — este último **ahora te avisa de
+  que se pierden los ajustes que hayas hecho a mano**, que antes no lo decía tan claro.
+- La tecla **Escape** cierra el aviso, como hacía el del navegador.
+
 ### 📱 La página se puede instalar como app, y ya gira
 
 - **Puedes instalarla en el teléfono, en la tablet o en el computador**, y se abre **como una app**:
