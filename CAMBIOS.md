@@ -5,6 +5,28 @@
 
 ---
 
+## 4 de septiembre de 2026
+
+### 📱 La página se puede instalar como app, y ya gira
+
+- **Puedes instalarla en el teléfono, en la tablet o en el computador**, y se abre **como una app**:
+  con su icono y **sin la barra de direcciones** del navegador. No hay que bajar nada de ninguna
+  tienda; se instala desde el propio navegador.
+  - **Android** (Chrome, Edge, Brave) → menú de tres puntos → **«Instalar aplicación»**.
+  - **Computador** (Chrome, Edge) → un icono de instalar **en la barra de direcciones**, a la derecha.
+  - **iPhone** → tiene que ser con **Safari**: Compartir → **«Añadir a pantalla de inicio»**.
+- 🔴 **Arreglado: la app se quedaba en vertical.** Estaba puesta para abrirse **solo de pie**, así
+  que girabas el teléfono y no pasaba nada — y en el culto se lee **de lado**. Ahora **sigue al
+  aparato**: lo giras y gira. Vertical para buscar una canción, horizontal para tocar.
+- ⚠️ **Si ya la tenías instalada, hay que desinstalarla y volver a instalarla.** Esa configuración
+  se lee **al instalar**, así que la copia que ya tengas puesta no se entera sola.
+- **Se actualiza sola.** Con internet siempre pide lo último al servidor, así que ves los cambios
+  sin hacer nada.
+- ⚠️ **Lo que todavía NO hace: funcionar sin internet.** La app abre, pero **las canciones no
+  cargan** si te quedas sin datos, porque viven en el servidor. Está anotado por si hace falta.
+
+---
+
 ## 3 de septiembre de 2026
 
 > **Para tocar hoy no cambia nada.** Lo de esta tanda es una parte nueva que **todavía no está

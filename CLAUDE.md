@@ -3393,9 +3393,24 @@ conviene no confundir:
    red se ve la cascara y nada dentro. **Esto es lo que mas puede decepcionar**, porque «app
    instalada» suena a «funciona sin internet» y **no es el caso**.
    → Hacerlo de verdad es un trabajo aparte: guardar el repertorio del culto en el aparato.
-3. **`orientation: portrait-primary`** en el manifiesto fuerza **vertical**. En una tablet puesta
-   de lado para tocar, eso puede estorbar. **No se toca sin preguntarle**, que para eso esta escrito
-   aqui.
+3. ~~**`orientation: portrait-primary`** fuerza vertical.~~ ✅ **RESUELTO el 2026-09-04, y lo pidio
+   el:** *«como se hace para que pueda leerse de manera horizontal, porque todos los que usamos
+   dispositivo movil leemos de manera horizontal»*.
+   → **Eligio «que siga al telefono» (`"orientation": "any"`)**, no «siempre horizontal».
+   **Y es lo correcto**, aunque el titulo de su pregunta dijera «horizontal»: lo que pidio fue que
+   **PUEDA** leerse asi. Con `landscape` a la fuerza, **el login, el catalogo y el panel de
+   administracion** tambien saldrian de lado, y buscar una cancion o teclear una letra en horizontal
+   es incomodo. Con `any` el que quiera horizontal gira el aparato y ya.
+
+   ⚠️ **Tres cosas que hay que saber, porque explican por que esto no se habia notado nunca:**
+   * **Esa linea solo manda en la app INSTALADA.** En el navegador **no hace nada** — ahi gira
+     desde siempre. Por eso el fallo aparece **justo al instalarla**, que es lo que se le acababa de
+     recomendar en O-59.
+   * **En iPhone no manda de todas formas:** Safari **ignora** la orientacion del manifiesto. Esto
+     afecta sobre todo a **Android**.
+   * 🔴 **El manifiesto se lee AL INSTALAR.** Quien ya tenga la app puesta **no se entera del
+     cambio**: hay que **desinstalarla y volver a instalarla**. Publicar no basta, y eso hay que
+     decirselo o va a creer que no funciono.
 
 📌 **Recomendacion, con su orden:** que **la instale hoy** —no cuesta nada y es lo que pedia—, y si
 al usarla le molesta no enterarse de las novedades, se hace el punto 1, que es pequeño. El punto 2

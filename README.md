@@ -35,6 +35,16 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 - **Aviso de cambios sin guardar** al salir del editor, de la letra o al cerrar la pestaña.
 - **Autenticación y roles** (admin / músico / lector) con Supabase Auth + Row Level Security.
 - **`/novedades`**: página pública con lo que va cambiando, contado para los músicos.
+- **Instalable como app (PWA)**: se instala desde el propio navegador —sin tienda— y se abre con su
+  icono y sin barra de direcciones. El caché del *service worker* lleva el id del despliegue, así
+  que cada publicación limpia el anterior; y es *network-first*, o sea que **con internet siempre se
+  ve lo último**.
+  ⚠️ **No funciona sin conexión**: el *service worker* no toca las peticiones a Supabase, a
+  propósito, y las canciones viven ahí. La app abre y no carga nada.
+  📌 **`orientation` es `any`** (2026-09-04): la app **sigue al aparato**. Estuvo en
+  `portrait-primary` y eso dejaba la app instalada **clavada en vertical**, que es justo al revés de
+  como se lee tocando. Ese campo **solo aplica a la app instalada** —en el navegador no hace nada— y
+  **iOS lo ignora**; además se lee **al instalar**, así que cambiarlo obliga a reinstalar.
 
 ### Formato de notación (texto en `sheets.content`)
 

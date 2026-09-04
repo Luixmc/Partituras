@@ -70,6 +70,45 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "4 de septiembre de 2026",
+    "iso": "2026-09-04",
+    "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
+    "secciones": [
+      {
+        "titulo": "Instalala como app",
+        "resumen": "Se instala desde el propio navegador, sin bajar nada de ninguna tienda, y ya gira de lado.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Se puede instalar en el telefono, en la tablet y en el computador.",
+            "detalle": [
+              "Se abre <strong>como una app</strong>: con su icono y <strong>sin la barra de direcciones</strong> del navegador. No hay que bajar nada de ninguna tienda.",
+              "<strong>Android</strong> (Chrome, Edge, Brave): menu de tres puntos → <strong>«Instalar aplicacion»</strong>.",
+              "<strong>Computador</strong> (Chrome, Edge): un icono de instalar <strong>en la barra de direcciones</strong>, a la derecha.",
+              "<strong>iPhone</strong>: tiene que ser con <strong>Safari</strong> — Compartir → <strong>«Anadir a pantalla de inicio»</strong>."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "La app se quedaba en vertical.",
+            "detalle": [
+              "Estaba puesta para abrirse <strong>solo de pie</strong>, asi que girabas el telefono y no pasaba nada — y en el culto se lee <strong>de lado</strong>.",
+              "Ahora <strong>sigue al aparato</strong>: lo giras y gira. Vertical para buscar una cancion, horizontal para tocar.",
+              "⚠️ <strong>Si ya la tenias instalada, desinstalala y vuelve a instalarla.</strong> Esa configuracion se lee <strong>al instalar</strong>, asi que la copia que ya tengas puesta no se entera sola."
+            ]
+          },
+          {
+            "titulo": "Se actualiza sola, pero todavia no sirve sin internet.",
+            "detalle": [
+              "Con internet siempre pide lo ultimo al servidor, asi que ves los cambios sin hacer nada.",
+              "⚠️ Lo que <strong>no</strong> hace: la app abre sin datos, pero <strong>las canciones no cargan</strong>, porque viven en el servidor."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "3 de septiembre de 2026",
     "iso": "2026-09-03",
     "entrada": "Empieza la parte de la melodia en pentagrama, para la trompeta. Todavia no esta abierta.",
