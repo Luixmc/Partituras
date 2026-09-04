@@ -86,8 +86,8 @@ cada push a `main`.
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **187 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **14.919 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **192 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **15.114 líneas** de TypeScript
    en 82 archivos.
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -123,7 +123,7 @@ npm run export       # copia de seguridad de los datos a JSON (§12.1)
 el build deja al servidor de desarrollo roto (T-04). **Para comprobar que algo compila con el
 servidor encendido: `npm run verificar`**, que compila aparte.
 
-**`npm test` ejecuta 187 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 192 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -240,7 +240,7 @@ repo/
   supabase/migrations/           21 migraciones ⚠️ desincronizadas con la BD (T-01)
                                  ⚠️ las DOS últimas (20240020, 20240021) SIN APLICAR
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       187 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       192 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -721,43 +721,44 @@ largo por una cadena creyendo que la arregla.
 
 ## 9 · Pendientes
 
-### 9.0 🔜 POR DÓNDE SE SIGUE MAÑANA (escrito el 2026-09-02 al cerrar)
+### 9.0 🔜 POR DÓNDE SE SIGUE (reescrito el 2026-09-04 al cerrar)
 
-**Lo primero que hay que leer al retomar.** Isaac dijo: *«mañana continuamos; cuando te diga que
-continúes con el trabajo es porque ya es mañana»*.
+**Lo primero que hay que leer al retomar.** Isaac: *«mañana continuamos; cuando te diga que
+continúes con el trabajo es porque ya es mañana»*. → **Se pregunta el reloj** y se sigue por esta
+tabla, no por lo último que se dijo en el chat anterior.
 
-| Orden | Qué | Estado |
+#### Lo que hay que hacer, por orden
+
+| # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **O-57 · R.0 — la MIGRACIÓN de la columna `sheets.melody`** | 🔴 **Isaac dio el OK el 2026-09-03 y la copia está hecha — pero NO SE PUEDE EJECUTAR: el conector de Supabase ya no apunta a Partituras.** Ver §9.1. La migración está escrita (`20240021`) y esperando una vía |
-| **2** | ~~**O-57 · R.1 — el editor de melodía CON EL RATÓN**~~ | ✅ **HECHO el 2026-09-03**, sin tocar la base. Poner, arrastrar, borrar, insertar, deshacer, `#`/`b`/`♮`, silencios, ligaduras, barras y las 8 duraciones. 180 pruebas · 26 de 26 pantallas. **Falta que Isaac lo pruebe con la mano** — el ratón no deja rastro en el HTML |
-| **3** | ~~**O-57 · R.2 — leerla**~~ | ✅ **HECHO el 2026-09-03.** Sección «Melodía» en el menú, ruta `/melodias`, pestaña en la canción y selector Como suena / Trompeta. **Escrito para aguantar que la columna no exista** |
-| **3b** | ~~**O-57 · R.3 — escribir por texto**~~ | ✅ **HECHO el 2026-09-03.** Botón «Escribir a mano», sobre el mismo texto que escribe el ratón |
-| **4** | ~~**O-57 · R.4** — la melodía en la presentación~~ | ✅ **HECHO el 2026-09-03.** Un botón que rota **acordes → letra → melodía** a pantalla completa, con la melodía pedida APARTE para que la columna ausente no pueda vaciar el culto. Mirado en captura, con trompeta incluida. **El PDF sigue descartado por ahora**, decisión suya |
-| **4** | ~~**O-52 · regla 1 ó regla 2**~~ | ✅ **CERRADA el 2026-09-03: eligió la regla 1**, la que ya estaba publicada. La perdedora está **borrada**, no comentada |
-| **5** | ~~**EL PUSH**~~ | ✅ **PUBLICADO el 2026-09-03 con su permiso** (*«sube lo que queda pendiente»*), `48990b1..d59a9de` (**r48**), en tres commits. CI **verde**, **26 de 26 pantallas en producción**, y las tres desechables **307** — ninguna llegó. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir** |
-| **6** | ⬜ **Que Isaac lo pruebe CON LA MANO, y en la tablet** | El ratón no deja rastro en el HTML: arrastrar una nota, `Supr`, deshacer y el botón de los tres modos **solo se comprueban tocando** |
-| **7** | ~~**O-59 — usar la página como app**~~ | ✅ **INSTALADA el 2026-09-04**, en el menú de aplicaciones y sin escudo. 🔴 **Y salió el porqué de que fallara: BRAVE no fabrica la app, da un acceso directo y no lo dice.** Se instala **con Chrome**. Siguen anotadas las dos cosas que no hace —el aviso de «hay versión nueva» y que **sin internet no hay canciones**—; la tercera (la orientación) se arregló en r49 |
-| 🔜 **A** | 🔴 **O-63 — encoger las barras de la presentacion** | **DECIDIDO por Isaac, SIN PROGRAMAR.** Eligio «encoger las barras» de tres opciones dibujadas. Hoy tapan **un tercio** de su pantalla y **tocar un acorde de abajo dispara «Siguiente»** — se le pasa la cancion en mitad del culto. El plan y el porque, en O-63. **Es lo primero que hay que hacer** |
-| 🔜 **B** | ⬜ **Que Isaac mire el `:\|` arreglado en su telefono** | O-64 esta hecha y medida (25 de 85 piezas cambian, y **solo** por perder el bloque fantasma). Pero el reparto **solo se ve en el navegador**: la captura del fallo la trajo el, y la de que quedo bien tambien le toca |
-| **8** | ~~**El ICONO**~~ | ✅ **DECIDIDO el 2026-09-04: SE QUEDA COMO ESTÁ** (*«deja el icono así»*), o sea la **A**, `purpose: "any"` y el PNG transparente de D-12. **No se vuelve a proponer.** Si algún día cambia de idea, la **C** está descrita abajo con su aviso del margen |
+| **1** | 🔴 **O-63 — encoger las barras de la presentación** | **DECIDIDO por Isaac (eligió «encoger» de tres opciones dibujadas) y SIN PROGRAMAR.** Y **no es cosmético:** hoy las barras tapan **un tercio** de su pantalla en el teléfono, y **tocar un acorde de la franja de abajo dispara «Siguiente»** — se le pasa la canción en mitad del culto. El plan completo, en **O-63** |
+| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
-**Estado del árbol al cerrar el 2026-09-02:**
-- ✅ **Todo lo de O-52 / O-54 / O-55 / O-56 está PUBLICADO** (`48990b1`), CI verde, 26 de 26 pantallas
-  en producción, y el comunicado en `CAMBIOS.md` y `/novedades`.
-- 📄 **Sin subir, solo en el equipo:** todo O-57 (R.1 a R.4) — `lib/melodia.ts`,
-  `lib/melodiaBase.ts`, `EditorMelodia.tsx`, `Pentagrama.tsx`, `MelodiaPanel.tsx`, la sección
-  `/melodias`, el tercer modo de `PresentationView`, la migración `20240021` y
-  `pruebas/melodia.test.mjs` —todo eso SÍ es código de la app y sube cuando toque—, más **TRES
-  páginas desechables** con su línea del middleware: `/secciones-prueba`, `/pentagrama-prueba` y
-  `/melodia-prueba`.
-  ⚠️ **Las tres se BORRAN antes de publicar**, con sus líneas del middleware, como las cuatro
-  anteriores. **Ninguna ha llegado nunca a producción.**
-  📌 **`/melodia-prueba` existe por un motivo que se va con ella:** mientras la columna no exista,
-  ninguna canción tiene melodía y **el tercer modo no se puede alcanzar** por el camino normal. Esa
-  página le pasa a `PresentationView` una canción con melodía puesta a mano, para poder mirarlo.
-- ⚠️ **`abcjs` viene de un CDN en la página de prueba, a propósito.** Si O-57 sigue adelante hay que
-  decidir si entra como dependencia de verdad — y eso es **meter un paquete en el repositorio del
-  primo**, así que se le pregunta (es lo mismo que se hizo con P-06).
+#### Estado del árbol — **2026-09-04, todo PUBLICADO**
+
+| | |
+|---|---|
+| Último commit publicado | **`06f28ae`**, y `origin/main` va igual. **Árbol limpio: no queda nada sin subir** |
+| Última versión | **r55** |
+| CI | verde · **26 de 26 pantallas** comprobadas en producción |
+| Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
+| Migraciones | **21**, y **las dos últimas SIN APLICAR** (`20240020`, `20240021`) |
+| Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
+| `abcjs` | **dependencia de verdad** desde r48, cargada de forma diferida y **fuera del paquete compartido** (medido en `build-manifest.json`) |
+
+#### Lo publicado hoy, para no repetir el trabajo
+
+| | |
+|---|---|
+| **r48** | La melodía en pentagrama (R.1 a R.4) · O-52 cerrada · entra `abcjs` |
+| **r49** | La app instalada ya gira (`orientation: any`) |
+| **r50** | El comunicado corregido: se instala **con Chrome**, no con Brave |
+| **r51** | **Un solo diálogo** para toda la app, y rojo en lo que borra |
+| **r52** | La red de seguridad donde faltaba — **crear una canción no tenía ninguna** |
+| **r53** | Fuera el salto de fila (`;`) · el `:\|` en su sitio en 22 canciones · **el README que mentía en cuatro puntos** |
+| **r54 → revert → r55** | El reparto por ANCHO. **r54 hizo bailar las canciones y se revirtió el mismo día**; r55 es lo mismo con el freno |
 
 ### 9.1 Dependen de Isaac
 

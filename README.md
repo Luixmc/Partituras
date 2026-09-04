@@ -114,7 +114,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 187 pruebas |
+| `npm test` | Las 192 pruebas |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
 | `npm start` | Sirve el build de producción en local |
@@ -261,7 +261,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 187 pruebas (ver más abajo)
+pruebas/                    → las 192 pruebas (ver más abajo)
 supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 ```
 
@@ -341,7 +341,7 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 ## Pruebas
 
 ```bash
-npm test        # 187 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 192 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -349,7 +349,8 @@ las ejecuta en cada push, **antes** del build.
 
 Cubren lo que más ha roto: el tono y su ortografía, las notas de cada acorde, que las posturas de
 guitarra **suenen**, la separación en secciones, quién ve qué culto, la cuenta de la trompeta, el
-reparto de compases entre cuadros y **la ida y vuelta de la melodía** — que una nota escrita se
+reparto de compases entre cuadros —**incluido que no desborde cuando los bloques miden distinto**—
+y **la ida y vuelta de la melodía** — que una nota escrita se
 guarde y se vuelva a leer con su misma duración y su misma alteración.
 
 📌 Esa última tiene motivo: si al guardar se perdiera un sostenido, **no salta ningún error**. La
@@ -385,5 +386,6 @@ pública `/novedades`; esto es el resumen técnico.
 | **r49** | La app instalada **ya gira**: `orientation` de `portrait-primary` a `any`. Ese campo solo manda en la app instalada, así que la línea llevaba meses sin hacer nada — y despertó justo al recomendarle instalarla |
 | **r50** | Corregido el comunicado: la app **se instala con Chrome, no con Brave** — Brave da un acceso directo y no lo dice, porque el paquete lo firma un servidor de Google y Brave no hace esa llamada. Se publicaron **las tres señales** para que cualquiera sepa si le funcionó |
 | **r51** | **Un solo diálogo para toda la app**: fuera los del navegador, botón rojo en lo que borra, y las **dos copias** que había del cuadro «Cambios sin guardar» pasan a ser una |
+| **r55** | **El reparto mide el ANCHO de cada bloque, no cuántos son**: una sección con casillas `{ }1 { }2` se apretaba en su cuadro porque los bloques miden entre 104 y 526 px y la página los contaba como si midieran igual. ⚠️ **La primera versión (r54) hizo bailar las canciones y se revirtió el mismo día**: la medida entera que sustituyó era el freno de un lazo de realimentación. **192 pruebas** |
 | **r53** | **Fuera el salto de fila (`;`)**: lo jubiló el reparto automático de secciones. Con él muere la excepción de «si lo marcas a mano, la página no reorganiza» — ahora **todas** las secciones se reparten midiendo. Y el README, al día: cuatro puntos de su «deuda técnica» eran falsos |
 | **r52** | **La red de seguridad donde faltaba**: crear una canción no tenía **ninguna** —se perdían todos los acordes tecleados—, ni la melodía ni las versiones por tono avisaban, y **cambiar de pestaña no pedía permiso** |
