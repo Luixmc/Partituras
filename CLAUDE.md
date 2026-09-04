@@ -5477,6 +5477,35 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
+### 2026-09-04 · Tanda 42 — fuera el salto de línea, el `:|` en su sitio, y la documentación corregida · 🚀 r53
+
+**Publicado:** `6ae6b8f..4902853` a `main`. CI verde, **26 de 26 pantallas en producción**, y el
+README ya **sin las cuatro afirmaciones falsas** (comprobado contra el crudo de GitHub).
+
+**① O-62 — el salto de línea (`;`) eliminado.** Lo jubiló el reparto automático, y el razonamiento
+es suyo: el `;` era la respuesta *manual* al problema que O-52 resolvió *midiendo*, y a mano no se
+puede acertar para todos los tamaños a la vez. **Muere con él la excepción** de «si lo marcas, la
+página no reorganiza».
+🔴 **El parser lo sigue aceptando y lo descarta**, y no es nostalgia: **las copias de seguridad lo
+tienen dentro**. Una copia existe para restaurarla. Es T-07 en su versión de datos.
+📌 **Y el barrido tenía un hueco que casi se me pasa:** las **13 versiones por tono** tienen su
+propio texto de acordes. Salieron limpias, pero *al retirar algo del formato hay que barrer todas
+las columnas donde vive ese formato, no solo la principal*.
+
+**② O-64 — el `:|` se iba solo a otra línea, en 22 de 72 canciones.** Lo trajo él con una captura
+del teléfono. Un `:|` pegado a una casilla (`}2:|`) creaba un **compás fantasma** que solo llevaba
+el signo — y desde O-52 **ese fantasma cuenta como bloque para el reparto**.
+📌 **Llevaba ahí desde siempre y empezó a NOTARSE con el reparto automático.** Una función nueva no
+solo puede traer fallos: **puede despertar los que ya estaban dormidos.**
+
+**③ La auditoría de documentos** (tanda 41), publicada aquí.
+
+📌 **Lo que enseña esta tanda sobre CÓMO comprobar:** la medición no fue «compilan y las pantallas
+responden». Fue sacar **las dos versiones del parser** —la publicada con `git show HEAD:`, no con
+`git stash`, que mueve el árbol— y contar por separado **los acordes (3.388 → 3.388)** y **las
+repeticiones (330 → 330)**. *«Cambian 25 de 85» a secas no dice nada: podría ser que se hubieran
+perdido acordes.*
+
 ### 2026-09-04 · Tanda 41 — la documentación mentía, y en el peor sitio
 
 **Sin código.** Isaac lo pidió antes de cerrar: *«verifícame en todos los archivos que están en el
