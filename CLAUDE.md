@@ -11,6 +11,12 @@
 > descarte, aunque sea una corrección a una respuesta mía. Lo que quede **pendiente va a §9,
 > nunca solo a §13**. Si la conversación se corta, lo escrito es lo único que sobrevive.
 >
+> **REGLA DEL «CONTINÚA» — cuando Isaac dice «continúa con el trabajo», ES OTRO DÍA.**
+> Acordado el 2026-09-02 al cerrar la jornada: *«mañana continuamos; cuando te diga que continúes
+> con el trabajo es porque ya es mañana»*. → **No se hereda la fecha de la conversación anterior:
+> se pregunta el reloj** (regla de abajo) y se sigue por **lo que esté en §9 como pendiente**, no
+> por lo último que se dijo. Lo que quedó a medias tiene que poder retomarse leyendo este archivo.
+>
 > **REGLA DE LA FECHA — se pregunta el reloj, NO se hereda la del principio de la conversación.**
 > Isaac lo corrigio el 2026-08-22: *«los cambios que se hicieron desde hoy es para el 22 de agosto,
 > estoy viendo los archivos y marcan 21 de agosto, o sea el dia de ayer»*. Tenia razon: una sesion
@@ -706,6 +712,41 @@ largo por una cadena creyendo que la arregla.
 
 ## 9 · Pendientes
 
+### 9.0 🔜 POR DÓNDE SE SIGUE MAÑANA (escrito el 2026-09-02 al cerrar)
+
+**Lo primero que hay que leer al retomar.** Isaac dijo: *«mañana continuamos; cuando te diga que
+continúes con el trabajo es porque ya es mañana»*.
+
+| Orden | Qué | Estado |
+|---|---|---|
+| **1** | 🔴 **O-57 · R.0 — la MIGRACIÓN de la columna `sheets.melody`** | 🔴 **Isaac dio el OK el 2026-09-03 y la copia está hecha — pero NO SE PUEDE EJECUTAR: el conector de Supabase ya no apunta a Partituras.** Ver §9.1. La migración está escrita (`20240021`) y esperando una vía |
+| **2** | ~~**O-57 · R.1 — el editor de melodía CON EL RATÓN**~~ | ✅ **HECHO el 2026-09-03**, sin tocar la base. Poner, arrastrar, borrar, insertar, deshacer, `#`/`b`/`♮`, silencios, ligaduras, barras y las 8 duraciones. 180 pruebas · 26 de 26 pantallas. **Falta que Isaac lo pruebe con la mano** — el ratón no deja rastro en el HTML |
+| **3** | ~~**O-57 · R.2 — leerla**~~ | ✅ **HECHO el 2026-09-03.** Sección «Melodía» en el menú, ruta `/melodias`, pestaña en la canción y selector Como suena / Trompeta. **Escrito para aguantar que la columna no exista** |
+| **3b** | ~~**O-57 · R.3 — escribir por texto**~~ | ✅ **HECHO el 2026-09-03.** Botón «Escribir a mano», sobre el mismo texto que escribe el ratón |
+| **4** | ~~**O-57 · R.4** — la melodía en la presentación~~ | ✅ **HECHO el 2026-09-03.** Un botón que rota **acordes → letra → melodía** a pantalla completa, con la melodía pedida APARTE para que la columna ausente no pueda vaciar el culto. Mirado en captura, con trompeta incluida. **El PDF sigue descartado por ahora**, decisión suya |
+| **4** | ~~**O-52 · regla 1 ó regla 2**~~ | ✅ **CERRADA el 2026-09-03: eligió la regla 1**, la que ya estaba publicada. La perdedora está **borrada**, no comentada |
+| **5** | 🔴 **EL PUSH — 25 entradas sin publicar desde `48990b1`** (medido con `git status`), de las que **3 son las páginas desechables que se borran** | ⬜ Antes: **borrar `/secciones-prueba`, `/pentagrama-prueba` y `/melodia-prueba` con sus líneas del middleware**, escribir el comunicado en **`CAMBIOS.md` Y en `/novedades`**, y **pedirle permiso** (D-01) |
+| **6** | ⬜ **Que Isaac lo pruebe CON LA MANO, y en la tablet** | El ratón no deja rastro en el HTML: arrastrar una nota, `Supr`, deshacer y el botón de los tres modos **solo se comprueban tocando** |
+| **7** | ⬜ **O-59 — usar la página como app** | 🟢 **NO hay que programar nada: ya es instalable** (PWA, con su manifiesto, sus iconos y el caché versionado desde r45). Lo que falta es que **Isaac la instale**. Quedan anotadas las **tres cosas que hoy no hace** —el aviso de «hay versión nueva», que **sin internet no hay canciones**, y que el manifiesto fuerza vertical—. **Ninguna se toca sin que él lo pida** |
+
+**Estado del árbol al cerrar el 2026-09-02:**
+- ✅ **Todo lo de O-52 / O-54 / O-55 / O-56 está PUBLICADO** (`48990b1`), CI verde, 26 de 26 pantallas
+  en producción, y el comunicado en `CAMBIOS.md` y `/novedades`.
+- 📄 **Sin subir, solo en el equipo:** todo O-57 (R.1 a R.4) — `lib/melodia.ts`,
+  `lib/melodiaBase.ts`, `EditorMelodia.tsx`, `Pentagrama.tsx`, `MelodiaPanel.tsx`, la sección
+  `/melodias`, el tercer modo de `PresentationView`, la migración `20240021` y
+  `pruebas/melodia.test.mjs` —todo eso SÍ es código de la app y sube cuando toque—, más **TRES
+  páginas desechables** con su línea del middleware: `/secciones-prueba`, `/pentagrama-prueba` y
+  `/melodia-prueba`.
+  ⚠️ **Las tres se BORRAN antes de publicar**, con sus líneas del middleware, como las cuatro
+  anteriores. **Ninguna ha llegado nunca a producción.**
+  📌 **`/melodia-prueba` existe por un motivo que se va con ella:** mientras la columna no exista,
+  ninguna canción tiene melodía y **el tercer modo no se puede alcanzar** por el camino normal. Esa
+  página le pasa a `PresentationView` una canción con melodía puesta a mano, para poder mirarlo.
+- ⚠️ **`abcjs` viene de un CDN en la página de prueba, a propósito.** Si O-57 sigue adelante hay que
+  decidir si entra como dependencia de verdad — y eso es **meter un paquete en el repositorio del
+  primo**, así que se le pregunta (es lo mismo que se hizo con P-06).
+
 ### 9.1 Dependen de Isaac
 
 - [x] 🟢 **DESCARTADO el 2026-08-21 — la invitación a Vercel deja de perseguirse.** Isaac
@@ -765,10 +806,33 @@ largo por una cadena creyendo que la arregla.
       —basta con que el primo lo invite a «Luixmc's Org»— y un proyecto sin usar se pausa solo
       por inactividad. El proyecto de GestionDineroTrabajo se creará cuando esa fase arranque.
 - [ ] **Que el primo lo invite a «Luixmc's Org»** para poder entrar a Partituras con su cuenta.
-- [ ] **Reconectar el conector de Supabase de Claude con la cuenta de Isaac** *una vez que el
-      primo lo haya invitado*. Hoy sigue enlazado a la sesión del primo. ⚠️ Si se reconecta
-      **antes** de la invitación, se pierde el acceso a Partituras por esa vía (no es grave: el
-      respaldo ya está hecho y el desarrollo usa `.env.local`).
+- [x] ~~**Reconectar el conector de Supabase de Claude con la cuenta de Isaac**~~ →
+      🔴 **YA PASO, Y PASO LO QUE ESTABA AVISADO AQUI: SE PERDIO EL ACCESO A PARTITURAS.**
+      Comprobado el **2026-09-03**: el conector lista **un solo proyecto, «Sistema Biometrico»**
+      (organizacion `fjaivddkmynlqjusvsxn`, region us-east-2, INACTIVE) — **Partituras
+      (`pcayahwnxbigiuhvtwhd`) no aparece**, y cualquier consulta contra el devuelve
+      *«You do not have permission to perform this action»*.
+
+      📌 **El aviso estaba escrito aqui palabra por palabra** —*«si se reconecta antes de la
+      invitacion, se pierde el acceso a Partituras por esa via»*—, y se cumplio. Lo que **no**
+      se dimensiono bien es la ultima parte: se dijo *«no es grave»* porque el respaldo estaba
+      hecho y el desarrollo usa `.env.local`. **Y es cierto para LEER, pero no para MIGRAR.**
+
+      | Que se puede hacer hoy contra la base | |
+      |---|---|
+      | **Leer y escribir FILAS** (la app, el exportador, las pruebas) | ✅ **funciona** — va por `.env.local` con la clave publica. Comprobado: `sheets` responde 200 |
+      | **Cambiar el ESQUEMA** (`alter table`) | 🔴 **NO hay via.** PostgREST no ejecuta DDL ni con la `service_role`, y el conector ya no llega a este proyecto |
+
+      → **Esto bloquea R.0 y cualquier migracion futura**, incluida la `20240020` que ya estaba
+      esperando. **Las tres salidas, para que Isaac elija:**
+      1. **Que el primo lo invite a «Luixmc's Org»** y reconectar el conector a la cuenta de
+         Isaac. Es la que ya estaba pedida y la que arregla esto para siempre.
+      2. **Que el primo ejecute el SQL** desde el panel de Supabase. Son 3 lineas y estan
+         escritas en `supabase/migrations/20240021_sheet_melody.sql`.
+      3. **Volver a conectar el conector a la cuenta del primo**, que es como estaba.
+- [ ] 🔴 **CONSECUENCIA: ninguna migracion se puede ejecutar hasta que esto se resuelva.**
+      Hay **dos esperando**: `20240020` (usuario desactivado, §9.3) y `20240021` (la columna
+      `melody`, con el OK de Isaac ya dado y la copia hecha).
 - [x] ~~Mandar el logo~~ → **entregado el 2026-08-20**, cuatro archivos, elegidos por D-12.
 - [x] ~~Confirmar «una canción por página»~~ → **confirmado**: es del PDF; el catálogo las
       muestra todas (O-10).
@@ -2797,8 +2861,24 @@ las diez tarjetas casi ni aparece, porque caben muchos mas compases por fila.
 📌 **La leccion, y ya van dos en dos dias:** *«se ve feo» no es motivo para poner un limite que el
 usuario no pidio.* Si el resultado no gusta, se le enseña y decide el.
 
-⬜ **PENDIENTE: que elija regla 1 o regla 2.** Cuando elija, **la que pierda se borra**
-(`repartirConMinimo`, el tipo `Regla` y la prop del componente).
+#### ✅ O-52 CERRADA (2026-09-03) — eligio la REGLA 1, y la otra ya esta borrada
+
+> *«para la regla 1 ok»*
+
+**Manda la regla 1:** los bloques mas grandes que quepan **enteros en una fila**; ninguno se parte
+por dentro. Es la que ya estaba publicada, asi que **en produccion no cambia nada**.
+
+**Borrado de verdad, no comentado:** `repartirConMinimo`, el tipo `Regla`, el parametro de
+`cortesDe` y la prop del componente. Comprobado: **0 rastros** en `src/` y en `pruebas/`.
+📌 **Y se borra a proposito en vez de dejarla «por si acaso»:** dos reglas vivas para lo mismo son
+dos formas de que la pantalla haga cosas distintas segun quien monte el componente. **La que
+perdio esta en el historial de git**; no hace falta que estorbe en el archivo.
+
+**El motivo de que perdiera queda escrito en `reparto.ts`, para no reabrirlo:** con el minimo de
+cuatro, a media pantalla —donde caben 3— salian bloques de 5 que **se partian por dentro en dos
+filas**. Estaba en su propia frase: *«cuatro compases minimos, **o las que pueda**»*.
+
+**Comprobado tras borrar:** 180 pruebas · lint 0 · build 0 · **26 de 26 pantallas**.
 
 #### 🔴 Y un dato de la BASE que aparecio de rebote: los 4 cultos estaban en BORRADOR
 
@@ -2838,6 +2918,489 @@ netsh advfirewall firewall add rule name="Partituras dev 3000" ^
 `npm run dev`.
 ⬜ **PENDIENTE su permiso para publicar.** Y al publicar, **el comunicado** (`CAMBIOS.md` y
 `/novedades`): se nota mucho usando la pagina, asi que sin eso no esta terminado.
+
+**O-57 · El PENTAGRAMA para la trompeta: escribir la melodia de las canciones.** ⬜ **PROPUESTA,
+a la espera del visto bueno.**
+
+Isaac, 2026-09-02: *«quisiera saber si hay una manera de poder implementar para la trompeta el
+diagrama de pentagrama, mas que todo se pueda escribir la melodia de las canciones ahi»*, y tras
+ver la pagina desechable con las dos formas: *«dejemoslo para todas las canciones que se montaron
+y por las que se van a montar, que tenga una seccion aparte como las letras pero que sea oculta
+tambien hasta que funcione bien, y que se pueda escribir la melodia y tambien las secciones para
+que sepa por donde va»*.
+
+#### ✅ Lo probado en `/pentagrama-prueba` (desechable, se borra)
+
+Se le enseñaron **las dos formas de escribir**, y el hallazgo que decide el plan:
+
+| | Que es | Como salio |
+|---|---|---|
+| **(a) Texto** | Notacion **ABC**: `G2 G2 A2 G2 c2 B4` — mayuscula la octava de abajo, minuscula la de arriba, el numero es la duracion | ✅ Dibuja el pentagrama de verdad |
+| **(b) Raton** | Se pincha sobre el pentagrama para poner o mover una nota | ✅ Funciona |
+
+🔴 **Y lo importante: LAS DOS ESCRIBEN EL MISMO TEXTO.** La (b) no es otra cosa que la (a) con el
+raton, asi que **no hay que elegir una y tirar la otra** — se empieza por la (a), que es lo barato,
+y la (b) se añade despues **sin rehacer nada**. Eso es lo que hace el plan de abajo por fases.
+
+✅ **Y la trompeta sale gratis:** `abcjs` tiene `visualTranspose`, y **+2 es exactamente lo que ya
+calcula `lib/transpositores.ts`** (D-28). En la prueba se ve el mismo pasaje dos veces —«como
+suena» y «lo que lee la trompeta»—, y el segundo sale con sus **dos sostenidos** correctos.
+
+#### El diseño propuesto
+
+| Decision | Por que |
+|---|---|
+| **Se guarda en `sheets.melody`**, texto plano | 🔴 **Necesita MIGRACION** — no hay columna libre (`lyrics` esta ocupada). Toca produccion: **OK expreso de Isaac (D-04) y copia previa** |
+| **Con las MISMAS etiquetas de seccion** que los acordes y las letras (`[A (Cada vez...)]`) | Es lo que el pidio —*«tambien las secciones para que sepa por donde va»*— y ademas **`parseSections` ya existe**: emparejar cada frase con su seccion **sale gratis** (igual que D-20 con las letras) |
+| **Oculta hasta que este escrita**, con UN interruptor | `ROLES_MELODIA` en `lib/melodia.ts`, calcado de `ROLES_LETRAS` (D-22). Y como alli: **no es esconder botones** — la pantalla lo comprueba en el SERVIDOR y la melodia **no sale del servidor** para quien no debe verla |
+| **`abcjs` cargado SOLO en esa pantalla** | **136 KB comprimido**, medido. Con carga diferida, quien no abra la melodia **no paga nada**. Hoy el catalogo son ~97 KB |
+| 🔴 **SE ESCRIBE CON EL RATON — eligio la (b)** | Isaac, 2026-09-02: *«la opcion b»*. La de texto se queda **por debajo**: es el formato en el que se GUARDA, no la forma en que el escribe. Y como las dos producen el mismo ABC, tener la (a) montada no se tira — sirve de respaldo y para pegar o corregir a mano |
+
+⚠️ **Y lo que hay que decir antes de empezar, igual que se dijo con las letras (O-18):**
+🔴 **Esto no es un trabajo de programar, es de TECLEAR.** La melodia **no existe en ninguna parte**:
+ni en la base, ni en los acordes. Programar la pantalla son dias; **escribir la melodia de 75
+canciones lo hace una persona**, nota por nota — y una melodia tiene muchas mas notas que una letra
+tiene palabras. Lo que si abarata el trabajo, como con las letras, es que **las secciones ya estan
+escritas**: el andamio puede venir con sus etiquetas puestas y el solo rellena.
+
+#### El plan por fases
+
+🔴 **REORDENADO por su eleccion (2026-09-02):** el editor con el raton **sube a R.1**, porque es
+la forma en que el va a escribir. El texto ABC no desaparece — es lo que se guarda en la base — pero
+deja de ser la pantalla principal.
+
+| Sub | Que | Riesgo |
+|---|---|---|
+| **R.0** | **Migracion**: columna `sheets.melody` | 🔴 Toca produccion. **OK expreso + copia previa** |
+| **R.1** | 🔴 **Escribir CON EL RATON** — pinchar sobre el pentagrama para poner, mover y quitar notas. Pestaña «Melodia» en el editor, solo admin, **con el andamio de secciones ya puesto** | **El grueso del trabajo.** Lo que hay en la pagina desechable es un boceto: falta borrar una nota suelta, insertar en medio, deshacer, alteraciones (`#`/`b`), silencios y ligaduras |
+| **R.2** | **Leer** — entrada «Melodia» en la barra lateral + pestaña en la cancion, **con el selector Como suena / Trompeta** | Bajo |
+| **R.3** | **Escribir por texto**, como segunda via — para pegar, corregir a mano o arreglar algo raro | Bajo: ya esta probado |
+| **R.4** | *(a decidir)* La melodia en la presentacion y en el PDF del culto | A decidir |
+
+⬜ **PENDIENTE: el OK expreso para la migracion R.0.** El plan lo aprobo al elegir la (b).
+
+#### ✅ R.1 HECHO (2026-09-03) — el editor con el raton, ya de verdad
+
+**Sin tocar la base**, que es lo que permitio avanzar con R.0 todavia bloqueada.
+
+| Pieza | Que hace |
+|---|---|
+| `src/lib/melodia.ts` **(nuevo)** | El modelo y el ABC. En `lib/` **a proposito**, para que lo cubra el CI — igual que `music.ts`, `figuras.ts` y `reparto.ts`. Aqui vive tambien `ROLES_MELODIA`, el interruptor unico (D-22) |
+| `src/components/sheets/EditorMelodia.tsx` **(nuevo)** | El pentagrama donde se pincha. Con `PointerEvent`, por lo de O-37: el arrastre de raton **no funciona con el dedo**, y esto se va a usar en tablet |
+| `pruebas/melodia.test.mjs` | **10 pruebas nuevas**, total **180** |
+
+**Lo que ya sabe hacer, que era justo lo que le faltaba al boceto:** poner, **seleccionar**,
+**arrastrar para afinar**, **borrar una nota concreta**, **insertar en medio**, **deshacer** (50
+pasos), **sostenido / bemol / becuadro**, **silencios**, **ligaduras**, **barras de compas** y las
+**8 duraciones** de la semicorchea a la redonda, con puntillo. Y teclado: `↑ ↓` afinan, `← →`
+cambian de nota, `Supr` borra.
+
+#### 📌 Tres decisiones que conviene no volver a discutir
+
+1. **Se guarda en ABC, no en JSON.** Es texto que se lee, se pega y se corrige a mano, lo abre
+   cualquier programa de partituras, y asi **la melodia no queda atrapada** el dia que algo se
+   rompa. El editor de raton es solo una forma comoda de teclearlo.
+2. **El pentagrama del editor NO es la partitura final, y es a proposito.** Es una rejilla regular
+   —una nota por columna, todo del mismo ancho— hecha **para pinchar**. El dibujo bonito (vigas,
+   espaciado real) lo hace el grabador con el ABC que sale de aqui. Mezclarlas obligaria a escribir
+   un motor de partitura, que es justo lo que no se quiere mantener.
+3. 🔴 **La prueba que de verdad protege es la de IDA Y VUELTA**, y recorre **las 8 duraciones x 4
+   alteraciones x ligada o no x 6 alturas**. Motivo: si al guardar se perdiera una alteracion,
+   **no salta ningun error** — la melodia se dibuja igual de bonita con la nota equivocada, y quien
+   lo descubre es el trompetista tocandola en el culto. Es el mismo caso que la transposicion.
+
+#### 🖼️ Y TRES FALLOS QUE SOLO ENSEÑO LA CAPTURA
+
+Compilaba, las 180 pruebas pasaban, y **el pentagrama estaba mal dibujado en tres sitios**. Se
+vieron mirando la imagen, no los numeros — que es la leccion de O-52 aplicada a la primera:
+
+| Lo que se veia | La causa |
+|---|---|
+| **Las BLANCAS salian rellenas** — o sea, leidas como negras: **la mitad de tiempo** | `fill="white"` como atributo, con una clase de Tailwind `fill-slate-900` encima. **Una clase de CSS le gana siempre a un atributo de presentacion**, asi que el blanco no pintaba nada |
+| **Todas las plicas para arriba**, con las notas agudas sacando un palo larguisimo | Faltaba lo mas basico de una partitura: **la plica cambia de lado en la linea del medio**. De la tercera linea hacia arriba baja por la izquierda |
+| **El silencio, del tamaño de media pantalla** | `RestFigure` fija su alto con un estilo **en linea y en `em`**, y un `<svg>` anidado dentro de otro no lo respeta. → Va en un **`foreignObject`**, que le da una caja HTML donde ese `em` significa algo |
+
+🔴 **Y el silencio es `RestFigure`, el que Isaac eligio mirandolo** (O-47 «D2» y O-51). Dibujar
+aqui otro parecido habria sido tener el mismo signo escrito dos veces — **el patron P-09, que este
+proyecto ya ha pagado tres veces**.
+
+⚠️ **Un tropiezo mio del catalogo de siempre:** meti un comentario `{/* … */}` **dentro** de un
+`{condicion && ( … )}`, y ahi las llaves ya no son un comentario de JSX sino un objeto. No compila.
+Es primo hermano del `//` en zona JSX de la tanda 29.
+
+**Comprobado:** 180 pruebas · lint **0 errores** · build **0** · **26 de 26 pantallas**.
+
+#### ✅ `abcjs` ENTRA COMO DEPENDENCIA — Isaac, 2026-09-03: «vamos con la opcion a»
+
+**Y el numero que lo hacia facil de decidir, medido antes de preguntar:**
+
+| | |
+|---|---|
+| **Lo que crece el REPOSITORIO** | **12 lineas** (`package.json` + `package-lock.json`). `node_modules` **no se sube**, asi que los 5,7 MB del paquete se quedan en el equipo |
+| Lo que se baja el navegador | **~136 KB comprimidos**, y **solo en la pantalla de la melodia** |
+| Vulnerabilidades que anade | **0** |
+| **¿Va en lo que carga TODA la app?** | 🔴 **NO, y esto es lo que habia que comprobar.** Se mide en `build-manifest.json`: los 7 archivos compartidos por todas las pantallas **no lo incluyen**. El catalogo no engorda ni un byte |
+
+📌 **Por que el numero cambia la comparacion con P-06**, donde el eligio dejar el CDN: alli eran
+**~20 MB** metidos en el repositorio de su primo. Aqui son **12 lineas**. No es la misma pregunta.
+
+🔴 **Se carga con `import()` DENTRO del efecto, y son dos motivos, no uno:**
+1. **No entra en el paquete del servidor** — `abcjs` toca `document` al dibujar, asi que en el
+   servidor reventaria.
+2. **No la paga quien no abre esa pantalla.** El catalogo se mira docenas de veces al dia y la
+   melodia casi nunca.
+
+**`src/components/sheets/Pentagrama.tsx` (nuevo)** es el que dibuja la partitura de verdad, con
+`transponer` para la trompeta (+2, el numero sale de `lib/transpositores.ts`, D-28). Ante un ABC a
+medio escribir **avisa y sigue**: no puede tumbar la pantalla.
+
+#### ✅ LA MELODIA POR SECCIONES — la otra mitad del encargo (2026-09-03)
+
+Isaac lo pidio en la misma frase que el pentagrama: *«y tambien las secciones para que sepa por
+donde va»*. Para un trompetista eso no es adorno: es lo unico que le dice si lo que lee es la
+Intro, el coro o el puente.
+
+🔴 **REUSA `parseSections`, no escribe un tercer partidor.** Y aqui si vale —al reves que en la
+letra, que necesito el suyo— porque `parseSections` junta las lineas con un espacio, y **en ABC el
+espacio ES el separador**: una melodia en tres renglones significa lo mismo que en uno.
+
+| Pieza | Que hace |
+|---|---|
+| `tramosDe(melodia)` | Parte la melodia guardada en tramos, uno por seccion |
+| `melodiaDeTramos(tramos)` | El camino de vuelta, para guardar |
+| `andamioDeMelodia(acordes)` | **Las secciones de la cancion, ya puestas y vacias** — no se arranca de una pantalla en blanco |
+| `tieneMelodia(m)` | Si hay algo escrito de verdad |
+
+⚠️ **Se ofrecen TODAS las secciones, sin decidir cuales llevan melodia.** Isaac ya zanjo esto con
+las letras: *«a veces se repiten estrofas, a veces son instrumentales, a veces solos de guitarra,
+no es algo fijo»*. **La que se quede vacia es que no la toca la trompeta** — el dato lo pone el.
+
+⚠️ Y se filtran los tramos vacios porque **`parseSections("")` no devuelve una lista vacia**:
+devuelve una seccion con un espacio (contrato real, documentado en O-44). Sin el filtro, una
+melodia en blanco pintaria un pentagrama fantasma.
+
+#### 🔴 Un tropiezo que ya esta escrito y volvio a pasar: los `
+` del heredoc
+
+Al escribir `melodia.ts` por consola, los `
+` de dos plantillas **se convirtieron en saltos de
+linea de verdad** y el archivo no compilaba. Es la trampa que ya se conocia —*«los heredoc pierden
+las barras invertidas»*—.
+📌 **La regla, para no repetirla:** cualquier texto con escapes (`
+`, `	`, `\`) **se escribe con
+la herramienta de edicion, no por consola.**
+
+#### 🔜 R.0 — LA MIGRACION: escrita, con copia, SIN EJECUTAR
+
+**`20240021_sheet_melody.sql`** — `alter table sheets add column if not exists melody text`.
+
+🔴 **Es de las seguras, y conviene decir por que:** **anade, no quita** —T-07 fue por quitar— y
+**nace NULL, sin `default`**, asi que **ninguna fila que ya existe cambia de significado** — que es
+justo lo que enseño L-121 con el `status` de los cultos. Y **no toca ninguna politica**: quien
+puede leer una cancion puede leer su melodia, igual que la letra.
+
+**Copia previa hecha:** `_RESPALDOS\Partituras-datos-2026-09-03` — **72 canciones**, 14 categorias,
+99 vinculos, 12 versiones por tono. *(Faltan las de borrador, por lo de siempre: la
+`service_role`. No importa aqui: esta migracion no toca el contenido de ninguna fila.)*
+
+#### ✅ R.2 HECHO (2026-09-03) — la seccion «Melodia», escrita para AGUANTAR que la columna no exista
+
+**Y ese es el orden que manda T-07:** primero el codigo que tolera, despues la migracion.
+
+| Pieza | Que hace |
+|---|---|
+| `lib/navegacion.ts` | La entrada **«Melodia»**, con `ROLES_MELODIA`. **Una sola linea** y sale en el ordenador Y en el telefono — que es para lo que se unifico esa lista (P-09) |
+| `app/(dashboard)/melodias/page.tsx` **(nuevo)** | La seccion propia. **Reusa `buscarCanciones`** (D-21): no es un tercer catalogo |
+| `components/sheets/MelodiaPanel.tsx` **(nuevo)** | El panel de dentro de la cancion: un tramo por seccion, andamio, y el selector Como suena / Trompeta |
+| `SongDetailEditor.tsx` | Pestaña **«Melodia»** y modo `?ver=melodia`, calcado del modo letra (O-43) |
+| `pruebas/melodia.test.mjs` | **7 pruebas mas** para las secciones. Total **187** |
+
+#### 🔴 LA DECISION QUE EVITA UN DESASTRE: la melodia se guarda APARTE
+
+**La letra viaja dentro del guardado general** — `SongDetailEditor` mete `lyrics` en el mismo
+`update` que el titulo, los acordes y el resto. **Copiar eso con `melody` habria roto la app
+entera:** mientras la columna no exista, ese `update` falla, y con el **falla guardar CUALQUIER
+cancion** — titulo, acordes y letra incluidos.
+
+📌 **O sea: el editor de acordes roto por una funcion que nadie esta usando todavia.** Es T-07 en
+su version mas cara, y no se habria visto compilando.
+→ **Boton propio, `update` propio.** Y lo mismo con la lectura: `melody` **no entra** en ninguna
+consulta que traiga la cancion; se pide aparte, desde el panel.
+
+#### 🔴 Y si la columna no esta, SE DICE. No se finge
+
+Las dos pantallas —la lista y el panel— detectan el error `42703` («esa columna no existe») y
+sacan un aviso: **«Todavía no se puede guardar. Falta añadir la columna…»**.
+
+📌 **Por que importa tanto:** un boton que parece funcionar y no hace nada es **el fallo que mas
+caro salio en este proyecto** — P-01, el «desactivar usuario» que no desactivaba, que estuvo meses
+mintiendo. Guardar en silencio y perder la melodia seria exactamente eso.
+
+**Comprobado en la captura, con la columna todavia sin crear:** sale el aviso amarillo, el boton de
+guardar esta apagado —no hay cambios— y el hueco explica que pulsar. **Que es justo lo que tiene
+que pasar.**
+
+#### 🔴 Y el `
+` del heredoc MORDIO OTRA VEZ, el mismo dia que se escribio la leccion
+
+Al montar el ejemplo de acordes por consola, los `
+` volvieron a convertirse en saltos de linea de
+verdad y el build revento.
+📌 **La regla ya estaba escrita y aun asi se repitio**, asi que sube de sitio: **cualquier texto con
+escapes se escribe con la herramienta de edicion, no por consola.** Y mejor todavia: **usar una
+plantilla de varias lineas**, que no necesita ni un `
+` — que es como quedo.
+
+**Comprobado:** **187 pruebas** · lint **0 errores** · build **0** · **26 de 26 pantallas** ·
+`/melodias` **200 con admin** y el aviso de la columna saliendo.
+
+⬜ **Lo que NO se ha podido probar aqui:** que a un **lector o musico** la seccion le rebote. La
+cuenta de prueba es admin (D-14). El camino es **el mismo codigo que `/letras`**, que si se probo
+por las dos caras el 2026-08-21.
+
+#### ✅ R.3 HECHO (2026-09-03) — escribir tambien a mano
+
+Boton **«Escribir a mano»** dentro del panel: cambia el pentagrama por un campo de texto con el
+ABC. Sirve para **pegar una melodia de fuera** o **arreglar algo que el editor no deje hacer**.
+
+🔴 **NO es un modo aparte con sus propios datos: es EL MISMO texto** que escribe el raton. Por eso
+se puede escribir a mano, volver al pentagrama, y seguir con el raton donde se dejo. Dos almacenes
+distintos habrian acabado pisandose el dia menos pensado.
+
+⚠️ Usa **`AutoTextarea`**, que ya existe: crece con el texto y **no da el salto de scroll** que
+costo O-45 y O-46. Es el mismo error que se cometio con la letra —una pantalla nueva que no hereda
+las comodidades de la de al lado— y esta vez se evito mirando primero.
+
+**Comprobado:** 187 pruebas · lint 0 errores · build 0 · 26 de 26 pantallas · y **mirado en
+captura**: el boton sale y los textos ya llevan tilde.
+
+#### 🔴 El `
+` del heredoc, TRES veces en un dia
+
+Se rompio en `melodia.ts`, en la pagina de prueba y en `MelodiaPanel`. La leccion estaba escrita
+desde la primera.
+📌 **Y lo que la hace cumplirse no es acordarse, es que no haga falta:** los textos de varias
+lineas van en **plantilla** (`` ` `` de varias lineas), que **no lleva ni un escape**. Una regla que
+depende de la memoria es una deuda — lo mismo que enseño T-04 con «acuerdate de parar el
+servidor», que fallo tres veces hasta que se cambio por un script.
+
+#### 🔴 O-58 · «TENGO QUE PINCHAR A UNA DISTANCIA» — el fallo que solo se veia usandolo
+
+Isaac, 2026-09-03, con dos capturas: *«para hacer la melodia con el mouse tengo que hacerla con el
+raton a una distancia, y cuando me acerco no puedo hacer nada»*.
+
+**Y tenia toda la razon.** Eran DOS fallos en el mismo sitio, y los dos de la misma familia:
+**recalcular a mano algo que el navegador ya sabe.**
+
+**① La cuenta de donde se ha pinchado estaba MAL en la X.**
+El SVG llevaba `preserveAspectRatio="… meet"`, que escala el dibujo por **la dimension que se
+queda corta** —aqui la ALTURA, que esta fija— y luego lo **pega a la izquierda**. Asi que el dibujo
+ocupaba solo una parte del ancho del elemento. Pero la cuenta hacia `viewBox.width / rect.width`,
+o sea **daba por hecho que el dibujo se estiraba de lado a lado**. No se estiraba.
+
+📌 **Y la Y acertaba DE CASUALIDAD**, porque la altura si era la dimension que mandaba. Por eso las
+notas caian a la altura correcta y **solo el lado estaba desplazado** — que es exactamente lo que
+hace este fallo tan raro de describir, y lo que el describio muy bien.
+
+**Medido en el navegador, antes y despues, con una medida temporal puesta en la pagina:**
+
+| Pinchando a 300 px del borde | Columna que daba |
+|---|---|
+| **Cuenta vieja** | **4** |
+| **Cuenta nueva** | **6** |
+| Desfase | **93 px** — y crece cuanto mas a la derecha |
+
+→ **Arreglo: `getScreenCTM()`**, que es la matriz que usa el propio navegador para pintar. Ya lleva
+dentro el `viewBox`, el `preserveAspectRatio` y cualquier transformacion de CSS. Reimplementarla a
+mano es apostar a acertar las tres.
+
+**② Y al medirlo aparecio un SEGUNDO fallo que el todavia no habia visto.**
+El pentagrama iba a lo ancho del hueco, asi que **al pasar de unas 26 notas el dibujo entero
+empezaba a hacerse pequeño** — justo cuando una melodia empieza a ser de verdad. Ademas quedaba
+una franja en blanco a la derecha, sin pentagrama, que igualmente aceptaba clics.
+→ **Ahora el pentagrama tiene su tamaño y la caja se desplaza de lado**, como una partitura en
+papel. La nota mide lo mismo se escriban 5 o 50.
+
+**Comprobado despues:** el desfase pasa de **93 px a 0**, y la escala se queda **constante en
+0,867** en vez de encoger. 187 pruebas · lint 0 · build 0.
+
+📌 **La leccion de metodo, y es la de siempre en otra piel:** *cuando la plataforma ya calcula algo
+—una transformacion, un codigo de salida, una escala— no se recalcula: se le pregunta.* Es T-16
+otra vez (deducir el resultado del build de su texto en vez del codigo de salida).
+📌 **Y la de comprobacion:** esto no se caza mirando la captura —el pentagrama se dibujaba
+perfecto— ni compilando. Se cazo **poniendo la cuenta vieja y la nueva a la vista en la pagina y
+leyendo los dos numeros**. Es la misma tecnica que salvo O-52.
+
+#### ✅ R.4 — lo que decidio Isaac (2026-09-03)
+
+| Donde | Su respuesta |
+|---|---|
+| **La pantalla completa del culto** | ✅ **SI, un tercer modo.** Un boton que alterna **acordes ↔ letra ↔ melodia**, igual que ya se hizo con la letra (J.4). El trompetista lee su pentagrama tocando |
+| **El PDF del culto** | ⬜ **Todavia no.** Primero que funcione en pantalla y haya melodias escritas |
+
+🔴 **Y el riesgo que hay que esquivar al montarlo, que es T-07 en su sitio mas caro:** la letra
+viaja **dentro del `select` de la pantalla del culto** (`sheet:sheets(…, lyrics)`). Meter ahi
+`melody` mientras la columna no exista **haria fallar la consulta entera** — y entonces
+**el culto sale VACIO en mitad del servicio**, sin error visible. Es exactamente el catalogo en
+blanco de los 3 minutos.
+→ **La melodia se pide APARTE y tolerando que la columna falte**, igual que en el panel.
+
+⚠️ **Y NO va en el enlace publico del culto** (`/s/<token>`), por lo mismo que la letra (D-22): esa
+pantalla la abre gente sin cuenta. Su `select` **ni siquiera pide `lyrics`** hoy — la melodia sigue
+esa misma regla.
+
+#### ✅ R.4 HECHO (2026-09-03) — el tercer modo, y el riesgo esquivado
+
+**Un solo boton que rota `acordes → letra → melodia`**, no tres botones. Se lee tocando y con una
+mano ocupada: tres sitios donde mirar en esa barra es peor que uno que va girando.
+
+| Pieza | Que hace |
+|---|---|
+| `src/lib/melodiaBase.ts` **(nuevo)** | `melodiasDe(supabase, ids)` — pide las melodias **aparte** y devuelve un mapa. **Nunca lanza**: si la columna no existe, si la consulta falla o si no hay ids, devuelve vacio |
+| `services/[id]/present/page.tsx` | La pide despues del `select` del culto, y **solo si el rol la puede ver** |
+| `catalog/[id]/present/page.tsx` | Lo mismo para la pantalla completa de una cancion |
+| `types/index.ts` | `PresentSong.melody`, hermano de `lyrics` |
+| `PresentationView.tsx` | El tipo `Modo`, la rotacion `siguienteModo()`, el boton y la rama que dibuja |
+
+🔴 **POR QUE VA EN UN ARCHIVO APARTE Y NO EN EL `select`, que es lo que costaba caro:** la letra
+viaja **dentro** de la consulta del culto (`sheet:sheets(…, lyrics)`). Meter ahi `melody` mientras
+la columna no exista **haria fallar la consulta entera**, y entonces **el culto sale VACIO en mitad
+del servicio**, sin error visible. Es el catalogo en blanco de los 3 minutos (T-07) en la pantalla
+que se usa tocando. → Se pide aparte, y si la columna no esta, **no hay melodias y punto**.
+
+📌 **Y por que el coste es aceptable, que es la otra mitad:** es **una consulta, en una pantalla**,
+y solo para quien puede ver la melodia. **No es el middleware** — alli un viaje a la base cuesta lo
+mismo en cada clic de cada persona, y por eso tumbo la pagina (T-17).
+
+⚠️ **`melodiaBase.ts` NO puede vivir en `lib/melodia.ts`**, y no es capricho: aquel es logica pura y
+lo compila `pruebas/preparar.mjs` con `tsc` a secas para el CI. En cuanto importara el cliente de
+Supabase dejaria de compilar. Es la misma razon por la que `catalogo.ts` nunca entro en esa lista.
+
+⚠️ **NO va en el enlace publico del culto** (`/s/<token>`), por lo mismo que la letra (D-22): esa
+pantalla la abre gente sin cuenta. Su `select` ni siquiera pide `lyrics` — la melodia sigue la
+misma regla, y ademas **el texto no sale del servidor** para quien no debe verlo.
+
+#### Las cuatro decisiones de dibujo, para no rediscutirlas
+
+1. **El boton solo aparece si esa cancion tiene letra o melodia**, y la rotacion **salta lo que no
+   existe**: sin melodia escrita va `acordes → letra → acordes`. *Un boton que lleva a una pantalla
+   vacia es peor que no tenerlo.*
+2. **La eleccion SE MANTIENE al pasar de cancion**, y si la siguiente no tiene lo elegido salen los
+   acordes **sin perder la eleccion** — en cuanto llega otra que si lo tiene, vuelve sola. Es la
+   correccion que Isaac ya hizo con la letra: *se degrada, no se reinicia*.
+3. 🔴 **La melodia va a UNA COLUMNA SIEMPRE**, aunque el musico tenga puestas dos o tres. Un
+   pentagrama estrecho no se lee: `abcjs` reparte sus renglones segun el ancho que se le de, asi que
+   darle el ancho entero es lo que hace que quepan mas compases por linea (es O-56 otra vez).
+4. **En melodia NO se auto-ajusta el tamaño.** `abcjs` se carga diferido y dibuja **despues** del
+   efecto de ajuste, asi que ahi se mediria una caja vacia y la escala se iria al tope. El
+   pentagrama usa la escala que haya, acotada a 0,8–2, y los `+`/`−` la siguen moviendo.
+
+#### 🔴 Y un fallo que se caza SOLO si alguien baja el tono (L-225)
+
+La melodia se mueve con **el mismo desplazamiento que los acordes** —tono del culto + los `±` del
+musico + su instrumento—, porque si se moviera por su cuenta el trompetista leeria una cosa y el
+grupo tocaria otra. Pero ese numero viene **normalizado a 0..11**, y eso **vale para nombrar un
+acorde y miente para colocar una nota**: bajar un semitono se convertia en **subir once**, y la
+melodia se iba al techo del pentagrama con lineas adicionales.
+→ Se coge **la direccion mas corta** (`> 6` pasa a `− 12`).
+⚠️ **Con la trompeta sola no se ve**: son +2, que esta por debajo de la mitad y sale bien. Solo
+muerde combinando instrumento y `±`, que es justo lo que ningun caso de prueba tocaba.
+
+#### 📸 COMPROBADO MIRANDOLO, que es lo unico que vale en un dibujo
+
+🔴 **Y habia un problema para poder mirarlo: sin la columna en la base NINGUNA cancion tiene
+melodia**, asi que el modo nuevo **no se puede alcanzar** por el camino normal. → Pagina desechable
+**`/melodia-prueba`**, que le pasa a `PresentationView` —el componente de verdad, sin tocar— una
+cancion con su melodia puesta a mano. Es la **cuarta** desechable del proyecto; se borra con su
+linea del middleware antes de publicar, como las tres anteriores.
+
+| Lo que se vio en la captura | |
+|---|---|
+| Modo acordes | la cuadricula de siempre, y el boton con el microfono |
+| Modo letra | las estrofas, y el boton ya ofreciendo la melodia |
+| **Modo melodia** | **dos pentagramas, uno por seccion**, con su titulo, a lo ancho, en 4/4 |
+| **Modo melodia + Trompeta** | el tono pasa a **D** y el pentagrama sale con **dos sostenidos**, todo un tono arriba — **lo mismo que hacen los acordes** |
+
+#### 🔴 Lo que enseño montar esa captura (L-224)
+
+El primer intento pulsaba el boton **un numero fijo de veces**, con esperas de 400 ms. Salio **el
+modo equivocado, y distinto en cada ejecucion**: la primera pulsacion caia **antes de que el
+navegador terminara de hidratar**, asi que el clic no hacia nada y tampoco daba error.
+→ **Se pulsa HASTA LLEGAR, mirando el estado real** —la etiqueta del propio boton, que dice a donde
+lleva—, no un numero de veces.
+📌 *Espera por el ESTADO, nunca por el tiempo ni por una cuenta de pasos.* Y aqui el agravante es
+que lo que se estaba comprobando era **una captura**: una comprobacion de dibujo que enseña la
+pantalla equivocada **no falla, engaña** — y encima con una imagen que parece una prueba.
+
+#### Comprobado con la columna TODAVIA SIN CREAR, que es como va a estar produccion
+
+Entre el push y la migracion, produccion va a estar exactamente asi. **Es la comprobacion que
+importa**, no la del caso feliz:
+
+| | |
+|---|---|
+| Tipos (`tsc --noEmit`) | **0 errores** |
+| Lint | **0 errores** · 61 avisos — **los mismos 13 de `PresentationView` que ya habia**, medido contra la version publicada |
+| Pruebas | **187 verdes** |
+| Build | **codigo de salida 0** |
+| Pantallas | **26 de 26** |
+| Presentacion de una cancion | **200**, 33 acordes, 0 errores |
+| Presentacion del culto | **200**, 37 acordes |
+| **El boton de melodia** | **NO aparece** en ninguna — correcto: no hay ninguna escrita |
+| `abcjs` en lo que carga TODA la app | **NO** (6 archivos compartidos, ninguno lo trae) |
+
+⬜ **EL PUNTO CIEGO, y hay que decirlo:** el raton **no deja rastro en el HTML**. La captura prueba
+que el pentagrama se DIBUJA bien; que arrastrar una nota la afine, que `Supr` borre la que toca y
+que deshacer vuelva atras **solo se comprueba con la mano** — y hay que probarlo **tambien en la
+tablet**, que es para lo que se hizo con `PointerEvent`.
+
+**O-59 · Usar la pagina COMO APP, sin ir al navegador, y que se actualice sola.** ⬜ **ANOTADA.**
+Isaac, 2026-09-03: *«hay una manera en la que se pueda usar como app tambien, pero que cada cambio
+enseguida actualice en la app; he escuchado de que se puede usar la app desde el navegador, no se
+como sea eso, pero seria super que se tenga una app que tener que ir al navegador»*.
+
+🔴 **LO QUE PIDE YA EXISTE, y esa es la respuesta: la pagina YA ES INSTALABLE.** Se llama **PWA**,
+y es exactamente lo que el habia escuchado. Comprobado en el codigo, no supuesto:
+
+| Pieza | Estado |
+|---|---|
+| `public/manifest.json` | ✅ `display: standalone` (sin barra de direcciones), `start_url: /catalog`, nombre e iconos de 192 y 512 con el logo de la iglesia (D-12) |
+| `public/sw.js` | ✅ registrado, **network-first** |
+| `PWARegister.tsx` | ✅ lo registra **solo en produccion** |
+| El caché versionado | ✅ desde r45 (P-12): se registra como `/sw.js?v=<commit>`, asi que cada despliegue **instala el nuevo y borra el viejo** |
+
+**Como se instala** —esto es lo unico que hay que decirle, no hay que programar nada—:
+* **Android (Chrome/Edge/Brave):** menu de tres puntos → *«Instalar aplicacion»* / *«Anadir a
+  pantalla de inicio»*.
+* **PC (Chrome/Edge):** un icono de instalar **en la barra de direcciones**, a la derecha.
+* **iPhone:** ⚠️ **solo con Safari** — Compartir → *«Anadir a pantalla de inicio»*. En Chrome de
+  iPhone **no se puede**, y no es cosa nuestra: lo prohibe Apple.
+
+✅ **Y lo de «que cada cambio actualice enseguida» TAMBIEN esta resuelto**, y por dos motivos que
+conviene no confundir:
+1. El service worker es **network-first**: con internet **siempre pregunta al servidor primero**,
+   asi que se ve lo ultimo. El caché es solo el respaldo de cuando la red falla.
+2. El caché lleva **el id del despliegue**, asi que al publicar se limpia el anterior (P-12).
+
+#### ⚠️ Las TRES cosas que hoy NO hace, dichas antes de que las descubra usandola
+
+1. **Una app que se queda ABIERTA no se entera sola.** Si deja la app abierta y se publica algo, lo
+   nuevo entra al navegar o al cerrarla y volver a abrirla, pero **no hay un aviso** de *«hay una
+   version nueva»*. → Eso si seria programar: escuchar el `updatefound` del service worker y sacar
+   una barrita con un boton de recargar. **Es lo unico de aqui que vale la pena hacer.**
+2. 🔴 **SIN INTERNET NO HAY CANCIONES, aunque la app abra.** El service worker **no toca las
+   peticiones a Supabase** —esta escrito asi a proposito— y las canciones viven ahi. Asi que sin
+   red se ve la cascara y nada dentro. **Esto es lo que mas puede decepcionar**, porque «app
+   instalada» suena a «funciona sin internet» y **no es el caso**.
+   → Hacerlo de verdad es un trabajo aparte: guardar el repertorio del culto en el aparato.
+3. **`orientation: portrait-primary`** en el manifiesto fuerza **vertical**. En una tablet puesta
+   de lado para tocar, eso puede estorbar. **No se toca sin preguntarle**, que para eso esta escrito
+   aqui.
+
+📌 **Recomendacion, con su orden:** que **la instale hoy** —no cuesta nada y es lo que pedia—, y si
+al usarla le molesta no enterarse de las novedades, se hace el punto 1, que es pequeño. El punto 2
+solo si de verdad se queda sin datos en el templo, porque es el caro. **No se programa nada hasta
+que el lo diga.**
 
 **O-56 · La rejilla no aprovechaba el ANCHO de la pantalla.** ✅ **HECHO (2026-09-02).**
 Isaac, y es un hallazgo suyo de los buenos: *«ademas ahora que caigo en cuenta despues de tantos

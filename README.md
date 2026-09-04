@@ -24,6 +24,11 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   quien no tiene cuenta.
 - **Letras** de las canciones: escribirlas, leerlas, buscarlas y alternarlas con los acordes a
   pantalla completa.
+- **Melodía en pentagrama** *(en preparación, solo administradores)*: se escribe **con el ratón**
+  sobre el pentagrama —o a mano en notación ABC—, sección por sección, y se lee **como suena** o
+  **como la lee la trompeta** (un tono arriba). A pantalla completa hay un botón que rota
+  **acordes → letra → melodía**. Se dibuja con [`abcjs`](https://www.abcjs.net/), cargado de forma
+  diferida y **solo en esa pantalla**.
 - **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`) o
   texto plano. Extrae el contenido y sugiere el título.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
@@ -116,7 +121,14 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## Migraciones de base de datos
 
-Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 19.**
+Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 21**, y **las dos últimas
+todavía no están aplicadas**: `20240020` (que un usuario desactivado tampoco pueda leer por la API)
+y `20240021` (la columna `sheets.melody`).
+
+> 🔴 **El código publicado NO las necesita, a propósito.** La sección de melodía detecta que la
+> columna no existe y lo **dice** —«todavía no se puede guardar»— en vez de fingir que guardó; y la
+> melodía se pide en una consulta **aparte**, para que una columna ausente no pueda vaciar la
+> pantalla del culto.
 
 > ⚠️ **Una migración ya aplicada no se modifica: se añade una nueva.** La base tiene datos reales en
 > uso. Y el orden importa: **primero se publica el código y después se toca la base** — quitar una
@@ -193,6 +205,7 @@ src/
       services              → cultos, y services/[id] su editor
       services/[id]/present → modo presentación del culto
       letras                → sección de letras (hoy solo admin)
+      melodias              → sección de melodía (hoy solo admin)
       admin                 → gestión de usuarios
     s/[token]               → culto compartido, PÚBLICO y sin cuenta
     imprimir/culto/[id]     → hoja imprimible del culto (fuera del panel, para paginar bien)
@@ -205,6 +218,10 @@ src/
       ChordPopover.tsx      → el desplegable al pulsar un acorde
       PianoDiagram · BassDiagram · GuitarDiagram
       LetraPanel.tsx        → escribir y leer la letra
+      EditorMelodia.tsx     → escribir la melodía PINCHANDO sobre el pentagrama
+      Pentagrama.tsx        → la partitura grabada (carga `abcjs` de forma diferida)
+      MelodiaPanel.tsx      → la melodía dentro de la canción, sección por sección
+      SeccionRepartida.tsx  → mide y reparte una sección larga entre varios cuadros
     services/
       ServiceEditor.tsx     → armar el culto (arrastrando)
       PresentationView.tsx  → modo presentación
@@ -214,17 +231,25 @@ src/
     acordes.ts · guitarra.ts → qué notas tiene un acorde y cómo se toca
     transpositores.ts       → instrumentos en Bb (trompeta)
     catalogo.ts             → la consulta del catálogo  ← compartida por 3 pantallas
+    melodia.ts              → el modelo de la melodía y su notación ABC  ← LÓGICA PURA
+    melodiaBase.ts          → leer la melodía de la base, tolerando que la columna falte
+    figuras.ts · reparto.ts → qué figura es cada duración · cómo se reparte una sección
     cultos.ts · letras.ts · navegacion.ts · novedades.ts
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 139 pruebas (ver más abajo)
-supabase/migrations/        → 19 migraciones
+pruebas/                    → las 187 pruebas (ver más abajo)
+supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 ```
 
 > 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron
 > duplicadas y las dos costaron un fallo en producción: cuando una tercera pantalla necesitó la
 > lógica, no supo a cuál de las dos copias llamar. **No las copies: impórtalas.**
+
+> ⚠️ **Y `lib/melodia.ts` no puede importar Supabase.** Todo lo de `src/lib` que esté en la lista
+> `MODULOS` de `pruebas/preparar.mjs` lo compila `tsc` a secas para el CI; en cuanto importara un
+> cliente, dejaría de compilar allí. Por eso el acceso a la base vive aparte, en `melodiaBase.ts`
+> — igual que `catalogo.ts` nunca entró en esa lista.
 
 ---
 
@@ -279,14 +304,19 @@ supabase/migrations/        → 19 migraciones
 ## Pruebas
 
 ```bash
-npm test        # 139 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 187 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
 las ejecuta en cada push, **antes** del build.
 
 Cubren lo que más ha roto: el tono y su ortografía, las notas de cada acorde, que las posturas de
-guitarra **suenen**, la separación en secciones, quién ve qué culto y la cuenta de la trompeta.
+guitarra **suenen**, la separación en secciones, quién ve qué culto, la cuenta de la trompeta, el
+reparto de compases entre cuadros y **la ida y vuelta de la melodía** — que una nota escrita se
+guarde y se vuelva a leer con su misma duración y su misma alteración.
+
+📌 Esa última tiene motivo: si al guardar se perdiera un sostenido, **no salta ningún error**. La
+partitura se dibuja igual de bien con la nota equivocada, y quien lo descubre es quien la toca.
 
 ⚠️ Las 75 canciones reales **no están en el repositorio** (es público). Los arneses que las usan
 viven fuera y leen de una copia local.
@@ -312,3 +342,6 @@ pública `/novedades`; esto es el resumen técnico.
 | **r43** | Las letras: escribir, leer, buscar y alternar con los acordes |
 | **r44** | Guitarra en los diagramas · el culto tiene estado (migración `20240017`) · seis correcciones que salieron probando con cuenta de lector |
 | **r45** | Next 14 → 16 · el caché del *service worker* versionado · `pdfjs-dist` actualizado · la ortografía al transponer la decide el tono destino · el culto no puede quedarse vacío al guardar (migraciones `20240018`/`20240019`) · **139 pruebas y CI** · modo trompeta · **este README, al día otra vez** |
+| **r46** | Las secciones al crear una canción · el campo de la letra crece solo y ya no salta el scroll · un usuario desactivado no entra por la web · `parseSections` deja de estar duplicada · **el lint estaba roto desde Next 16** y nadie se enteraba · `strict` activado · el recorrido de pantallas mira **el reloj**, no solo el código |
+| **r47** | El silencio de negra que eligió Isaac mirándolo · **doble puntillo** y los silencios de corchea y semicorchea, que no existían · `%` con duración · figuras a 1,6× y el hueco de la celda **calculado**, no escrito · las otras tonalidades en la tarjeta · **las secciones largas se reparten solas** entre los cuadros · la cuadrícula usa todo el ancho · el silencio deja de comerse el compás |
+| **r48** | **La melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón, leerla, la sección `/melodias`, la pestaña en la canción y el tercer modo a pantalla completa. Entra `abcjs` como dependencia, cargada de forma diferida. **187 pruebas** |

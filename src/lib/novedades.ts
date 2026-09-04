@@ -70,6 +70,55 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "3 de septiembre de 2026",
+    "iso": "2026-09-03",
+    "entrada": "Empieza la parte de la melodia en pentagrama, para la trompeta. Todavia no esta abierta.",
+    "nota": "<strong>Para tocar hoy no cambia nada.</strong> Esto es una parte nueva que todavia no esta abierta, y se cuenta aqui para que sepas que viene.",
+    "secciones": [
+      {
+        "titulo": "La melodia en pentagrama (en preparacion)",
+        "resumen": "Se puede escribir la melodia de una cancion nota por nota, y leerla en el tono de la trompeta.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "La melodia se escribe sobre un pentagrama de verdad, con el raton.",
+            "detalle": [
+              "Nota por nota, <strong>pinchando</strong> —o con el dedo en la tablet—: poner, mover, borrar, insertar en medio, deshacer, sostenidos y bemoles, silencios, ligaduras y las ocho duraciones.",
+              "Quien prefiera teclearla tambien puede: hay un boton para <strong>escribirla a mano</strong>."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Va por secciones, como la letra.",
+            "detalle": [
+              "Se escribe seccion por seccion —Intro, A, Coro— con las etiquetas <strong>ya puestas</strong>, para que quien toca <strong>sepa por donde va</strong>. La seccion que se quede vacia es que no se toca ahi."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Se lee «como suena» o «como la lee la trompeta».",
+            "detalle": [
+              "Un tono arriba y con su armadura, para que <strong>la trompeta no tenga que transportar de cabeza</strong>."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "A pantalla completa, un boton que va rotando: acordes → letra → melodia.",
+            "detalle": [
+              "Es el mismo boton de la letra, ahora con <strong>una parada mas</strong>. Solo aparece en las canciones que tengan algo que enseñar, y <strong>se queda en el modo que elijas</strong> al pasar de cancion."
+            ]
+          },
+          {
+            "titulo": "Todavia no esta abierta.",
+            "detalle": [
+              "Aparece solo para quien administra, mientras se escriben las melodias. Cuando esten, <strong>se abre para todos</strong> — igual que se hizo con las letras."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "2 de septiembre de 2026",
     "iso": "2026-09-02",
     "entrada": "Las secciones largas se acomodan solas a la pantalla, y las canciones cortas por fin la llenan.",

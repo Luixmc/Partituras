@@ -5,6 +5,30 @@
 
 ---
 
+## 3 de septiembre de 2026
+
+> **Para tocar hoy no cambia nada.** Lo de esta tanda es una parte nueva que **todavía no está
+> abierta**, y se cuenta aquí para que sepas que viene.
+
+### 🎺 La melodía en pentagrama, para la trompeta (en preparación)
+
+- **Se puede escribir la melodía de una canción sobre un pentagrama de verdad**, nota por nota,
+  **pinchando con el ratón** (o con el dedo en la tablet): poner, mover, borrar, insertar en medio,
+  deshacer, sostenidos y bemoles, silencios, ligaduras y las ocho duraciones. Quien prefiera
+  teclearla también puede: hay un botón para escribirla a mano.
+- **Va por secciones, como la letra.** La melodía se escribe sección por sección —Intro, A, Coro—
+  con las etiquetas ya puestas, **para que quien toca sepa por dónde va**. La sección que se quede
+  vacía es que no se toca ahí.
+- **Y se puede leer de dos maneras: «como suena» o «como la lee la trompeta»**, un tono arriba y
+  con su armadura. La trompeta no tiene que transportar de cabeza.
+- **A pantalla completa hay un botón que va rotando: acordes → letra → melodía.** Es el mismo
+  botón de la letra, ahora con una parada más. Solo aparece en las canciones que tengan algo que
+  enseñar, y **se queda en el modo que elijas al pasar de canción**.
+- ⚠️ **Todavía no está abierta**: aparece solo para quien administra, mientras se escriben las
+  melodías. Cuando estén, se abre para todos — igual que se hizo con las letras.
+
+---
+
 ## 2 de septiembre de 2026
 
 ### 🎼 Las secciones largas se acomodan solas
