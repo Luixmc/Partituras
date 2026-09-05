@@ -768,7 +768,27 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos. **Y lo de hoy**: que ninguna sección se parta cuando cabe (**O-66**) y que ninguna sobresalga de alto (**O-67**) |
+| **2** | ⬜ **Lo que Isaac todavía no ha probado con la mano** | ✅ **La presentación ya la dio por buena el 2026-09-04**, ver abajo. Queda lo que no se toca desde ahí: el **editor de melodía** (arrastrar, `Supr`, deshacer) y los **diálogos** de «cambios sin guardar». No consta que los haya ejercitado, y **desde aquí no se pueden comprobar** |
+
+#### ✅ ISAAC LO MIRÓ, y lo dio por bueno (2026-09-04)
+
+Sus palabras, después de r58: *«ya miré tanto en pc y en teléfono y va bien hasta ahora»*.
+
+**Qué queda cerrado con eso** —las tres de la jornada, que son justo las que **no se pueden
+comprobar desde aquí** porque viven en la pantalla y no en el HTML:
+
+| | |
+|---|---|
+| **O-63** | Las barras encogidas y con su sitio: los acordes caben y tocar uno de abajo ya no pasa de canción |
+| **O-66** | Ninguna sección se parte cuando cabe |
+| **O-67** | Ninguna sección sobresale de alto |
+
+⚠️ **Lo que su frase NO dice, y por eso no se cierra:** habló de *«pc y teléfono»* mirando la
+presentación. **El editor de melodía y los diálogos siguen sin que conste que los probara.** Se
+quedan en la tabla de arriba.
+
+📌 **Y «hasta ahora» es literal**: lo dijo el mismo día de publicar. Vale como visto bueno, no como
+garantía de que un culto entero de dos horas se lea bien.
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
@@ -5900,7 +5920,7 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
-### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · 🚀 r58
+### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · 🚀 r58 · ✅ visto bueno de Isaac
 
 **Isaac, con dos capturas del PC** (1920 × 1080) ya con r57 puesta: *«la sección sobresale de lo
 bajo, cuando tiene suficiente espacio para que quede de la misma altura que las otras… que no sobre
@@ -5935,7 +5955,7 @@ que sirve Vercel**: `flexBasis:c?"auto":\`${Math.max(e.notes.length…` — el t
 dibujar, así que **no deja rastro en el HTML** y la página desechable no puede vivir en producción.
 Se comprobó **en el paquete servido**, que es donde sí se ve.
 
-### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · 🚀 r57
+### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · 🚀 r57 · ✅ visto bueno de Isaac
 
 **Lo trajo Isaac con una captura ya con r56 puesta** —o sea, esto no eran las barras—:
 *«vuelve y molesta que los acordes no aprovechan los espacios, mira que tienen buen espacio para que
@@ -5982,7 +6002,7 @@ producción.
 
 **CI verde** para `90abbc0` · **26 de 26** pantallas contra producción, la más lenta 1,7 s.
 
-### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · 🚀 r56
+### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · 🚀 r56 · ✅ visto bueno de Isaac
 
 **Se retomó por §9.0, que es como toca:** el reloj decía 2026-09-04 15:34, seis minutos después de
 cerrar la tanda 43, y el punto 1 de la tabla era **O-63 — decidido por Isaac y sin programar**.
