@@ -768,27 +768,22 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **2** | ⬜ **Lo que Isaac todavía no ha probado con la mano** | ✅ **La presentación ya la dio por buena el 2026-09-04**, ver abajo. Queda lo que no se toca desde ahí: el **editor de melodía** (arrastrar, `Supr`, deshacer) y los **diálogos** de «cambios sin guardar». No consta que los haya ejercitado, y **desde aquí no se pueden comprobar** |
 
-#### ✅ ISAAC LO MIRÓ, y lo dio por bueno (2026-09-04)
+#### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
-Sus palabras, después de r58: *«ya miré tanto en pc y en teléfono y va bien hasta ahora»*.
+**No queda nada suyo por probar.** En dos mensajes:
 
-**Qué queda cerrado con eso** —las tres de la jornada, que son justo las que **no se pueden
-comprobar desde aquí** porque viven en la pantalla y no en el HTML:
+| Cuándo | Sus palabras | Qué cierra |
+|---|---|---|
+| **2026-09-04** | *«ya miré tanto en pc y en teléfono y va bien hasta ahora»* | **O-63** (las barras encogidas y con su sitio: los acordes caben y tocar uno de abajo ya no pasa de canción) · **O-66** (ninguna sección se parte cuando cabe) · **O-67** (ninguna sección sobresale de alto) |
+| **2026-09-05** | *«lo de los diálogos de cambios sin guardar también funciona, y lo del editor de la melodía hasta ahora está bien»* | Los **diálogos** de «cambios sin guardar» (O-60, O-61) y el **editor de melodía** — arrastrar, `Supr`, deshacer (R.1–R.4) |
 
-| | |
-|---|---|
-| **O-63** | Las barras encogidas y con su sitio: los acordes caben y tocar uno de abajo ya no pasa de canción |
-| **O-66** | Ninguna sección se parte cuando cabe |
-| **O-67** | Ninguna sección sobresale de alto |
+📌 **Por qué esto vale y no es una formalidad:** las cinco cosas viven **en la pantalla y no en el
+HTML**. Ninguna se puede comprobar con `curl`, ni con las 197 pruebas, ni con el recorrido de
+pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevaban semanas en §9.
 
-⚠️ **Lo que su frase NO dice, y por eso no se cierra:** habló de *«pc y teléfono»* mirando la
-presentación. **El editor de melodía y los diálogos siguen sin que conste que los probara.** Se
-quedan en la tabla de arriba.
-
-📌 **Y «hasta ahora» es literal**: lo dijo el mismo día de publicar. Vale como visto bueno, no como
-garantía de que un culto entero de dos horas se lea bien.
+⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
+no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
@@ -5919,6 +5914,23 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-05 · Isaac cierra lo último que solo podía cerrar él
+
+**Sin tocar código.** Isaac probó lo que quedaba y lo dio por bueno:
+
+> *«lo de los diálogos de cambios sin guardar también funciona, y lo del editor de la melodía hasta
+> ahora está bien»*
+
+Con eso **§9 se queda sin ningún pendiente suyo**: quedan los diálogos (O-60, O-61) y el editor de
+melodía (R.1–R.4), que se sumaban a O-63, O-66 y O-67, cerradas el día anterior.
+
+📌 **Las cinco eran del mismo tipo:** viven **en la pantalla y no en el HTML**, así que no las
+alcanzan ni `curl`, ni las 197 pruebas, ni el recorrido de las 26 pantallas. **Solo las cierra él.**
+Por eso llevaban semanas escritas en §9 y por eso se le fueron recordando una por una.
+
+🔴 **Lo único vivo en §9 es ahora la migración `20240021`**, y no depende de él ni de mí: son tres
+líneas que tiene que ejecutar su primo en el SQL Editor de Supabase, o invitarlo a «Luixmc's Org».
 
 ### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · 🚀 r58 · ✅ visto bueno de Isaac
 
