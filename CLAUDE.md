@@ -761,18 +761,16 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **PUBLICAR r57 (O-66) — falta su permiso** | **Hecho y medido, sin subir.** Los cortes que sobraban pasan de **12 a 0** en su pantalla, y con ellos las medias casillas vacías. Toca `lib/reparto.ts`, `SeccionRepartida.tsx`, las pruebas y la documentación. **Cada push se le pide aparte** (§11) |
-| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`fb22596`**, y `origin/main` va igual |
-| 🔴 **Sin subir** | **O-66 (r57)**: `src/lib/reparto.ts` · `SeccionRepartida.tsx` · `pruebas/reparto.test.mjs` · `novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md` |
-| Última versión | **r56** publicada · **r57** lista |
+| Último commit publicado | **`90abbc0`**, y `origin/main` va igual. **Árbol limpio** |
+| Última versión | **r57** — O-66, dada por buena en producción |
 | Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
@@ -5838,7 +5836,7 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
-### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · ⬜ r57 sin publicar
+### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · 🚀 r57
 
 **Lo trajo Isaac con una captura ya con r56 puesta** —o sea, esto no eran las barras—:
 *«vuelve y molesta que los acordes no aprovechan los espacios, mira que tienen buen espacio para que
@@ -5866,6 +5864,24 @@ errores, build 0, 26 de 26 pantallas.
 
 ⚠️ **La comprobación del baile dio un ROJO FALSO antes de servir**: contaba «cuántos repartos
 distintos salen» y no distinguía **asentarse** de **oscilar**. Va a la carpeta compartida.
+
+**Publicado** con su permiso (*«sube»*), commit **`90abbc0`** → `main`, **vivo en 20 segundos**.
+**Comprobado en producción, y con el volcado de ANTES al lado** —el mismo culto, la misma ventana de
+1600 × 720—:
+
+| Sección | antes (r56) | ahora (r57) |
+|---|---|---|
+| de 2 bloques | `2→2` | `2→2` |
+| **de 9 bloques** | `9→5+4` | ✅ **`9→9`** |
+| de 4 bloques | `4→4` | `4→4` |
+| **de 3 bloques** | 🔴 `3→2+1` | ✅ **`3→3`** |
+| de 1 bloque | `1→1` | `1→1` |
+
+📌 **Y el volcado se lee del propio `.js` que sirve Vercel**, no de local: se cargó el enlace público
+en Brave sin ventana contra `partituras-blush.vercel.app`. Es la vía de §2.3-bis, ya usada contra
+producción.
+
+**CI verde** para `90abbc0` · **26 de 26** pantallas contra producción, la más lenta 1,7 s.
 
 ### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · 🚀 r56
 
