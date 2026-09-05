@@ -737,18 +737,16 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **PUBLICAR r56 (O-63) — falta su permiso** | **Programado y medido hoy, sin subir.** Las barras pasan de tapar 200 px de 540 a ocupar 74 y no tapar ninguno, y con el auto-ocultado se va el fallo de que **tocar un acorde de abajo disparara «Siguiente»**. Toca `PresentationView.tsx`, `novedades.ts`, `CAMBIOS.md`, `README.md` y este archivo. **Cada push se le pide aparte** (§11) |
-| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
-#### Estado del árbol — **2026-09-04, con r56 ESPERANDO PERMISO**
+#### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`84f27e6`**, y `origin/main` va igual |
-| 🔴 **Sin subir** | **O-63 (r56)**: `PresentationView.tsx` · `src/lib/novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md`. **Ni `commit` ni `push` sin que Isaac lo diga** |
-| Última versión | **r55** publicada · **r56** lista |
+| Último commit publicado | **`962d083`**, y `origin/main` va igual. **Árbol limpio** |
+| Última versión | **r56** — O-63, dada por buena en producción |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
 | Migraciones | **21**, y **las dos últimas SIN APLICAR** (`20240020`, `20240021`) |
@@ -766,6 +764,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 | **r52** | La red de seguridad donde faltaba — **crear una canción no tenía ninguna** |
 | **r53** | Fuera el salto de fila (`;`) · el `:\|` en su sitio en 22 canciones · **el README que mentía en cuatro puntos** |
 | **r54 → revert → r55** | El reparto por ANCHO. **r54 hizo bailar las canciones y se revirtió el mismo día**; r55 es lo mismo con el freno |
+| **r56** | **O-63** — las barras de la presentación dejan de flotar sobre los acordes: **de 200 px tapando a 74 reservando**, y con el auto-ocultado se va el fallo de que tocar un acorde de abajo pasara de canción |
 
 ### 9.1 Dependen de Isaac
 
@@ -5559,6 +5558,18 @@ Del `roadmap` del README, ninguna aprobada todavía:
   correlativa siguiendo `supabase/migrations/`.
 - **Git**: rama aparte (D-03), nada de `commit`/`push` sin permiso concreto (D-01), jamás
   `--force` (D-02).
+- **El push se hace así**, desde `isaac/arranque`, y publica en producción:
+  ```bash
+  git push origin isaac/arranque:main
+  ```
+- 🔴 **Desde el 2026-09-04 el entorno de Claude tiene una regla que PERMITE ese comando**
+  (`Bash(git push origin isaac/arranque:main)` en `C:\Users\TECSISTEMAS\.claude\settings.json`).
+  **Eso NO sustituye el permiso de Isaac.** La regla solo evita que el entorno corte el comando;
+  **D-01 sigue mandando: cada push se le pide, y cada permiso vale para ese trabajo.** Que ahora
+  sea técnicamente posible empujar sin preguntar es exactamente el motivo por el que queda escrito
+  aquí.
+  ⚠️ **Y es una regla de comando EXACTO:** `git push origin isaac/arranque:main | tail -5` **no
+  casa** y el entorno lo bloquea. Se ejecuta a secas, con el `cd` en una llamada aparte.
 - No se comparte código con los otros proyectos de Isaac, solo criterio.
 
 ---
@@ -5685,7 +5696,7 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
-### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · ⬜ r56 sin publicar
+### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · 🚀 r56
 
 **Se retomó por §9.0, que es como toca:** el reloj decía 2026-09-04 15:34, seis minutos después de
 cerrar la tanda 43, y el punto 1 de la tabla era **O-63 — decidido por Isaac y sin programar**.
@@ -5709,10 +5720,34 @@ errores · 26 de 26 pantallas contra `npm start` · el HTML de la presentación 
 completa, igual que antes.
 
 **Documentado en los cuatro sitios que manda la regla:** este archivo (O-63 y §9.0), `CAMBIOS.md`,
-`/novedades` y el `README`. **Carpeta compartida:** `LECCIONES.md` (L-233) y `PROYECTOS.md`.
+`/novedades` y el `README`. **Carpeta compartida:** `LECCIONES.md` (**L-233** y **L-235**) y
+`PROYECTOS.md`.
 
 **Y una trampa pequeña que salió sola:** `next-env.d.ts` aparece modificado según compile `build` o
 `verificar`. Anotado en §2.1.
+
+**Publicado** con su permiso (*«adelante, subelo»*), commit **`962d083`** → `main`. **Comprobado en
+producción, no en local:**
+
+| | |
+|---|---|
+| CI de GitHub | **verde** para `962d083` |
+| Pantallas | **26 de 26** contra `partituras-blush.vercel.app`, la más lenta 2,0 s |
+| `/novedades` | trae la entrada nueva |
+| 🔴 **El código, dentro del paquete que sirve Vercel** | `Ajustes de la presentacion` **sí** · `top-full` (el panel) **sí** · `pointer-events-none opacity-0` (el auto-ocultado viejo) **ya no está** |
+
+📌 **Esa última fila es la que de verdad prueba que se publicó el CÓDIGO y no solo los textos.** El
+HTML de la presentación **no puede** enseñar la cabecera encogida —`isFullscreen` es estado del
+navegador—, así que mirar el HTML habría dado un falso negativo. Se buscó dentro del `.js` servido.
+
+⚠️ **Lo que costó de más:** el entorno de Claude bloqueó el `git push` dos veces. La segunda ya
+había regla de permiso, y falló igual **porque el comando llevaba `| tail -5`**: la regla es de
+comando **exacto**. Va a la carpeta compartida como **L-235** y a §11.
+
+📌 **Y la regla 4 se cobró una, en vivo:** al ir a escribir esa lección, **ValidadorMakushama ya
+había escrito L-234** desde otra conversación —el archivo cambió a las 19:54 mientras aquí se
+trabajaba—. Se releyó antes de escribir y la de aquí pasó a **L-235**. Sin releer, habría salido
+el número duplicado número 19 de ese archivo.
 
 ### 2026-09-04 · Tanda 43 — el reparto por ANCHO: publicado, revertido y rehecho con freno · 🚀 r54 → revert → r55
 
