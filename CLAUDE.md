@@ -761,18 +761,16 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **PUBLICAR r58 (O-67) — falta su permiso** | **Hecho y medido, sin subir.** El cuadro que sobresalía pasa de **334 px a 189**, el mismo alto que las demás secciones de esa canción. Toca `TablaturePreview.tsx` y la documentación |
-| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`891bdd4`**, y `origin/main` va igual |
-| 🔴 **Sin subir** | **O-67 (r58)**: `TablaturePreview.tsx` · `novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md` |
-| Última versión | **r57** publicada · **r58** lista |
+| Último commit publicado | **`e9ca2f1`**, y `origin/main` va igual. **Árbol limpio** |
+| Última versión | **r58** — O-67, dada por buena en producción |
 | Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
@@ -5892,7 +5890,7 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 
 ## 13 · Historial
 
-### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · ⬜ r58 sin publicar
+### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · 🚀 r58
 
 **Isaac, con dos capturas del PC** (1920 × 1080) ya con r57 puesta: *«la sección sobresale de lo
 bajo, cuando tiene suficiente espacio para que quede de la misma altura que las otras… que no sobre
@@ -5918,6 +5916,14 @@ pantallas**: sobresalen **1 → 0**, cortes que sobran **0** (O-66 intacta) y **
 **Carpeta compartida:** `LECCIONES.md` → **L-238** (ante una queja visual y ambigua, mide varias
 hipótesis y que él señale: la tuya puede ser la equivocada) y **L-239** (lo que no cabe a lo ancho se
 paga en alto). `PROYECTOS.md`, `CONVENCIONES.md` y `NUEVO-PROYECTO.md`: nada que tocar.
+
+**Publicado** con su permiso (*«subelo»*), commit **`e9ca2f1`** → `main`, **vivo en 25 segundos**.
+**Comprobado en producción:** CI **verde** · **26 de 26** pantallas · y el cambio **dentro del `.js`
+que sirve Vercel**: `flexBasis:c?"auto":\`${Math.max(e.notes.length…` — el ternario nuevo, minificado.
+
+📌 **Esa última comprobación hizo falta pensarla:** el arreglo es un estilo que solo existe al
+dibujar, así que **no deja rastro en el HTML** y la página desechable no puede vivir en producción.
+Se comprobó **en el paquete servido**, que es donde sí se ve.
 
 ### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · 🚀 r57
 
