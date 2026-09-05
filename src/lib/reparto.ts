@@ -229,19 +229,56 @@ function agrupar(anchos: number[], tope: number, anchoFila: number): number[] {
 export function repartirPorAncho(anchos: number[], anchoFila: number): number[] {
   const total = anchos.length;
   if (total <= 0) return [];
+  if (!Number.isFinite(anchoFila) || anchoFila <= 0) return [total];
+  if (anchos.some((a) => !Number.isFinite(a) || a <= 0)) return [total];
+
+  // Los MENOS trozos posibles sin que ninguno desborde, CALCULADOS. Es una
+  // estimacion de donde envuelve el navegador — y ahi esta O-66: se equivoca
+  // por el redondeo. Cuando hay una medida de verdad, se usa `repartirEnGrupos`.
+  return repartirEnGrupos(anchos, anchoFila, agrupar(anchos, anchoFila, anchoFila).length);
+}
+
+/**
+ * Reparte en EXACTAMENTE `grupos` trozos, equilibrandolos por ancho.
+ *
+ * 🔴 POR QUE EXISTE (O-66, 2026-09-04): `repartirPorAncho` calculaba cuantos
+ * trozos hacian falta sumando anchos redondeados, y **partia secciones que
+ * caben**. Medido en la pagina real: tres bloques de 244,8 px en una fila de
+ * 734,5 px — el navegador los dibuja en UNA fila, la suma da exactamente el
+ * ancho de la fila. Pero redondeados a 8 px son `248 x 3 = 744` contra una fila
+ * de `736`, asi que la cuenta decia que no caben y los partia en `2+1`.
+ *
+ * 📌 **Y no es mala suerte, es aritmetica.** Cuando los bloques llenan la fila
+ * su suma ES el ancho de la fila —los estira el `flex-grow`—, asi que redondear
+ * **cada bloque por separado** (hasta +4 px cada uno) contra **una fila
+ * redondeada una sola vez** se pasa en cuanto hay tres bloques. En el culto de
+ * Isaac sobraban **12 de 18 cortes**.
+ *
+ * → Isaac eligio la opcion A el 2026-09-04: **que las filas las cuente el
+ * navegador**, que es quien decide de verdad donde envuelve. La sonda ya dibuja
+ * la seccion entera a la anchura real; agrupando sus hijos por su posicion
+ * vertical sale el numero exacto, y ese numero entra aqui.
+ *
+ * ⚠️ Y **el freno de L-231 sigue puesto**: un numero de filas es un ENTERO, y un
+ * entero solo cambia cuando el cambio es grande. Es la misma propiedad que hacia
+ * que el lazo no arrancara — de hecho es la que habia antes de r54, recuperada.
+ *
+ * @param anchos     Lo que mide cada bloque en pantalla, en pixeles
+ * @param anchoFila  Lo que mide la fila donde tienen que caber
+ * @param grupos     En cuantos trozos hay que partir (medido, no calculado)
+ */
+export function repartirEnGrupos(anchos: number[], anchoFila: number, grupos: number): number[] {
+  const total = anchos.length;
+  if (total <= 0) return [];
 
   // Ante la duda, NO se toca: sin medida fiable la seccion se queda entera. Es
   // preferible que se vea como siempre a repartirla por un numero inventado.
   if (!Number.isFinite(anchoFila) || anchoFila <= 0) return [total];
   if (anchos.some((a) => !Number.isFinite(a) || a <= 0)) return [total];
+  if (!Number.isFinite(grupos) || grupos <= 1) return [total];
 
-  // 1. Los MENOS trozos posibles sin que ninguno desborde. Es lo mismo que hace
-  //    el navegador al envolver, y es la regla 1 que eligio Isaac.
-  const grupos = agrupar(anchos, anchoFila, anchoFila).length;
-  if (grupos <= 1) return [total];
-
-  // 2. Con ese numero, se EQUILIBRA: se busca el trozo mas ancho mas pequeño
-  //    posible que siga cabiendo en `grupos` trozos.
+  // Se EQUILIBRA: el trozo mas ancho mas pequeño posible que siga cabiendo en
+  // `grupos` trozos.
   //
   // 📌 Esto es lo que conserva lo que pidio Isaac —«que aproveche lo maximo los
   // espacios, no que quede tan estrecho»— pero medido en PIXELES y no en numero
@@ -255,6 +292,10 @@ export function repartirPorAncho(anchos: number[], anchoFila: number): number[] 
     else bajo = medio + 1;
   }
 
+  // ⚠️ Puede salir MAS trozos de los pedidos, y se acepta: significa que
+  // fisicamente no caben en menos —una casilla mas ancha que la fila entera, por
+  // ejemplo—. Partir de menos dejaria un bloque envolviendo por dentro, que es
+  // justo lo que la regla 1 de Isaac prohibe.
   const tamanos = agrupar(anchos, bajo, anchoFila);
   return tamanos.length ? tamanos : [total];
 }

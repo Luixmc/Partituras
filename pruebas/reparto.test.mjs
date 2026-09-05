@@ -15,7 +15,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE, repartirPorAncho } = await cargar("reparto");
+const { repartirBloques, cortesDe, MINIMO_POR_BLOQUE, repartirPorAncho, repartirEnGrupos } =
+  await cargar("reparto");
 
 test("una seccion CORTA que no cabe tambien se reparte", () => {
   // «Su Presencia», Intro Sinte: DOS compases que envolvian dentro de la caja.
@@ -206,4 +207,48 @@ test("ante una medida imposible NO se toca la seccion", () => {
   assert.deepEqual(repartirPorAncho([100, 100], 0), [2]);
   assert.deepEqual(repartirPorAncho([100, 100], NaN), [2]);
   assert.deepEqual(repartirPorAncho([0, 100], 500), [2]);
+});
+
+// ─────────────────────────────────────────────────────────────
+// O-66 · El numero de trozos lo MIDE el navegador, no lo calcula la suma.
+// ─────────────────────────────────────────────────────────────
+
+test("🔴 O-66 · una seccion que CABE no se parte, aunque el redondeo se pase", () => {
+  // El caso real, medido en la pagina el 2026-09-04: tres bloques de 244,8 px
+  // en una fila de 734,5. El navegador los dibuja en UNA fila. Redondeados a 8
+  // son 248 x 3 = 744 contra una fila de 736, asi que la CUENTA decia que no
+  // caben y los partia en 2+1 — dejando media casilla vacia.
+  assert.deepEqual(repartirPorAncho([248, 248, 248], 736), [2, 1], "asi se equivocaba antes");
+  assert.deepEqual(repartirEnGrupos([248, 248, 248], 736, 1), [3], "el navegador dice 1 fila");
+});
+
+test("O-66 · con las filas medidas, se sigue equilibrando por ancho", () => {
+  // Ocho bloques iguales que el navegador pone en dos filas: 4 y 4, no 6 y 2.
+  assert.deepEqual(repartirEnGrupos([120, 120, 120, 120, 120, 120, 120, 120], 736, 2), [4, 4]);
+  // Y con una casilla que se lleva la fila entera, sigue saliendo sola.
+  assert.deepEqual(repartirEnGrupos([160, 160, 160, 736], 736, 2), [3, 1]);
+});
+
+test("O-66 · una sola fila medida deja la seccion entera, mida lo que mida", () => {
+  for (const anchos of [[8], [100, 100], [248, 248, 248], [90, 300, 40, 120, 200]]) {
+    assert.deepEqual(repartirEnGrupos(anchos, 736, 1), [anchos.length]);
+    assert.deepEqual(repartirEnGrupos(anchos, 736, 0), [anchos.length]);
+  }
+});
+
+test("O-66 · ningun trozo envuelve, aunque se pidan menos filas de las que caben", () => {
+  // Si se pidieran 2 filas para algo que fisicamente necesita 3, se aceptan 3:
+  // partir de menos dejaria un bloque envolviendo por dentro, que es lo que la
+  // regla 1 de Isaac prohibe.
+  const anchos = [736, 736, 736];
+  const r = repartirEnGrupos(anchos, 736, 2);
+  assert.deepEqual(r, [1, 1, 1]);
+  assert.equal(r.reduce((a, b) => a + b, 0), anchos.length, "no se pierde ni un bloque");
+});
+
+test("O-66 · ante una medida imposible, la seccion se queda entera", () => {
+  assert.deepEqual(repartirEnGrupos([100, 100], 0, 2), [2]);
+  assert.deepEqual(repartirEnGrupos([100, 100], Number.NaN, 2), [2]);
+  assert.deepEqual(repartirEnGrupos([0, 100], 736, 2), [2]);
+  assert.deepEqual(repartirEnGrupos([100, 100], 736, Number.NaN), [2]);
 });

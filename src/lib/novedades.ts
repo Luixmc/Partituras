@@ -75,6 +75,46 @@ export const TANDAS: Tanda[] = [
     "entrada": "En el telefono a pantalla completa ya se ven todos los acordes, y tocar uno ya no te pasa de cancion.",
     "secciones": [
       {
+        "titulo": "Las secciones ya no se parten cuando caben",
+        "resumen": "Una seccion que cabe entera en una fila se partia en dos y dejaba media casilla vacia.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "La pagina partia secciones que cabian, y por eso los acordes no aprovechaban el espacio.",
+            "detalle": [
+              "Una seccion que cabe justo en una fila se partia igual en dos cuadros —el segundo con su «(sigue)»—, y las dos mitades estiraban dos acordes en media pantalla. <strong>En el culto del domingo pasaba en 12 secciones.</strong>",
+              "La causa: para decidir si caben, la pagina redondeaba el ancho de <strong>cada compas por separado</strong> y comparaba la suma con el ancho de la fila. Cada compas subia unos poquitos pixeles, y con tres o cuatro la suma ya se pasaba… aunque en pantalla cupieran perfectos.",
+              "<strong>Ahora quien decide es el navegador:</strong> la pagina le pregunta cuantas filas hace de verdad y parte solo por ahi. Medido en tres pantallas distintas, con las 8 canciones del culto: <strong>de 12 cortes de mas a ninguno</strong>."
+            ],
+            "tabla": {
+              "cabecera": [
+                "",
+                "Antes",
+                "Ahora"
+              ],
+              "filas": [
+                [
+                  "Una seccion de 3 compases que cabe",
+                  "se partia en 2 + 1",
+                  "queda entera"
+                ],
+                [
+                  "Cortes de mas en el culto",
+                  "12",
+                  "ninguno"
+                ],
+                [
+                  "Secciones que si se parten",
+                  "18",
+                  "9 — las que de verdad no caben"
+                ]
+              ],
+              "comparativa": true
+            }
+          }
+        ]
+      },
+      {
         "titulo": "En el telefono ya no te tapan los acordes",
         "resumen": "A pantalla completa las barras de arriba y de abajo se encogieron, y tocar un acorde ya no te pasa de cancion.",
         "cambios": [

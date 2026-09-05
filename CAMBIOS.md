@@ -7,6 +7,27 @@
 
 ## 4 de septiembre de 2026
 
+### 📐 Las secciones ya no se parten cuando caben
+
+- 🔴 **Una sección que cabía entera en una fila se partía igual en dos cuadros** —el segundo con su
+  «(sigue)»—, y las dos mitades estiraban dos acordes en media pantalla. **En el culto del domingo
+  pasaba en 12 secciones.** Es lo que se veía como «los acordes no aprovechan el espacio».
+- **La causa:** para decidir si caben, la página redondeaba el ancho de **cada compás por separado**
+  y comparaba la suma con el ancho de la fila. Cada compás subía unos pocos píxeles y, con tres o
+  cuatro, la suma ya se pasaba — aunque en pantalla cupieran perfectos.
+- **Ahora quien decide es el navegador:** la página le pregunta cuántas filas hace de verdad y parte
+  solo por ahí.
+
+  | | ~~Antes~~ | Ahora |
+  |---|---|---|
+  | Una sección de 3 compases que cabe | ~~se partía en 2 + 1~~ | **queda entera** |
+  | Cortes de más en el culto | ~~12~~ | **ninguno** |
+  | Secciones que sí se parten | ~~18~~ | **9 — las que de verdad no caben** |
+
+- ✅ **Comprobado en tres pantallas distintas** con las 8 canciones del culto, y **midiendo 30 veces
+  seguidas** que el dibujo se queda quieto: es la comprobación que se estrenó cuando las canciones
+  se pusieron a bailar, y desde entonces se repite en cada cambio que toque el reparto.
+
 ### 📱 En el teléfono ya no te tapan los acordes, y tocarlos no te pasa de canción
 
 - 🔴 **Tocar un acorde de la franja de abajo te pasaba a la siguiente canción.** Las barras de

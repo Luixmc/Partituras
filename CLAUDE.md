@@ -181,6 +181,30 @@ texto está en el HTML de **todas** las páginas del App Router —es la plantil
 encontrado» que Next incluye siempre— y da un **falso positivo**. Pasó en la Fase B. Buscar
 `Application error`, o mejor, comprobar que **sí está** lo que se espera ver.
 
+### 2.3-bis 🔬 Cómo MEDIR lo que solo se veía mirando (2026-09-04)
+
+Media docena de defectos están anotados aquí como *«esto no deja rastro en el HTML, solo lo puede
+mirar Isaac»*: el reparto de las secciones, el arrastre, el desplegable. **Sí se pueden medir**, y
+así se cazó O-66:
+
+1. **La página se carga de verdad**, con su React y su JavaScript, en **Brave sin ventana**:
+   `brave.exe --headless=new --disable-gpu --no-sandbox --window-size=A,B --virtual-time-budget=40000 --dump-dom <url>`
+2. **Sin sesión**: por el **enlace público del culto** (`/s/<token>/present`), que el middleware deja
+   pasar. No hace falta cookie ni contraseña.
+3. **La página que mide va en `public/s/`** —así el middleware también la deja pasar— y **carga la
+   presentación en un `<iframe>`**. Como es el **mismo origen**, puede leer dentro: medir cajas con
+   `getBoundingClientRect()`, leer los `data-` que deja el componente, y hasta **pasar de canción**
+   mandando `ArrowRight` a `marco.contentWindow`.
+4. Lo medido se escribe en un `<pre>` y se recoge del `--dump-dom`.
+
+⚠️ **Dos trampas que costaron un rato:**
+- `next start` sirve `public/` **desde el build**: un archivo nuevo ahí **no se sirve hasta
+  recompilar**. Da 404 y parece un problema de ruta.
+- Fuera de `/s/`, `/novedades`, `/login` y `/salir`, el middleware **redirige a `/login`** (307).
+
+🔴 **Y la página se BORRA al terminar.** Han existido seis desechables y **ninguna ha llegado a
+producción**; esta vivió en `public/s/medir-o66.html` y se borró en el mismo cambio.
+
 ### 2.4 El contrato del despliegue (aquí no hay `.exe`)
 
 Este proyecto **no genera un ejecutable**: el entregable es el sitio web. La regla de
@@ -737,16 +761,19 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **1** | 🔴 **PUBLICAR r57 (O-66) — falta su permiso** | **Hecho y medido, sin subir.** Los cortes que sobraban pasan de **12 a 0** en su pantalla, y con ellos las medias casillas vacías. Toca `lib/reparto.ts`, `SeccionRepartida.tsx`, las pruebas y la documentación. **Cada push se le pide aparte** (§11) |
+| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`962d083`**, y `origin/main` va igual. **Árbol limpio** |
-| Última versión | **r56** — O-63, dada por buena en producción |
+| Último commit publicado | **`fb22596`**, y `origin/main` va igual |
+| 🔴 **Sin subir** | **O-66 (r57)**: `src/lib/reparto.ts` · `SeccionRepartida.tsx` · `pruebas/reparto.test.mjs` · `novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md` |
+| Última versión | **r56** publicada · **r57** lista |
+| Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
 | Migraciones | **21**, y **las dos últimas SIN APLICAR** (`20240020`, `20240021`) |
@@ -765,6 +792,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 | **r53** | Fuera el salto de fila (`;`) · el `:\|` en su sitio en 22 canciones · **el README que mentía en cuatro puntos** |
 | **r54 → revert → r55** | El reparto por ANCHO. **r54 hizo bailar las canciones y se revirtió el mismo día**; r55 es lo mismo con el freno |
 | **r56** | **O-63** — las barras de la presentación dejan de flotar sobre los acordes: **de 200 px tapando a 74 reservando**, y con el auto-ocultado se va el fallo de que tocar un acorde de abajo pasara de canción |
+| **r57** | **O-66** — el reparto dejaba media casilla vacía: partía secciones que caben. **De 12 cortes que sobran a 0** |
 
 ### 9.1 Dependen de Isaac
 
@@ -4134,6 +4162,120 @@ veces en 3 segundos** y exige que el reparto salga **igual en todas**.
 fue el código, fue dar por buena una medición vieja. **La comprobación que importa se repite cuando
 se toca lo que mide.**
 
+**O-66 · Los acordes siguen sin aprovechar el espacio: el redondeo PARTE secciones que caben.**
+Isaac, 2026-09-04, con una captura del teléfono ya con r56 puesta —las barras encogidas, o sea que
+esto es **otra cosa**—: *«vuelve y molesta que los acordes no aprovechan los espacios, mira que
+tienen buen espacio para que se aproveche»*. En su captura, «Aquí Te Esperaré» sale con **Intro, A,
+Puente Guitar y C partidas en dos** —`Intro` + `Intro (sigue)`—, cada mitad con dos acordes
+estirados en media pantalla.
+
+#### 🔴 La causa, MEDIDA en el navegador con la página REAL (no razonada)
+
+Se cargó la presentación de verdad —el enlace público, que no pide sesión— en **Brave sin ventana**,
+y desde una página desechable se leyó, sección por sección: **cuántas filas hace el navegador en la
+sonda** y **en cuántos trozos la parte el componente**.
+
+**El caso que lo enseña entero, con tres bloques:**
+
+| | |
+|---|---|
+| Anchos reales | `244,8 + 244,8 + 244,8` = **734,5 px** |
+| Ancho de la fila | **734,5 px** |
+| Filas que hace el navegador | **UNA.** Caben exactos |
+| Redondeados a 8 px | `248 + 248 + 248` = **744**, contra una fila de **736** |
+| → El reparto decide | 🔴 **`2+1`: parte una sección que cabía** |
+
+📌 **Y no es mala suerte: es aritmética.** Cuando los bloques llenan la fila, la suma de sus anchos
+es **exactamente** el ancho de la fila —eso lo garantiza el `flex-grow`, que estira los compases
+hasta llenarla—. Al redondear **cada bloque por separado**, cada uno puede subir hasta **+4 px**;
+con tres bloques la suma se pasa por 8 y **el corte salta**. El redondeo se puso en r55 como
+**freno** del lazo que hacía bailar las canciones (L-231), y funciona para eso — pero **compara una
+suma redondeada n veces contra un solo número redondeado una vez**, y ahí es donde miente.
+
+#### Cuánto pesa, medido sobre el culto entero (8 canciones, 45 secciones)
+
+| Alto libre emulado | Secciones que se cortan | 🔴 Cortes que SOBRAN | ¿Se arreglan sin redondear? |
+|---|---|---|---|
+| 520 px (la ventana normal) | 13 | **8** | **8 de 8** |
+| **646 px (su pantalla completa)** | 18 | 🔴 **12** | ✅ **12 de 12** |
+
+**Cada corte que sobra cuesta una casilla entera**: la sección se parte en dos, la segunda mitad se
+lleva su propia cabecera «(sigue)», y las dos mitades estiran dos acordes en media pantalla. Eso es
+exactamente el «no aprovechan los espacios» de su frase.
+
+#### ⚠️ Y hay un SEGUNDO defecto, medido pero SIN causa confirmada
+
+**5 de las 45 secciones llevan un reparto VIEJO**: el guardado no coincide con lo que saldría al
+aplicar el mismo algoritmo a los anchos de ahora. Dos de los cortes que sobran son de estos —
+«Yahweh Se Manifiesta» guarda `3+4` donde ahora saldría `7`—. O sea que **se decidió con una medida
+de otro momento** (durante el auto-ajuste, con otra letra) **y no se rehízo**. → No se toca hasta
+medir por qué; anotarlo sin causa es mejor que inventarla.
+
+#### ⬜ PROPUESTA, a la espera del visto bueno de Isaac
+
+**A · Que las filas las cuente el NAVEGADOR, no la aritmética.** *(la recomendada)*
+La sonda ya dibuja la sección entera a la anchura real: agrupando sus hijos por su posición vertical
+se sabe **cuántas filas hace de verdad**. Ese número es el que manda, y con él se sigue equilibrando
+por ancho, que es lo bueno de r55.
+- Quita **los 12 cortes que sobran**: si el navegador hace una fila, hay un trozo.
+- **Conserva el freno**, que era el motivo del redondeo: un número de filas es un **entero**, y un
+  entero solo cambia cuando el cambio es grande — es justo la propiedad de L-231.
+- Y es volver a preguntarle al navegador, que es quien decide de verdad dónde envuelve.
+
+**B · Redondear los bloques hacia ABAJO y la fila hacia ARRIBA.** Dos líneas. Por construcción la
+suma redondeada nunca se pasa, así que los falsos cortes desaparecen y el freno se mantiene. Pero
+sigue siendo **una aproximación aritmética** de lo que el navegador ya sabe.
+
+**C · Comparar con holgura** (`suma ≤ fila + 4 × bloques`). Es un parche sobre el síntoma: no se
+propone.
+
+⚠️ **Lo que hay que volver a comprobar sí o sí**, elija lo que elija: la medición de las **30
+lecturas en 3 segundos** que se hizo en r55. Este cambio toca justo el freno del lazo que hizo
+bailar las canciones, y **el fallo de aquella vez no fue el código: fue dar por buena una medida
+vieja**.
+
+#### ✅ ISAAC ELIGIÓ LA **A** (2026-09-04) · HECHO Y MEDIDO — r57
+
+**Lo que se programó:**
+
+| | |
+|---|---|
+| `repartirEnGrupos(anchos, anchoFila, grupos)` en `lib/reparto.ts` | Separa **cuántos trozos hacen falta** de **cómo se equilibran**. Lo primero ya no se calcula: se mide |
+| El componente cuenta las filas de la **sonda** | `new Set(items.map(h => Math.round(top))).size`. La sonda dibuja la sección entera a la anchura real, así que es el propio navegador quien contesta |
+| `repartirPorAncho` se queda | Ahora es `repartirEnGrupos` con los grupos **estimados**. Las pruebas viejas siguen valiendo, y la estimación queda a la vista como lo que es |
+| 🔴 **Y hubo que ir un paso más:** los bloques se redondean **hacia ABAJO** y la fila **hacia ARRIBA** | Sin esto el redondeo seguía mordiendo **al equilibrar**: «Al Dios De Mi Vida» salía `6+3` o `5+3+1` **según la carga**. Redondeando a la baja, la suma redondeada nunca puede pasar de la real, así que el equilibrado **reproduce** lo que el navegador ya hizo en vez de contradecirlo |
+
+**Medido con la página REAL en Brave sin ventana, en tres pantallas, con el culto entero (45
+secciones cada una):**
+
+| Ventana | Cortes que sobraban | Ahora | Repartos viejos | Ahora | ¿Se queda quieto? |
+|---|---|---|---|---|---|
+| 1600 × 846 (su pantalla completa) | **12** | ✅ **0** | 5 | ✅ **0** | ✅ 30 lecturas iguales |
+| 1200 × 686 | 8 | ✅ **0** | — | ✅ **0** | ✅ 30 lecturas iguales |
+| 1920 × 1080 | — | ✅ **0** | — | ✅ **0** | ✅ 30 lecturas iguales |
+
+📌 **Y el ② se explicó solo:** los «repartos viejos» eran **el mismo redondeo**. No era que la medida
+no se rehiciera — era que el resultado cambiaba con una milésima, así que dos medidas tomadas en
+momentos distintos daban cosas distintas. Con el redondeo conservador, **0 desacuerdos en 135
+comparaciones** (3 ventanas × 45 secciones), donde antes había 5.
+
+🔬 **La comprobación del baile hubo que arreglarla ANTES de fiarse de ella.** La primera versión
+—contar cuántos repartos distintos salen en 30 lecturas— dijo **«2 · BAILA»**, y era **mentira**:
+eran las dos últimas décimas del asentamiento. Se cambió por el **patrón por lectura**
+(`AAAA…BBBB` = se asentó tarde · `ABABAB` = baila), y con él salen **30 iguales y 0 cambios**.
+→ **Una comprobación que no distingue «se está asentando» de «está oscilando» da un rojo falso**, y
+un rojo falso cuesta lo mismo que un verde falso: se deja de creer al medidor.
+
+**Las pruebas fijan el fallo, no solo el arreglo** (197, cinco nuevas):
+
+```js
+assert.deepEqual(repartirPorAncho([248, 248, 248], 736), [2, 1], "asi se equivocaba antes");
+assert.deepEqual(repartirEnGrupos([248, 248, 248], 736, 1), [3], "el navegador dice 1 fila");
+```
+
+**Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** (60 avisos) · build **0** ·
+**26 de 26** pantallas.
+
 **Lo demás:** 192 pruebas · lint **0 errores** · build 0 · **26 de 26 pantallas** · y las canciones
 enteras: **53, 98 y 55** acordes, los mismos ya documentados.
 
@@ -5695,6 +5837,35 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · ⬜ r57 sin publicar
+
+**Lo trajo Isaac con una captura ya con r56 puesta** —o sea, esto no eran las barras—:
+*«vuelve y molesta que los acordes no aprovechan los espacios, mira que tienen buen espacio para que
+se aproveche»*.
+
+🔬 **Y lo importante de esta tanda es CÓMO se midió**, porque abre una puerta que llevaba cerrada:
+se cargó **la presentación de verdad** en Brave sin ventana **por el enlace público** —que no pide
+sesión— y desde una página desechable, **en el mismo origen**, se leyó dentro de la página: cuántas
+filas hace el navegador en cada sonda, qué reparto guardó el componente, y **se recorrieron las 8
+canciones mandando la flecha derecha**. Hasta hoy esto figuraba como «no deja rastro, solo lo puede
+mirar Isaac».
+
+**Lo que salió:** el redondeo a 8 px que se puso en r55 como freno **partía secciones que caben**.
+Cuando los bloques llenan la fila, su suma **es** el ancho de la fila; al redondear cada uno por
+separado (+4 px cada uno) contra una fila redondeada una sola vez, la cuenta se pasa. **12 de 18
+cortes sobraban** en su propio culto, y cada uno le costaba media casilla vacía.
+
+**Se le ofrecieron tres arreglos dibujados y eligió la A:** que las filas las cuente el navegador.
+El detalle, en **O-66**. Hizo falta además redondear **a la baja**, porque el redondeo seguía
+mordiendo al equilibrar.
+
+**Medido:** cortes que sobran **12 → 0** en tres pantallas · repartos viejos **5 → 0** · **30
+lecturas iguales** en 3 segundos, con el patrón por lectura. **197 pruebas** (5 nuevas), lint 0
+errores, build 0, 26 de 26 pantallas.
+
+⚠️ **La comprobación del baile dio un ROJO FALSO antes de servir**: contaba «cuántos repartos
+distintos salen» y no distinguía **asentarse** de **oscilar**. Va a la carpeta compartida.
 
 ### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · 🚀 r56
 

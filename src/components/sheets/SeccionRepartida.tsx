@@ -23,7 +23,7 @@
 import { Fragment, useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 
 import TablaturePreview, { bloquesVisuales } from "@/components/sheets/TablaturePreview";
-import { repartirPorAncho } from "@/lib/reparto";
+import { repartirEnGrupos } from "@/lib/reparto";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -120,10 +120,36 @@ export default function SeccionRepartida({
     // Se REDONDEA a unidades gruesas antes de repartir: una milesima de pixel
     // no puede cambiar el resultado. Es la segunda mitad del freno.
     const REJILLA = 8;
-    const redondear = (n: number) => Math.max(REJILLA, Math.round(n / REJILLA) * REJILLA);
-    const anchos = items.map((h) => redondear(h.getBoundingClientRect().width));
-    const fila = redondear(rejilla.getBoundingClientRect().width);
-    const nuevo = repartirPorAncho(anchos, fila);
+    // 🔴 Los bloques se redondean hacia ABAJO y la fila hacia ARRIBA, y NO es
+    // un detalle (O-66). Al redondear al mas cercano, cada bloque podia subir
+    // hasta 4 px; y como los bloques que llenan una fila suman EXACTAMENTE el
+    // ancho de la fila —los estira el `flex-grow`—, esa suma se pasaba y el
+    // reparto partia lo que cabe. Redondeando a la baja, la suma redondeada
+    // nunca puede pasar de la real, asi que el equilibrado reproduce lo que el
+    // navegador ya hizo en vez de contradecirlo.
+    // ⚠️ El freno de L-231 sigue igual: 8 px sigue siendo un escalon grueso, y
+    // una milesima no puede cambiar el resultado.
+    const haciaAbajo = (n: number) => Math.max(REJILLA, Math.floor(n / REJILLA) * REJILLA);
+    const haciaArriba = (n: number) => Math.max(REJILLA, Math.ceil(n / REJILLA) * REJILLA);
+    const anchos = items.map((h) => haciaAbajo(h.getBoundingClientRect().width));
+    const fila = haciaArriba(rejilla.getBoundingClientRect().width);
+
+    // 🔴 CUANTOS TROZOS HACEN FALTA LO DICE EL NAVEGADOR, no la aritmetica
+    // (O-66). La sonda dibuja la seccion ENTERA a la anchura real, asi que
+    // agrupando sus hijos por su posicion vertical sale el numero de filas que
+    // hace de verdad. Es exacto por construccion: es el propio navegador.
+    //
+    // Antes se estimaba sumando los anchos redondeados, y **partia secciones
+    // que caben**: tres bloques de 244,8 px en una fila de 734,5 suman
+    // exactamente la fila —los estira el `flex-grow`—, pero redondeados a 8 px
+    // dan 744 contra 736 y la cuenta decia que no caben. En el culto de Isaac
+    // sobraban 12 de 18 cortes, y cada uno le costaba media casilla vacia.
+    //
+    // ⚠️ El `top` se redondea a entero a proposito: dos bloques de la misma fila
+    // comparten `top`, y una milesima no puede inventar una fila. Es la misma
+    // idea que el redondeo de los anchos, aplicada donde no hace daño.
+    const filas = new Set(items.map((h) => Math.round(h.getBoundingClientRect().top))).size;
+    const nuevo = repartirEnGrupos(anchos, fila, filas);
     // 🔴 Solo se guarda si el REPARTO cambia. Si sale el mismo, no hay
     // re-dibujo, y sin re-dibujo el lazo no puede realimentarse.
     setReparto((antes) =>

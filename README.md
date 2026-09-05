@@ -90,7 +90,7 @@ El texto plano se parsea a compases en `TablaturePreview`:
 **Disminuido:** se **escribe** `dim` / `dim7` y se **dibuja** `°` / `°7`. El símbolo no se teclea nunca.
 
 **Las secciones largas se reparten solas.** No hay que partir una sección en dos a mano para que
-quepa: se escribe entera y, en la presentación, la página mide cuántos compases caben en una fila
+quepa: se escribe entera y, en la presentación, **el navegador dice cuántas filas hace** la sección
 y la reparte entre las casillas de la rejilla — **sin bajar nunca de 4 compases por bloque**. Lo
 que sigue cae en la casilla siguiente, respetando el recorrido que haya elegido el músico (por
 filas o por columnas). Si en una sección se escribe un `;`, esa no se reorganiza: el corte es de
@@ -391,4 +391,5 @@ pública `/novedades`; esto es el resumen técnico.
 | **r55** | **El reparto mide el ANCHO de cada bloque, no cuántos son**: una sección con casillas `{ }1 { }2` se apretaba en su cuadro porque los bloques miden entre 104 y 526 px y la página los contaba como si midieran igual. ⚠️ **La primera versión (r54) hizo bailar las canciones y se revirtió el mismo día**: la medida entera que sustituyó era el freno de un lazo de realimentación. **192 pruebas** |
 | **r53** | **Fuera el salto de fila (`;`)**: lo jubiló el reparto automático de secciones. Con él muere la excepción de «si lo marcas a mano, la página no reorganiza» — ahora **todas** las secciones se reparten midiendo. Y el README, al día: cuatro puntos de su «deuda técnica» eran falsos |
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
+| **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r52** | **La red de seguridad donde faltaba**: crear una canción no tenía **ninguna** —se perdían todos los acordes tecleados—, ni la melodía ni las versiones por tono avisaban, y **cambiar de pestaña no pedía permiso** |
