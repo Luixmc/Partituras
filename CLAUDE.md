@@ -761,16 +761,18 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **1** | 🔴 **PUBLICAR r58 (O-67) — falta su permiso** | **Hecho y medido, sin subir.** El cuadro que sobresalía pasa de **334 px a 189**, el mismo alto que las demás secciones de esa canción. Toca `TablaturePreview.tsx` y la documentación |
+| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`90abbc0`**, y `origin/main` va igual. **Árbol limpio** |
-| Última versión | **r57** — O-66, dada por buena en producción |
+| Último commit publicado | **`891bdd4`**, y `origin/main` va igual |
+| 🔴 **Sin subir** | **O-67 (r58)**: `TablaturePreview.tsx` · `novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md` |
+| Última versión | **r57** publicada · **r58** lista |
 | Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
@@ -791,6 +793,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 | **r54 → revert → r55** | El reparto por ANCHO. **r54 hizo bailar las canciones y se revirtió el mismo día**; r55 es lo mismo con el freno |
 | **r56** | **O-63** — las barras de la presentación dejan de flotar sobre los acordes: **de 200 px tapando a 74 reservando**, y con el auto-ocultado se va el fallo de que tocar un acorde de abajo pasara de canción |
 | **r57** | **O-66** — el reparto dejaba media casilla vacía: partía secciones que caben. **De 12 cortes que sobran a 0** |
+| **r58** | **O-67** — ninguna sección sobresale: un compás con anotación pedía el ancho de uno con un acorde, envolvía, y hacía crecer el cuadro entero. **De 334 px a 189**, el mismo alto que las demás |
 
 ### 9.1 Dependen de Isaac
 
@@ -3949,6 +3952,59 @@ verdad**. Esa API exige un gesto del usuario, así que **`isFullscreen` no se al
 ni con el navegador sin ventana**: lo medido es **el CSS de ese estado**, no la página en ese
 estado. → **Falta que Isaac lo mire en su teléfono** (punto 3 de §9.0).
 
+**O-67 · Una sección SOBRESALE de alto por envolver algo que cabía a lo ancho.**
+Isaac, 2026-09-04, con dos capturas **del PC** (1920 × 1080, pantalla completa) después de r57:
+
+> *«en la primera fíjate que la sección sobresale de lo bajo, cuando tiene suficiente espacio para
+> que quede de la misma altura que las otras secciones, lo que yo quiero es que ninguna sección
+> sobresalga, que todas tengan la misma altura como corresponda, que no sobre ni falte espacio, que
+> sea lo justo y necesario»*
+
+#### 🔴 MEDIDO en la página real (§2.3-bis), y es UN cuadro de 74
+
+«Tengo Victoria», el cuadro `A Guitar voz · B Banda · A · B <Voz Guitar Hit-Hat>`:
+
+| | |
+|---|---|
+| Alto que tiene | **334 px** |
+| Alto a su ancho natural | **189 px** — *exactamente el de las demás secciones de esa canción* |
+| Lo que pide a lo ancho | **749 px** de una fila de **895 px** |
+| → | 🔴 **Sobraban 146 px: cabía, y aun así envolvió** |
+| Celdas partidas en dos líneas | **1** |
+
+**La causa, en `TablaturePreview.tsx`:** el ancho base de cada compás es
+`flexBasis: notes.length * 3em` — **cuenta acordes, no mide el texto**. La celda que lleva la
+etiqueta `<Voz Guitar Hit-Hat>` pide lo mismo que la celda que solo dice `B`, recibe menos de lo que
+necesita y, como los compases con etiqueta llevan `flex-wrap` a propósito, **envuelve**. Al envolver,
+la celda dobla su alto y **el cuadro entero crece de 189 a 334**.
+
+📌 **Y por eso se ve tan mal justo ahí:** las otras celdas de esa misma fila van sobradas —«A» ocupa
+130 px para una letra— mientras la que necesita 260 se queda sin ellos. **El sitio está, mal
+repartido.**
+
+#### El arreglo
+
+**Un compás con etiqueta de texto pide su ANCHO NATURAL** (`flex-basis: auto`) en vez de un número
+de acordes. El reparto flexible le da lo que necesita, las demás celdas se reparten el resto, y solo
+envuelve **si de verdad no cabe** — que es lo que Isaac pidió: *«que no sobre ni falte espacio»*.
+
+#### ✅ HECHO Y MEDIDO (2026-09-04) — r58
+
+Una línea en `MeasureBlock`: el ancho base pasa a ser **`auto`** cuando el compás lleva etiqueta.
+
+| | 1920 × 1206 | 1600 × 846 |
+|---|---|---|
+| Cuadros que **sobresalen** | **1 → ✅ 0** | ✅ 0 |
+| Cortes que sobran (O-66) | ✅ **0** — no se tocó | ✅ 0 |
+| ¿Se queda quieto? | ✅ patrón `AAAA…`, 0 cambios | ✅ igual |
+
+📌 **Se volvió a pasar la comprobación de O-66 entera**, y no por ceremonia: esto cambia **el ancho
+de los compases**, que es justo la entrada del reparto y del lazo que hizo bailar las canciones en
+r54. *La comprobación cara se repite cuando se toca lo que mide.*
+
+**Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** · build **0** · **26 de 26**
+pantallas.
+
 **O-64 · El `:|` se va SOLO a otra linea: un bloque fantasma en 22 de las 72 canciones.**
 Isaac, 2026-09-04, con una captura del telefono: *«cuando quiero acomodar el texto a lo que pueda en
 la pantalla de mi telefono la repeticion se desacomoda»*. En su captura, la seccion «C (sigue)» de
@@ -5835,6 +5891,33 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-04 · Tanda 46 — O-67: ninguna sección sobresale · ⬜ r58 sin publicar
+
+**Isaac, con dos capturas del PC** (1920 × 1080) ya con r57 puesta: *«la sección sobresale de lo
+bajo, cuando tiene suficiente espacio para que quede de la misma altura que las otras… que no sobre
+ni falte espacio, que sea lo justo y necesario»*.
+
+⚠️ **Y esta vez el primer diagnóstico fue MÍO y estaba equivocado.** Medí que los acordes se
+apretaban y salió que no —piden 766 px y les dan 895—; luego apunté al alto que se llevan los
+cuadros de solo texto (43 % en esa canción). **Ninguna de las dos era su queja.** Se la pregunté con
+las tres candidatas medidas y contestó con precisión: *que ninguna sección sobresalga*.
+📌 **Lo que salvó la tanda fue preguntar en vez de elegir**: con tres números delante, él señaló el
+que importaba en una frase.
+
+**Medido entonces sí:** de los **74 cuadros** del culto, **UNO** sobresalía — `A Guitar voz · B
+Banda · A · B <Voz Guitar Hit-Hat>` — con **334 px frente a los 189 px** de las demás secciones de
+esa canción, y **necesitaba 749 px de los 895** que tenía. **Cabía.** La causa: el ancho base de un
+compás **cuenta acordes y no mide el texto**, así que la anotación se quedaba corta, envolvía, y al
+envolver crecía el cuadro entero.
+
+**Arreglado con una línea** (el ancho base pasa a `auto` cuando hay etiqueta) y **medido en dos
+pantallas**: sobresalen **1 → 0**, cortes que sobran **0** (O-66 intacta) y **30 lecturas iguales**.
+197 pruebas, lint 0 errores, build 0, 26 de 26 pantallas.
+
+**Carpeta compartida:** `LECCIONES.md` → **L-238** (ante una queja visual y ambigua, mide varias
+hipótesis y que él señale: la tuya puede ser la equivocada) y **L-239** (lo que no cabe a lo ancho se
+paga en alto). `PROYECTOS.md`, `CONVENCIONES.md` y `NUEVO-PROYECTO.md`: nada que tocar.
 
 ### 2026-09-04 · Tanda 45 — O-66: el redondeo partía secciones que caben · 🚀 r57
 

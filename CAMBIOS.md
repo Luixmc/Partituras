@@ -7,6 +7,18 @@
 
 ## 4 de septiembre de 2026
 
+### 📏 Ninguna sección sobresale ya
+
+- 🔴 **Un cuadro salía más alto que los demás sin necesidad.** Cuando un compás lleva una anotación
+  escrita —por ejemplo `<Voz Guitar Hit-Hat>`—, la página le daba el mismo sitio que a un compás con
+  un solo acorde. Como no le alcanzaba, **la anotación se partía en dos líneas** y el cuadro entero
+  crecía y **sobresalía**.
+- **Medido en «Tengo Victoria» a pantalla completa:** ese cuadro medía **334 puntos donde los demás
+  medían 189**… y lo que necesitaba a lo ancho eran **749 de los 895 que había**. **Cabía de sobra:
+  el sitio estaba, mal repartido.**
+- **Ahora cada anotación pide el ancho que necesita** y las demás casillas se reparten el resto.
+  Solo se parte en dos líneas si de verdad no cabe.
+
 ### 📐 Las secciones ya no se parten cuando caben
 
 - 🔴 **Una sección que cabía entera en una fila se partía igual en dos cuadros** —el segundo con su

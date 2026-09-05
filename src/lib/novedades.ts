@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "En el telefono a pantalla completa ya se ven todos los acordes, y tocar uno ya no te pasa de cancion.",
     "secciones": [
       {
+        "titulo": "Ninguna seccion sobresale ya",
+        "resumen": "Un cuadro se hacia mas alto que los demas por partir en dos lineas algo que si cabia a lo ancho.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Una seccion salia mas alta que las demas sin necesidad.",
+            "detalle": [
+              "Cuando un compas lleva una anotacion escrita —por ejemplo <code>&lt;Voz Guitar Hit-Hat&gt;</code>—, la pagina le daba el mismo sitio que a un compas con un solo acorde. Como no le alcanzaba, la anotacion <strong>se partia en dos lineas</strong> y el cuadro entero crecia de alto y <strong>sobresalia</strong> respecto a las demas secciones.",
+              "Medido en «Tengo Victoria» a pantalla completa: ese cuadro media <strong>334 puntos donde los demas median 189</strong>… y lo que necesitaba a lo ancho eran <strong>749 de los 895 que habia</strong>. <strong>Cabia de sobra.</strong>",
+              "<strong>Ahora cada anotacion pide el ancho que necesita</strong> y las demas casillas se reparten el resto. Solo se parte en dos lineas si de verdad no cabe."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Las secciones ya no se parten cuando caben",
         "resumen": "Una seccion que cabe entera en una fila se partia en dos y dejaba media casilla vacia.",
         "cambios": [

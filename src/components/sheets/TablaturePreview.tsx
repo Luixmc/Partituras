@@ -727,7 +727,20 @@ function MeasureBlock({
         flexGrow: crecimiento,
         // De base, el ancho según nº de acordes; crece para llenar la fila. En
         // modo compacto los compases son más estrechos (acordes más juntos).
-        flexBasis: `${Math.max(measure.notes.length, 1) * (dense ? 1.7 : 3)}em`,
+        //
+        // 🔴 CON ETIQUETA DE TEXTO, el ancho base es EL QUE PIDE EL TEXTO (O-67).
+        // Contar acordes no mide una etiqueta: `<Voz Guitar Hit-Hat>` pedía lo
+        // mismo que un compás con un solo acorde —3em—, se quedaba corta y
+        // envolvía… y al envolver, **el cuadro entero crecía de alto**. Medido
+        // en «Tengo Victoria»: 334 px donde las demás secciones median 189, con
+        // la fila pidiendo 749 px de los 895 que había. **Cabía.**
+        // Isaac, 2026-09-04: «que ninguna sección sobresalga… que no sobre ni
+        // falte espacio, que sea lo justo y necesario».
+        // → Con `auto`, el reparto flexible le da lo que necesita, las demás
+        // celdas se reparten el resto, y solo envuelve si de verdad no cabe.
+        flexBasis: hasLabel
+          ? "auto"
+          : `${Math.max(measure.notes.length, 1) * (dense ? 1.7 : 3)}em`,
       }}
     >
       {measure.repeatStart && <RepeatGlyph side="start" />}
