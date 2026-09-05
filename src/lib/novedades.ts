@@ -72,8 +72,63 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "4 de septiembre de 2026",
     "iso": "2026-09-04",
-    "entrada": "La pagina se puede instalar como app, y por fin gira cuando giras el telefono.",
+    "entrada": "En el telefono a pantalla completa ya se ven todos los acordes, y tocar uno ya no te pasa de cancion.",
     "secciones": [
+      {
+        "titulo": "En el telefono ya no te tapan los acordes",
+        "resumen": "A pantalla completa las barras de arriba y de abajo se encogieron, y tocar un acorde ya no te pasa de cancion.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Tocar un acorde de la parte de abajo ya no te pasa a la siguiente cancion.",
+            "detalle": [
+              "Las barras de arriba y de abajo <strong>flotaban por encima de los acordes</strong> y se escondian solas. Al tocar un acorde de la franja de abajo, el dedo las despertaba primero y el toque acababa cayendo en el boton «Siguiente»: <strong>se te pasaba la cancion en mitad del culto</strong>. Arriba pasaba lo mismo con los botones del tono.",
+              "<strong>Ahora las barras tienen su propio sitio y ya no se montan encima de la cancion</strong>, asi que ningun toque en un acorde puede acabar en un boton."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Las barras se encogieron: te devuelven un tercio de la pantalla.",
+            "detalle": [
+              "Medido en un telefono en horizontal (1200 x 540 puntos), que es como lo usa Isaac: las barras ocupaban <strong>200 puntos de 540</strong> —un 37 % de la pantalla— y ademas tapaban los acordes que quedaban debajo. Ahora ocupan <strong>74</strong>, y <strong>no tapan nada</strong>.",
+              "La barra de arriba pasa de <strong>tres filas a una</strong>: salir, la cancion y el tono, que es lo que hay que ver mientras se toca."
+            ],
+            "tabla": {
+              "cabecera": [
+                "",
+                "Antes",
+                "Ahora"
+              ],
+              "filas": [
+                [
+                  "La barra de arriba",
+                  "135 puntos (tres filas)",
+                  "37 puntos (una fila)"
+                ],
+                [
+                  "La barra de abajo",
+                  "65 puntos",
+                  "37 puntos"
+                ],
+                [
+                  "Sitio libre para los acordes",
+                  "340 puntos, y con acordes tapados debajo",
+                  "466 puntos, todos a la vista"
+                ]
+              ],
+              "comparativa": true
+            }
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "El tono, el tamaño, las columnas y tu instrumento estan ahora detras de la chapa del tono.",
+            "detalle": [
+              "A pantalla completa, <strong>pulsa la chapa del tono</strong> —la que dice «E», «G»…— y se abren los mandos de siempre: subir y bajar medio tono, el tamaño de la letra, las columnas, la letra y la melodia, y tu instrumento. Se cierran pulsando otra vez o tocando fuera.",
+              "<strong>El tono sigue siempre a la vista</strong>, porque es lo que se mira de un vistazo mientras se toca."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "Las secciones con casillas ya pasan al lado",
         "resumen": "Una seccion con casillas de 1ª y 2ª vez se apretaba en su cuadro en vez de pasar al siguiente.",

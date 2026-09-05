@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Mic2, Minus, Music2, Music4, Plus, RotateCcw, Shrink, Square, TextQuote, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand, Maximize2, Mic2, Minus, Music2, Music4, Plus, RotateCcw, Shrink, SlidersHorizontal, Square, TextQuote, X } from "lucide-react";
 
 import { estrofasDe } from "@/lib/letras";
 
@@ -196,10 +196,15 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // trompetista pasa de canción y sigue leyendo su pentagrama.
   const [modo, setModo] = useState<Modo>("acordes");
   useEffect(() => setRecorrido(leerRecorrido()), []);
-  // Auto-ocultar la cabecera/tono/navegación en pantalla completa (reaparecen
-  // al mover el ratón o tocar) para ganar espacio.
-  const [chromeVisible, setChromeVisible] = useState(true);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // O-63 · En pantalla completa las barras YA NO SE AUTO-OCULTAN. Ahora
+  // RESERVAN su sitio, así que esconderlas no ganaría ni un píxel y en cambio
+  // haría saltar el contenido. Con el auto-ocultado se va `pokeChrome`, que era
+  // justo lo que le robaba el toque al acorde: el dedo despertaba las barras y
+  // el `click` posterior —que llega después del `touchend`— caía en el botón.
+  //
+  // Lo que no cabe en la cabecera encogida (tono, tamaño, columnas, modo e
+  // instrumento) pasa a este panel: se abre a propósito y se cierra.
+  const [ajustesAbiertos, setAjustesAbiertos] = useState(false);
 
   // Pantalla completa real (Fullscreen API) sobre el contenedor de la
   // presentación: al pedir fullscreen sobre la raíz de este componente, el
@@ -259,17 +264,6 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     }
   }, []);
 
-  // Muestra los controles y programa su auto-ocultado (solo en pantalla
-  // completa). Se llama al mover el ratón, tocar o pulsar una tecla.
-  const pokeChrome = useCallback(() => {
-    setChromeVisible(true);
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    const doc = document as any;
-    if (document.fullscreenElement || doc.webkitFullscreenElement) {
-      hideTimer.current = setTimeout(() => setChromeVisible(false), 2500);
-    }
-  }, []);
-
   // Mantener el estado sincronizado con el navegador (ESC, gestos, etc.).
   useEffect(() => {
     const onChange = () => {
@@ -278,21 +272,17 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
       setIsFullscreen(fs);
       // No se toca el tamaño: si el músico fijó uno, manda el suyo. Si está en
       // automático, el propio auto-ajuste se re-dispara al cambiar el espacio.
-      if (fs) {
-        pokeChrome(); // muestra los controles un momento y luego los oculta
-      } else {
-        if (hideTimer.current) clearTimeout(hideTimer.current);
-        setChromeVisible(true);
-      }
+      // Al salir de pantalla completa el panel sobra: sus mandos vuelven a estar
+      // a la vista en las sub-barras.
+      if (!fs) setAjustesAbiertos(false);
     };
     document.addEventListener("fullscreenchange", onChange);
     document.addEventListener("webkitfullscreenchange", onChange);
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
       document.removeEventListener("webkitfullscreenchange", onChange);
-      if (hideTimer.current) clearTimeout(hideTimer.current);
     };
-  }, [pokeChrome]);
+  }, []);
 
   // Ajuste manual del tamaño: desactiva el auto-ajuste para esta canción y
   // GUARDA la elección, para que la próxima vez se abra así (O-06).
@@ -329,7 +319,6 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Navegación con teclado (flechas / espacio).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      pokeChrome();
       // No robar las teclas si se está escribiendo en algún campo.
       const destino = e.target as HTMLElement | null;
       if (
@@ -349,7 +338,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, toggleFullscreen, pokeChrome, bumpScale]);
+  }, [go, toggleFullscreen, bumpScale]);
 
   // Mantener la pantalla encendida durante el servicio (best-effort).
   useEffect(() => {
@@ -370,7 +359,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
   // Swipe en móvil/tablet.
   const touchX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => { pokeChrome(); touchX.current = e.touches[0].clientX; };
+  const onTouchStart = (e: React.TouchEvent) => { touchX.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchX.current;
@@ -572,217 +561,265 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
       className="relative flex min-h-dvh flex-col bg-white dark:bg-slate-950"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      onMouseMove={pokeChrome}
     >
-      {/* Cabecera + sub-barra. En pantalla completa flotan (absolute) sobre el
-          contenido y se auto-ocultan tras unos segundos (reaparecen al mover el
-          ratón o tocar), para que los acordes usen toda la pantalla. */}
-      <div
-        className={cn(
-          "transition-opacity duration-300",
-          isFullscreen && "absolute inset-x-0 top-0 z-30",
-          isFullscreen && !chromeVisible && "pointer-events-none opacity-0"
-        )}
-      >
-      {/* Barra superior */}
+      {/* Tocar fuera cierra el panel de ajustes. */}
+      {isFullscreen && ajustesAbiertos && (
+        <button
+          type="button"
+          onClick={() => setAjustesAbiertos(false)}
+          aria-label="Cerrar los ajustes"
+          className="absolute inset-0 z-30 cursor-default"
+        />
+      )}
+
+      {/* Cabecera + sub-barras. 🔴 O-63 · En pantalla completa YA NO FLOTAN
+          sobre los acordes: reservan su sitio, la cabecera encogida a una fila
+          y el resto guardado en el panel de ajustes. Antes tapaban 178 px de
+          540 —un tercio del teléfono de Isaac— y, peor, el toque en un acorde
+          de la franja de abajo despertaba las barras y acababa en «Siguiente»:
+          se le pasaba la canción en mitad del culto. Al no haber ya nada encima
+          del acorde, esa familia de fallos desaparece sola. */}
+      <div className="relative z-40 flex-shrink-0">
+      {/* Barra superior. Encogida en pantalla completa: salir, la canción, el
+          tono —que es lo que más se mira— y los dos botones. */}
       <header className={cn(
-        "sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 px-3 py-2 backdrop-blur dark:border-slate-800",
-        isFullscreen ? "bg-white/70 dark:bg-slate-950/70" : "bg-white/95 dark:bg-slate-950/95"
+        "sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95",
+        isFullscreen ? "px-2 py-1" : "px-3 py-2"
       )}>
         <Link
           href={salirA}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+          className={cn(
+            "flex flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300",
+            isFullscreen ? "h-7 w-7" : "h-9 w-9"
+          )}
           aria-label="Salir de la presentacion"
         >
-          <X className="h-5 w-5" />
+          <X className={isFullscreen ? "h-4 w-4" : "h-5 w-5"} />
         </Link>
 
         <div className="min-w-0 flex-1 text-center">
-          <p className="truncate text-xs text-slate-400">{title}</p>
-          <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">
+          {/* En pantalla completa cabe UNA línea, y manda la canción: el nombre
+              del culto ya se lo sabe quien está tocando. */}
+          {!isFullscreen && <p className="truncate text-xs text-slate-400">{title}</p>}
+          <p className={cn(
+            "truncate font-semibold text-slate-900 dark:text-slate-50",
+            isFullscreen ? "text-xs" : "text-sm"
+          )}>
             {index + 1}/{total} · {song.title}
           </p>
         </div>
+
+        {/* El tono NO se esconde: es lo que más se mira mientras se toca. Va en
+            la propia chapa que abre los ajustes, así que sigue a la vista y de
+            paso se sabe dónde quedaron los mandos. */}
+        {isFullscreen && (
+          <button
+            type="button"
+            onClick={() => setAjustesAbiertos((a) => !a)}
+            aria-expanded={ajustesAbiertos}
+            aria-label="Ajustes de la presentacion"
+            title="Tono, tamaño, columnas, modo e instrumento"
+            className={cn(
+              "flex h-7 flex-shrink-0 items-center gap-1 rounded-lg px-2 text-xs font-bold text-white transition-colors",
+              ajustesAbiertos ? "bg-brand-700" : "bg-brand-600"
+            )}
+          >
+            {keyLabel ?? "—"}
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+          </button>
+        )}
 
         {/* Pantalla completa real: oculta por completo la navbar del layout. */}
         <button
           type="button"
           onClick={toggleFullscreen}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+          className={cn(
+            "flex flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300",
+            isFullscreen ? "h-7 w-7" : "h-9 w-9"
+          )}
           aria-label={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
           title={isFullscreen ? "Salir de pantalla completa (F)" : "Pantalla completa (F)"}
         >
-          {isFullscreen ? <Shrink className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
+          {isFullscreen ? <Shrink className="h-4 w-4" /> : <Expand className="h-5 w-5" />}
         </button>
       </header>
 
-      {/* Sub-barra: tono y transposición manual */}
+      {/* Los mandos que no caben en la fila de arriba. Cuando la presentación
+          es normal van a la vista, como siempre; en pantalla completa viven en
+          este panel, que FLOTA sobre los acordes —eso sí es deliberado— y solo
+          está mientras se pide. */}
       <div className={cn(
-        "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
-        isFullscreen ? "bg-slate-50/70 backdrop-blur dark:bg-slate-900/70" : "bg-slate-50 dark:bg-slate-900"
+        isFullscreen && "absolute inset-x-0 top-full z-40 border-b border-slate-200 shadow-xl dark:border-slate-800",
+        isFullscreen && !ajustesAbiertos && "hidden"
       )}>
-        <span className="text-slate-500 dark:text-slate-400">Tono</span>
-        <span className="rounded-md bg-brand-600 px-2 py-0.5 font-bold text-white">
-          {keyLabel ?? "—"}
-        </span>
-        <button
-          type="button"
-          onClick={() => setLiveOffset((o) => o - 1)}
-          className="ml-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-          aria-label="Bajar medio tono"
-        >
-          ♭
-        </button>
-        <button
-          type="button"
-          onClick={() => setLiveOffset((o) => o + 1)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-          aria-label="Subir medio tono"
-        >
-          ♯
-        </button>
-        {liveOffset !== 0 && (
+        {/* Sub-barra: tono y transposición manual */}
+        <div className={cn(
+          "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
+          "bg-slate-50 dark:bg-slate-900"
+        )}>
+          <span className="text-slate-500 dark:text-slate-400">Tono</span>
+          <span className="rounded-md bg-brand-600 px-2 py-0.5 font-bold text-white">
+            {keyLabel ?? "—"}
+          </span>
           <button
             type="button"
-            onClick={() => setLiveOffset(0)}
-            className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            onClick={() => setLiveOffset((o) => o - 1)}
+            className="ml-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            aria-label="Bajar medio tono"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
-            {liveOffset > 0 ? `+${liveOffset}` : liveOffset}
+            ♭
           </button>
-        )}
-
-        {/* Tamaño de letra (40%–200%) + volver al ajuste automático. */}
-        <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
-        <button
-          type="button"
-          onClick={() => bumpScale(-0.1)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-          aria-label="Reducir letra"
-        >
-          <Minus className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => bumpScale(0.1)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-          aria-label="Aumentar letra"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setAutoFit(true);
-            if (song?.id) guardarTamano(song.id, null); // olvida el tamaño fijado
-          }}
-          title="Ajustar a pantalla (olvida el tamaño guardado de esta canción)"
-          aria-label="Ajustar a pantalla"
-          className={
-            "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors " +
-            (autoFit
-              ? "bg-brand-600 text-white ring-brand-600"
-              : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700")
-          }
-        >
-          <Maximize2 className="h-4 w-4" />
-        </button>
-
-        {/* Alternar columnas: 1 → 2 → 3 → 1. */}
-        <button
-          type="button"
-          onClick={() => setColumns((c) => (c === 3 ? 1 : ((c + 1) as 1 | 2 | 3)))}
-          title={`Columnas: ${columns} (cambiar)`}
-          aria-label={`Columnas: ${columns}. Pulsa para cambiar`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-        >
-          {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
-        </button>
-
-        {/* Acordes ↔ letra (J.4) ↔ melodía (R.4). Solo si esa canción tiene
-            algo más que acordes: un botón que lleva a una pantalla vacía es
-            peor que no tenerlo.
-            📌 El icono es el del modo AL QUE SE VA, no el actual — que es como
-            venía funcionando con la letra y como se lee de un vistazo. */}
-        {(hayLetra || hayMelodia) && (
           <button
             type="button"
-            onClick={() => setModo((m) => siguienteModo(m, hayLetra, hayMelodia))}
-            title={etiquetaModo(proximo)}
-            aria-label={etiquetaModo(proximo)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors",
-              mostrandoLetra || mostrandoMelodia
-                ? "bg-brand-600 text-white ring-brand-600"
-                : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-            )}
+            onClick={() => setLiveOffset((o) => o + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            aria-label="Subir medio tono"
           >
-            {proximo === "acordes" ? (
-              <Music2 className="h-4 w-4" />
-            ) : proximo === "letra" ? (
-              <Mic2 className="h-4 w-4" />
-            ) : (
-              <Music4 className="h-4 w-4" />
-            )}
+            ♯
           </button>
-        )}
+          {liveOffset !== 0 && (
+            <button
+              type="button"
+              onClick={() => setLiveOffset(0)}
+              className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {liveOffset > 0 ? `+${liveOffset}` : liveOffset}
+            </button>
+          )}
 
-        {/* Cómo se recorren las secciones (O-26). Con una sola columna no hay
-            nada que elegir, así que el botón no aparece. */}
-        {columns > 1 && (
+          {/* Tamaño de letra (40%–200%) + volver al ajuste automático. */}
+          <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+          <button
+            type="button"
+            onClick={() => bumpScale(-0.1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            aria-label="Reducir letra"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => bumpScale(0.1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            aria-label="Aumentar letra"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
           <button
             type="button"
             onClick={() => {
-              const otro: Recorrido = recorrido === "filas" ? "columnas" : "filas";
-              setRecorrido(otro);
-              try {
-                localStorage.setItem(CLAVE_RECORRIDO, otro);
-              } catch {
-                /* almacenamiento lleno o bloqueado: se sigue sin guardar */
-              }
+              setAutoFit(true);
+              if (song?.id) guardarTamano(song.id, null); // olvida el tamaño fijado
             }}
-            title={
-              recorrido === "filas"
-                ? "Se lee de izquierda a derecha y luego abajo. Pulsa para leer por columnas"
-                : "Se lee la primera columna entera y luego la siguiente. Pulsa para leer por filas"
+            title="Ajustar a pantalla (olvida el tamaño guardado de esta canción)"
+            aria-label="Ajustar a pantalla"
+            className={
+              "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors " +
+              (autoFit
+                ? "bg-brand-600 text-white ring-brand-600"
+                : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700")
             }
-            aria-label={`Lectura ${recorrido === "filas" ? "por filas" : "por columnas"}. Pulsa para cambiar`}
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+
+          {/* Alternar columnas: 1 → 2 → 3 → 1. */}
+          <button
+            type="button"
+            onClick={() => setColumns((c) => (c === 3 ? 1 : ((c + 1) as 1 | 2 | 3)))}
+            title={`Columnas: ${columns} (cambiar)`}
+            aria-label={`Columnas: ${columns}. Pulsa para cambiar`}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
           >
-            {recorrido === "filas" ? <CornerDownRight className="h-4 w-4" /> : <TextQuote className="h-4 w-4" />}
+            {columns === 1 ? <Square className="h-4 w-4" /> : columns === 2 ? <Columns2 className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
           </button>
-        )}
-      </div>
 
-      {/* Tu instrumento (D-28). Va pegado al tono porque es justo lo que
-          cambia: qué tono ves escrito. */}
-      <div className={cn(
-        "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
-        isFullscreen ? "bg-slate-50/70 backdrop-blur dark:bg-slate-900/70" : "bg-slate-50 dark:bg-slate-900"
-      )}>
-        <span className="text-slate-500 dark:text-slate-400">Tu instrumento</span>
-        {TRANSPOSITORES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => elegirTranspositor(t.id)}
-            aria-pressed={t.id === transpositor}
-            title={t.ejemplos}
-            className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
-              t.id === transpositor
-                ? "bg-brand-600 text-white"
-                : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
-            )}
-          >
-            {t.nombre}
-          </button>
-        ))}
-        {desplazamiento > 0 && (
-          <span className="text-xs text-slate-400">
-            se te muestra un tono más arriba — así lo que suena va con el grupo
-          </span>
-        )}
+          {/* Acordes ↔ letra (J.4) ↔ melodía (R.4). Solo si esa canción tiene
+              algo más que acordes: un botón que lleva a una pantalla vacía es
+              peor que no tenerlo.
+              📌 El icono es el del modo AL QUE SE VA, no el actual — que es como
+              venía funcionando con la letra y como se lee de un vistazo. */}
+          {(hayLetra || hayMelodia) && (
+            <button
+              type="button"
+              onClick={() => setModo((m) => siguienteModo(m, hayLetra, hayMelodia))}
+              title={etiquetaModo(proximo)}
+              aria-label={etiquetaModo(proximo)}
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-lg ring-1 transition-colors",
+                mostrandoLetra || mostrandoMelodia
+                  ? "bg-brand-600 text-white ring-brand-600"
+                  : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+              )}
+            >
+              {proximo === "acordes" ? (
+                <Music2 className="h-4 w-4" />
+              ) : proximo === "letra" ? (
+                <Mic2 className="h-4 w-4" />
+              ) : (
+                <Music4 className="h-4 w-4" />
+              )}
+            </button>
+          )}
+
+          {/* Cómo se recorren las secciones (O-26). Con una sola columna no hay
+              nada que elegir, así que el botón no aparece. */}
+          {columns > 1 && (
+            <button
+              type="button"
+              onClick={() => {
+                const otro: Recorrido = recorrido === "filas" ? "columnas" : "filas";
+                setRecorrido(otro);
+                try {
+                  localStorage.setItem(CLAVE_RECORRIDO, otro);
+                } catch {
+                  /* almacenamiento lleno o bloqueado: se sigue sin guardar */
+                }
+              }}
+              title={
+                recorrido === "filas"
+                  ? "Se lee de izquierda a derecha y luego abajo. Pulsa para leer por columnas"
+                  : "Se lee la primera columna entera y luego la siguiente. Pulsa para leer por filas"
+              }
+              aria-label={`Lectura ${recorrido === "filas" ? "por filas" : "por columnas"}. Pulsa para cambiar`}
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+            >
+              {recorrido === "filas" ? <CornerDownRight className="h-4 w-4" /> : <TextQuote className="h-4 w-4" />}
+            </button>
+          )}
+        </div>
+
+        {/* Tu instrumento (D-28). Va pegado al tono porque es justo lo que
+            cambia: qué tono ves escrito. */}
+        <div className={cn(
+          "flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 px-3 py-1.5 text-sm dark:border-slate-800",
+          "bg-slate-50 dark:bg-slate-900"
+        )}>
+          <span className="text-slate-500 dark:text-slate-400">Tu instrumento</span>
+          {TRANSPOSITORES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => elegirTranspositor(t.id)}
+              aria-pressed={t.id === transpositor}
+              title={t.ejemplos}
+              className={cn(
+                "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+                t.id === transpositor
+                  ? "bg-brand-600 text-white"
+                  : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+              )}
+            >
+              {t.nombre}
+            </button>
+          ))}
+          {desplazamiento > 0 && (
+            <span className="text-xs text-slate-400">
+              se te muestra un tono más arriba — así lo que suena va con el grupo
+            </span>
+          )}
+        </div>
       </div>
       </div>
 
@@ -983,32 +1020,36 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         </div>
       </main>
 
-      {/* Navegación inferior. En pantalla completa flota (absolute) y se
-          auto-oculta para no robar altura a los acordes. */}
+      {/* Navegación inferior. En pantalla completa se ENCOGE y reserva su
+          sitio, igual que la cabecera (O-63): flotando, el toque en un acorde
+          de la franja de abajo acababa pulsando «Siguiente». */}
       <footer className={cn(
-        "flex items-center gap-3 border-t border-slate-200 px-3 py-2.5 transition-opacity duration-300 dark:border-slate-800",
-        isFullscreen
-          ? "absolute inset-x-0 bottom-0 z-30 bg-white/70 backdrop-blur dark:bg-slate-950/70"
-          : "sticky bottom-0 bg-white dark:bg-slate-950",
-        isFullscreen && !chromeVisible && "pointer-events-none opacity-0"
+        "flex flex-shrink-0 items-center gap-3 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950",
+        isFullscreen ? "px-2 py-1" : "sticky bottom-0 px-3 py-2.5"
       )}>
         <button
           type="button"
           onClick={() => go(-1)}
           disabled={index === 0}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-30 dark:bg-slate-800 dark:text-slate-200"
+          className={cn(
+            "flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-30 dark:bg-slate-800 dark:text-slate-200",
+            isFullscreen ? "py-1.5 text-xs" : "py-3 text-sm"
+          )}
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className={isFullscreen ? "h-4 w-4" : "h-5 w-5"} />
           Anterior
         </button>
         <button
           type="button"
           onClick={() => go(1)}
           disabled={index === total - 1}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-30"
+          className={cn(
+            "flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-30",
+            isFullscreen ? "py-1.5 text-xs" : "py-3 text-sm"
+          )}
         >
           Siguiente
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className={isFullscreen ? "h-4 w-4" : "h-5 w-5"} />
         </button>
       </footer>
     </div>

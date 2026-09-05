@@ -7,6 +7,32 @@
 
 ## 4 de septiembre de 2026
 
+### 📱 En el teléfono ya no te tapan los acordes, y tocarlos no te pasa de canción
+
+- 🔴 **Tocar un acorde de la franja de abajo te pasaba a la siguiente canción.** Las barras de
+  arriba y de abajo **flotaban por encima de los acordes** y se escondían solas; al tocar un acorde
+  de esa franja, el dedo las despertaba primero y el toque acababa cayendo en **«Siguiente»**. En
+  mitad del culto eso no es un estorbo: **se te pasa la canción**. Arriba pasaba lo mismo con los
+  botones del tono.
+- **Ahora las barras tienen su propio sitio y ya no se montan encima de la canción**, así que
+  ningún toque en un acorde puede acabar en un botón.
+- **Y se encogieron.** Medido en un teléfono en horizontal (1200 x 540 puntos): ocupaban **200 de
+  540 —un 37 %— y encima tapaban lo que quedara debajo**; ahora ocupan **74 y no tapan nada**.
+
+  | | ~~Antes~~ | Ahora |
+  |---|---|---|
+  | La barra de arriba | ~~135 puntos (tres filas)~~ | **37 puntos (una fila)** |
+  | La barra de abajo | ~~65 puntos~~ | **37 puntos** |
+  | Sitio libre para los acordes | ~~340 puntos, con acordes tapados debajo~~ | **466 puntos, todos a la vista** |
+
+- **Arriba queda una sola fila**: salir, la canción y el tono. **El tono no se esconde nunca**,
+  porque es lo que se mira de un vistazo mientras se toca.
+- 🆕 **Los demás mandos están detrás de la chapa del tono.** Púlsala y se abren los de siempre:
+  subir y bajar medio tono, el tamaño de la letra, las columnas, la letra y la melodía, y tu
+  instrumento. Se cierran pulsando otra vez o tocando fuera.
+- **Las barras ya no se esconden solas** a los dos segundos y medio. No hace falta —ya no le quitan
+  sitio a la canción— y así **están donde uno las dejó**.
+
 ### 📐 Arreglado: las secciones con casillas de 1ª y 2ª vez no pasaban al lado
 
 - 🔴 **Una sección con casillas `{ }1 { }2` se apretaba en su propio cuadro** en vez de pasar al

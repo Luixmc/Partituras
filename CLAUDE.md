@@ -123,6 +123,12 @@ npm run export       # copia de seguridad de los datos a JSON (§12.1)
 el build deja al servidor de desarrollo roto (T-04). **Para comprobar que algo compila con el
 servidor encendido: `npm run verificar`**, que compila aparte.
 
+⚠️ **`next-env.d.ts` va y viene según cuál de los dos compiló de último**: `npm run build` lo deja
+apuntando a `.next/types/…` y `npm run verificar` a `.next-verificar/types/…`. **Lo genera Next, no
+se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `git checkout --
+next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
+O-63: salió como archivo modificado sin que nadie lo tocara.)*
+
 **`npm test` ejecuta 192 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
@@ -731,17 +737,18 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **O-63 — encoger las barras de la presentación** | **DECIDIDO por Isaac (eligió «encoger» de tres opciones dibujadas) y SIN PROGRAMAR.** Y **no es cosmético:** hoy las barras tapan **un tercio** de su pantalla en el teléfono, y **tocar un acorde de la franja de abajo dispara «Siguiente»** — se le pasa la canción en mitad del culto. El plan completo, en **O-63** |
+| **1** | 🔴 **PUBLICAR r56 (O-63) — falta su permiso** | **Programado y medido hoy, sin subir.** Las barras pasan de tapar 200 px de 540 a ocupar 74 y no tapar ninguno, y con el auto-ocultado se va el fallo de que **tocar un acorde de abajo disparara «Siguiente»**. Toca `PresentationView.tsx`, `novedades.ts`, `CAMBIOS.md`, `README.md` y este archivo. **Cada push se le pide aparte** (§11) |
 | **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
+| **3** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
 | **4** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
 
-#### Estado del árbol — **2026-09-04, todo PUBLICADO**
+#### Estado del árbol — **2026-09-04, con r56 ESPERANDO PERMISO**
 
 | | |
 |---|---|
-| Último commit publicado | **`06f28ae`**, y `origin/main` va igual. **Árbol limpio: no queda nada sin subir** |
-| Última versión | **r55** |
+| Último commit publicado | **`84f27e6`**, y `origin/main` va igual |
+| 🔴 **Sin subir** | **O-63 (r56)**: `PresentationView.tsx` · `src/lib/novedades.ts` · `CAMBIOS.md` · `README.md` · `CLAUDE.md`. **Ni `commit` ni `push` sin que Isaac lo diga** |
+| Última versión | **r55** publicada · **r56** lista |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
 | Migraciones | **21**, y **las dos últimas SIN APLICAR** (`20240020`, `20240021`) |
@@ -3876,6 +3883,47 @@ trompeta, D-28) y los **botones de tono**. No caben en una fila con el titulo, a
 detras de un boton**: se abren cuando se piden, encima del contenido, y se cierran. Que es
 deliberado, no accidental — al reves que ahora.
 
+#### ✅ HECHO Y MEDIDO (2026-09-04) — las barras pasan de 200 px a 74, y ninguno tapa
+
+Todo en `PresentationView.tsx`:
+
+| | |
+|---|---|
+| **Las barras dejan de flotar** | fuera el `absolute`: la cabecera y el pie vuelven a ser hijos del `flex` de la raíz, así que **el `<main>` recibe solo el alto que sobra** |
+| **La cabecera, una sola fila** | salir · `3/8 · título` · **la chapa del tono** · pantalla completa. Se cae la línea del culto y los botones bajan de `h-9` a `h-7` |
+| **El tono NO se esconde** | es lo que más se mira tocando, así que sigue a la vista — y es además el botón que abre los ajustes |
+| **Tono ± · tamaño · columnas · modo · instrumento** | detrás de esa chapa, en un panel que **flota sobre el contenido a propósito** y se cierra pulsando otra vez o tocando fuera |
+| **Fuera el auto-ocultado** | se van `chromeVisible`, `hideTimer` y `pokeChrome` — incluido el `pokeChrome()` del `onTouchStart`, que **era la causa del toque robado** |
+| **El pie encogido** | `py-1.5 text-xs` en vez de `py-3 text-sm`, iconos de `h-5` a `h-4` |
+
+**Medido con el navegador SIN VENTANA (Brave `--headless --dump-dom`) contra el CSS COMPILADO de la
+app**, en una página desechable de `.pruebas-tmp/`, a **1200 x 540** — la pantalla de su captura:
+
+| | antes | ahora |
+|---|---|---|
+| Cabecera | **135 px** (tres filas) | **37 px** (una) |
+| Pie | **65 px** | **37 px** |
+| Las dos | **200 px · 37 %** | **74 px · 13,7 %** |
+| **Lo que TAPAN** | **200 px** | 🔴 **0 px — reservan sitio** |
+| Alto libre para los acordes | 340 px de verdad (aunque el auto-ajuste creyera 540) | **466 px · 86,3 %** |
+
+📌 **La fila que de verdad importa es la penúltima, y la de abajo la explica:** el `availH` del
+auto-ajuste **ya no miente**. Antes medía 540 y la página escribía acordes en los 200 px que las
+barras tapaban — por construcción, no por casualidad. Ahora mide 466, que es lo que hay.
+
+📌 **Y el número de la cabecera «antes» —135 px— es MEDIDO, no el ~125 estimado sobre su captura.**
+Coinciden dentro de lo que se puede leer de una foto, así que la medida vieja se da por buena.
+
+**Comprobado:** `npx tsc --noEmit` limpio · **192 pruebas** · lint **0 errores** (60 avisos: uno
+menos, se fue con `pokeChrome`) · `npm run build` **0 errores** · `npm start` + `pantallas.mjs` →
+**26 de 26** · el HTML de `/services/<id>/present` sigue trayendo cabecera, las dos sub-barras y
+pie **fuera** de pantalla completa.
+
+⬜ **Lo que NO se puede comprobar desde aquí, y hay que decirlo:** la pantalla completa **de
+verdad**. Esa API exige un gesto del usuario, así que **`isFullscreen` no se alcanza ni con `curl`
+ni con el navegador sin ventana**: lo medido es **el CSS de ese estado**, no la página en ese
+estado. → **Falta que Isaac lo mire en su teléfono** (punto 3 de §9.0).
+
 **O-64 · El `:|` se va SOLO a otra linea: un bloque fantasma en 22 de las 72 canciones.**
 Isaac, 2026-09-04, con una captura del telefono: *«cuando quiero acomodar el texto a lo que pueda en
 la pantalla de mi telefono la repeticion se desacomoda»*. En su captura, la seccion «C (sigue)» de
@@ -5636,6 +5684,35 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
 ---
 
 ## 13 · Historial
+
+### 2026-09-04 · Tanda 44 — O-63: las barras dejan de tapar los acordes y de comerse el toque · ⬜ r56 sin publicar
+
+**Se retomó por §9.0, que es como toca:** el reloj decía 2026-09-04 15:34, seis minutos después de
+cerrar la tanda 43, y el punto 1 de la tabla era **O-63 — decidido por Isaac y sin programar**.
+
+**Qué se programó.** Las barras de la presentación en pantalla completa **dejan de flotar sobre los
+acordes y reservan su sitio**, encogidas: la cabecera queda en **una fila** (salir · la canción ·
+la chapa del tono · pantalla completa) y el pie en botones bajos. Tono, tamaño, columnas, modo e
+instrumento pasan **detrás de la chapa del tono**. Y se va el auto-ocultado entero —`chromeVisible`,
+`hideTimer`, `pokeChrome`—, que ya no gana nada y **era lo que le robaba el toque al acorde**.
+
+**Lo medido**, con Brave sin ventana contra el CSS compilado, a 1200 x 540: las barras pasan de
+**200 px (37 % y tapando)** a **74 px (13,7 % y sin tapar nada)**; el alto libre para los acordes,
+de 340 reales a **466**. El detalle está en **O-63**.
+
+🔴 **Lo que esta tanda NO puede cerrar, y conviene no olvidarlo:** la pantalla completa de verdad
+necesita un gesto del usuario, así que **ni `curl` ni el navegador sin ventana llegan a
+`isFullscreen`**. Lo medido es el CSS de ese estado. **Falta el teléfono de Isaac.**
+
+**Verificado:** tipos limpios · 192 pruebas · lint 0 errores (60 avisos, uno menos) · build 0
+errores · 26 de 26 pantallas contra `npm start` · el HTML de la presentación fuera de pantalla
+completa, igual que antes.
+
+**Documentado en los cuatro sitios que manda la regla:** este archivo (O-63 y §9.0), `CAMBIOS.md`,
+`/novedades` y el `README`. **Carpeta compartida:** `LECCIONES.md` (L-233) y `PROYECTOS.md`.
+
+**Y una trampa pequeña que salió sola:** `next-env.d.ts` aparece modificado según compile `build` o
+`verificar`. Anotado en §2.1.
 
 ### 2026-09-04 · Tanda 43 — el reparto por ANCHO: publicado, revertido y rehecho con freno · 🚀 r54 → revert → r55
 

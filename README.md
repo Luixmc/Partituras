@@ -17,8 +17,10 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   guitarra** — el que elijas, y se recuerda. Cubre los 1.894 acordes del repertorio.
 - **Modo trompeta**: quien toca un instrumento en Bb ve la canción **ya transpuesta a su tono**, con
   los dos tonos a la vista (el que suena y el que lee).
-- **Pantalla completa** para tocar desde la tablet: pasar de canción, transponer, tamaño de letra
-  guardado por canción y dos maneras de recorrer las columnas.
+- **Pantalla completa** para tocar desde la tablet o el teléfono: pasar de canción, transponer,
+  tamaño de letra guardado por canción y dos maneras de recorrer las columnas. Las barras **se
+  encogen y reservan su sitio** —arriba una sola fila con salir, la canción y el tono—, así que no
+  se montan sobre los acordes; el resto de los mandos se abre pulsando la chapa del tono.
 - **Cultos (setlists)**: repertorio ordenado arrastrando, con tono por canción, estado
   (borrador / publicado / archivado), **PDF con las canciones completas** y enlace público para
   quien no tiene cuenta.
@@ -388,4 +390,5 @@ pública `/novedades`; esto es el resumen técnico.
 | **r51** | **Un solo diálogo para toda la app**: fuera los del navegador, botón rojo en lo que borra, y las **dos copias** que había del cuadro «Cambios sin guardar» pasan a ser una |
 | **r55** | **El reparto mide el ANCHO de cada bloque, no cuántos son**: una sección con casillas `{ }1 { }2` se apretaba en su cuadro porque los bloques miden entre 104 y 526 px y la página los contaba como si midieran igual. ⚠️ **La primera versión (r54) hizo bailar las canciones y se revirtió el mismo día**: la medida entera que sustituyó era el freno de un lazo de realimentación. **192 pruebas** |
 | **r53** | **Fuera el salto de fila (`;`)**: lo jubiló el reparto automático de secciones. Con él muere la excepción de «si lo marcas a mano, la página no reorganiza» — ahora **todas** las secciones se reparten midiendo. Y el README, al día: cuatro puntos de su «deuda técnica» eran falsos |
+| **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r52** | **La red de seguridad donde faltaba**: crear una canción no tenía **ninguna** —se perdían todos los acordes tecleados—, ni la melodía ni las versiones por tono avisaban, y **cambiar de pestaña no pedía permiso** |
