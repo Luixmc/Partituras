@@ -751,6 +751,12 @@ largo por una cadena creyendo que la arregla.
 
 ## 9 · Pendientes
 
+> 🔴 **CERRAR ALGO INCLUYE SACARLO DE AQUÍ, en el mismo cambio.** La regla 0 dice que lo pendiente
+> entra en §9; esta es su otra mitad, y se aprendió el 2026-09-04: el respaldo de `replaceSongs`
+> estaba **hecho desde el 2026-08-28** y siguió siete días en la lista, hasta que Isaac preguntó
+> *«¿qué hay con lo del respaldo?»*. **Un pendiente ya hecho no es un despiste inofensivo**: hace
+> perder el tiempo a quien lee la lista y le quita crédito a los que sí están vivos.
+
 ### 9.0 🔜 POR DÓNDE SE SIGUE (reescrito el 2026-09-04 al cerrar)
 
 **Lo primero que hay que leer al retomar.** Isaac: *«mañana continuamos; cuando te diga que
@@ -762,14 +768,13 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
-| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos |
-| **3** | ⬜ **Quitar el respaldo de `replaceSongs`** | Ya no se usa nunca desde que existe la función de la base. Anotado en §9.1 para que un respaldo temporal no se quede para siempre |
+| **2** | ⬜ **Que Isaac lo MIRE con la mano, y en el teléfono** | Lo que no deja rastro en el HTML y solo lo cierra él: 🔴 **O-63 a pantalla completa** —que quepan los acordes y que tocar uno de abajo ya no pase de canción; **desde aquí no se puede llegar a ese estado**, ver O-63—, el editor de melodía (arrastrar, `Supr`, deshacer), el `:\|` ya en su sitio, el reparto de las secciones con casillas, y los diálogos nuevos. **Y lo de hoy**: que ninguna sección se parta cuando cabe (**O-66**) y que ninguna sobresalga de alto (**O-67**) |
 
 #### Estado del árbol — **2026-09-04, todo PUBLICADO**
 
 | | |
 |---|---|
-| Último commit publicado | **`e9ca2f1`**, y `origin/main` va igual. **Árbol limpio** |
+| Último commit publicado | **`3a8c76f`**, y `origin/main` va igual. **Árbol limpio** |
 | Última versión | **r58** — O-67, dada por buena en producción |
 | Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
@@ -980,11 +985,16 @@ tabla, no por lo último que se dijo en el chat anterior.
       quedan son de herramientas de desarrollo y no llegan a ningún navegador.
       🔴 **La lección va a la carpeta compartida como L-122**, y es la más cara de la noche:
       **compiló limpio y la app estaba rota entera.** El detalle, arriba.
-- [ ] ⬜ **Quitar el respaldo de `replaceSongs`** (`services/actions.ts`). Es el borrar-e-insertar
-      de siempre, que se dejó para que publicar el código no rompiera nada mientras la migración
-      `20240018` esperaba permiso. **Ya no se usa nunca**: la función existe desde el 2026-08-22.
-      Se quita cuando lleve unos días en pie. **Está anotado aquí a propósito**: un respaldo
-      temporal sin dueño se queda para siempre.
+- [x] ~~Quitar el respaldo de `replaceSongs`~~ → ✅ **HECHO el 2026-08-28**, commit **`d733527`**
+      (*«fuera el respaldo de replaceSongs: la función lleva seis días en pie»*). Comprobado el
+      2026-09-04 contra el código: `replaceSongs` **solo** llama a `rpc("reemplazar_canciones_culto")`
+      —el `.delete()` y el `.insert()` ya no están— y el comentario del archivo lo dice con su fecha.
+      **El respaldo temporal tenía dueño y fecha, y por eso no se quedó para siempre**: era el motivo
+      de anotarlo.
+      🔴 **Pero este pendiente siguió escrito SIETE DÍAS después de estar hecho**, y lo cazó Isaac
+      preguntando *«¿qué hay con lo del respaldo?»* el 2026-09-04. → **Cerrar algo incluye SACARLO de
+      §9 en el mismo cambio.** Un pendiente ya hecho que sigue en la lista hace perder el tiempo a
+      quien la lee, y hace dudar de los otros tres que sí están vivos.
 - [x] ~~Contestar las preguntas abiertas de §9.2~~ → ✅ **las de O-03, O-06 y O-08 se cerraron el
       2026-08-20**, y **O-01 y O-19 el 2026-08-22** (§9.2-nonies). O-01 se cerró **sin programar
       nada**; de O-19 quedó una propuesta de diseño esperando el visto bueno.
@@ -5257,9 +5267,9 @@ ver ni una fila que borrar. **La defensa real estaba donde tenía que estar** (D
 uno escribió. Dos líneas de `has_function_privilege` separaron *«creo que está cerrado»* de *«está
 cerrado»* — y el agujero lo abrió una línea que **parecía** hacer justo eso.
 
-⬜ **Pendiente menor, con dueño:** el **respaldo** de `replaceSongs` —el borrar-e-insertar de
-siempre— ya no se usa nunca, porque la función existe. **Se quita cuando lleve unos días en pie.**
-Anotado en §9.1 para que un respaldo temporal no se quede para siempre.
+✅ **Cerrado:** el **respaldo** de `replaceSongs` —el borrar-e-insertar de siempre— **se quitó el
+2026-08-28** (`d733527`), con la función seis días en pie. Anotarlo con dueño y fecha es lo que hizo
+que no se quedara para siempre.
 
 
 ### 9.2-octies · P-11 — las pruebas automáticas · ✅ APROBADA por Isaac el 2026-08-22
