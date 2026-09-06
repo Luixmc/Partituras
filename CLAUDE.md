@@ -5749,12 +5749,28 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
          sale mal, no es que falle una pantalla — **es que no entra nadie**.
       → **Necesita: la herramienta de Supabase funcionando, copia previa, y el OK expreso de
       Isaac** (D-04). Y conviene hacerla **sola**, sin nada más en la misma tanda.
-- [ ] **P-02 · Los cultos no compartidos son legibles por cualquiera.**
-      `services_select_all` (`20240012:71`) es `using (true)` **sin `to authenticated`**. El
-      filtro `is_public` solo está en el código (`s/[token]/page.tsx:22`), no en la BD. Con la
-      clave `anon` —pública— cualquiera lista todos los cultos. Igual con `sheets`,
-      `categories`, `sheet_tags`, `sheet_categories`: **el catálogo entero es legible desde
-      internet**.
+- [ ] **P-02 · El catálogo de canciones es legible por cualquiera.** *(Medido de nuevo el
+      2026-09-05; el enunciado de abajo era de agosto y se había quedado a medias.)*
+
+      **Lo que devuelve la base HOY con la clave pública y SIN sesión:**
+
+      | Tabla | | |
+      |---|---|---|
+      | `sheets` | **72 filas** | 🔴 el catálogo entero, menos los borradores |
+      | `categories` | **14 filas** | 🔴 legibles |
+      | `services` | **2 filas** | ✅ **solo los publicados** — lo arregló la migración `20240017` |
+      | `profiles` | **0 filas** | ✅ los usuarios **no** se leen |
+
+      → **La mitad del problema original ya está cerrada**: los cultos sin publicar ya no salen.
+      Lo que queda abierto es que **las canciones y las categorías se leen desde internet** con la
+      clave `anon`, que es pública por diseño. `services_select_all` (`20240012:71`) era
+      `using (true)` sin `to authenticated`, y de ahí venía todo.
+
+      ⚠️ **Y hay un motivo REAL para no taparlo todavía, que no es pereza:** `npm run export` —la
+      copia de seguridad— **funciona hoy gracias a ese hueco**. El día que se cierre, la copia deja
+      de funcionar **hasta que llegue la clave `service_role`**. → El orden correcto es: **primero
+      la clave, después cerrar la lectura.** Y cerrarla es una migración, o sea que también espera
+      al primo.
 - [ ] **P-03 · «Solo el admin edita» puede ser solo apariencia.** Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.
