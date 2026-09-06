@@ -952,7 +952,15 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       base de datos.
 - [x] ~~Dónde va el botón de pantalla completa~~ → **junto a «Vista / Edición»** dentro de cada
       canción, para los tres roles (O-11).
-- [ ] 🔴 **La cuenta `pruebaclaude@gmail.com` es ADMINISTRADORA desde el 2026-08-20.** Isaac se
+- [x] ✅ **DECIDIDO por Isaac el 2026-09-05: la cuenta `pruebaclaude@gmail.com` se queda SIEMPRE en
+      administradora.** Sus palabras: *«la cuenta te la voy a dejar siempre en admin»*.
+      → **Deja de ser un pendiente.** Lo que NO cambia es la regla de uso: **no se toca ningún dato
+      con ella sin permiso expreso de Isaac** (D-14); se usa para mirar pantallas y para el
+      recorrido de las 26. Que ahora sea permanente hace esa regla **más** importante, no menos.
+      ⚠️ Y lo que él asume a sabiendas, dicho una vez y no más: es una cuenta real, con contraseña
+      sencilla, con rol de administrador, en un sitio abierto a internet.
+      *Lo de abajo es lo que decía antes de su decisión.*
+- [ ] 🔴 ~~**La cuenta `pruebaclaude@gmail.com` es ADMINISTRADORA desde el 2026-08-20.**~~ Isaac se
       lo cambió en producción para que se pudieran verificar el panel y el editor. Con ese rol se
       pueden **borrar canciones, cambiar roles y desactivar usuarios**. → **Bajarla a lector, o
       cerrarla, en cuanto no haga falta.** Mientras tanto: **no se toca ningún dato con ella sin
@@ -2517,6 +2525,38 @@ fija esta ahi por eso.
 **`:0.4375` es impracticable**. **Con boton da igual** —como el staccato `!` (D-08), que casi nunca
 se escribe a mano—, y por eso las 15 tienen boton. Pero si quiere escribirlo a mano hace falta una
 forma corta, y **esa la elige el**.
+
+→ **O-70 · Isaac contesto el 2026-09-05:** *«lo de escribir a mano una duracion pues que tenga un
+boton tambien, para que se pueda escribir a mano y por el boton»*.
+
+📌 **La mitad de lo que pide YA ESTA:** las **15 duraciones tienen boton** desde O-49, la
+`:0.4375` incluida (`ChordToolbar.tsx:30-34`). Lo que falta es **solo la forma corta de teclearla**.
+
+**Medido sobre las 72 canciones antes de proponer nada:**
+
+| | |
+|---|---|
+| Canciones que ya escriben `:N.` (numero y punto suelto) | **0 de 72** → **la notacion esta libre**, no rompe nada |
+| Duraciones que se usan de verdad | `:2` ×501 · `:1` ×142 · `:3` ×57 · `:4` ×25 · `:1.5` ×9 · `:0.5` ×7 · `:0.25` ×2 · **`:3.5` ×1** |
+
+⚠️ **Y de ahi sale un aviso honesto: el doble puntillo se usa UNA vez en todo el repertorio.** Esto
+no es urgente ni de lejos; se hace porque el lo pidio, no porque muerda.
+
+**La propuesta, a la espera de que elija:** escribir **el puntillo como punto**, que es como se lee
+en una partitura de verdad — `:2.` es blanca con puntillo (3) y `:2..` doble puntillo (3,5):
+
+| A mano hoy | Con la forma corta | Es |
+|---|---|---|
+| `:3` | **`:2.`** | blanca con puntillo |
+| `:3.5` | **`:2..`** | blanca con doble puntillo |
+| `:1.75` | **`:1..`** | negra con doble puntillo |
+| `:0.875` | **`:0.5..`** | corchea con doble puntillo |
+| `:0.4375` | **`:0.25..`** | semicorchea con doble puntillo |
+
+🔴 **La trampa que hay que mirar si se hace:** hoy `parseFloat("2.")` da **2**, asi que `:2.` ya
+"funciona" y significa **2**. Con este cambio pasaria a significar **3**. Como **ninguna cancion lo
+escribe** (medido arriba), no rompe nada de lo que hay — pero **la vieja forma se queda**: `:3.5`
+tiene que seguir valiendo, porque es lo que hay escrito y lo que ponen los botones.
 
 **O-50 · La repeticion `%` no admite duracion: `%:4` sale como texto.**
 Isaac, 2026-08-29, con una captura: *«mira que a la repeticion (%) cuando le voy a colocar la
@@ -5774,6 +5814,27 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [ ] **P-03 · «Solo el admin edita» puede ser solo apariencia.** Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.
+
+      ✅ **MEDIDA LA MITAD el 2026-09-05, y sale bien: SIN SESIÓN la base bloquea de verdad.**
+
+      🔬 **Cómo se midió sin tocar un solo dato**, que es lo que costó pensar: un `PATCH` sobre una
+      fila **que no existe** devuelve `204` **tanto si la política bloquea como si deja pasar** —no
+      distingue nada, y esa fue mi primera medición, inútil—. La que sí distingue: un `PATCH` sobre
+      una fila **real** poniendo `id` a `null`.
+
+      | Si la política… | Postgres… | Respuesta |
+      |---|---|---|
+      | **filtra la fila** | ni la ve | `204`, cero filas, **nada escrito** |
+      | **la deja pasar** | rechaza el `null` en la clave primaria | `400 · 23502`, **nada escrito** |
+
+      **Las dos ramas dejan la base intacta**, y el código de error dice cuál ocurrió.
+      **Resultado: `204` en `sheets` y en `services`** → la política **bloquea**. Con la clave
+      pública nadie puede modificar ni borrar canciones ni cultos.
+
+      ⬜ **Lo que sigue sin medir es la otra mitad:** si un **`musician` CON sesión** puede escribir.
+      Para eso hace falta una cuenta de músico, y **no hay** — la de prueba es administradora y se
+      queda así por decisión de Isaac (§9.1). *Si algún día quiere cerrarlo del todo: una cuenta de
+      músico un rato, o leer `pg_policies`, que necesita el acceso del primo.*
 - [x] ~~**P-04 · Editar un culto puede dejarlo vacío.**~~ → ✅ **ARREGLADO el 2026-08-22**,
       migraciones `20240018` y `20240019`. Guardar el repertorio va por una función de la base que
       corre en **una transacción**: si el insert falla, el borrado se deshace. **Comprobado con un
@@ -5782,7 +5843,7 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 - [x] ~~**P-05 · Una canción no se puede repetir en un culto**~~ → **HECHO en la fase E**
       (2026-08-20), migración `20240015`: la clave primaria pasó a ser un id propio de cada fila.
       Era la misma petición que O-09. Confirmado por Isaac: *«lo probé y funciona»*.
-- [ ] **P-06 · El OCR depende de un CDN externo.** `songImport.ts:74-77` carga worker, WASM e
+- [x] ~~**P-06 · El OCR depende de un CDN externo.**~~ → ❌ **DESCARTADO por Isaac el 2026-08-28** (el detalle, abajo). *La casilla seguía sin marcar hasta el 2026-09-05, y por eso volvió a salir en una lista de pendientes que él pidió. Es la quinta marca vieja de la misma familia.* `songImport.ts:74-77` carga worker, WASM e
       idiomas de `cdn.jsdelivr.net` y `tessdata.projectnaptha.com`. Sin internet no funciona,
       en una app que se vende como instalable.
       📊 **MEDIDO el 2026-08-28, y el numero cambia la decision:**
