@@ -5996,6 +5996,19 @@ Del `roadmap` del README, ninguna aprobada todavía:
   ```bash
   git push origin isaac/arranque:main
   ```
+- 🔴 **DESDE EL 2026-09-05, ISAAC NO QUIERE QUE SE LE PIDA PERMISO PARA CADA PUSH.**
+  Sus palabras: *«apenas hagas estos cambios sube todo enseguida, no me pidas permiso»*.
+  → **Esto SUPERA la parte de D-01 que decía «cada permiso vale para ese trabajo».** Manda esto.
+  **Qué significa exactamente**, para no estirarlo:
+  * **Se sube sin preguntar** el trabajo normal: código que él pidió, su documentación, el
+    comunicado. **Y se le dice qué se subió**, siempre.
+  * ⚠️ **Lo que NO cubre, y se sigue preguntando:** ejecutar **migraciones** o cualquier cosa que
+    **escriba** en la base de producción (D-04), y **nada** de `--force` ni de reescribir historial
+    (D-02) — eso no se hace ni con permiso.
+  * **Sigue valiendo la regla 2:** se sube **comprobado** (pruebas, lint, build, las 26 pantallas y,
+    si es un dibujo, mirándolo). «Enseguida» es sin preguntar, no sin comprobar.
+  * **Es revocable:** el día que diga lo contrario, vuelve D-01 tal cual.
+  📌 *Lo de abajo —«cada push se le pide»— queda como historia de cómo se trabajó hasta hoy.*
 - 🔴 **Desde el 2026-09-04 el entorno de Claude tiene una regla que PERMITE ese comando**
   (`Bash(git push origin isaac/arranque:main)` en `C:\Users\TECSISTEMAS\.claude\settings.json`).
   **Eso NO sustituye el permiso de Isaac.** La regla solo evita que el entorno corte el comando;
@@ -6085,7 +6098,10 @@ automáticas. Por eso la clave importa y el panel de Vercel no.
    fallado en Vercel — y allí no se ve. **Con el servidor de desarrollo encendido, `npm run
    verificar`**, que compila aparte y no lo rompe (T-04).
 3. **Probar el flujo completo en `npm run dev`**, como lo haría un músico.
-4. **Pedirle permiso a Isaac** para el push (D-01). Cada permiso vale para ese trabajo.
+4. ~~**Pedirle permiso a Isaac** para el push (D-01). Cada permiso vale para ese trabajo.~~
+   → 🔴 **SUPERADO el 2026-09-05: «no me pidas permiso».** Se sube sin preguntar y **se le dice qué
+   se subió**. Las excepciones —migraciones, escribir en la base, `--force`— siguen igual. El
+   detalle, en §11.
 5. Publicar y **esperar un minuto largo**.
 6. **Comprobar en `https://partituras-blush.vercel.app` con Ctrl+F5** (§3). Sin el Ctrl+F5 no
    se está comprobando nada: se está mirando el caché (T-02).
