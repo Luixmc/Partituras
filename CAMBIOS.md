@@ -5,6 +5,20 @@
 
 ---
 
+## 5 de septiembre de 2026
+
+### 🎼 El doble puntillo ya se dibuja entero
+
+- 🔴 **El segundo puntillo salía cortado.** En «Simplemente Alaba», la **blanca con doble puntillo**
+  del Intro dibujaba el primer punto redondo y **el segundo a medias**, como una medialuna.
+- **La causa:** los dos puntos no cabían en el recuadro donde se dibuja la figura, y al segundo
+  **el navegador le recortaba un tercio**. Ahora van un poco más juntos y **caben los dos enteros**.
+- **Arreglado también en los silencios**, que tenían lo mismo aunque todavía no se viera en ninguna
+  canción.
+- ✅ **La figura ocupa exactamente lo mismo que antes**, así que no se mueve nada de la página.
+
+---
+
 ## 4 de septiembre de 2026
 
 ### 📏 Ninguna sección sobresale ya

@@ -767,8 +767,9 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | ⬜ **O-68 — la barra entre compases, más gruesa** | **DICTADA el 2026-09-05 y sin programar.** Isaac: *«que sea más notorio un compás y otro»*. ⚠️ **No es cosmético**: el grosor sale del ancho del compás, así que **cambia la entrada del reparto (O-66)** — hay que repetir su medición entera. Y **cuánto** es «más gruesa» lo elige él viéndolo: 2 px y 3 px dibujados, como se hizo con las barras de O-63 |
-| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **1** | 🔴 **PUBLICAR r59 (O-69) — falta su permiso** | El segundo puntillo salía **cortado el 36 %**. Arreglado y visto ampliado 9×. Toca `MusicFigures.tsx` y la documentación |
+| **2** | ⬜ **O-68 — la barra entre compases, más gruesa** | **DICTADA el 2026-09-05 y sin programar.** Isaac: *«que sea más notorio un compás y otro»*. ⚠️ **No es cosmético**: el grosor sale del ancho del compás, así que **cambia la entrada del reparto (O-66)** — hay que repetir su medición entera. Y **cuánto** es «más gruesa» lo elige él viéndolo: 2 px y 3 px dibujados, como se hizo con las barras de O-63 |
+| **3** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -4382,6 +4383,71 @@ sea más notorio un compás y otro»*.
    **deja de distinguirse lo que separa compases de lo que abre una repetición**.
 3. **Cuánto es «más gruesa» lo decide él viéndolo**, no yo eligiendo: es lo mismo que pasó con las
    barras de O-63. → **Enseñarle 2 px y 3 px dibujados**, con lo que cada uno le quita al acorde.
+
+**O-69 · El SEGUNDO puntillo sale cortado por la mitad.** ⬜ **DICTADA y MEDIDA.**
+Isaac, 2026-09-05, con una captura de «Simplemente Alaba»: *«es el que usé para la blanca con doble
+puntillo pero fíjate que el signo no sale bien, arréglalo»*.
+
+**La canción, sacada de la base:** `[Intro]` → `4/4 C/G:3.5 G:0.25`. El `3.5` es la **blanca con
+doble puntillo** (2 + 1 + 0,5), y es la única del repertorio que lo usa.
+
+#### 🔴 La causa, con los números del dibujo
+
+`figuraDe(3.5)` acierta —devuelve `{base: 2, puntillos: 2}`, o sea blanca hueca con dos puntos—, así
+que **el fallo no está en la cuenta sino en el DIBUJO**: en `MusicFigures.tsx` los dos puntos no
+caben en la caja del SVG.
+
+| | |
+|---|---|
+| La caja (`viewBox`) | `0 0 24 30` → **24 de ancho** |
+| Puntillo 1 | centro **19**, radio 1,8 → ocupa **17,2–20,8** ✅ |
+| Puntillo 2 | centro **23,5** (`19 + 4.5`), radio 1,8 → ocupa **21,7–25,3** |
+| → | 🔴 **Se sale 1,3 de sus 3,6 unidades: le cortan el 36 %.** El navegador recorta lo que pasa del `viewBox` |
+
+📌 **Y lo mismo en el SILENCIO** (`RestFigure`): sus puntos van en `19 + i*4.5` con radio **1,9**, así
+que el segundo llega a **25,4** en la misma caja de 24. ⚠️ **Hoy no se ve en ninguna canción** —
+ninguna usa un silencio con doble puntillo— pero está igual de roto y se arregla a la vez.
+
+#### 👁️ Cómo se vio, que es lo nuevo
+
+**Con una captura ampliada 9×**, por la vía de §2.3-bis: Brave sin ventana → el enlace público del
+culto —Isaac lo activó a propósito para esto— → una página desechable que **pasa a la canción 2/3**
+mandando `ArrowRight` al marco y **amplía la esquina** con un `transform: scale(9)`. En la imagen el
+primer punto es redondo y **el segundo es una medialuna**.
+
+🔴 **Esto NO lo cazan las 197 pruebas y nunca lo iban a cazar:** `figuraDe` está bien y es lo único
+que se puede probar sin navegador. **El fallo es geometría de un dibujo**, y hasta hoy eso solo lo
+veía Isaac. Ahora se puede mirar desde aquí, ampliado.
+
+#### El arreglo (opción elegida, y por qué NO la otra)
+
+**Los puntos se meten hacia dentro: `18 + i*4`.** El segundo queda en 22 ± 1,8 = **20,2–23,8**, dentro
+de la caja de 24, y el primero sigue despejado de la cabeza —que llega a ~14,3—.
+
+⚠️ **La alternativa era ensanchar el `viewBox`, y se descarta a propósito:** el SVG se dibuja con
+`height` fija y `width: auto`, así que **una caja más ancha hace el glifo más ancho** — y el ancho de
+la figura entra en el ancho del compás, que es **la entrada del reparto (O-66) y del lazo de
+auto-ajuste (L-231)**. Mover los puntos **no cambia ni un píxel del tamaño**: arregla el dibujo sin
+tocar nada de lo que se midió ayer.
+
+#### ✅ HECHO Y VISTO (2026-09-05) — r59
+
+`MusicFigures.tsx`: los puntillos pasan de `19 + i*4.5` a **`18 + i*4`**, en la nota **y en el
+silencio** — y en el silencio había además una tercera variante que arrancaba en **18,5** y también
+se salía (llegaba a 24,4). **Cuatro sitios en total.**
+
+| | antes | ahora |
+|---|---|---|
+| Puntillo 2 de la nota | **21,7 – 25,3** 🔴 fuera de la caja de 24 | **20,2 – 23,8** ✅ dentro |
+| Puntillo 2 del silencio | 21,6 – 25,4 🔴 | 20,1 – 23,9 ✅ |
+| Ancho del glifo | 24 | **24 — no cambia** |
+
+👁️ **Comprobado con los ojos, ampliado 9×, antes y después:** en la captura vieja el segundo punto es
+una **medialuna**; en la nueva son **dos círculos iguales**. La semicorchea de al lado (`G:0.25`)
+sale igual en las dos, que es la señal de que no se movió nada más.
+
+**Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** · build **0** · **26 de 26**
+pantallas. *No hacía falta repetir la medición de O-66: el glifo mide exactamente lo mismo.*
 
 **Lo demás:** 192 pruebas · lint **0 errores** · build 0 · **26 de 26 pantallas** · y las canciones
 enteras: **53, 98 y 55** acordes, los mismos ya documentados.

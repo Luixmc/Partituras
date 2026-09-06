@@ -103,9 +103,21 @@ export function NoteFigure({ beats, className, beamed = false }: FigureProps & {
         />
       )}
       {/* Un punto por puntillo, separados. Antes solo cabía uno porque la
-          duración se comparaba contra una lista de valores fijos. */}
+          duración se comparaba contra una lista de valores fijos.
+
+          🔴 O-69 · Y CABEN LOS DOS, que no es lo que pasaba. Iban en
+          `19 + i*4.5`, así que el segundo llegaba a **25,3** en una caja que
+          acaba en **24**: el navegador le recortaba el 36 % y salía como una
+          medialuna. Se vio ampliando 9× la blanca con doble puntillo de
+          «Simplemente Alaba» (`C/G:3.5`), la única del repertorio que lo usa.
+          Isaac: «fíjate que el signo no sale bien».
+          ⚠️ Se corrige METIENDO LOS PUNTOS, no ensanchando la caja: el SVG va
+          con `width: auto`, así que una caja más ancha haría el glifo más ancho
+          — y el ancho de la figura entra en el del compás, que es la entrada
+          del reparto (O-66) y del lazo de auto-ajuste (L-231). Así el dibujo se
+          arregla sin mover ni un píxel de lo medido. */}
       {Array.from({ length: puntillos }, (_, i) => (
-        <circle key={i} cx={19 + i * 4.5} cy="21" r={radioPunto(1.8)} fill="currentColor" />
+        <circle key={i} cx={18 + i * 4} cy="21" r={radioPunto(1.8)} fill="currentColor" />
       ))}
     </svg>
   );
@@ -171,9 +183,14 @@ export function RestFigure({ beats, className }: FigureProps) {
   const { base, puntillos } = figuraDe(beats);
 
   // Los puntos van a la derecha de la figura, a su altura.
+  //
+  // 🔴 O-69 · La separación es 4 y no 4.5, y el primero va en 18: con 4.5 el
+  // segundo punto llegaba a 25,4 en una caja que acaba en 24, y **el navegador
+  // lo recortaba**. Aquí no se veía —ninguna canción usa un silencio con doble
+  // puntillo— pero estaba igual de roto que en las notas, y se arregla igual.
   const puntos = (x: number, y: number) =>
     Array.from({ length: puntillos }, (_, i) => (
-      <circle key={i} cx={x + i * 4.5} cy={y} r={radioPunto(1.9)} fill="currentColor" />
+      <circle key={i} cx={x + i * 4} cy={y} r={radioPunto(1.9)} fill="currentColor" />
     ));
 
   return (
@@ -189,7 +206,7 @@ export function RestFigure({ beats, className }: FigureProps) {
         <>
           <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth={trazo(1.6)} />
           <rect x="8" y="12" width="8" height="5" fill="currentColor" />
-          {puntos(19, 15)}
+          {puntos(18, 15)}
         </>
       ) : base >= 2 ? (
         // Blanca: bloque APOYADO sobre la línea. La diferencia con la redonda
@@ -197,7 +214,7 @@ export function RestFigure({ beats, className }: FigureProps) {
         <>
           <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth={trazo(1.6)} />
           <rect x="8" y="13" width="8" height="5" fill="currentColor" />
-          {puntos(19, 15.5)}
+          {puntos(18, 15.5)}
         </>
       ) : base >= 1 ? (
         // Negra: el «3» con la pata recta que eligió Isaac sobre el dibujo
@@ -212,7 +229,7 @@ export function RestFigure({ beats, className }: FigureProps) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {puntos(19, 15)}
+          {puntos(18, 15)}
         </>
       ) : (
         // Corchea y semicorchea, con la forma de imprenta (𝄾 y 𝄿), que es la
@@ -258,7 +275,10 @@ export function RestFigure({ beats, className }: FigureProps) {
               />
             </>
           )}
-          {puntos(18.5, 15)}
+          {/* 18, no 18.5: con 18.5 el segundo punto llegaba a 24,4 y la caja
+              acaba en 24 — el mismo recorte de O-69, medio punto en vez de un
+              tercio, pero recorte igual. */}
+          {puntos(18, 15)}
         </>
       )}
     </svg>

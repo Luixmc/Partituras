@@ -70,6 +70,28 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "5 de septiembre de 2026",
+    "iso": "2026-09-05",
+    "entrada": "El doble puntillo ya se dibuja entero.",
+    "secciones": [
+      {
+        "titulo": "El doble puntillo ya se dibuja entero",
+        "resumen": "El segundo puntillo de una figura salia cortado por la mitad.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El segundo puntillo salia cortado.",
+            "detalle": [
+              "En «Simplemente Alaba», la <strong>blanca con doble puntillo</strong> del Intro dibujaba el primer punto redondo y <strong>el segundo a medias</strong>, como una medialuna.",
+              "La causa: los dos puntos no cabian en el recuadro donde se dibuja la figura — al segundo <strong>le faltaba sitio y el navegador le cortaba un tercio</strong>. Ahora van un poco mas juntos y <strong>caben los dos enteros</strong>.",
+              "Se arreglo tambien en los <strong>silencios</strong>, que tenian el mismo problema aunque todavia no se veia en ninguna cancion. <strong>La figura ocupa exactamente lo mismo que antes</strong>, asi que no se mueve nada de la pagina."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "4 de septiembre de 2026",
     "iso": "2026-09-04",
     "entrada": "En el telefono a pantalla completa ya se ven todos los acordes, y tocar uno ya no te pasa de cancion.",
