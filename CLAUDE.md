@@ -2581,6 +2581,23 @@ un número raro.
 ⚠️ **Lo que NO se tocó:** los botones. Ya ponían las 15 desde O-49 y **siguen poniendo el número**,
 que es lo que hay escrito en las canciones. Esto es solo para quien teclea.
 
+#### ⚠️ Y en la comprobación en producción pasó algo que hay que anotar
+
+La primera pasada, **20 segundos después de desplegar**, dio **25 bien · 1 mal**. Las **cinco
+siguientes**, en el minuto posterior: **26 de 26**, con la más lenta bajando de 4,1 s a 1,2 s.
+→ Lo más probable es el **arranque en frío** de Vercel: la primera petición a una función que
+acaba de desplegarse tarda o falla, y en cuanto está caliente va bien. **Encaja con el reloj**, que
+es lo único que quedó.
+
+🔴 **Y digo «lo más probable» porque NO SE PUEDE SABER: tiré la evidencia.** Mandé la salida a
+`tail -2`, que se queda con el resumen… y **el resumen no dice cuál pantalla falló** — eso lo dice
+la línea `✖`, que es justo la que corté. Cuando volví a mirar, ya pasaba.
+
+📌 **La regla, que vale para cualquier comprobador:** **no se recorta la salida de lo que puede
+fallar.** Un `| tail -2` está bien para leer un resumen que ya salió verde; **cuando algo puede dar
+rojo, se guarda entera** — o al menos se filtra por la línea del fallo (`grep "✖"`), no por las dos
+últimas. Es lo mismo que L-237 en otra piel: **una comprobación solo sirve si su salida sobrevive.**
+
 **O-50 · La repeticion `%` no admite duracion: `%:4` sale como texto.**
 Isaac, 2026-08-29, con una captura: *«mira que a la repeticion (%) cuando le voy a colocar la
 duracion me sale asi»* — y en la imagen se ve **`%:4` escrito tal cual**, en el amarillo de los
