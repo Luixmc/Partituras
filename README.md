@@ -298,7 +298,7 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 - [x] **Diagramas de acordes**: piano, bajo y guitarra, con el instrumento recordado
 - [x] **Modo trompeta** (instrumentos en Bb): la canción ya transpuesta a su tono
 - [x] **Letras** de las canciones: escribir, leer, buscar y alternar con los acordes
-- [x] **Pruebas automáticas** (187) y CI en cada push: pruebas → lint → build
+- [x] **Pruebas automáticas** (201) y CI en cada push: pruebas → lint → build
 - [x] `/novedades`: comunicado público de cambios
 - [x] **Secciones largas que se reparten solas** entre los cuadros, midiendo lo que cabe
 - [x] **Melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón,
@@ -327,9 +327,7 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
   necesita**: detecta que falta y lo dice, en vez de fingir que guardó.
 - **Queda medio P-01**: por la web un usuario desactivado ya no entra, pero **un token guardado
   puede seguir leyendo por la API** hasta que caduque. Eso lo cierra la migración `20240020`.
-- **El respaldo de `replaceSongs`** (borrar e insertar) ya no se usa nunca desde que existe la
-  función `reemplazar_canciones_culto`, y sigue en el código. Se quita cuando lleve tiempo en pie.
-- **61 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
+- **60 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
 
 > 🔎 **Cuatro puntos que estaban aquí y ERAN FALSOS, corregidos el 2026-09-04** — se apuntan porque
 > un README que miente sobre seguridad es peor que uno incompleto:

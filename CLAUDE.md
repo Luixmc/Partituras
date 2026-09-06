@@ -6012,13 +6012,17 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
 
 Del `roadmap` del README, ninguna aprobada todavía:
 
-- [PROPUESTA] Exportar/imprimir las canciones con acordes a PDF (`@react-pdf/renderer` ya
-  está instalado; hoy solo exporta la lista del culto).
+- ✅ ~~[PROPUESTA] Exportar/imprimir las canciones con acordes a PDF~~ → **HECHO** (fase F): el PDF
+  del culto lleva **las canciones completas** con sus acordes, una por hoja. Y se hace con la
+  impresión del navegador: **`@react-pdf/renderer` se quitó** el 2026-08-28 (8,4 MB que no
+  importaba nadie). *La línea seguía diciendo que estaba instalado.*
 - [PROPUESTA] Etiquetas, favoritos e historial de versiones en la interfaz (las tablas ya
   existen y están a 0 filas).
 - [PROPUESTA] Subida y visor del PDF original.
 - [PROPUESTA] Sincronización con Google Drive (tablas preparadas, nunca empezado).
-- [PROPUESTA] Terminar la PWA (hoy está a medias y causa T-02).
+- ✅ ~~[PROPUESTA] Terminar la PWA~~ → **HECHA** (O-59): se instala con su icono, se abre sin barra
+  de direcciones, gira (r49) y el caché va versionado (P-12), que era la causa de T-02. Lo único que
+  faltaba era **decirle a la gente cómo se instala**, y eso está en `/novedades` desde r50.
 - [PROPUESTA] Darle sentido al rol `musician`, que hoy es idéntico a `viewer`.
 
 ---
@@ -6164,12 +6168,12 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
   cambian en casi cada commit. Con dos personas trabajando, **va a dar conflicto de merge una y
   otra vez**, siempre en un archivo que a nadie le importa. Se añade a `.gitignore` y se quita
   del seguimiento. Es la fricción número uno entre Isaac y su primo, y cuesta dos minutos.
-- **③ Versionar el caché del service worker** (P-12). Mientras no esté, **cada cambio va a
-  parecer que no se aplicó**, y se van a perder horas buscando el fallo donde no está.
-- **④ Cuatro pruebas de las funciones puras** — `music.ts` (transposición), `chordInput.ts`
-  (escribir acordes) y `sections.ts`. No son un capricho: **son justo los archivos que el
-  encargo de §9.2 va a tocar** (O-01 y O-03 entran en el parser), y son funciones de entrada y
-  salida, las más fáciles de probar que existen.
+- ✅ **③ HECHO (2026-08-22) — el caché del service worker versionado** (P-12, fase L): se registra
+  como `/sw.js?v=<commit>`, así que cada despliegue instala el nuevo y borra el viejo.
+- ✅ **④ HECHO — y muy pasado de lo que pedía:** se pedían **cuatro** pruebas de funciones puras y
+  hay **201**, con CI en cada push (P-11, desde el 2026-08-22).
+  *③ y ④ seguían escritas como pendientes hasta el 2026-09-05, cuando Isaac pidió mirar TODOS los
+  archivos. Es la misma familia de las otras: hechas y sin sacar de la lista.*
 
 ### 12.5 Riesgos concretos del encargo de §9.2
 
