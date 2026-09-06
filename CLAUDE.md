@@ -2593,6 +2593,8 @@ es lo único que quedó.
 `tail -2`, que se queda con el resumen… y **el resumen no dice cuál pantalla falló** — eso lo dice
 la línea `✖`, que es justo la que corté. Cuando volví a mirar, ya pasaba.
 
+**Carpeta compartida:** va como **L-240**. `PROYECTOS.md` al día (201 pruebas, r61).
+
 📌 **La regla, que vale para cualquier comprobador:** **no se recorta la salida de lo que puede
 fallar.** Un `| tail -2` está bien para leer un resumen que ya salió verde; **cuando algo puede dar
 rojo, se guarda entera** — o al menos se filtra por la línea del fallo (`grep "✖"`), no por las dos
