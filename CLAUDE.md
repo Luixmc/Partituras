@@ -789,8 +789,8 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | **`3a8c76f`**, y `origin/main` va igual. **Árbol limpio** |
-| Última versión | **r58** — O-67, dada por buena en producción |
+| Último commit publicado | **`3791e7d`**, y `origin/main` va igual. **Árbol limpio** |
+| Última versión | **r60** — O-68 y O-69, dadas por buenas en producción |
 | Pruebas | **197** (5 nuevas con O-66) |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
@@ -4410,6 +4410,16 @@ crece») era la equivocada.
 
 **Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** · build **0** · **26 de 26**
 pantallas · y **visto ampliado**: las barras separan y el doble puntillo sale entero.
+
+✅ **PUBLICADO y comprobado EN PRODUCCIÓN (2026-09-05)**, commit `3791e7d`, vivo en **20 segundos**.
+CI verde · **26 de 26** pantallas contra el sitio · y **visto ampliado 7× en la página publicada**:
+los dos puntillos redondos y la barra de compás gruesa al lado.
+
+📌 **Y la vista de IMPRESIÓN resolvió un problema de método que va a repetirse:** contra producción
+**no se puede meter una página desechable** que pase de canción, y la figura del doble puntillo está
+en la 2/3. La vista `/s/<token>/imprimir` trae **las tres canciones en UNA página**, así que no hace
+falta navegar. Y para ampliar: **un marco apuntando al sitio publicado SÍ se puede escalar con CSS
+aunque sea de otro origen** — lo que no se puede es tocarle el contenido.
 
 **O-69 · El SEGUNDO puntillo sale cortado por la mitad.** ⬜ **DICTADA y MEDIDA.**
 Isaac, 2026-09-05, con una captura de «Simplemente Alaba»: *«es el que usé para la blanca con doble
