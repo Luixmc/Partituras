@@ -6096,9 +6096,19 @@ Del `roadmap` del README, ninguna aprobada todavía:
   importaba nadie). *La línea seguía diciendo que estaba instalado.*
 - 🟢 **APROBADA en principio por Isaac el 2026-09-05** — *«me parece bien el punto 1»*: etiquetas,
   favoritos e historial de versiones en la interfaz (las tablas ya existen y están a 0 filas).
-  ⬜ **Sin plan y sin empezar.** Son **TRES cosas distintas** con tres trabajos distintos, y antes
-  de tocar nada hay que preguntarle **cuál quiere primero y para qué la quiere** — «favoritos» de
-  cada músico no es lo mismo que «favoritos» del grupo.
+
+  **✅ Y ESE MISMO DÍA CONTESTÓ LAS DOS PREGUNTAS** (*«pienso que primero sería la de favoritos, y
+  que sean para cada músico»*):
+
+  | | |
+  |---|---|
+  | **Primero** | 🔴 **LOS FAVORITOS.** Etiquetas e historial quedan detrás, sin fecha |
+  | **De quién** | **De CADA MÚSICO, los suyos.** No del grupo |
+
+  ⬜ **Sin plan y sin empezar todavía.** Lo que hay que mirar antes de proponer nada, y está sin
+  mirar: **qué tabla existe ya** en la base y **si sirve tal cual** — si le falta una columna, esto
+  es otra **migración**, y entonces nace bloqueado como todo lo demás (§9.1). **Eso se comprueba
+  ANTES de enseñarle un plan**, no después.
 - ❌ **DESCARTADA por Isaac el 2026-09-05** (*«los otros no»*): subida y visor del PDF original.
 - ❌ **DESCARTADA por Isaac el 2026-09-05**: sincronización con Google Drive (tablas preparadas,
   nunca empezado). **No volver a proponerlas.**
@@ -6107,8 +6117,22 @@ Del `roadmap` del README, ninguna aprobada todavía:
   faltaba era **decirle a la gente cómo se instala**, y eso está en `/novedades` desde r50.
 - 🟢 **APROBADA en principio por Isaac el 2026-09-05** — *«me parece bien… el 4»*: darle sentido al
   rol `musician`, que hoy hace **exactamente lo mismo** que `viewer`.
-  ⬜ **Sin plan y sin empezar**, y aquí la pregunta es toda la tarea: **¿qué tiene que poder hacer
-  un músico que un lector no?** Eso no se puede deducir del código — lo dice él.
+  ⬜ **ESPERANDO QUE ELIJA.** El 2026-09-05 pidió opciones (*«del rol de musico dame opciones»*) y se
+  le mandaron estas cinco. **Se pueden combinar; ninguna está empezada:**
+
+  | | Qué podría hacer un MÚSICO que un lector no | Qué cuesta / qué arriesga |
+  |---|---|---|
+  | **A** | **Ver los cultos en BORRADOR**, para ensayar antes de que se publiquen | Barato. Hoy solo los ve el admin (O-31). ⚠️ Ve el culto a medio armar |
+  | **B** | **Entrar a MELODÍAS** y escribir el pentagrama — pensado para el trompetista | Barato en pantalla. ⚠️ Hoy es «solo administradores» y **no se puede guardar** hasta la migración `20240021` |
+  | **C** | **Crear y editar canciones** (teclear acordes y letra), **sin borrar nada** | 🔴 El más útil —hoy teclea Isaac solo— y el más delicado: **tocar el repertorio**. Necesita que la BASE lo permita, no solo la pantalla → **migración** |
+  | **D** | **Notas suyas en cada canción** —«yo la toco en G», «entro en el segundo compás»—, privadas | Tabla nueva → **migración**. Es lo más parecido a los favoritos que ya eligió |
+  | **E** | **Armar cultos** (crearlos y ordenarlos), pero **sin publicarlos** | Trabajo medio. Reparte el trabajo sin soltar el control de lo que se publica |
+
+  📌 **Y lo que hay que decirle al enseñárselas:** **A, B y E se quedan en la pantalla** —se pueden
+  hacer hoy—, mientras que **C y D tocan la base**, o sea que **nacen bloqueadas** por lo mismo que
+  todo lo demás. Eso puede cambiar cuál elige, así que va delante y no en letra pequeña.
+  ⚠️ Y **C sin tocar la base sería un engaño**: el botón aparecería y la base lo rechazaría —o peor,
+  lo dejaría pasar (P-03 está medido solo a medias)—.
 
 ---
 
