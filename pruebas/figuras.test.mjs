@@ -15,7 +15,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { figuraDe } = await cargar("figuras");
+const {figuraDe, duracionDe } = await cargar("figuras");
 
 const NOMBRE = { 4: "redonda", 2: "blanca", 1: "negra", 0.5: "corchea", 0.25: "semicorchea" };
 
@@ -68,4 +68,39 @@ test("una duración por debajo de todo cae en semicorchea, sin reventar", () => 
   const r = figuraDe(0.05);
   assert.equal(r.base, 0.25);
   assert.equal(r.puntillos, 0);
+});
+
+// ─────────────────────────────────────────────────────────────
+// O-70 · La duracion se puede escribir con NUMERO o con PUNTILLOS.
+// ─────────────────────────────────────────────────────────────
+
+test("O-70 · el numero de siempre sigue valiendo, y es lo que hay escrito", () => {
+  // 501 compases del repertorio usan `:2`, y los botones ponen estos mismos.
+  assert.equal(duracionDe("2"), 2);
+  assert.equal(duracionDe("1"), 1);
+  assert.equal(duracionDe("1.5"), 1.5);
+  assert.equal(duracionDe("3.5"), 3.5);
+  assert.equal(duracionDe("0.4375"), 0.4375);
+});
+
+test("🔴 O-70 · un punto es un puntillo, y dos son dos", () => {
+  assert.equal(duracionDe("2."), 3, "blanca con puntillo");
+  assert.equal(duracionDe("2.."), 3.5, "blanca con doble puntillo");
+  assert.equal(duracionDe("1."), 1.5);
+  assert.equal(duracionDe("1.."), 1.75);
+  assert.equal(duracionDe("4.."), 7, "redonda con doble puntillo");
+  assert.equal(duracionDe("0.5.."), 0.875);
+  assert.equal(duracionDe("0.25.."), 0.4375, "la impracticable de teclear");
+});
+
+test("O-70 · las DOS formas dan lo mismo, que es lo que se le prometio", () => {
+  for (const [corta, larga] of [["2.", "3"], ["2..", "3.5"], ["1..", "1.75"], ["0.25..", "0.4375"]]) {
+    assert.equal(duracionDe(corta), duracionDe(larga), corta + " y " + larga);
+  }
+});
+
+test("O-70 · lo que NO es una duracion devuelve null, no un numero raro", () => {
+  for (const basura of ["", ".", "..", "x", "2...", "-1", "0", "2.5.5", "a2"]) {
+    assert.equal(duracionDe(basura), null, JSON.stringify(basura));
+  }
 });

@@ -6,6 +6,7 @@ import { useAbrirAcorde } from "@/components/sheets/ChordPopover";
 import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NoteFigure, RestFigure, FermataFigure, SlurFigure, FIGURA_ALTO } from "@/components/sheets/MusicFigures";
+import { duracionDe, DURACION } from "@/lib/figuras";
 
 type Props = {
   notes: string;
@@ -204,10 +205,10 @@ export function parseMeasures(value: string): Measure[] {
     // Duración SUELTA, sin acorde delante (":1", ":0.5"). Se dibuja la figura
     // sola, en el mismo sitio donde va la de los acordes (O-01). Antes esto
     // caía en el "si no es nada, píntalo como texto gris".
-    const soloDuracion = core.match(/^:(\d+(?:\.\d+)?)$/);
+    const soloDuracion = core.match(new RegExp(`^:(${DURACION})$`));
     if (soloDuracion) {
       current.notes.push({
-        root: "", suffix: "", duration: parseFloat(soloDuracion[1]),
+        root: "", suffix: "", duration: duracionDe(soloDuracion[1]),
         soloFigura: true, fermata, staccato, tieNext, raw: part,
       });
       continue;
@@ -224,12 +225,12 @@ export function parseMeasures(value: string): Measure[] {
     // 📌 Y hace falta de verdad: el "%" dice «vuelve a tocar el acorde de
     // antes», y **cuánto dura ese golpe es justo lo que hay que indicar** —
     // sin eso el compás no puede repartir sus tiempos.
-    const repeticion = /^%(?::([0-9]*\.?[0-9]+))?$/.exec(core);
+    const repeticion = new RegExp(`^%(?::(${DURACION}))?$`).exec(core);
     if (repeticion) {
       current.notes.push({
         root: "",
         suffix: "",
-        duration: repeticion[1] ? parseFloat(repeticion[1]) : null,
+        duration: repeticion[1] ? duracionDe(repeticion[1]) : null,
         repeat: true,
         fermata,
         staccato,
@@ -270,9 +271,9 @@ export function parseMeasures(value: string): Measure[] {
     }
 
     // Silencio: "Z" con duración opcional (Z:4, Z:2, Z:1.5, Z:1, Z:0.5, Z:0.25).
-    const restMatch = core.match(/^[Zz](?::(\d+(?:\.\d+)?))?$/);
+    const restMatch = core.match(new RegExp(`^[Zz](?::(${DURACION}))?$`));
     if (restMatch) {
-      const duration = restMatch[1] ? parseFloat(restMatch[1]) : null;
+      const duration = restMatch[1] ? duracionDe(restMatch[1]) : null;
       current.notes.push({ root: "", suffix: "", duration, rest: true, fermata, staccato, tieNext, raw: part });
       continue;
     }
@@ -281,9 +282,9 @@ export function parseMeasures(value: string): Measure[] {
     if (match) {
       let rest = match[2];
       let duration: number | null = null;
-      const durMatch = rest.match(/:(\d+(?:\.\d+)?)$/);
+      const durMatch = rest.match(new RegExp(`:(${DURACION})$`));
       if (durMatch) {
-        duration = parseFloat(durMatch[1]);
+        duration = duracionDe(durMatch[1]);
         rest = rest.slice(0, rest.lastIndexOf(":"));
       }
       current.notes.push({ root: match[1], suffix: rest, duration, fermata, staccato, tieNext, raw: part });

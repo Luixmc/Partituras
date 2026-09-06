@@ -72,8 +72,47 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "5 de septiembre de 2026",
     "iso": "2026-09-05",
-    "entrada": "La barra entre compases se ve mas, y el doble puntillo ya se dibuja entero.",
+    "entrada": "La barra entre compases se ve mas, el doble puntillo se dibuja entero, y el puntillo se puede teclear como punto.",
     "secciones": [
+      {
+        "titulo": "El puntillo se puede escribir como punto",
+        "resumen": "Ademas del numero, ahora se puede teclear el puntillo con un punto: «:2.» y «:2..».",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Escribir una duracion con puntillo es ahora mucho mas corto.",
+            "detalle": [
+              "Al escribir a mano, el puntillo se puede poner <strong>como un punto</strong>, igual que en una partitura: <code>:2.</code> es blanca con puntillo y <code>:2..</code> con doble puntillo.",
+              "Lo pidio Isaac porque la semicorchea con doble puntillo se escribia <code>:0.4375</code>, que es impracticable. Ahora es <code>:0.25..</code>",
+              "✅ <strong>La forma de siempre sigue valiendo igual</strong> —<code>:3.5</code>, <code>:1.75</code>…— y <strong>los botones no cambian</strong>. Esto es solo para quien escribe a mano."
+            ],
+            "tabla": {
+              "cabecera": [
+                "Se escribe",
+                "Es lo mismo que",
+                "Y es"
+              ],
+              "filas": [
+                [
+                  ":2.",
+                  ":3",
+                  "blanca con puntillo"
+                ],
+                [
+                  ":2..",
+                  ":3.5",
+                  "blanca con doble puntillo"
+                ],
+                [
+                  ":0.25..",
+                  ":0.4375",
+                  "semicorchea con doble puntillo"
+                ]
+              ]
+            }
+          }
+        ]
+      },
       {
         "titulo": "La barra entre compases se ve mas",
         "resumen": "La raya que separa un compas de otro es ahora del doble de gruesa.",

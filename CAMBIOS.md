@@ -7,6 +7,22 @@
 
 ## 5 de septiembre de 2026
 
+### ✍️ El puntillo se puede escribir como punto
+
+- **Al escribir a mano, el puntillo se puede poner como un punto**, igual que en una partitura:
+  `:2.` es blanca con puntillo y `:2..` con doble puntillo.
+- Se pidió porque la semicorchea con doble puntillo se escribía `:0.4375`, **impracticable de
+  teclear**. Ahora es `:0.25..`
+
+  | Se escribe | Es lo mismo que | Y es |
+  |---|---|---|
+  | `:2.` | `:3` | blanca con puntillo |
+  | `:2..` | `:3.5` | blanca con doble puntillo |
+  | `:0.25..` | `:0.4375` | semicorchea con doble puntillo |
+
+- ✅ **La forma de siempre sigue valiendo igual** y **los botones no cambian**: esto es solo para
+  quien escribe a mano.
+
 ### 📏 La barra entre compases se ve más
 
 - **La raya que separa un compás de otro pasa de 1 a 2 puntos de grosor**, para que se distinga

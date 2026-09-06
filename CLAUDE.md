@@ -281,7 +281,7 @@ repo/
 |---|---|---|
 | Acorde | `C`, `Dm7`, `Gsus4`, `C/G` | `TablaturePreview.tsx:192` |
 | Disminuido | se escribe **`dim`** / **`dim7`** · se dibuja **`°`** / **`°7`** (D-08b) | `ChordToolbar.tsx` · `formatSuffix` |
-| Duración | `:0.25` `:0.5` `:1` `:1.5` `:2` `:3` `:4` | `TablaturePreview.tsx:196` |
+| Duración | `:0.25` `:0.5` `:1` `:1.5` `:2` `:3` `:4` · **y con puntillos: `:2.` `:2..`** (O-70) | `lib/figuras.ts` → `duracionDe()` |
 | Silencio | `Z:4`, `Z:2`… | `TablaturePreview.tsx:185` |
 | Barra de compás | `\|` | `TablaturePreview.tsx:118` |
 | Repetición | `\|:` … `:\|` | `TablaturePreview.tsx:108-117` |
@@ -2557,6 +2557,29 @@ en una partitura de verdad — `:2.` es blanca con puntillo (3) y `:2..` doble p
 "funciona" y significa **2**. Con este cambio pasaria a significar **3**. Como **ninguna cancion lo
 escribe** (medido arriba), no rompe nada de lo que hay — pero **la vieja forma se queda**: `:3.5`
 tiene que seguir valiendo, porque es lo que hay escrito y lo que ponen los botones.
+
+#### ✅ HECHO (2026-09-05) — r61
+
+**La lectura de la duración sale del componente y pasa a `lib/figuras.ts`**, como `duracionDe()`.
+📌 **Y ese es el cambio que más vale de los dos:** estaba **repetida en CUATRO sitios** del
+`TablaturePreview` —la duración suelta, el `%`, el silencio `Z` y el acorde—, cada uno con su propia
+expresión regular. Cuatro copias de la misma regla son cuatro sitios donde arreglar el mismo fallo,
+y **ninguna la cubría el CI**: `lib/` sí. Ahora las cuatro llaman a la misma función.
+
+| Se escribe | Vale | Es |
+|---|---|---|
+| `:2.` | 3 | blanca con puntillo |
+| `:2..` | 3,5 | blanca con doble puntillo |
+| `:1..` | 1,75 | negra con doble puntillo |
+| `:0.25..` | 0,4375 | **la impracticable**, en seis teclas |
+| `:3.5`, `:0.4375`… | igual que siempre | **la forma vieja no se toca** |
+
+**Cuatro pruebas nuevas** (197 → **201**), y una comprueba justo lo que él pidió: que **las dos
+formas den lo mismo**. Otra fija que la basura (`"."`, `"2..."`, `"-1"`, `"0"`) devuelve `null` y no
+un número raro.
+
+⚠️ **Lo que NO se tocó:** los botones. Ya ponían las 15 desde O-49 y **siguen poniendo el número**,
+que es lo que hay escrito en las canciones. Esto es solo para quien teclea.
 
 **O-50 · La repeticion `%` no admite duracion: `%:4` sale como texto.**
 Isaac, 2026-08-29, con una captura: *«mira que a la repeticion (%) cuando le voy a colocar la

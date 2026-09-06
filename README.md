@@ -64,8 +64,8 @@ El texto plano se parsea a compases en `TablaturePreview`:
 | **Sección** | **`[Coro]`**, en su propia línea — **con corchetes** | `[Intro]`, `[A (Anhelo...)]` |
 | **Texto centrado** | **`<lo que sea>`** — se dibuja como un acorde, no parte sección | `<Conteo 1, 2, 3>` |
 | Duración | `:0.25` `:0.5` `:1` `:2` `:4`… — también **suelta**, sin acorde | `C:2 G:2`, `:1` |
-| **Con puntillo** | la mitad más: `:0.375` `:0.75` `:1.5` `:3` `:6` | `C:1.5` |
-| **Con DOBLE puntillo** | la mitad más un cuarto: `:0.4375` `:0.875` `:1.75` `:3.5` `:7` | `C:1.75` |
+| **Con puntillo** | la mitad más: `:0.375` `:0.75` `:1.5` `:3` `:6` — **o el punto**: `:1.` `:2.` | `C:1.5` = `C:1.` |
+| **Con DOBLE puntillo** | la mitad más un cuarto: `:0.4375` `:0.875` `:1.75` `:3.5` `:7` — **o dos puntos**: `:1..` `:2..` | `C:1.75` = `C:1..` |
 | Silencio | `Z` con duración, **de la redonda a la semicorchea** | `Z:4`, `Z:1`, `Z:0.25` |
 | Barra de compás | `\|` | `C \| G` |
 | Repetición | `\|:` … `:\|` | `\|: C G :\|` |
@@ -393,6 +393,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r61** | **El puntillo se puede teclear como punto** (O-70): `:2.` es blanca con puntillo y `:2..` con doble puntillo, además del número de siempre. Se pidió porque `:0.4375` es impracticable de escribir — ahora es `:0.25..`. Las dos formas conviven, y la lectura de la duración pasa a `lib/figuras.ts`, donde **la cubre el CI** |
 | **r60** | **La barra entre compases, a 2 px** (O-68): se le enseñaron 1, 2 y 3 px dibujados sobre su propia canción y eligió 2. ⚠️ El aviso de que «el grosor engorda el compás» resultó **falso al medirlo**: con `box-sizing: border-box` el borde va dentro del ancho, así que el reparto no se entera |
 | **r59** | **El segundo puntillo salía cortado** (O-69): los dos puntos no cabían en el `viewBox` de la figura y al segundo le recortaba el 36 %. Se meten hacia dentro en vez de ensanchar la caja, **para no cambiar el ancho del compás** — que es la entrada del reparto. Visto ampliado 9× con la página real |
 | **r52** | **La red de seguridad donde faltaba**: crear una canción no tenía **ninguna** —se perdían todos los acordes tecleados—, ni la melodía ni las versiones por tono avisaban, y **cambiar de pestaña no pedía permiso** |
