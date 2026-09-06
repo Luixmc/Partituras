@@ -718,10 +718,18 @@ function MeasureBlock({
   return (
     <div
       // Cada compás crece según sus tiempos; los compases se reparten la fila.
-      // Borde derecho fino = barra de tempo (se omite en el último de un recuadro).
+      // Borde derecho = barra de compás (se omite en el último de un recuadro).
+      //
+      // 🔴 O-68 · DOS píxeles, no uno. Isaac, 2026-09-05: «quiero que el borde
+      // que separa entre compás y compás sea más gruesa para que sea más
+      // notorio un compás y otro». Se le enseñaron 1, 2 y 3 px dibujados sobre
+      // su propia canción y eligió **2**.
+      // ⚠️ No engorda el compás: con `box-sizing: border-box` —el de Tailwind—
+      // el borde va DENTRO del ancho, así que el bloque mide lo mismo y el
+      // reparto (O-66) no se entera. Se comprobó midiendo, no suponiendo.
       className={cn(
         "relative flex items-stretch",
-        !noBar && "border-r border-slate-300 dark:border-slate-600"
+        !noBar && "border-r-2 border-slate-300 dark:border-slate-600"
       )}
       style={{
         flexGrow: crecimiento,

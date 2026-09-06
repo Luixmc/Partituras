@@ -72,8 +72,22 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "5 de septiembre de 2026",
     "iso": "2026-09-05",
-    "entrada": "El doble puntillo ya se dibuja entero.",
+    "entrada": "La barra entre compases se ve mas, y el doble puntillo ya se dibuja entero.",
     "secciones": [
+      {
+        "titulo": "La barra entre compases se ve mas",
+        "resumen": "La raya que separa un compas de otro es ahora del doble de gruesa.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Se distingue mejor donde acaba un compas y empieza el siguiente.",
+            "detalle": [
+              "Isaac lo pidio: <em>«que sea mas notorio un compas y otro»</em>. La raya pasa de <strong>1 a 2 puntos</strong> de grosor.",
+              "✅ <strong>Los acordes no se mueven ni un pelo:</strong> el grosor va por dentro del compas, asi que ocupa lo mismo que antes. Comprobado midiendo el culto entero en dos pantallas."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El doble puntillo ya se dibuja entero",
         "resumen": "El segundo puntillo de una figura salia cortado por la mitad.",

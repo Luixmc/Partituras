@@ -767,9 +767,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **PUBLICAR r59 (O-69) — falta su permiso** | El segundo puntillo salía **cortado el 36 %**. Arreglado y visto ampliado 9×. Toca `MusicFigures.tsx` y la documentación |
-| **2** | ⬜ **O-68 — la barra entre compases, más gruesa** | **DICTADA el 2026-09-05 y sin programar.** Isaac: *«que sea más notorio un compás y otro»*. ⚠️ **No es cosmético**: el grosor sale del ancho del compás, así que **cambia la entrada del reparto (O-66)** — hay que repetir su medición entera. Y **cuánto** es «más gruesa» lo elige él viéndolo: 2 px y 3 px dibujados, como se hizo con las barras de O-63 |
-| **3** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -4383,6 +4381,35 @@ sea más notorio un compás y otro»*.
    **deja de distinguirse lo que separa compases de lo que abre una repetición**.
 3. **Cuánto es «más gruesa» lo decide él viéndolo**, no yo eligiendo: es lo mismo que pasó con las
    barras de O-63. → **Enseñarle 2 px y 3 px dibujados**, con lo que cada uno le quita al acorde.
+
+#### ✅ SU DECISIÓN (2026-09-05): **2 px**
+
+Se le mandaron **las tres dibujadas sobre su propia canción** —1 px (como estaba), 2 y 3—, ampliadas
+2× y diciéndole que en su pantalla la diferencia real es la mitad. Contestó: *«vamos con 2»*.
+📌 **Tercera vez que la decisión se toma así** —O-63 con las barras, O-66 con los tres arreglos, y
+ahora esto—: **enseñárselo dibujado y con el número al lado**, no describírselo.
+
+#### ✅ HECHO Y MEDIDO (2026-09-05) — r60
+
+`TablaturePreview.tsx`: `border-r` → **`border-r-2`** en `MeasureBlock`.
+
+🔴 **Y el aviso que yo mismo escribí arriba —«el grosor sale del ancho del compás»— resultó FALSO al
+medirlo.** Con `box-sizing: border-box`, que es lo que pone Tailwind en todo, **el borde va DENTRO
+del ancho**: el bloque mide exactamente lo mismo con 1 px que con 2. Lo que se encoge un píxel es el
+hueco interior del acorde, no el compás.
+
+| Medido con la página real, en dos pantallas | 1600 × 846 | 1920 × 1206 |
+|---|---|---|
+| Cortes que sobran (O-66) | ✅ **0** | ✅ **0** |
+| Cuadros que sobresalen (O-67) | ✅ **0** | ✅ **0** |
+| ¿Se queda quieto? | ✅ patrón `AAAA…` | ✅ igual |
+
+📌 **La medición se hizo igual, y hay que seguir haciéndola:** que esta vez no cambiara nada **es el
+resultado**, no la excusa para no mirarlo. La suposición razonable («si engordo el borde, el compás
+crece») era la equivocada.
+
+**Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** · build **0** · **26 de 26**
+pantallas · y **visto ampliado**: las barras separan y el doble puntillo sale entero.
 
 **O-69 · El SEGUNDO puntillo sale cortado por la mitad.** ⬜ **DICTADA y MEDIDA.**
 Isaac, 2026-09-05, con una captura de «Simplemente Alaba»: *«es el que usé para la blanca con doble

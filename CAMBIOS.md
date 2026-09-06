@@ -7,6 +7,14 @@
 
 ## 5 de septiembre de 2026
 
+### 📏 La barra entre compases se ve más
+
+- **La raya que separa un compás de otro pasa de 1 a 2 puntos de grosor**, para que se distinga
+  mejor dónde acaba uno y empieza el siguiente. Lo pidió Isaac: *«que sea más notorio un compás y
+  otro»*.
+- ✅ **Los acordes no se mueven ni un pelo:** el grosor va **por dentro** del compás, así que ocupa
+  lo mismo que antes. Comprobado midiendo el culto entero en dos pantallas.
+
 ### 🎼 El doble puntillo ya se dibuja entero
 
 - 🔴 **El segundo puntillo salía cortado.** En «Simplemente Alaba», la **blanca con doble puntillo**
