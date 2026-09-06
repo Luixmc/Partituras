@@ -767,7 +767,8 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **1** | ⬜ **O-68 — la barra entre compases, más gruesa** | **DICTADA el 2026-09-05 y sin programar.** Isaac: *«que sea más notorio un compás y otro»*. ⚠️ **No es cosmético**: el grosor sale del ancho del compás, así que **cambia la entrada del reparto (O-66)** — hay que repetir su medición entera. Y **cuánto** es «más gruesa» lo elige él viéndolo: 2 px y 3 px dibujados, como se hizo con las barras de O-63 |
+| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -959,8 +960,11 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       permiso expreso de Isaac**; solo se usa para MIRAR pantallas.
 - [ ] ⚠️ **Desactivar la cuenta `pruebaclaude@gmail.com` cuando ya no haga falta** (Admin →
       Desactivar). Tiene una contraseña sencilla y es una cuenta real en un sitio abierto a
-      internet. **Recordatorio: hoy desactivar un usuario NO le impide entrar** (P-01) — hasta
-      que P-01 esté arreglado, para cerrarla de verdad hay que **cambiarle la contraseña**.
+      internet.
+      ✅ **Y ya se puede cerrar de verdad: P-01 se arregló el 2026-08-28** y desactivar **sí** echa a
+      la sesión (lo probó el propio Isaac con esta cuenta). *Aquí ponía lo contrario —«hoy desactivar
+      NO le impide entrar»— hasta el 2026-09-05.* Queda la mitad de la base (migración `20240020`),
+      pero **por la web ya no entra**, que es el uso real.
 - [x] ~~El push de la tanda 33~~ → ✅ **HECHO el 2026-08-21 con su permiso** (*«adelante sube todo
       lo que no está subido, y en el orden que dices»*), commit `c1b4b40` (r44). Verificado en
       producción. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir.**
@@ -1288,7 +1292,10 @@ son 75 canciones y las teclea una sola persona.
 que decidir **de dónde sale la letra**: ¿se escribe aparte en esa columna, o se saca de lo que ya
 hay entre paréntesis? Son dos proyectos distintos.
 
-**O-19 · Una sección para TROMPETAS.** `[PENDIENTE]`
+**O-19 · Una sección para TROMPETAS.** ✅ **CERRADA el 2026-08-22** (§9.2-nonies): el trompetista
+**lee los acordes**, no una línea aparte, así que lo que le sirve es **la canción en su tono** — y
+eso se publicó como el **selector de instrumento** (D-28). *Aquí ponía `[PENDIENTE]` hasta el
+2026-09-05.*
 → ❓ Hay que preguntar qué necesita ver un trompetista que no le sirva de la página actual:
 ¿su línea de notas?, ¿solo su parte del arreglo?, ¿la misma canción transpuesta a su tono? Va de
 la mano de la duda de O-17 sobre el instrumento transpositor.
@@ -1553,7 +1560,11 @@ se acuerdan del globo gris**. El usuario nombra las cosas como se reconocen.
 **El texto ya está escrito**, en `Documents\Partituras\comunicado-musicos.md` — **fuera del
 repositorio a propósito**, para que no se publique sin querer. De ahí sale el contenido de la ruta.
 
-### 9.2-quinquies · FASE J — O-18, la sección de LETRAS · ⬜ PROPUESTA, a la espera del visto bueno
+### 9.2-quinquies · FASE J — O-18, la sección de LETRAS · ✅ HECHA Y PUBLICADA (r43)
+
+> 🔴 **Este encabezado decía «⬜ PROPUESTA» hasta el 2026-09-05**, y llevaba equivocado desde el
+> 2026-08-21: las letras se publicaron en **r43** —escribirlas, leerlas, buscarlas y alternarlas con
+> los acordes—. Lo cazó Isaac pidiendo la lista de pendientes. Lo de abajo es el análisis original.
 
 Isaac dijo *«vamos con lo de O-18»* el **2026-08-21**. Antes de proponer nada se midieron los
 datos reales, y salieron **tres cosas que cambian el planteamiento**:
@@ -4353,6 +4364,25 @@ assert.deepEqual(repartirEnGrupos([248, 248, 248], 736, 1), [3], "el navegador d
 **Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** (60 avisos) · build **0** ·
 **26 de 26** pantallas.
 
+**O-68 · La barra que separa un compás de otro, MÁS GRUESA.** ⬜ **DICTADA, sin programar.**
+Isaac, 2026-09-05: *«quiero que el borde que separa entre compás y compás sea más gruesa para que
+sea más notorio un compás y otro»*.
+
+**Dónde está hoy**, medido en el código: `TablaturePreview.tsx`, en `MeasureBlock` —
+`!noBar && "border-r border-slate-300 dark:border-slate-600"`. Es **1 px**, y `noBar` la quita en el
+último compás de un recuadro `{}1 {}2`.
+
+⚠️ **Lo que hay que mirar antes de tocarlo, y no es cosmético:**
+1. 🔴 **El grosor entra en el ANCHO del compás.** Cada píxel que engorde la barra se resta del sitio
+   de los acordes y **cambia la entrada del reparto** (O-66) y del lazo de auto-ajuste (L-231). Con
+   9 compases en una fila, pasar de 1 px a 3 son 18 px menos. **Hay que volver a pasar la medición
+   de O-66 entera**: cortes que sobran, y las 30 lecturas.
+2. **No es la única raya que hay.** Están los signos de repetición `𝄆 𝄇`, el borde del recuadro de
+   la sección y las casillas de 1ª/2ª vez. Si la barra de compás se pone tan gruesa como esas,
+   **deja de distinguirse lo que separa compases de lo que abre una repetición**.
+3. **Cuánto es «más gruesa» lo decide él viéndolo**, no yo eligiendo: es lo mismo que pasó con las
+   barras de O-63. → **Enseñarle 2 px y 3 px dibujados**, con lo que cada uno le quita al acorde.
+
 **Lo demás:** 192 pruebas · lint **0 errores** · build 0 · **26 de 26 pantallas** · y las canciones
 enteras: **53, 98 y 55** acordes, los mismos ya documentados.
 
@@ -4667,7 +4697,7 @@ del compilador de React). Pruebas **139 verdes**, build **codigo de salida 0**.
 | **F** | ✅ **HECHA (2026-08-20)** — O-08 · el PDF completo del culto | Confirmada por Isaac en PC **y en teléfono**: *«todo perfecto»* |
 | **G** | ✅ **HECHA, CONFIRMADA y PUBLICADA (2026-08-20)** — O-16 respetando el filtro (D-15) | *«funciona bien lo de pasar las canciones tanto sin filtro como con filtro»*. Publicada en `0f5c6cf` (r39) |
 | **H** | ✅ **HECHA y PUBLICADA (2026-08-20)** — O-20 · O-21 | Verificada con datos reales (§7). Publicada en `0f5c6cf` (r39) |
-| **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | **Sin fase asignada: pendientes.** Los tres son grandes y tienen preguntas abiertas |
+| **—** | O-17 (acordes en los 4 instrumentos) · O-18 (letras) · O-19 (trompetas) | ✅ **LOS TRES HECHOS Y PUBLICADOS**: O-17 en la fase I (`acordes.ts`, 1.894 de 1.894, r44) · O-18 en r43 · O-19 cerrada el 2026-08-22 como el selector de instrumento. *Esta fila decía «sin fase asignada: pendientes» hasta el 2026-09-05* |
 
 **Antes de la fase D es obligatorio** guardar el `content` de las 75 canciones y comparar el
 render antes y después (§12.5). **La fase 0 cubre eso de paso.**
@@ -4732,7 +4762,12 @@ render antes y después (§12.5). **La fase 0 cubre eso de paso.**
 **Y después de la ligadura, O-26** (los dos modos de leer las columnas), que es lo que él pidió
 a continuación, en ese orden.
 
-### 9.2-quater · FASE I — O-17 piano y bajo · ⬜ PROPUESTA, a la espera del visto bueno
+### 9.2-quater · FASE I — O-17 piano y bajo · ✅ HECHA Y PUBLICADA
+
+> 🔴 **Este encabezado decía «⬜ PROPUESTA, a la espera del visto bueno» hasta el 2026-09-05**, y
+> llevaba equivocado desde el 2026-08-21: la fase se hizo y se publicó (`acordes.ts` cubre **1.894
+> de 1.894** acordes en piano, bajo y guitarra, r44). Lo cazó Isaac pidiendo *«la lista completa de
+> pendientes»*. Lo de abajo es el análisis con el que se propuso, y se conserva por eso.
 
 Isaac eligió esto el **2026-08-21**, sobre las otras tres opciones (guitarra incluida, letras,
 trompetas). **Guitarra, letras y trompetas siguen pendientes.**
