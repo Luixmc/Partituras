@@ -1,10 +1,11 @@
-import { Filter, Search } from "lucide-react";
+import { Filter } from "lucide-react";
 
 import SheetCard from "@/components/sheets/SheetCard";
 import CatalogFilters from "@/components/sheets/CatalogFilters";
 import { createClient } from "@/lib/supabase/server";
 import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
+import BuscadorVivo from "@/components/sheets/BuscadorVivo";
 
 export default async function CatalogPage(
   props: {
@@ -49,17 +50,14 @@ export default async function CatalogPage(
           Catalogo de canciones
         </h1>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <form>
-            <input
-              name="q"
-              defaultValue={q}
-              type="search"
-              placeholder="Buscar por titulo, compositor..."
-              className="w-full rounded-xl bg-slate-100 py-2.5 pl-10 pr-4 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-800"
-            />
-          </form>
+        <div className="mb-4">
+          {/* Busca al escribir (O-71); el Enter sigue valiendo. */}
+          <BuscadorVivo
+            base="/catalog"
+            q={q}
+            placeholder="Buscar por titulo, compositor..."
+            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+          />
         </div>
 
         <CatalogFilters

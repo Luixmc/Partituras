@@ -9,6 +9,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryBadge, SheetCatalogItem } from "@/types";
+import { algunoContiene } from "@/lib/texto";
 
 /** Los filtros que viajan por la dirección web. */
 export interface FiltrosCatalogo {
@@ -73,6 +74,15 @@ const CAMPOS =
   // que con 75 canciones si se notaria.
   "sheet_keys(key_signature)";
 
+// 🔴 La LETRA solo se pide cuando hay algo escrito en la busqueda (O-72).
+//
+// Antes la letra no se traia nunca: la buscaba la base con `ilike`. Ahora el
+// filtro se hace aqui, asi que hace falta tenerla — pero **solo entonces**.
+// Medido: las 72 canciones con sus letras son **39 KB**, y sin ellas **7 KB**.
+// Cargar el catalogo sin buscar nada es lo que se hace el 90 % de las veces, y
+// esa sigue costando 7 KB.
+const CAMPOS_CON_LETRA = CAMPOS + ", lyrics";
+
 /**
  * Devuelve las canciones del catálogo que cumplen los filtros, ordenadas por
  * título. Sin tope: salen todas (O-10).
@@ -83,7 +93,11 @@ export async function buscarCanciones(
 ): Promise<SheetCatalogItem[]> {
   const seleccionadas = categoriasElegidas(filtros);
 
-  let consulta = supabase.from("sheets").select(CAMPOS).order("title", { ascending: true });
+  const hayBusqueda = Boolean((filtros.q ?? "").trim());
+  let consulta = supabase
+    .from("sheets")
+    .select(hayBusqueda ? CAMPOS_CON_LETRA : CAMPOS)
+    .order("title", { ascending: true });
 
   // Filtro por estado (O-28). Solo la pantalla se lo pasa cuando quien mira es
   // administrador; y aunque alguien lo escribiera a mano en la dirección, no
@@ -105,31 +119,34 @@ export async function buscarCanciones(
     consulta = consulta.or(partes.join(","));
   }
 
-  if (filtros.q) {
-    // Se sanea la búsqueda: las comas y paréntesis rompen la sintaxis del filtro
-    // `.or()`, y % y _ son comodines. Se neutralizan.
-    const seguro = filtros.q
-      .replace(/[,()]/g, " ")
-      .replace(/[%_]/g, "\\$&")
-      .trim();
-    if (seguro) {
-      // También por LETRA (J.3). Es la pregunta que más se hace en un grupo
-      // de alabanza: «¿cómo se llama la que dice...?». La columna `lyrics`
-      // existía desde la primera migración y no la usaba nadie.
-      //
-      // Se usa `ilike` y no el índice de texto completo a propósito: con 75
-      // canciones la diferencia no se nota, y `ilike` encuentra trozos de
-      // palabra —«naveg» encuentra «navegaré»—, que es como se busca cuando
-      // uno se acuerda a medias de una frase.
-      consulta = consulta.or(
-        `title.ilike.%${seguro}%,composer.ilike.%${seguro}%,lyrics.ilike.%${seguro}%`
-      );
-    }
-  }
+  // 🔴 LA BUSQUEDA POR TEXTO YA NO LA HACE LA BASE (O-72), y el motivo es
+  // concreto: `ilike` **no ignora las tildes**, y **23 de los 72 titulos llevan
+  // tilde o ñ**. Isaac lo pidio asi: «que las canciones con tildes me aparezcan
+  // buscandolo asi sea sin tilde».
+  //
+  // Para que lo hiciera la base haria falta la extension `unaccent`, que es una
+  // MIGRACION — y hoy no hay via para aplicarlas (§9.1). Asi que se filtra abajo,
+  // en el servidor, sobre lo que la consulta devuelve.
+  //
+  // 📌 **A este tamaño sale barato, y esta MEDIDO: 39 KB** las 72 canciones con
+  // sus letras (7 KB sin ellas). Y no es una idea nueva: el codigo ya decia que
+  // «con 75 canciones la diferencia no se nota». Cambia DONDE se filtra, no la
+  // idea. El dia que haya acceso a la base, esto se mueve alli sin que cambie
+  // nada de lo que ve nadie.
+  //
+  // ⚠️ Los demas filtros —categoria y estado— **siguen en la base**: esos si
+  // recortan filas de verdad y no tienen problema de tildes.
 
   const { data } = await consulta;
 
-  return (data ?? []).map((cancion: any) => {
+  // Aqui se aplica la busqueda, sin tildes y sin mayusculas: titulo, autor y
+  // LETRA (J.3) — «¿como se llama la que dice...?» es lo que mas se pregunta.
+  const filtradas = (data ?? []).filter((cancion) => {
+    const c = cancion as { title?: string; composer?: string | null; lyrics?: string | null };
+    return algunoContiene([c.title, c.composer, c.lyrics], filtros.q ?? "");
+  });
+
+  return filtradas.map((cancion: any) => {
     // Todas las categorías, con la principal delante y sin repetir.
     const principal: CategoryBadge | null = cancion.category
       ? { name: cancion.category.name, color: cancion.category.color }

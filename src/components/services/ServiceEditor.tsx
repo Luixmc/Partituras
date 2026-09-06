@@ -35,6 +35,7 @@ import AutoTextarea from "@/components/ui/AutoTextarea";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
 import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
 import type { ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
+import { algunoContiene } from "@/lib/texto";
 
 export interface CatalogSong {
   id:             string;
@@ -257,14 +258,13 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
   }, [songs]);
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
+    if (!query.trim()) return [];
+    // 🔴 Sin tildes (O-72): en el culto se busca «aqui» y tiene que salir «Aquí
+    // Te Esperaré». Antes se comparaba con `toLowerCase()` a secas, que baja las
+    // mayusculas pero **no quita las tildes**, y 23 de los 72 titulos llevan.
+    // La comparacion es la MISMA que usa el catalogo: una sola funcion en `lib`.
     return catalog
-      .filter(
-        (c) =>
-          c.title.toLowerCase().includes(q) ||
-          (c.composer ?? "").toLowerCase().includes(q)
-      )
+      .filter((c) => algunoContiene([c.title, c.composer], query))
       .slice(0, 8);
   }, [query, catalog]);
 

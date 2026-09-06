@@ -2581,6 +2581,84 @@ un número raro.
 ⚠️ **Lo que NO se tocó:** los botones. Ya ponían las 15 desde O-49 y **siguen poniendo el número**,
 que es lo que hay escrito en las canciones. Esto es solo para quien teclea.
 
+**O-71 · Que busque MIENTRAS SE ESCRIBE, sin tener que dar Enter.** ⬜ **DICTADA (2026-09-05).**
+Isaac: *«cuando se busque una canción en el catálogo apenas vaya escribiendo letra por letra ya vaya
+haciendo la búsqueda y que no tenga necesidad obligatoriamente de darle al enter»*.
+
+**Dónde está hoy, mirado uno por uno — hay CUATRO buscadores y no se portan igual:**
+
+| Buscador | Cómo busca | ¿Al escribir? |
+|---|---|---|
+| **Catálogo** (`/catalog`) | formulario de servidor → `ilike` en la base | ❌ hace falta Enter |
+| **Letras** (`/letras`) | el mismo | ❌ Enter |
+| **Melodías** (`/melodias`) | el mismo | ❌ Enter |
+| **Editor de cultos** (`ServiceEditor`) | en el navegador, sobre la lista ya cargada | ✅ **ya lo hace** |
+
+**O-72 · Que encuentre las canciones con tilde AUNQUE se escriba sin tilde.** ⬜ **DICTADA.**
+Isaac: *«si busco "Aquí Te Esperaré" pero no lo busco así sino "aqui" o "esperare" me salga la
+canción, así para todas las secciones de la página»*.
+
+**Medido antes de proponer nada:**
+
+| | |
+|---|---|
+| Títulos con tilde o ñ | 🔴 **23 de 72** — un tercio del catálogo |
+| Ejemplos | «Yo Navegaré» · «Quiero Conocer A Jesús» · «No Hay Lugar Más Alto» |
+
+🔴 **Y aquí está la trampa, que cambia por dónde se hace:** `ilike` —lo que usa la base hoy— **no
+ignora las tildes**. Para que las ignore hace falta la extensión `unaccent`… **que es una
+migración**, o sea **bloqueada por el primo** como todo lo demás.
+
+→ **La salida sin migración: filtrar en JavaScript.** A este tamaño sale barato, y está **medido**:
+
+| | |
+|---|---|
+| Traer las 72 canciones **con letra** | **39 KB** |
+| Sin las letras | 7 KB |
+
+📌 **Y no es un apaño improvisado:** el propio código ya decía que a este tamaño da igual —*«se usa
+`ilike` y no el índice de texto completo a propósito: con 75 canciones la diferencia no se nota»*—.
+Se cambia **dónde** se filtra, no la idea.
+
+#### ✅ HECHAS LAS DOS (2026-09-05) — r62
+
+| | |
+|---|---|
+| `lib/texto.ts` | `sinTildes()`, `contiene()` y `algunoContiene()`. **Una sola función para los cuatro buscadores**, y en `lib/` la cubre el CI |
+| `BuscadorVivo.tsx` | La caja que busca sola, con **300 ms** de espera desde la última tecla. **Una sola caja para las tres pantallas** — antes eran tres copias |
+| `catalogo.ts` | El filtro de texto sale de la consulta y se hace aquí. La **letra solo se pide cuando hay algo escrito**: sin buscar, la carga sigue costando 7 KB |
+| `ServiceEditor` | Usa la misma comparación: en el culto también se busca sin tildes |
+
+⚠️ **La `ñ` se respeta a propósito**, y tiene prueba: `normalize("NFD")` la parte en `n` + virgulilla,
+así que quitar acentos a lo bruto convierte **«año» en «ano»** — en un cancionero de iglesia, eso no.
+Se recompone antes de barrer el resto.
+
+📌 **El Enter no se quita, se añade lo otro:** sigue habiendo un formulario de verdad, así que el
+Enter y el botón «buscar» del teclado del móvil funcionan igual. Y la espera de 300 ms no es a ojo:
+sin ella, teclear «esperare» dispara **ocho** vueltas al servidor y a la base **en Oregón**; con
+ella, **una**.
+
+**Comprobado contra la base real**, pidiendo las direcciones a mano:
+
+| Se busca | Sale |
+|---|---|
+| `aqui` | **Aquí Te Esperaré** |
+| `esperare` | **Aquí Te Esperaré** |
+| `navegare` | **Yo Navegaré** |
+| `jesus` | **Quiero Conocer A Jesús (Yeshúa)** |
+| `mas alto` | **No Hay Lugar Más Alto** |
+| `Aquí`, `esperaré`, `Jesús` (con tilde) | **también** — la forma vieja no se rompe |
+
+**207 pruebas** (6 nuevas, una es literalmente el ejemplo que él puso) · lint **0 errores, 60
+avisos** —los mismos que antes— · build **0** · **26 de 26** pantallas · las tres cajas montadas.
+
+⬜ **Lo que NO se pudo comprobar desde aquí, y hay que decirlo:** **que busque solo mientras se
+teclea**. Se intentó con la página desechable de §2.3-bis y **no se puede**: el tiempo virtual del
+navegador sin ventana **se queda parado** cuando el marco mantiene peticiones abiertas, así que los
+temporizadores nunca llegan a dispararse. Lo comprobado es que **la caja nueva está montada en las
+tres pantallas** y que **el filtrado funciona** pidiendo la dirección. → **Falta que Isaac escriba
+en la caja.**
+
 #### ⚠️ Y en la comprobación en producción pasó algo que hay que anotar
 
 La primera pasada, **20 segundos después de desplegar**, dio **25 bien · 1 mal**. Las **cinco
@@ -6016,14 +6094,21 @@ Del `roadmap` del README, ninguna aprobada todavía:
   del culto lleva **las canciones completas** con sus acordes, una por hoja. Y se hace con la
   impresión del navegador: **`@react-pdf/renderer` se quitó** el 2026-08-28 (8,4 MB que no
   importaba nadie). *La línea seguía diciendo que estaba instalado.*
-- [PROPUESTA] Etiquetas, favoritos e historial de versiones en la interfaz (las tablas ya
-  existen y están a 0 filas).
-- [PROPUESTA] Subida y visor del PDF original.
-- [PROPUESTA] Sincronización con Google Drive (tablas preparadas, nunca empezado).
+- 🟢 **APROBADA en principio por Isaac el 2026-09-05** — *«me parece bien el punto 1»*: etiquetas,
+  favoritos e historial de versiones en la interfaz (las tablas ya existen y están a 0 filas).
+  ⬜ **Sin plan y sin empezar.** Son **TRES cosas distintas** con tres trabajos distintos, y antes
+  de tocar nada hay que preguntarle **cuál quiere primero y para qué la quiere** — «favoritos» de
+  cada músico no es lo mismo que «favoritos» del grupo.
+- ❌ **DESCARTADA por Isaac el 2026-09-05** (*«los otros no»*): subida y visor del PDF original.
+- ❌ **DESCARTADA por Isaac el 2026-09-05**: sincronización con Google Drive (tablas preparadas,
+  nunca empezado). **No volver a proponerlas.**
 - ✅ ~~[PROPUESTA] Terminar la PWA~~ → **HECHA** (O-59): se instala con su icono, se abre sin barra
   de direcciones, gira (r49) y el caché va versionado (P-12), que era la causa de T-02. Lo único que
   faltaba era **decirle a la gente cómo se instala**, y eso está en `/novedades` desde r50.
-- [PROPUESTA] Darle sentido al rol `musician`, que hoy es idéntico a `viewer`.
+- 🟢 **APROBADA en principio por Isaac el 2026-09-05** — *«me parece bien… el 4»*: darle sentido al
+  rol `musician`, que hoy hace **exactamente lo mismo** que `viewer`.
+  ⬜ **Sin plan y sin empezar**, y aquí la pregunta es toda la tarea: **¿qué tiene que poder hacer
+  un músico que un lector no?** Eso no se puede deducir del código — lo dice él.
 
 ---
 
@@ -6110,7 +6195,7 @@ otra persona y compartido con un proyecto ajeno.
 | 1 | **Invitación al proyecto de Vercel** | 🟢 **YA NO BLOQUEA. No perseguirlo.** De los 5 motivos por los que se pidió, **4 se cubrieron por otra vía** (ver abajo). Y **Hobby no admite colaboradores**: el plan que sí, son **20 USD/persona/mes** |
 | 2 | **Clave `service_role`** | 🔴 **SIGUE BLOQUEANDO, y es lo único de esta lista que importa.** Tres motivos, abajo |
 | 3 | **Cuenta propia de Supabase + invitación a la organización** | 🟡 Menor. Hoy se usa la sesión del primo (§9.1) |
-| 4 | **Un acuerdo con el primo sobre quién toca `main`** | 🟡 **El que más se olvida.** Si los dos empujan sin avisarse se pisan — y cada push publica. Basta con: *«te aviso antes de subir»* |
+| 4 | ~~**Un acuerdo con el primo sobre quién toca `main`**~~ | ✅ **DECIDIDO por Isaac el 2026-09-05: lo toca él.** Sus palabras: *«el main lo toco yo, o bueno tú que es el que haces todo»*. Encaja con lo que ya se sabía —**el primo no hace correcciones** desde el 2026-08-20—, así que el riesgo de pisarse es teórico. **Deja de ser un pendiente** |
 
 **Por qué Vercel dejó de bloquear:**
 

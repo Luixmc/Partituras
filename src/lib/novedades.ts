@@ -72,8 +72,30 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "5 de septiembre de 2026",
     "iso": "2026-09-05",
-    "entrada": "La barra entre compases se ve mas, el doble puntillo se dibuja entero, y el puntillo se puede teclear como punto.",
+    "entrada": "Buscar es mas facil: filtra mientras escribes y encuentra las canciones con tilde aunque las escribas sin tilde.",
     "secciones": [
+      {
+        "titulo": "Buscar es mas facil: sin Enter y sin tildes",
+        "resumen": "La busqueda va filtrando mientras escribes, y encuentra las canciones con tilde aunque las escribas sin tilde.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Ya no hace falta darle a Enter.",
+            "detalle": [
+              "<strong>Apenas empiezas a escribir, la lista se va filtrando sola</strong> — en el catalogo, en Letras y en Melodias. Si prefieres darle a Enter, sigue funcionando igual."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "Las canciones con tilde salen aunque las busques sin tilde.",
+            "detalle": [
+              "Escribe <strong>aqui</strong> y sale «Aquí Te Esperaré». Escribe <strong>navegare</strong> y sale «Yo Navegaré». <strong>23 de las 72 canciones</strong> llevan tilde o ñ en el titulo, asi que esto pasaba mucho.",
+              "Vale en <strong>todas</strong> las busquedas: el catalogo, Letras, Melodias y el buscador de canciones cuando armas un culto.",
+              "✅ Y la <strong>ñ</strong> se respeta: «año» sigue siendo «año», no «ano»."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El puntillo se puede escribir como punto",
         "resumen": "Ademas del numero, ahora se puede teclear el puntillo con un punto: «:2.» y «:2..».",

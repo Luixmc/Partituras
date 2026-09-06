@@ -1,4 +1,4 @@
-import { Music4, Search } from "lucide-react";
+import { Music4 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -13,6 +13,7 @@ import {
 import { puedeVerMelodia } from "@/lib/melodia";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/types";
+import BuscadorVivo from "@/components/sheets/BuscadorVivo";
 
 // ─────────────────────────────────────────────────────────────
 // «Melodía»: la sección propia de la trompeta (O-57 R.2).
@@ -102,17 +103,14 @@ export default async function MelodiasPage(props: { searchParams: Promise<Filtro
           </p>
         )}
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <form>
-            <input
-              name="q"
-              defaultValue={searchParams.q}
-              type="search"
-              placeholder="Buscar por titulo o autor..."
-              className="w-full rounded-xl bg-slate-100 py-2.5 pl-10 pr-4 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-800 dark:text-slate-100"
-            />
-          </form>
+        <div className="mb-4">
+          {/* Busca al escribir (O-71); el Enter sigue valiendo. */}
+          <BuscadorVivo
+            base="/melodias"
+            q={searchParams.q}
+            placeholder="Buscar por titulo o autor..."
+            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+          />
         </div>
 
         <CatalogFilters

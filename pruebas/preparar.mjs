@@ -37,6 +37,7 @@ const MODULOS = [
   "transpositores",
   "figuras",
   "reparto",
+  "texto",
   "melodia",
 ];
 

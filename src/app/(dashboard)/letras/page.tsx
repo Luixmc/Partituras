@@ -1,4 +1,4 @@
-import { Mic2, Search } from "lucide-react";
+import { Mic2 } from "lucide-react";
 import Link from "next/link";
 
 import CatalogFilters from "@/components/sheets/CatalogFilters";
@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { puedeVerLetras } from "@/lib/letras";
 import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
+import BuscadorVivo from "@/components/sheets/BuscadorVivo";
 
 // ─────────────────────────────────────────────────────────────
 // «Letras»: la sección propia que pidió Isaac el 2026-08-21.
@@ -75,17 +76,14 @@ export default async function LetrasPage(props: { searchParams: Promise<FiltrosC
           </p>
         </div>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <form>
-            <input
-              name="q"
-              defaultValue={searchParams.q}
-              type="search"
-              placeholder="Buscar por titulo, autor o por lo que dice la letra..."
-              className="w-full rounded-xl bg-slate-100 py-2.5 pl-10 pr-4 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-800 dark:text-slate-100"
-            />
-          </form>
+        <div className="mb-4">
+          {/* Busca al escribir (O-71); el Enter sigue valiendo. */}
+          <BuscadorVivo
+            base="/letras"
+            q={searchParams.q}
+            placeholder="Buscar por titulo, autor o por lo que dice la letra..."
+            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+          />
         </div>
 
         <CatalogFilters

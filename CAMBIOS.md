@@ -7,6 +7,17 @@
 
 ## 5 de septiembre de 2026
 
+### 🔍 Buscar es más fácil: sin Enter y sin tildes
+
+- 🆕 **Ya no hace falta darle a Enter.** Apenas empiezas a escribir, **la lista se va filtrando
+  sola** — en el catálogo, en Letras y en Melodías. Si prefieres darle a Enter, sigue funcionando.
+- 🆕 **Las canciones con tilde salen aunque las busques sin tilde.** Escribe `aqui` y sale «Aquí Te
+  Esperaré»; escribe `navegare` y sale «Yo Navegaré». **23 de las 72 canciones** llevan tilde o ñ en
+  el título, así que esto pasaba a menudo.
+- **Vale en todas las búsquedas de la página**: el catálogo, Letras, Melodías y el buscador de
+  canciones cuando armas un culto.
+- ✅ Y la **ñ** se respeta: «año» sigue siendo «año», no «ano».
+
 ### ✍️ El puntillo se puede escribir como punto
 
 - **Al escribir a mano, el puntillo se puede poner como un punto**, igual que en una partitura:
