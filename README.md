@@ -322,9 +322,11 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 - **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
   `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
   antes la clave `service_role`, porque `npm run export` depende de esa lectura.
-- **Dos migraciones escritas y SIN APLICAR**: `20240020` (que un usuario desactivado tampoco pueda
-  leer por la API) y `20240021` (la columna `sheets.melody`). El código publicado **no las
-  necesita**: detecta que falta y lo dice, en vez de fingir que guardó.
+- **Tres migraciones escritas y SIN APLICAR**: `20240020` (que un usuario desactivado tampoco pueda
+  leer por la API), `20240021` (la columna `sheets.melody`) y `20240022` (`notas_musico`, las notas
+  privadas de cada músico). El código publicado **no las necesita**: detecta que falta y lo dice, en
+  vez de fingir que guardó. **De `20240022` no hay pantalla todavía, a propósito**: un botón que
+  guarda en una tabla que no existe es peor que no tener botón.
 - **Queda medio P-01**: por la web un usuario desactivado ya no entra, pero **un token guardado
   puede seguir leyendo por la API** hasta que caduque. Eso lo cierra la migración `20240020`.
 - **60 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
@@ -391,6 +393,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r64** | **El corazón, también en Letras y Melodías** (O-73). Y se escribe la migración `20240022` para las **notas privadas** del rol músico (O-74), sin pantalla hasta que se pueda aplicar |
 | **r63** | **Favoritos por músico** (O-73): corazón en cada tarjeta del catálogo y filtro «Mis favoritas». La tabla `favorites` ya existía con sus políticas, así que **no hizo falta migración** — comprobado contra la base antes de escribir código, incluido que **nadie puede marcar favoritos en la cuenta de otro** (403) |
 | **r62** | **Buscar sin Enter y sin tildes** (O-71, O-72): la lista filtra mientras se escribe —300 ms de espera, una sola caja para las tres pantallas— y la comparación **ignora tildes** (23 de 72 títulos llevan). El filtro de texto sale de `ilike` y pasa a `lib/texto.ts`, porque `unaccent` exigiría una migración. **207 pruebas** |
 | **r61** | **El puntillo se puede teclear como punto** (O-70): `:2.` es blanca con puntillo y `:2..` con doble puntillo, además del número de siempre. Se pidió porque `:0.4375` es impracticable de escribir — ahora es `:0.25..`. Las dos formas conviven, y la lectura de la duración pasa a `lib/figuras.ts`, donde **la cubre el CI** |

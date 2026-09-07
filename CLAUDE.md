@@ -767,7 +767,8 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **1** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **1** | 🔴 **TRES MIGRACIONES esperando al primo** (`20240020`, `20240021` y la nueva `20240022`) | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
+| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -6159,6 +6160,11 @@ Del `roadmap` del README, ninguna aprobada todavía:
   **Letras** y **Melodías** —hoy el filtro funciona ahí porque comparten la consulta, pero **el
   corazón solo está en el catálogo**— y si quiere una **pantalla propia** o le basta el filtro.
 
+  **✅ Y EL CORAZÓN, TAMBIÉN EN LETRAS Y MELODÍAS (2026-09-07).** Isaac: *«el corazón lo quiero
+  también en letra y melodías»*. Las tres pantallas sirven ahora **los mismos 84 corazones**,
+  medido. El filtro «Mis favoritas» ya funcionaba en las tres desde r63, porque comparten la
+  consulta (D-21).
+
   ⬜ **Y lo que no se puede comprobar desde aquí:** que el corazón **responda al pulsarlo**. Eso es
   el navegador. Lo medido es que la base guarda, que el filtro filtra y que el corazón se pinta como
   toca. **Falta que Isaac lo pulse.**
@@ -6197,6 +6203,39 @@ Del `roadmap` del README, ninguna aprobada todavía:
   todo lo demás. Eso puede cambiar cuál elige, así que va delante y no en letra pequeña.
   ⚠️ Y **C sin tocar la base sería un engaño**: el botón aparecería y la base lo rechazaría —o peor,
   lo dejaría pasar (P-03 está medido solo a medias)—.
+
+  #### ✅ ISAAC ELIGIÓ (2026-09-07): **D · las notas privadas** y **E · armar cultos**
+
+  🔴 **Y AL IR A HACERLO SE VIO QUE YO LE HABÍA DICHO MAL LO DE LA E.** En la tabla de arriba puse
+  que «E se queda en la pantalla y se puede hacer hoy». **Es falso.** La política de la base dice:
+
+  ```sql
+  create policy "services_write_admin" on public.services for all
+    to authenticated using (public.is_admin()) with check (public.is_admin());
+  ```
+
+  → **Escribir cultos es solo del administrador, y eso lo dice la BASE.** Cambiarlo es una
+  migración. **Las dos que eligió están bloqueadas por el primo**, y se lo dije nada más verlo.
+  📌 **La lección de por qué me equivoqué**: clasifiqué las cinco opciones **por dónde imaginaba que
+  vivía cada una**, sin abrir las políticas. Con D acerté por casualidad —tabla nueva, obvio— y con E
+  no. **Una opción no se etiqueta de «se puede hoy» sin haber mirado lo que la impide.**
+
+  #### Lo que SÍ se hizo el 2026-09-07
+
+  | | |
+  |---|---|
+  | **D · notas privadas** | 📄 **Migración `20240022` ESCRITA y sin aplicar.** Crea `notas_musico` con sus cuatro políticas —cada uno solo las suyas, **el administrador tampoco las ve**—. ⚠️ Es de las **seguras**: tabla nueva, no toca ninguna política existente, así que **no puede dejar a nadie fuera** (al revés que la `20240020`) |
+  | **E · armar cultos** | ⬜ **NI ESCRITA.** Y es deliberado: cambiar quién escribe cultos es `alter policy` sobre un nombre que sale del repositorio, y **T-01 dice que el repositorio no es la base**. Es exactamente lo que tiene bloqueada la `20240020`. → **Primero se leen las políticas reales, y para eso hace falta el acceso** |
+  | **La pantalla de las dos** | ⬜ **Sin empezar, a propósito.** Un botón que guarda en una tabla que no existe **es peor que no tener botón**: es el engaño que ya está escrito arriba para la opción C |
+
+  #### El diseño de la E, para cuando se pueda
+
+  Un músico **crea y ordena** cultos, pero **no los publica**:
+  * `insert` en `services`: se le permite, **pero solo con `status = 'draft'`**.
+  * `update`: solo los **suyos** (`created_by = auth.uid()`), y **sin poder poner `published`** — eso
+    se hace con el `with check`, que mira la fila NUEVA.
+  * `delete`: **solo el administrador**. Borrar un culto no se reparte.
+  * `service_songs`: escribir solo las del culto propio, mirando el `created_by` del culto padre.
 
 ---
 

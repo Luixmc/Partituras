@@ -9,8 +9,8 @@
 
 ### ❤️ Tus canciones favoritas
 
-- 🆕 **Cada canción del catálogo tiene un corazón** arriba a la derecha. Púlsalo y esa canción queda
-  entre las tuyas.
+- 🆕 **Cada canción tiene un corazón** arriba a la derecha. Púlsalo y esa canción queda entre las
+  tuyas. Está en el **catálogo, en Letras y en Melodías**.
 - 🆕 **Y arriba, junto a las categorías, el botón «Mis favoritas»**: te deja el catálogo con solo las
   que marcaste. Vuelve a pulsarlo y salen todas.
 - 🔴 **Son tuyas.** Cada músico tiene las suyas y nadie ve las de los demás — eso no lo decide la

@@ -9,6 +9,8 @@ import { puedeVerLetras } from "@/lib/letras";
 import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
 import BuscadorVivo from "@/components/sheets/BuscadorVivo";
+import BotonFavorito from "@/components/sheets/BotonFavorito";
+import { misFavoritos } from "@/lib/favoritos";
 
 // ─────────────────────────────────────────────────────────────
 // «Letras»: la sección propia que pidió Isaac el 2026-08-21.
@@ -55,6 +57,9 @@ export default async function LetrasPage(props: { searchParams: Promise<FiltrosC
 
   const filtros: FiltrosCatalogo = esAdmin ? searchParams : { ...searchParams, estado: undefined };
   const canciones = await buscarCanciones(supabase, filtros);
+  // Los favoritos, para el corazon (O-73). Isaac los pidio tambien aqui:
+  // «el corazon lo quiero tambien en letra y melodias».
+  const favoritos = await misFavoritos(supabase);
 
   // Qué canciones tienen letra. Se pide APARTE y solo el `id`: traerse el
   // texto de las 75 en la lista es justo lo que obligó al tope de 50 en su
@@ -105,13 +110,14 @@ export default async function LetrasPage(props: { searchParams: Promise<FiltrosC
             {canciones.map((c) => {
               const tiene = tienenLetra.has(c.id);
               return (
-                <li key={c.id}>
+                <li key={c.id} className="relative">
+                  <BotonFavorito sheetId={c.id} favorito={favoritos.has(c.id)} titulo={c.title} />
                   {/* Se abre la canción DIRECTAMENTE en su letra. */}
                   <Link
                     href={`/catalog/${c.id}?ver=letra${filtro ? "&" + filtro.slice(1) : ""}`}
                     className="flex h-full flex-col gap-2 rounded-xl bg-white p-4 ring-1 ring-slate-200 transition-shadow hover:shadow-md dark:bg-slate-800 dark:ring-slate-700"
                   >
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start justify-between gap-2 pr-8">
                       <span className="font-semibold text-slate-900 dark:text-slate-50">{c.title}</span>
                       <Mic2
                         className={

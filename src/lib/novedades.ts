@@ -75,14 +75,14 @@ export const TANDAS: Tanda[] = [
     "entrada": "Ya puedes marcar tus canciones favoritas.",
     "secciones": [
       {
-        "titulo": "Tus canciones favoritas",
+        "titulo": "Tus canciones favoritas, en las tres pantallas",
         "resumen": "Marca con el corazon las canciones que tocas, y filtra el catalogo para ver solo esas.",
         "cambios": [
           {
             "tipo": "nuevo",
             "titulo": "Ya puedes marcar tus canciones favoritas.",
             "detalle": [
-              "En el catalogo, cada cancion tiene un <strong>corazon</strong> arriba a la derecha. Pulsalo y esa cancion queda entre las tuyas.",
+              "Cada cancion tiene un <strong>corazon</strong> arriba a la derecha. Pulsalo y esa cancion queda entre las tuyas. Esta en el <strong>catalogo, en Letras y en Melodias</strong>.",
               "Arriba, junto a las categorias, esta el boton <strong>«Mis favoritas»</strong>: pulsalo y el catalogo te deja solo las que marcaste. Vuelve a pulsarlo y salen todas.",
               "🔴 <strong>Son TUYAS.</strong> Cada musico tiene las suyas y nadie ve las de los demas — eso no lo decide la pantalla, lo impide la base de datos."
             ]
