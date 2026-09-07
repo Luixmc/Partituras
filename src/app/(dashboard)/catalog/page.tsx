@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { Category } from "@/types";
 import BuscadorVivo from "@/components/sheets/BuscadorVivo";
+import { misFavoritos } from "@/lib/favoritos";
 
 export default async function CatalogPage(
   props: {
@@ -37,6 +38,9 @@ export default async function CatalogPage(
   // Un no-administrador nunca filtra por estado, aunque lo ponga en la dirección.
   const filtrosUsados: FiltrosCatalogo = esAdmin ? searchParams : { ...searchParams, estado: undefined };
   const sheets = await buscarCanciones(supabase, filtrosUsados);
+  // Los favoritos de quien mira, para pintar el corazon (O-73). Una consulta
+  // para toda la pantalla, no una por tarjeta.
+  const favoritos = await misFavoritos(supabase);
   const selectedIds = categoriasElegidas(searchParams);
   const q = searchParams.q;
   // El filtro viaja con cada canción, para que al abrirla y ponerla a pantalla
@@ -56,7 +60,7 @@ export default async function CatalogPage(
             base="/catalog"
             q={q}
             placeholder="Buscar por titulo, compositor..."
-            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+            extra={{ categories: searchParams.categories, estado: searchParams.estado, favoritos: searchParams.favoritos }}
           />
         </div>
 
@@ -64,6 +68,7 @@ export default async function CatalogPage(
           categories={(categories ?? []) as Category[]}
           selectedIds={selectedIds}
           q={q}
+          soloFavoritos={searchParams.favoritos === "1"}
           esAdmin={esAdmin}
           estado={estadoElegido(filtrosUsados)}
         />
@@ -82,7 +87,13 @@ export default async function CatalogPage(
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sheets.map((sheet) => (
-                <SheetCard key={sheet.id} sheet={sheet} filtro={filtro} esAdmin={esAdmin} />
+                <SheetCard
+                  key={sheet.id}
+                  sheet={sheet}
+                  filtro={filtro}
+                  esAdmin={esAdmin}
+                  favorito={favoritos.has(sheet.id)}
+                />
               ))}
             </div>
           </>

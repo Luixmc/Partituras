@@ -82,7 +82,7 @@ export default async function LetrasPage(props: { searchParams: Promise<FiltrosC
             base="/letras"
             q={searchParams.q}
             placeholder="Buscar por titulo, autor o por lo que dice la letra..."
-            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+            extra={{ categories: searchParams.categories, estado: searchParams.estado, favoritos: searchParams.favoritos }}
           />
         </div>
 
@@ -90,6 +90,7 @@ export default async function LetrasPage(props: { searchParams: Promise<FiltrosC
           categories={(categories ?? []) as Category[]}
           selectedIds={categoriasElegidas(filtros)}
           q={searchParams.q}
+          soloFavoritos={searchParams.favoritos === "1"}
           esAdmin={esAdmin}
           estado={estadoElegido(filtros)}
           base="/letras"

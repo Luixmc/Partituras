@@ -308,7 +308,7 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 
 **Pendiente**
 
-- [ ] Etiquetas, favoritos e historial de versiones en la UI (las tablas ya existen)
+- [ ] Etiquetas e historial de versiones en la UI (las tablas ya existen). **Los favoritos ya están hechos** (r63)
 - [ ] Subida y visor de PDF original + miniaturas
 - [ ] Sincronización con Google Drive
 - [ ] Darle sentido al rol `musician`, que hoy hace lo mismo que `viewer`
@@ -391,6 +391,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r63** | **Favoritos por músico** (O-73): corazón en cada tarjeta del catálogo y filtro «Mis favoritas». La tabla `favorites` ya existía con sus políticas, así que **no hizo falta migración** — comprobado contra la base antes de escribir código, incluido que **nadie puede marcar favoritos en la cuenta de otro** (403) |
 | **r62** | **Buscar sin Enter y sin tildes** (O-71, O-72): la lista filtra mientras se escribe —300 ms de espera, una sola caja para las tres pantallas— y la comparación **ignora tildes** (23 de 72 títulos llevan). El filtro de texto sale de `ilike` y pasa a `lib/texto.ts`, porque `unaccent` exigiría una migración. **207 pruebas** |
 | **r61** | **El puntillo se puede teclear como punto** (O-70): `:2.` es blanca con puntillo y `:2..` con doble puntillo, además del número de siempre. Se pidió porque `:0.4375` es impracticable de escribir — ahora es `:0.25..`. Las dos formas conviven, y la lectura de la duración pasa a `lib/figuras.ts`, donde **la cubre el CI** |
 | **r60** | **La barra entre compases, a 2 px** (O-68): se le enseñaron 1, 2 y 3 px dibujados sobre su propia canción y eligió 2. ⚠️ El aviso de que «el grosor engorda el compás» resultó **falso al medirlo**: con `box-sizing: border-box` el borde va dentro del ancho, así que el reparto no se entera |

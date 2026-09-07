@@ -5,6 +5,19 @@
 
 ---
 
+## 7 de septiembre de 2026
+
+### ❤️ Tus canciones favoritas
+
+- 🆕 **Cada canción del catálogo tiene un corazón** arriba a la derecha. Púlsalo y esa canción queda
+  entre las tuyas.
+- 🆕 **Y arriba, junto a las categorías, el botón «Mis favoritas»**: te deja el catálogo con solo las
+  que marcaste. Vuelve a pulsarlo y salen todas.
+- 🔴 **Son tuyas.** Cada músico tiene las suyas y nadie ve las de los demás — eso no lo decide la
+  pantalla, **lo impide la base de datos**.
+
+---
+
 ## 5 de septiembre de 2026
 
 ### 🔍 Buscar es más fácil: sin Enter y sin tildes

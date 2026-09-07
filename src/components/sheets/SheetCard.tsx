@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { categoryStyle, formatKey } from "@/lib/utils";
+import { categoryStyle, cn, formatKey } from "@/lib/utils";
 import type { SheetCatalogItem, SheetStatus } from "@/types";
+import BotonFavorito from "@/components/sheets/BotonFavorito";
 
 const ESTADO: Record<SheetStatus, { label: string; className: string }> = {
   published: { label: "Publicada", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" },
@@ -13,8 +14,12 @@ export default function SheetCard({
   sheet,
   filtro = "",
   esAdmin = false,
+  favorito,
 }: {
   sheet: SheetCatalogItem;
+  /** Si esta cancion esta entre los favoritos de quien mira (O-73).
+      `undefined` = no hay sesion, y entonces no se dibuja el corazon. */
+  favorito?: boolean;
   /** Filtro activo del catálogo; viaja con el enlace para saber, al poner la
       canción a pantalla completa, cuál es «la siguiente» (O-16). */
   filtro?: string;
@@ -27,14 +32,17 @@ export default function SheetCard({
   const estado = esAdmin ? ESTADO[sheet.status] ?? ESTADO.draft : null;
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+    <article className="relative rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+      {favorito !== undefined && (
+        <BotonFavorito sheetId={sheet.id} favorito={favorito} titulo={sheet.title} />
+      )}
       {/* La tarjeta ENTERA es el enlace, así que no hace falta un botón de
           «Ver cancion» dentro: ocupaba una fila completa para repetir lo que
           ya hace el clic (O-35). Fuera también la cabecera que ponía
           «Cancion» en todas: en un catálogo de canciones, eso no informa.
           Entre las dos cosas la tarjeta baja de ~185 px a ~110 px. */}
       <Link href={`/catalog/${sheet.id}${filtro}`} className="flex h-full flex-col gap-2 p-3.5">
-        <div className="flex items-start justify-between gap-2">
+        <div className={cn("flex items-start justify-between gap-2", favorito !== undefined && "pr-8")}>
           <h3 className="line-clamp-2 font-display text-base font-semibold leading-tight text-slate-900 dark:text-slate-50">
             {sheet.title}
           </h3>

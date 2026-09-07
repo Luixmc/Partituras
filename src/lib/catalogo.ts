@@ -10,6 +10,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryBadge, SheetCatalogItem } from "@/types";
 import { algunoContiene } from "@/lib/texto";
+import { misFavoritos } from "@/lib/favoritos";
 
 /** Los filtros que viajan por la dirección web. */
 export interface FiltrosCatalogo {
@@ -19,6 +20,8 @@ export interface FiltrosCatalogo {
   category?: string;
   /** Estado de la canción. **Solo lo usan los administradores** (O-28). */
   estado?: string;
+  /** «1» para ver SOLO los favoritos de quien mira (O-73). */
+  favoritos?: string;
   /** De qué culto se viene, si se llegó desde uno (O-33). NO es un filtro
       del catálogo: no entra en la consulta ni en `filtrosAQuery`; sirve para
       saber que la lista de «la siguiente» es el repertorio de ese culto. */
@@ -46,6 +49,7 @@ export function filtrosAQuery(filtros: FiltrosCatalogo): string {
   if (cats) p.set("categories", cats);
   const est = estadoElegido(filtros);
   if (est) p.set("estado", est);
+  if (filtros.favoritos === "1") p.set("favoritos", "1");
   const texto = p.toString();
   return texto ? `?${texto}` : "";
 }
@@ -141,8 +145,14 @@ export async function buscarCanciones(
 
   // Aqui se aplica la busqueda, sin tildes y sin mayusculas: titulo, autor y
   // LETRA (J.3) — «¿como se llama la que dice...?» es lo que mas se pregunta.
+  // Los favoritos de quien mira, solo si se han pedido: con el filtro apagado
+  // no se hace ni una consulta de mas.
+  const soloFavoritos = filtros.favoritos === "1";
+  const favoritos = soloFavoritos ? await misFavoritos(supabase) : null;
+
   const filtradas = (data ?? []).filter((cancion) => {
-    const c = cancion as { title?: string; composer?: string | null; lyrics?: string | null };
+    const c = cancion as unknown as { id: string; title?: string; composer?: string | null; lyrics?: string | null };
+    if (favoritos && !favoritos.has(c.id)) return false;
     return algunoContiene([c.title, c.composer, c.lyrics], filtros.q ?? "");
   });
 

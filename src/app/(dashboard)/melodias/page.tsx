@@ -109,7 +109,7 @@ export default async function MelodiasPage(props: { searchParams: Promise<Filtro
             base="/melodias"
             q={searchParams.q}
             placeholder="Buscar por titulo o autor..."
-            extra={{ categories: searchParams.categories, estado: searchParams.estado }}
+            extra={{ categories: searchParams.categories, estado: searchParams.estado, favoritos: searchParams.favoritos }}
           />
         </div>
 
@@ -117,6 +117,7 @@ export default async function MelodiasPage(props: { searchParams: Promise<Filtro
           categories={(categories ?? []) as Category[]}
           selectedIds={categoriasElegidas(filtros)}
           q={searchParams.q}
+          soloFavoritos={searchParams.favoritos === "1"}
           esAdmin={esAdmin}
           estado={estadoElegido(filtros)}
           base="/melodias"

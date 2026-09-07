@@ -6105,10 +6105,63 @@ Del `roadmap` del README, ninguna aprobada todavía:
   | **Primero** | 🔴 **LOS FAVORITOS.** Etiquetas e historial quedan detrás, sin fecha |
   | **De quién** | **De CADA MÚSICO, los suyos.** No del grupo |
 
-  ⬜ **Sin plan y sin empezar todavía.** Lo que hay que mirar antes de proponer nada, y está sin
-  mirar: **qué tabla existe ya** en la base y **si sirve tal cual** — si le falta una columna, esto
-  es otra **migración**, y entonces nace bloqueado como todo lo demás (§9.1). **Eso se comprueba
-  ANTES de enseñarle un plan**, no después.
+  **✅ COMPROBADO CONTRA LA BASE REAL el 2026-09-07, y la noticia es buena: NO HACE FALTA
+  MIGRACIÓN.** Isaac dijo *«adelante con el punto 2»* y lo primero fue mirar la tabla, porque **T-01
+  avisa de que las migraciones del repositorio no son la verdad de la base**. Esta vez sí lo eran:
+
+  | Se probó, con la cuenta de prueba | |
+  |---|---|
+  | Leer `favorites` con sesión | ✅ **200** (vacía: 0 filas) |
+  | Guardar un favorito **mío** | ✅ la política **deja** |
+  | Guardar uno **a nombre de OTRO usuario** | ✅ **403 · 42501, bloqueado** |
+
+  🔬 **Y las dos pruebas de escritura NO escribieron nada**, con el mismo truco de P-03: se manda
+  `sheet_id` a `null`. Si la política bloquea sale **42501**; si deja pasar, Postgres lo para por el
+  `NOT NULL` y sale **23502**. Las dos ramas dejan la base intacta y **el código de error dice cuál
+  fue**.
+
+  📌 **Lo que eso significa, y por eso se mide antes de planear:** los favoritos **se pueden hacer
+  hoy**, sin esperar al primo. Es lo único aprobado que no está bloqueado.
+
+  #### El plan, mínimo y en un solo paso
+
+  | | |
+  |---|---|
+  | **1** | `lib/favoritos.ts`: leer los del usuario y marcar/desmarcar |
+  | **2** | Un **corazón** en la tarjeta del catálogo, que se pulsa y se queda |
+  | **3** | Un filtro **«Solo mis favoritos»** junto a las categorías, como uno más |
+
+  #### ✅ HECHO Y PROBADO CONTRA LA BASE (2026-09-07) — r63
+
+  | | |
+  |---|---|
+  | `lib/favoritos.ts` | Lee los del usuario. **Una consulta para toda la pantalla**, no una por tarjeta |
+  | `catalog/actions.ts` | Marcar y desmarcar. 🔴 **El usuario NO viaja desde el navegador**: se coge de la sesión, porque si viajara, cualquiera podría mandar el de otro |
+  | `BotonFavorito.tsx` | El corazón. **Pinta lo pulsado sin esperar al servidor** —en una tablet con datos flojos, un corazón que tarda se pulsa dos veces— y **vuelve atrás si el servidor falla** |
+  | `CatalogFilters` | El filtro **«Mis favoritas»**, delante de «Todas» |
+
+  **Probado de punta a punta contra la base real**, con la cuenta de prueba:
+
+  | | |
+  |---|---|
+  | Guardar un favorito | **201** |
+  | El catálogo con `?favoritos=1` | **solo esa canción** |
+  | Su corazón | sale **marcado**; los otros 71, no |
+  | Al terminar | 🧹 **la fila de prueba se borró**: la cuenta queda con **0 favoritos**, comprobado |
+
+  ⚠️ **Y eso último se hace constar porque escribe en la base de producción** (D-04): fue **una fila
+  de la cuenta de prueba**, no un dato de la iglesia, y se limpió en el mismo minuto.
+
+  **Comprobado:** tipos limpios · **207 pruebas** · lint **0 errores, 60 avisos** —los mismos— ·
+  build **0** · **26 de 26** pantallas.
+
+  ⬜ **Lo que queda abierto y decide él al verlo:** si los favoritos deben salir también en
+  **Letras** y **Melodías** —hoy el filtro funciona ahí porque comparten la consulta, pero **el
+  corazón solo está en el catálogo**— y si quiere una **pantalla propia** o le basta el filtro.
+
+  ⬜ **Y lo que no se puede comprobar desde aquí:** que el corazón **responda al pulsarlo**. Eso es
+  el navegador. Lo medido es que la base guarda, que el filtro filtra y que el corazón se pinta como
+  toca. **Falta que Isaac lo pulse.**
 - ❌ **DESCARTADA por Isaac el 2026-09-05** (*«los otros no»*): subida y visor del PDF original.
 - ❌ **DESCARTADA por Isaac el 2026-09-05**: sincronización con Google Drive (tablas preparadas,
   nunca empezado). **No volver a proponerlas.**
