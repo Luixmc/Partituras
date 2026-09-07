@@ -839,7 +839,24 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       ⚠️ **Antes de intentarlo hay que averiguar si el dominio `partituras-blush.vercel.app`
       sobrevive a la transferencia**: si cambia, los músicos pierden el enlace que ya usan.
       **(c) dejarlo como está** y pedirle al primo que mire cuando algo falle.
-- [ ] 🟡 **La clave `service_role` — PEDIDA el 2026-08-22, y el primo dijo que sí.** Isaac se lo
+- [x] 🟢 **LA CLAVE `service_role` YA NO HACE FALTA. Se deja de perseguir (2026-09-07).**
+      Isaac preguntó qué había que pedirle a su primo **una sola vez** para no volver a depender de
+      él, y al medirlo salió esto: **`npm run export` con la sesión de un ADMINISTRADOR saca la copia
+      COMPLETA** — probado ese día: **80 canciones (los 8 borradores incluidos) y los 3 cultos**,
+      contra las 72 y 1 de la clave pública.
+
+      | | |
+      |---|---|
+      | Lo que se creía | *«sin la clave, la copia se deja los borradores»* |
+      | Lo que es | **falso desde el 2026-08-21**, cuando el exportador aceptó `SUPABASE_ACCESS_TOKEN` |
+      | Para qué sigue sirviendo la clave | **solo para `auth.users`** —las contraseñas—, y eso únicamente haría falta si se mudara la base a otra cuenta |
+
+      🔴 **Y lo importante: la clave NUNCA arregló lo que de verdad bloquea.** PostgREST no ejecuta
+      `alter table` ni con ella (medido, §9.1). Se llevaban semanas pidiendo la llave equivocada.
+      → **Lo único que hay que pedirle al primo es la INVITACIÓN a su organización.** Una sola cosa,
+      una sola vez.
+      *Lo de abajo es la historia de cuando sí se creía necesaria.*
+- [ ] 🟡 ~~**La clave `service_role` — PEDIDA el 2026-08-22, y el primo dijo que sí.**~~ Isaac se lo
       pidió con el texto que se le preparó; **la manda cuando llegue del trabajo a la casa.**
       → **Ya no hay que perseguirlo: hay que estar pendiente de que llegue.** En cuanto esté:
       ponerla en `.env.local` (línea `SUPABASE_SERVICE_ROLE_KEY=`, que **no se sube**, está en
@@ -6348,6 +6365,38 @@ otra persona y compartido con un proyecto ajeno.
 pero **la dependencia gorda no es Vercel, es Supabase.** GitHub guarda el programa; **Supabase
 guarda el trabajo de la iglesia** — 75 canciones, cuenta ajena, plan gratuito, sin copias
 automáticas. Por eso la clave importa y el panel de Vercel no.
+
+### 12.2-ter 🔑 LO ÚNICO QUE HAY QUE PEDIRLE AL PRIMO, UNA VEZ
+
+Isaac, 2026-09-07: *«si le tengo que pedir algo a mi primo de lo suyo de la base para que lo tengas
+tú y puedas mirar sin problemas en un futuro sin tener que pedírselo de nuevo»*.
+
+## 👉 **UNA COSA: que invite a Isaac a «Luixmc's Org» con rol `Administrator`.**
+
+**Por qué esa y no otra**, con lo medido:
+
+| | |
+|---|---|
+| El conector de Claude | ya llega a la cuenta de **Isaac** (organización «Primos-Dev») |
+| Lo que le falta | que la cuenta de Isaac sea **miembro** de la organización donde vive Partituras |
+| En cuanto lo sea | el conector **lista el proyecto** y desde aquí se aplican migraciones, se leen las políticas reales (T-01) y se acaba el atasco entero de §9.1 — **para siempre** |
+
+**Los roles, de la documentación oficial de Supabase** (consultada el 2026-09-07):
+
+| Rol | Sirve |
+|---|---|
+| **Owner** | Todo. **No hace falta pedir tanto** |
+| ✅ **Administrator** | Todo menos cambiar los ajustes de la organización, mover proyectos fuera y añadir dueños. **Es el que hay que pedir** |
+| 🟡 **Developer** | Contenido del proyecto sí —incluido el SQL—, **pero no los ajustes**, así que **no deja ver las claves de API**. Sirve para las migraciones; se queda corto para lo demás |
+| ❌ **Read-Only** | Solo mirar. Y además **solo existe en los planes de pago** |
+
+⚠️ **Lo que NO hay que pedirle: la clave `service_role`.** No arregla nada de lo que bloquea —
+PostgREST no ejecuta `alter table` ni con ella— y **la copia de seguridad completa ya funciona sin
+ella** (ver §9.1). Pedirla fue perseguir la llave equivocada durante semanas.
+
+📌 **Y lo que él no pierde, que es lo que conviene decirle:** sigue siendo **el dueño** de todo,
+puede **quitar el acceso cuando quiera**, y **no cuesta un peso** — invitar a la organización es
+gratis en el plan Free.
 
 ### 12.2-bis 🔑 LA MUDANZA — dejar de depender del primo para siempre
 
