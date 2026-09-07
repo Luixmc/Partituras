@@ -6162,6 +6162,17 @@ Del `roadmap` del README, ninguna aprobada todavía:
   ⬜ **Y lo que no se puede comprobar desde aquí:** que el corazón **responda al pulsarlo**. Eso es
   el navegador. Lo medido es que la base guarda, que el filtro filtra y que el corazón se pinta como
   toca. **Falta que Isaac lo pulse.**
+
+  ✅ **PUBLICADO y comprobado en producción**, commit `850298a`, vivo en **15 segundos**. CI verde ·
+  **26 de 26** pantallas · y el catálogo servido por Vercel trae **72 corazones**, exactamente lo
+  mismo que en local.
+
+  ⚠️ **Y un susto que me di yo solo, anotado para no repetirlo:** al comprobar producción busqué la
+  frase `en mis favoritos` con `grep` y salió **0**, así que dije que no había corazones. **Era mi
+  `grep`**: la página escapa las comillas angulares de otra forma. Se vio comparando **las cuentas**
+  de local y producción, que salían idénticas. → **Cuando una comprobación dice que algo falta,
+  antes de anunciarlo hay que descartar que falle la comprobación** — es L-237 otra vez, en su
+  versión más tonta.
 - ❌ **DESCARTADA por Isaac el 2026-09-05** (*«los otros no»*): subida y visor del PDF original.
 - ❌ **DESCARTADA por Isaac el 2026-09-05**: sincronización con Google Drive (tablas preparadas,
   nunca empezado). **No volver a proponerlas.**
