@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "copy-pdf-worker": "node -e \"require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','public/pdf.worker.min.mjs')\"",
     "export": "node scripts/export-datos.mjs",
-    "test": "node pruebas/ejecutar.mjs"
+    "test": "node pruebas/ejecutar.mjs",
+    "docs": "node pruebas/documentacion.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.4.0",

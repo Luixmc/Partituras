@@ -86,9 +86,10 @@ cada push a `main`.
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **192 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **15.114 líneas** de TypeScript
-   en 82 archivos.
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **207 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **15.960 líneas** de TypeScript
+   en **87 archivos**. *(Contado el 2026-09-07. Estas tres cifras cambian cada tanda: **antes de
+   citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
    primero», y actuaba como si no hubiera nada que le cubriera las espaldas.*
@@ -117,6 +118,7 @@ npm run build        # comprobación real de que no se rompió nada
 npm run lint
 npm start            # sirve el build de producción en local
 npm run export       # copia de seguridad de los datos a JSON (§12.1)
+npm run docs         # ¿los documentos dicen la verdad sobre el proyecto de HOY?
 ```
 
 ⚠️ **`npm run dev` y `npm run build` NO se ejecutan a la vez**: comparten la carpeta `.next` y
@@ -129,7 +131,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 192 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 207 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -256,26 +258,35 @@ repo/
         SongDetailEditor.tsx     Editor + vista de una canción (886 líneas): vista, edición, letra y melodía
         SongKeyVersions.tsx      Versiones de la canción en otras tonalidades
         ChordToolbar.tsx         Botonera de acordes
+        BuscadorVivo.tsx         La caja que busca al escribir (O-71)
+        BotonFavorito.tsx        El corazón (O-73)
         ImportControls.tsx       Importar PDF / imagen (OCR) / texto
       services/
         ServiceEditor.tsx        Armar el culto (876 líneas), arrastrando
         PresentationView.tsx ★   Modo presentación (1.016 líneas): acordes ↔ letra ↔ melodía
     lib/
       music.ts ★                 Transposición de acordes
+      texto.ts                   Comparar sin tildes: las cuatro búsquedas (O-72)
+      favoritos.ts               Los favoritos de cada músico (O-73)
+      figuras.ts                 Qué figura es cada duración · `duracionDe()` (O-70)
       sections.ts                Partir el contenido en secciones "[Coro]"
       chordInput.ts              Escribir acordes respetando espacios
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
-  supabase/migrations/           21 migraciones ⚠️ desincronizadas con la BD (T-01)
-                                 ⚠️ las DOS últimas (20240020, 20240021) SIN APLICAR
+  supabase/migrations/           22 migraciones ⚠️ desincronizadas con la BD (T-01)
+                                 ⚠️ las TRES últimas SIN APLICAR:
+                                    20240020 (usuario desactivado) · 20240021 (melody)
+                                    20240022 (notas_musico)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       192 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       207 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
 
-⚠️ **El `README.md` está desactualizado y se equivoca en esto** (P-07). Lo que vale:
+📌 **El `README.md` dice HOY lo mismo que esta tabla, y se comprueba cada vez que cambia la
+sintaxis.** *Aquí ponía «el README está desactualizado y se equivoca en esto» hasta el 2026-09-07, y
+llevaba equivocado desde el 2026-08-28, que es cuando se cerró P-07.* Lo que vale:
 
 | Elemento | Sintaxis | Dónde se implementa |
 |---|---|---|
@@ -780,22 +791,26 @@ tabla, no por lo último que se dijo en el chat anterior.
 | **2026-09-05** | *«lo de los diálogos de cambios sin guardar también funciona, y lo del editor de la melodía hasta ahora está bien»* | Los **diálogos** de «cambios sin guardar» (O-60, O-61) y el **editor de melodía** — arrastrar, `Supr`, deshacer (R.1–R.4) |
 
 📌 **Por qué esto vale y no es una formalidad:** las cinco cosas viven **en la pantalla y no en el
-HTML**. Ninguna se puede comprobar con `curl`, ni con las 197 pruebas, ni con el recorrido de
+HTML**. Ninguna se puede comprobar con `curl`, ni con las pruebas, ni con el recorrido de
 pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevaban semanas en §9.
 
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-04, todo PUBLICADO**
+#### Estado del árbol — **2026-09-07, todo PUBLICADO**
+
+> 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
+> 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
+> Lo cazó Isaac pidiendo revisar todos los archivos.
 
 | | |
 |---|---|
-| Último commit publicado | **`3791e7d`**, y `origin/main` va igual. **Árbol limpio** |
-| Última versión | **r60** — O-68 y O-69, dadas por buenas en producción |
-| Pruebas | **197** (5 nuevas con O-66) |
+| Último commit publicado | **`c2a68b0`**, y `origin/main` va igual. **Árbol limpio** |
+| Última versión | **r64** |
+| Pruebas | **207** · lint **0 errores, 60 avisos** · build **0** |
+| Tamaño | **15.960 líneas** de TypeScript en **87 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
-| Pruebas | **192** · lint **0 errores** (61 avisos heredados) · build **0** |
-| Migraciones | **21**, y **las dos últimas SIN APLICAR** (`20240020`, `20240021`) |
+| Migraciones | **22**, y **las TRES últimas SIN APLICAR**: `20240020`, `20240021`, `20240022` |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
 | `abcjs` | **dependencia de verdad** desde r48, cargada de forma diferida y **fuera del paquete compartido** (medido en `build-manifest.json`) |
 
@@ -6497,6 +6512,46 @@ Ninguna de estas cuatro cambia lo que ve el músico. Las cuatro evitan problemas
   (D-04), OK explícito de Isaac, aviso al primo y copia previa (12.1).
 - ⚠️ **O-08 por el camino (a)** crearía un segundo motor de dibujo que mantener para siempre.
   Ver la recomendación.
+
+---
+
+## 12.6 🔢 LAS CIFRAS DE LOS DOCUMENTOS LAS VIGILA UN PROGRAMA
+
+**`npm run docs`**, y también **en el CI de cada subida** desde el 2026-09-07.
+
+#### Por qué existe
+
+Isaac, el 2026-09-07, después de que se le dijera que una petición que llevaba **semanas**
+haciéndole a su primo ya no hacía falta: *«con lo que me dices que había un archivo que estaba
+desactualizado me preocupa, mira todos los archivos uno por uno… porque eso me preocupa»*.
+
+Al repasarlos aparecieron **once sitios con cifras viejas**. Entre ellos:
+
+| Dónde | Decía | Era |
+|---|---|---|
+| **§1, el «léeme primero»** | 192 pruebas · 15.114 líneas · 82 archivos | **207 · 15.960 · 87** |
+| **§9.0, el estado del árbol** | la fila «Pruebas» **DUPLICADA**: 197 en una, 192 en otra | **las dos mal** |
+| §4, la estructura | 21 migraciones, «las DOS últimas sin aplicar» | **22, las TRES** |
+| §4 | *«el README está desactualizado y se equivoca en la sintaxis»* | **falso desde el 2026-08-28** |
+| README | 192 pruebas (×3) · 21 migraciones · dos ideas ya descartadas | — |
+
+🔴 **Y el fondo del asunto: esto no se arregla escribiendo mejor.** Las cifras envejecen **solas** en
+cuanto alguien añade una prueba o un archivo, y nadie se acuerda de bajar a corregir seis sitios.
+**Un programa sí.**
+
+#### Qué vigila, y qué NO
+
+* **Vigila lo que habla de HOY**: las pruebas, las líneas, los archivos y las migraciones, en los
+  **trece sitios** donde el documento afirma el estado actual.
+* ⚠️ **NO toca el historial.** Que la tanda 43 diga «192 pruebas» es **correcto**: allí había 192.
+  Por eso cada regla busca **su frase exacta** y no todas las apariciones del número.
+* **Si alguien reescribe el párrafo y la frase desaparece, también falla** — si no, la comprobación
+  se quedaría vigilando el vacío sin que nadie se entere. Es lo mismo que le pasó al lint en Next 16.
+
+📌 **Y se acusó a sí mismo el primer día**: contaba una línea de más por archivo —87 de más— porque
+usaba `split("
+").length` en vez de contar saltos, como hace `wc -l`. **La primera cosa que cazó
+fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 ---
 

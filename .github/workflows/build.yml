@@ -48,5 +48,17 @@ jobs:
       - name: Estilo
         run: npm run lint
 
+      # La documentacion entra al CI el 2026-09-07, y tampoco por gusto: Isaac
+      # pidio revisar todos los archivos y aparecieron ONCE sitios con cifras
+      # viejas —incluido el «leeme primero» del CLAUDE.md y una tabla con la
+      # fila «Pruebas» duplicada, con dos numeros distintos y los dos mal—.
+      #
+      # Las cifras envejecen SOLAS en cuanto alguien añade una prueba o un
+      # archivo, y nadie se acuerda de bajar a corregir seis sitios. Un programa
+      # si. Solo se vigila lo que habla de HOY: el historial se queda como esta,
+      # porque ahi los numeros viejos son correctos.
+      - name: La documentacion dice la verdad
+        run: npm run docs
+
       - name: Compilar
         run: npm run build

@@ -116,7 +116,8 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 192 pruebas |
+| `npm test` | Las 207 pruebas |
+| `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
 | `npm start` | Sirve el build de producción en local |
@@ -137,7 +138,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-> Nota: la sincronización con Google Drive figura en el roadmap pero **aún no está implementada** en el código. Las variables `GOOGLE_*` no son necesarias todavía.
+> Nota: la sincronización con Google Drive **está descartada** desde el 2026-09-05 y nunca se
+> implementó. Las tablas que la preparaban siguen vacías y las variables `GOOGLE_*` no hacen falta.
 
 ---
 
@@ -263,8 +265,8 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 192 pruebas (ver más abajo)
-supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
+pruebas/                    → las 207 pruebas (ver más abajo)
+supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 ```
 
 > 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron
@@ -308,10 +310,14 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 
 **Pendiente**
 
-- [ ] Etiquetas e historial de versiones en la UI (las tablas ya existen). **Los favoritos ya están hechos** (r63)
-- [ ] Subida y visor de PDF original + miniaturas
-- [ ] Sincronización con Google Drive
-- [ ] Darle sentido al rol `musician`, que hoy hace lo mismo que `viewer`
+- [ ] Etiquetas e historial de versiones en la UI (las tablas ya existen). **Los favoritos ya están
+      hechos** (r63/r64)
+- [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción y **armar
+      cultos sin publicarlos**. Elegido por el mantenedor el 2026-09-05. ⚠️ **Las dos necesitan
+      migración**: `20240022` está escrita y sin aplicar, y la de los cultos no se escribe hasta
+      poder leer las políticas reales de la base
+- ~~Subida y visor de PDF original + miniaturas~~ — **descartado** el 2026-09-05
+- ~~Sincronización con Google Drive~~ — **descartado** el 2026-09-05
 
 ---
 
@@ -343,7 +349,7 @@ supabase/migrations/        → 21 migraciones (las 2 últimas, sin aplicar)
 ## Pruebas
 
 ```bash
-npm test        # 192 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 207 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
