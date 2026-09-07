@@ -6349,6 +6349,55 @@ pero **la dependencia gorda no es Vercel, es Supabase.** GitHub guarda el progra
 guarda el trabajo de la iglesia** — 75 canciones, cuenta ajena, plan gratuito, sin copias
 automáticas. Por eso la clave importa y el panel de Vercel no.
 
+### 12.2-bis 🔑 LA MUDANZA — dejar de depender del primo para siempre
+
+Isaac, 2026-09-07: *«para que no tenga que pedirle más nunca a mi primo nada… para que hagas todo
+sin necesidad de terceros»*. **Se puede, sale a 0 pesos, y esto es lo medido.**
+
+#### Lo que se comprobó antes de contestar (2026-09-07)
+
+| | |
+|---|---|
+| El conector de Supabase de Claude | llega a la organización **«Primos-Dev»** (`fjaivddkmynlqjusvsxn`), la de Isaac. Un solo proyecto: «Sistema Biometrico», **INACTIVE** |
+| Partituras (`pcayahwnxbigiuhvtwhd`) | **no aparece** — sigue en la cuenta del primo |
+| 🔴 **Lo que eso significa** | **Si la base viviera en esa organización, las migraciones se aplicarían desde aquí el mismo día.** Todo el atasco de §9.1 se acaba |
+
+#### Qué se puede llevar HOY, sin pedir nada — medido tabla por tabla
+
+| | Con la clave pública | **Con la cuenta de Isaac (admin)** |
+|---|---|---|
+| `sheets` | 72 | **80** — los 8 borradores incluidos |
+| `services` | 1 | **3** |
+| `service_songs` · `sheet_keys` · `categories` | 16 · 13 · 14 | iguales |
+| `profiles` | 0 | **7** |
+
+📌 **Y esa columna de la derecha es la noticia:** `npm run export` **ya acepta la sesión de un
+administrador**, así que **los datos salen enteros sin la clave maestra y sin el primo**.
+
+🔴 **LO ÚNICO QUE NO VIAJA: LAS CONTRASEÑAS.** Viven en `auth.users`, y eso solo lo abre la
+`service_role`. → Hay que **volver a crear las 7 cuentas** y que cada músico ponga contraseña otra
+vez. **Una vez en la vida**, y es el precio de la independencia.
+
+#### Las tres mudanzas
+
+| | Qué | Cuesta | Lo que hay que saber |
+|---|---|---|---|
+| **1** | **La base** → proyecto nuevo en «Primos-Dev» | **0** | Yo lo creo, aplico las **22 migraciones** y cargo los datos. ⚠️ El plan gratuito **pausa un proyecto tras una semana sin uso** — «Sistema Biometrico» está así ahora mismo. Una página que se usa cada domingo no debería pausarse, pero hay que saberlo |
+| **2** | **El hosting** → Vercel con la cuenta de Isaac | **0** | ⚠️ **La dirección CAMBIA**: `partituras-blush.vercel.app` es del proyecto del primo. O se avisa a los músicos del enlace nuevo, o **se compra un dominio propio** (~15–60 mil al año) y entonces no vuelve a cambiar nunca |
+| **3** | **El repositorio** → un *fork* a su GitHub | **0** | Conserva el historial entero |
+
+#### ⚠️ Lo que NO es una decisión técnica
+
+**El repositorio, el hosting y la base son de su primo, y mudarse es quedarse con el proyecto.** Aquí
+no hay nada que medir: es su familia y su conversación. **Se le dice sin dramatizar y sin empujar** —
+técnicamente no hace falta su permiso para nada de las tres mudanzas, y precisamente por eso conviene
+avisarle antes, no después.
+
+📌 **Y la alternativa barata sigue en pie:** *una sola* acción suya —**invitar a Isaac a
+«Luixmc's Org»**— desatasca las tres migraciones sin mudar nada. **La mudanza es para no volver a
+depender de él NUNCA; la invitación es para no depender HOY.** No son excluyentes: se puede pedir la
+invitación ahora y mudarse con calma.
+
 ### 12.3 El procedimiento, cada vez
 
 1. **Nunca trabajar sobre `main`.** Rama aparte (D-03).
