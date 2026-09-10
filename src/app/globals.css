@@ -51,6 +51,19 @@
   height: auto;
 }
 
+/* La nota que SUENA en el reproductor (O-75, fase 2). Una regla de CSS gana a
+   los atributos `fill` que pone abcjs, así que no hay que tocar su SVG. */
+.abcjs-container .melodia-sonando,
+.abcjs-container .melodia-sonando * {
+  fill: #2563eb;
+  stroke: #2563eb;
+}
+.dark .abcjs-container .melodia-sonando,
+.dark .abcjs-container .melodia-sonando * {
+  fill: #60a5fa;
+  stroke: #60a5fa;
+}
+
 .musicxml-container svg {
   max-width: 100%;
   height: auto;

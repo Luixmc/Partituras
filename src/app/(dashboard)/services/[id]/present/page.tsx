@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { mapPresentSongs } from "@/lib/services";
-import { melodiasDe } from "@/lib/melodiaBase";
+import { melodiasDe, ponerMelodias } from "@/lib/melodiaBase";
 import { puedeVerMelodia } from "@/lib/melodia";
 import { puedeVerLetras } from "@/lib/letras";
 import { puedeVerCulto } from "@/lib/cultos";
@@ -47,7 +47,7 @@ export default async function ServicePresentPage(
   // vacio en mitad del servicio**. Ver `lib/melodiaBase.ts`.
   if (puedeVerMelodia(perfil?.role)) {
     const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
-    for (const cancion of songs) cancion.melody = melodias.get(cancion.id) ?? null;
+    ponerMelodias(songs, melodias);
   }
 
   return <PresentationView title={service.name} songs={songs} backHref={`/services/${params.id}`} />;

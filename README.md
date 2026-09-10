@@ -31,6 +31,11 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   **como la lee la trompeta** (un tono arriba). A pantalla completa hay un botón que rota
   **acordes → letra → melodía**. Se dibuja con [`abcjs`](https://www.abcjs.net/), cargado de forma
   diferida y **solo en esa pantalla**.
+  **Se escucha:** cada nota suena al colocarla, y un **reproductor** —reproducir, pausar, detener,
+  tempo, metrónomo y repetir, en 🎺 trompeta o 🎹 piano— la toca entera **coloreando la nota que
+  suena**, en el editor y a pantalla completa. Suena **siempre en el tono real** (el del culto),
+  aunque se lea como trompeta. Los sonidos se bajan de un servidor externo, así que **necesita
+  internet**.
 - **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`) o
   texto plano. Extrae el contenido y sugiere el título.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
@@ -116,7 +121,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 214 pruebas |
+| `npm test` | Las 227 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -269,7 +274,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 214 pruebas (ver más abajo)
+pruebas/                    → las 227 pruebas (ver más abajo)
 supabase/migrations/        → 22 migraciones (todas aplicadas)
 ```
 
@@ -308,8 +313,9 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 - [x] `/novedades`: comunicado público de cambios
 - [x] **Secciones largas que se reparten solas** entre los cuadros, midiendo lo que cabe
 - [x] **Melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón,
-      **oírla nota a nota** (trompeta o piano), **guardarla**, leerla como suena o como la lee la
-      trompeta, y el tercer modo a pantalla completa
+      **oírla nota a nota** (trompeta o piano), **reproducirla entera** con tempo, metrónomo y
+      repetir, **guardarla**, leerla como suena o como la lee la trompeta, y el tercer modo a
+      pantalla completa
 - [x] **Diálogos con el diseño de la app**, uno solo para toda la app, y **red de seguridad** para
       que no se pierda lo que se está escribiendo
 
@@ -319,7 +325,9 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
       hechos** (r63/r64)
 - [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción. La tabla
       (`20240022`) **ya está aplicada** y falta su pantalla
-- [ ] **Reproductor de la melodía**: reproducir, pausar, tempo, metrónomo y la nota que suena resaltada
+- [ ] **Reproductor de la melodía, lo que falta**: cuenta de entrada y volumen
+- [ ] **La armadura en el pentagrama del editor de melodía**: que una canción en Re ya salga con
+      fa# y do# al escribir (hoy solo la lleva la vista previa)
 - ~~Que un músico arme cultos sin publicarlos~~ — **descartado** el 2026-09-10
 - ~~Subida y visor de PDF original + miniaturas~~ — **descartado** el 2026-09-05
 - ~~Sincronización con Google Drive~~ — **descartado** el 2026-09-05
@@ -349,7 +357,7 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 214 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 227 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI

@@ -51,7 +51,7 @@ export const INSTRUMENTO_POR_DEFECTO: Instrumento = "trompeta";
  * sea lo que se usa, y para que una versión nueva de `abcjs` no cambie de
  * colección —y de peso— sin avisar.
  */
-const SONIDOS = "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/";
+export const SONIDOS = "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/";
 
 // La elección se guarda POR MÚSICO, en su navegador, como el transpositor
 // (D-28) y el instrumento del acorde (O-42). Sin migración.

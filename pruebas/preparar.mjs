@@ -39,6 +39,7 @@ const MODULOS = [
   "reparto",
   "texto",
   "melodia",
+  "reproduccion",
 ];
 
 function preparar() {

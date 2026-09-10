@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { puedeVerLetras } from "@/lib/letras";
-import { melodiasDe } from "@/lib/melodiaBase";
+import { melodiasDe, ponerMelodias } from "@/lib/melodiaBase";
 import { puedeVerMelodia } from "@/lib/melodia";
 import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { PresentSong } from "@/types";
@@ -89,7 +89,7 @@ export default async function SongPresentPage(
   // pantalla saldria vacia. Ver `lib/melodiaBase.ts`.
   if (puedeVerMelodia(perfil?.role)) {
     const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
-    for (const cancion of songs) cancion.melody = melodias.get(cancion.id) ?? null;
+    ponerMelodias(songs, melodias);
   }
 
   const inicio = Math.max(0, songs.findIndex((s) => s.id === params.id));

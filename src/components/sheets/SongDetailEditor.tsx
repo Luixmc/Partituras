@@ -437,8 +437,9 @@ export default function SongDetailEditor({
         </Dialogo>
       )}
 
-      {/* Barra superior */}
-      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-8 dark:border-slate-700 dark:bg-slate-900/95">
+      {/* Barra superior. `data-cabecera-cancion`: el reproductor de la melodía
+          la mide para pegarse justo debajo (O-75). */}
+      <div data-cabecera-cancion className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-8 dark:border-slate-700 dark:bg-slate-900/95">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
           <div className="flex-1">
             <h2 className="font-display text-lg font-bold text-slate-900 dark:text-slate-50">
@@ -580,6 +581,7 @@ export default function SongDetailEditor({
             contenidoAcordes={viewContent}
             compas={sheet.time_signature}
             tono={sheet.key_signature}
+            tempo={sheet.tempo}
             puedeEscribir={canEdit}
             onSucio={setMelodiaSucia}
           />

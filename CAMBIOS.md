@@ -7,6 +7,19 @@
 
 ## 10 de septiembre de 2026
 
+### ▶️ La melodía ya se reproduce entera
+
+- 🆕 **Un reproductor encima de la melodía**, como el de flat.io: **reproducir, pausar y
+  detener**, el **tempo** (con − y +; empieza en 80), el **metrónomo**, **repetir** al terminar, y
+  elegir **🎺 trompeta o 🎹 piano**.
+- 🆕 **La nota que suena se pinta de azul** en el pentagrama, y si se sale de la pantalla, la
+  página la sigue. La barra de botones se queda arriba mientras tanto.
+- **Está en la pestaña Melodía y a pantalla completa.** A pantalla completa suena **en el tono
+  del culto**; y si lees como trompeta, la ves un tono arriba pero **suena en el tono de todos**.
+- Al pasar de canción, se calla.
+- ⚠️ **Necesita internet**, igual que el sonido de cada nota.
+- Sigue siendo, por ahora, solo para quien administra.
+
 ### ⛪ El logo de la iglesia al entrar
 
 - 🆕 **La pantalla para iniciar sesión lleva ahora el logo de La Casa de mi Padre**, en vez del
@@ -22,7 +35,6 @@
 - **Eliges cómo suena:** 🎺 trompeta, 🎹 piano o 🔇 sin sonido. Se recuerda en tu aparato.
 - ⚠️ **Necesita internet:** los sonidos se bajan la primera vez (unos 25 KB por nota) y después
   quedan guardados.
-- El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega.
 - 🆕 **La melodía ya se guarda.** Hasta hoy se podía escribir y mirar, pero no guardar: faltaba
   prepararle su sitio en la base de datos. Ya está, y el botón «Guardar melodía» funciona. Sigue
   siendo, por ahora, solo para quien administra.

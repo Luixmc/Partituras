@@ -22,6 +22,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import EditorMelodia from "@/components/sheets/EditorMelodia";
 import Pentagrama from "@/components/sheets/Pentagrama";
+import Reproductor from "@/components/sheets/Reproductor";
+import type { Momento } from "@/lib/reproduccion";
 import AutoTextarea from "@/components/ui/AutoTextarea";
 import {
   andamioDeMelodia,
@@ -47,6 +49,8 @@ type Props = {
   contenidoAcordes: string;
   compas?: string | null;
   tono?: string | null;
+  /** El tempo de la canción, si lo tiene: el reproductor arranca en él (O-75). */
+  tempo?: number | null;
   puedeEscribir: boolean;
   /** Avisa al editor de si hay melodía sin guardar, para que la proteja (O-61). */
   onSucio?: (sucio: boolean) => void;
@@ -65,9 +69,12 @@ export default function MelodiaPanel({
   contenidoAcordes,
   compas,
   tono,
+  tempo,
   puedeEscribir,
   onSucio,
 }: Props) {
+  // La nota que suena en el reproductor (O-75, fase 2): su sección y su orden.
+  const [sonando, setSonando] = useState<Momento | null>(null);
   const [melodia, setMelodia] = useState("");
   const [guardado, setGuardado] = useState("");
   const [estado, setEstado] = useState<Estado>("cargando");
@@ -133,6 +140,20 @@ export default function MelodiaPanel({
   }, [sheetId]);
 
   const tramos = useMemo(() => tramosDe(melodia), [melodia]);
+  // Lo que suena, sección por sección. Memorizado: el reproductor rehace el
+  // sonido cuando esto cambia, y tiene que cambiar solo si cambia la melodía.
+  const elementosPorTramo = useMemo(() => tramos.map((t) => parsearMelodia(t.abc)), [tramos]);
+  const resaltarEn = (i: number) => (sonando?.tramo === i ? sonando.orden : null);
+  const reproductor = (
+    <Reproductor
+      tramos={elementosPorTramo}
+      compas={compas}
+      tono={tono}
+      tempoInicial={tempo}
+      onMomento={setSonando}
+      debajoDe="[data-cabecera-cancion]"
+    />
+  );
 
   const cambiarTramo = useCallback(
     (i: number, elementos: Elemento[]) => {
@@ -198,8 +219,17 @@ export default function MelodiaPanel({
     return (
       <div className="space-y-6">
         <SelectorInstrumento valor={transpositor} onChange={(v) => { setTranspositor(v); guardarTranspositor(v); }} />
+        {reproductor}
         {tramos.map((t, i) => (
-          <Tramito key={i} titulo={t.titulo} abc={t.abc} compas={compas} tono={tono} semitonos={semitonosDe(transpositor)} />
+          <Tramito
+            key={i}
+            titulo={t.titulo}
+            abc={t.abc}
+            compas={compas}
+            tono={tono}
+            semitonos={semitonosDe(transpositor)}
+            resaltar={resaltarEn(i)}
+          />
         ))}
       </div>
     );
@@ -245,6 +275,8 @@ export default function MelodiaPanel({
 
       {aviso && <p className="text-sm text-slate-600 dark:text-slate-300">{aviso}</p>}
 
+      {reproductor}
+
       {/* ── R.3 · La segunda via: el texto ──
           🔴 NO es un modo aparte con sus propios datos: es EL MISMO texto que
           escribe el raton. Por eso se puede pegar una melodia de fuera, o
@@ -288,7 +320,13 @@ export default function MelodiaPanel({
               tono={tono}
             />
             {t.abc && (
-              <Tramito abc={t.abc} compas={compas} tono={tono} semitonos={semitonosDe(transpositor)} />
+              <Tramito
+                abc={t.abc}
+                compas={compas}
+                tono={tono}
+                semitonos={semitonosDe(transpositor)}
+                resaltar={resaltarEn(i)}
+              />
             )}
           </section>
         ))
@@ -304,12 +342,15 @@ function Tramito({
   compas,
   tono,
   semitonos,
+  resaltar = null,
 }: {
   titulo?: string;
   abc: string;
   compas?: string | null;
   tono?: string | null;
   semitonos: number;
+  /** La nota de esta sección que suena en el reproductor, o `null`. */
+  resaltar?: number | null;
 }) {
   return (
     <div className="mt-3">
@@ -323,6 +364,7 @@ function Tramito({
         compas={compas || "4/4"}
         tono={tono || "C"}
         transponer={semitonos}
+        resaltar={resaltar}
       />
     </div>
   );

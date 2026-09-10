@@ -107,6 +107,10 @@ export interface PresentSong {
       Como la letra, solo se rellena donde hay sesion y el rol la puede ver:
       el enlace publico del culto NO la lleva. */
   melody?:      string | null;
+  /** El compás y el tempo, que viajan CON la melodía (O-75): solo llegan
+      rellenos cuando la canción la tiene. Ver `lib/melodiaBase.ts`. */
+  time_signature?: string | null;
+  tempo?:        number | null;
 }
 
 export interface ServiceSong {

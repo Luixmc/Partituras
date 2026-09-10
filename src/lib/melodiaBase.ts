@@ -27,6 +27,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
+ * Lo que hace falta para LEER y OÍR la melodía de una canción.
+ *
+ * 📌 El compás y el tempo viajan aquí, con la melodía, porque solo hacen falta
+ * cuando la hay (O-75, fase 2): el compás para dibujarla bien —antes la
+ * presentación la dibujaba **siempre en 4/4**, también las de 6/8 y 2/2— y
+ * para el metrónomo; el tempo, para que el reproductor arranque en el suyo.
+ */
+export type MelodiaDeCancion = { melodia: string; compas: string | null; tempo: number | null };
+
+/**
  * La melodía de estas canciones, por id.
  *
  * Devuelve un mapa vacío si la columna todavía no existe, si no hay ids, o si
@@ -36,14 +46,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export async function melodiasDe(
   supabase: SupabaseClient,
   ids: string[]
-): Promise<Map<string, string>> {
+): Promise<Map<string, MelodiaDeCancion>> {
   const unicos = [...new Set(ids.filter(Boolean))];
   if (!unicos.length) return new Map();
 
   try {
     const { data, error } = await supabase
       .from("sheets")
-      .select("id, melody")
+      .select("id, melody, time_signature, tempo")
       .in("id", unicos)
       .not("melody", "is", null);
 
@@ -51,12 +61,26 @@ export async function melodiasDe(
     // sin melodías, que es como se ha visto la pantalla toda la vida.
     if (error || !data) return new Map();
 
+    type Fila = { id: string; melody: string | null; time_signature: string | null; tempo: number | null };
     return new Map(
-      (data as { id: string; melody: string | null }[])
+      (data as Fila[])
         .filter((f) => f.melody)
-        .map((f) => [f.id, f.melody as string])
+        .map((f) => [f.id, { melodia: f.melody as string, compas: f.time_signature, tempo: f.tempo }])
     );
   } catch {
     return new Map();
+  }
+}
+
+/** Le pone a cada canción su melodía, su compás y su tempo (si tiene melodía). */
+export function ponerMelodias(
+  canciones: { id: string; melody?: string | null; time_signature?: string | null; tempo?: number | null }[],
+  melodias: Map<string, MelodiaDeCancion>
+): void {
+  for (const cancion of canciones) {
+    const m = melodias.get(cancion.id);
+    cancion.melody = m?.melodia ?? null;
+    cancion.time_signature = m?.compas ?? null;
+    cancion.tempo = m?.tempo ?? null;
   }
 }

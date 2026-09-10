@@ -8,7 +8,9 @@ import { estrofasDe } from "@/lib/letras";
 
 import SeccionRepartida from "@/components/sheets/SeccionRepartida";
 import Pentagrama from "@/components/sheets/Pentagrama";
+import Reproductor from "@/components/sheets/Reproductor";
 import { parsearMelodia, tramosDe } from "@/lib/melodia";
+import { semitonosQueSuenan, type Momento } from "@/lib/reproduccion";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
@@ -321,9 +323,13 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     const onKey = (e: KeyboardEvent) => {
       // No robar las teclas si se está escribiendo en algún campo.
       const destino = e.target as HTMLElement | null;
+      // Tampoco en una lista desplegable: el instrumento del reproductor de la
+      // melodía (O-75) es una, y con ella abierta las flechas eligen, no pasan
+      // de canción.
       if (
         destino?.tagName === "INPUT" ||
         destino?.tagName === "TEXTAREA" ||
+        destino?.tagName === "SELECT" ||
         destino?.isContentEditable
       ) return;
 
@@ -483,6 +489,11 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     () => tramosDe(song?.melody ?? "").filter((t) => t.abc),
     [song?.melody]
   );
+  // Lo que SUENA en el reproductor (O-75, fase 2), sección por sección, y la
+  // nota que va sonando. Memorizado: si cambiara en cada pintado, el
+  // reproductor rehará el sonido sin parar.
+  const elementosMelodia = useMemo(() => tramos.map((t) => parsearMelodia(t.abc)), [tramos]);
+  const [sonandoMelodia, setSonandoMelodia] = useState<Momento | null>(null);
 
   // Lo que se enseña de verdad: si él eligió letra o melodía y esta canción no
   // la tiene, salen los acordes — sin perder su elección para la siguiente.
@@ -856,6 +867,22 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             // instrumento. Si la melodía se moviera por su cuenta, el
             // trompetista leería una cosa y el grupo tocaría otra.
             <div className={cn("flex w-full flex-col", isFullscreen ? "gap-2" : "gap-4")}>
+              {/* ── EL REPRODUCTOR (O-75, fase 2) ──
+                  🔴 Suena en el tono del CULTO y con los ± del músico, pero
+                  **nunca** con su instrumento: la trompeta LEE un tono arriba
+                  y SUENA en el de todos (`semitonosQueSuenan`).
+                  `key` = la canción: al pasar de canción se desmonta, y lo que
+                  sonaba se calla. Seguir tocando la anterior sería peor que
+                  nada. */}
+              <Reproductor
+                key={song?.id}
+                tramos={elementosMelodia}
+                compas={song?.time_signature}
+                tono={song?.original_key}
+                tempoInicial={song?.tempo}
+                semitonos={semitonosQueSuenan(baseSemitones, liveOffset)}
+                onMomento={setSonandoMelodia}
+              />
               {tramos.map((t, i) => (
                 <section key={i}>
                   {t.titulo && (
@@ -867,10 +894,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                     </h3>
                   )}
                   <Pentagrama
-                    elementos={parsearMelodia(t.abc)}
+                    elementos={elementosMelodia[i]}
+                    compas={song?.time_signature || "4/4"}
                     tono={song?.original_key || "C"}
                     transponer={semitonosMelodia}
                     escala={escalaMelodia}
+                    resaltar={sonandoMelodia?.tramo === i ? sonandoMelodia.orden : null}
                   />
                 </section>
               ))}

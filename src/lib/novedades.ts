@@ -72,8 +72,25 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "10 de septiembre de 2026",
     "iso": "2026-09-10",
-    "entrada": "La melodía ya suena mientras la escribes.",
+    "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
+      {
+        "titulo": "La melodía ya se reproduce entera",
+        "resumen": "Un reproductor como el de flat.io: reproducir, pausar, tempo, metrónomo y repetir, con la nota que suena pintada de azul.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Un reproductor encima de la melodía.",
+            "detalle": [
+              "<strong>Reproducir, pausar y detener</strong>, el <strong>tempo</strong> (con − y +; empieza en 80), el <strong>metrónomo</strong>, <strong>repetir</strong> al terminar, y elegir <strong>🎺 trompeta o 🎹 piano</strong>.",
+              "<strong>La nota que suena se pinta de azul</strong> en el pentagrama, y si se sale de la pantalla, la página la sigue. La barra de botones se queda arriba mientras tanto.",
+              "Está en la pestaña <strong>Melodía</strong> y <strong>a pantalla completa</strong>. A pantalla completa suena <strong>en el tono del culto</strong>; y si lees como trompeta, la ves un tono arriba pero <strong>suena en el tono de todos</strong>.",
+              "Al pasar de canción, se calla. ⚠️ <strong>Necesita internet</strong>, igual que el sonido de cada nota.",
+              "Sigue siendo, por ahora, solo para quien administra."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El logo de la iglesia al entrar",
         "resumen": "La pantalla para iniciar sesión lleva ahora el logo de La Casa de mi Padre.",
@@ -98,8 +115,7 @@ export const TANDAS: Tanda[] = [
               "Al escribir una melodía, <strong>la nota suena en cuanto la pones</strong> — y también al subirla o bajarla con las flechas, al arrastrarla o al ponerle un sostenido o un bemol. Así sabes al momento si es la que querías.",
               "Suena <strong>como en la partitura de verdad</strong>: respeta el tono de la canción —en Re mayor, el fa suena sostenido aunque no se lo pongas— y un sostenido sigue valiendo hasta la barra del compás.",
               "Puedes elegir cómo suena: <strong>🎺 trompeta, 🎹 piano o 🔇 sin sonido</strong>. Se recuerda en tu aparato.",
-              "⚠️ <strong>Necesita internet</strong>: los sonidos se bajan la primera vez (unos 25 KB por nota) y luego quedan guardados.",
-              "El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega."
+              "⚠️ <strong>Necesita internet</strong>: los sonidos se bajan la primera vez (unos 25 KB por nota) y luego quedan guardados."
             ]
           },
           {
