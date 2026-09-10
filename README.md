@@ -116,7 +116,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 207 pruebas |
+| `npm test` | Las 214 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -265,7 +265,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 207 pruebas (ver más abajo)
+pruebas/                    → las 214 pruebas (ver más abajo)
 supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 ```
 
@@ -349,7 +349,7 @@ supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 ## Pruebas
 
 ```bash
-npm test        # 207 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 214 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -399,6 +399,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r65** | **La melodía suena al escribirla** (O-75, fase 1): suena la nota seleccionada cada vez que cambia su altura, con trompeta, piano o sin sonido. La altura sale de `alturaMidi()` —alteración escrita › la del compás › la armadura— y la cubre el CI. **Sin dependencia nueva**: `abcjs` ya traía el sintetizador. Sonidos de fuera (`FluidR3_GM`, ~25 KB por nota, fijado a mano). **214 pruebas** |
 | **r64** | **El corazón, también en Letras y Melodías** (O-73). Y se escribe la migración `20240022` para las **notas privadas** del rol músico (O-74), sin pantalla hasta que se pueda aplicar |
 | **r63** | **Favoritos por músico** (O-73): corazón en cada tarjeta del catálogo y filtro «Mis favoritas». La tabla `favorites` ya existía con sus políticas, así que **no hizo falta migración** — comprobado contra la base antes de escribir código, incluido que **nadie puede marcar favoritos en la cuenta de otro** (403) |
 | **r62** | **Buscar sin Enter y sin tildes** (O-71, O-72): la lista filtra mientras se escribe —300 ms de espera, una sola caja para las tres pantallas— y la comparación **ignora tildes** (23 de 72 títulos llevan). El filtro de texto sale de `ilike` y pasa a `lib/texto.ts`, porque `unaccent` exigiría una migración. **207 pruebas** |

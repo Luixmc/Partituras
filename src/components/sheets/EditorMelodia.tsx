@@ -25,15 +25,19 @@ import {
   melodiaAbc,
   type Alteracion,
   type Elemento,
+  alturaMidi,
 } from "@/lib/melodia";
 import { RestFigure } from "@/components/sheets/MusicFigures";
 import { cn } from "@/lib/utils";
+import { INSTRUMENTOS, guardarInstrumento, tocarNota, useInstrumento } from "@/lib/sonido";
 
 type Props = {
   elementos: Elemento[];
   onChange: (elementos: Elemento[]) => void;
   /** Alto del pentagrama en píxeles. */
   alto?: number;
+  /** El tono de la canción: sin él, en Re mayor el fa sonaría natural (O-75). */
+  tono?: string | null;
 };
 
 // ── La geometría del pentagrama editable ──
@@ -51,7 +55,7 @@ const pasoDe = (py: number) => Math.round((BASE - py) / PASO);
 // Las cinco líneas en clave de sol son mi(2) sol(4) si(6) re(8) fa(10).
 const LINEAS = [2, 4, 6, 8, 10];
 
-export default function EditorMelodia({ elementos, onChange, alto = 260 }: Props) {
+export default function EditorMelodia({ elementos, onChange, alto = 260, tono }: Props) {
   const [sel, setSel] = useState<number | null>(null);
   const [duracion, setDuracion] = useState(2);
   const [alteracion, setAlteracion] = useState<Alteracion>(null);
@@ -203,6 +207,31 @@ export default function EditorMelodia({ elementos, onChange, alto = 260 }: Props
     return () => window.removeEventListener("keydown", onKey);
   });
 
+  // ── Que suene la nota (O-75, fase 1) ──
+  //
+  // Isaac: «que se pueda escuchar si correctamente esa es la nota que se está
+  // colocando». Suena la nota SELECCIONADA cada vez que cambia su altura: al
+  // ponerla, al subirla o bajarla con las flechas, al arrastrarla con el ratón
+  // y al cambiarle la alteración. Todo eso pasa por sitios distintos del
+  // código —`insertar`, `conSeleccion`, el arrastre—, así que se engancha a lo
+  // que tienen en común: **que cambió la nota que está elegida**.
+  //
+  // 📌 Si solo cambia la DURACIÓN no vuelve a sonar: la altura es la misma, y
+  // repetir el sonido en cada clic cansaría en vez de ayudar.
+  const instrumento = useInstrumento();
+  const midiSel = sel == null ? null : alturaMidi(elementos, sel, tono);
+  const ultimoSonido = useRef<string | null>(null);
+  useEffect(() => {
+    if (midiSel == null) {
+      ultimoSonido.current = null;
+      return;
+    }
+    const clave = `${sel}:${midiSel}`;
+    if (clave === ultimoSonido.current) return;
+    ultimoSonido.current = clave;
+    void tocarNota(midiSel, instrumento);
+  }, [sel, midiSel, instrumento]);
+
   const columnas = Math.max(elementos.length + 2, 14);
   const ancho = IZQ + columnas * COL;
 
@@ -214,6 +243,16 @@ export default function EditorMelodia({ elementos, onChange, alto = 260 }: Props
           {DURACIONES.map((d) => (
             <Boton key={d.valor} activo={duracion === d.valor} onClick={() => ponDuracion(d.valor)} titulo={d.nombre}>
               {ICONO_DURACION[d.valor]}
+            </Boton>
+          ))}
+        </Grupo>
+
+        {/* El instrumento lo elige cada músico y se recuerda en su navegador.
+            «Sin sonido» está a propósito: en un ensayo tiene que poder callarse. */}
+        <Grupo titulo="Sonido">
+          {INSTRUMENTOS.map((i) => (
+            <Boton key={i.id} activo={instrumento === i.id} onClick={() => guardarInstrumento(i.id)} titulo={i.nombre}>
+              {i.icono}
             </Boton>
           ))}
         </Grupo>

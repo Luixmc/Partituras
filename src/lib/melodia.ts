@@ -105,6 +105,99 @@ export function melodiaAbc(elementos: Elemento[]): string {
   return elementos.map(elementoAbc).join(" ");
 }
 
+// ── Lo que SUENA (O-75) ──
+//
+// 🔴 POR QUÉ ESTO VIVE AQUÍ Y NO JUNTO AL SONIDO: es la parte que puede estar
+// MAL sin que nadie se entere. Si la armadura se aplica mal, la nota suena
+// medio tono desplazada y el que escribe cree que se equivocó él. Aquí la
+// cubren las pruebas del CI; el sonido en sí (`lib/sonido.ts`) no se puede
+// probar sin navegador.
+
+/**
+ * Cuántas alteraciones lleva cada tono: positivo = sostenidos, negativo =
+ * bemoles. Escrito como tabla y no calculado, a propósito: se lee de un
+ * vistazo y es exactamente lo que trae cualquier libro de solfeo.
+ *
+ * Están TODOS los tonos que hay en el repertorio (medido el 2026-09-10: D, F,
+ * G, E, Dm, C, Bm, Bb, F#, Am, A, Em, B, G#m y Cm), y el resto del círculo.
+ */
+const ALTERACIONES_DEL_TONO: Record<string, number> = {
+  C: 0, G: 1, D: 2, A: 3, E: 4, B: 5, "F#": 6, "C#": 7,
+  F: -1, Bb: -2, Eb: -3, Ab: -4, Db: -5, Gb: -6, Cb: -7,
+  Am: 0, Em: 1, Bm: 2, "F#m": 3, "C#m": 4, "G#m": 5, "D#m": 6, "A#m": 7,
+  Dm: -1, Gm: -2, Cm: -3, Fm: -4, Bbm: -5, Ebm: -6, Abm: -7,
+};
+
+const ORDEN_SOSTENIDOS = ["F", "C", "G", "D", "A", "E", "B"];
+const ORDEN_BEMOLES = ["B", "E", "A", "D", "G", "C", "F"];
+
+/**
+ * La armadura de un tono: qué letras suben o bajan medio tono.
+ *
+ * `armadura("D")` → `{ F: 1, C: 1 }` · `armadura("Bb")` → `{ B: -1, E: -1 }`.
+ * Un tono que no se reconoce se trata como Do: sin alteraciones. Es preferible
+ * a inventarse una.
+ */
+export function armadura(tono: string | null | undefined): Record<string, number> {
+  const n = ALTERACIONES_DEL_TONO[(tono ?? "C").trim()] ?? 0;
+  const mapa: Record<string, number> = {};
+  const orden = n >= 0 ? ORDEN_SOSTENIDOS : ORDEN_BEMOLES;
+  for (const letra of orden.slice(0, Math.abs(n))) mapa[letra] = n >= 0 ? 1 : -1;
+  return mapa;
+}
+
+/** Semitonos de cada letra sobre el do de su octava. */
+const SEMITONOS_LETRA = [0, 2, 4, 5, 7, 9, 11];
+
+const VALOR_ALTERACION: Record<Exclude<Alteracion, null>, number> = {
+  sostenido: 1,
+  bemol: -1,
+  becuadro: 0,
+};
+
+/**
+ * La altura que SUENA del elemento `i`, en números MIDI (60 = do central).
+ *
+ * Aplica la regla de la partitura de toda la vida, en este orden:
+ *   1. **La alteración escrita en la propia nota** manda siempre.
+ *   2. Si no lleva, **la que ya se escribió en ese compás** para la misma
+ *      nota —misma línea o espacio del pentagrama— sigue valiendo hasta la
+ *      barra. Un ♮ la anula.
+ *   3. Si no, **la armadura del tono**.
+ *
+ * 📌 El paso 2 es el que se olvida, y es el que hace que suene raro: en Do,
+ * `^F F` son DOS fa sostenidos, no uno sostenido y uno natural.
+ *
+ * ⚠️ Es la altura REAL, la que suena. Lo que en pantalla se enseña «como lo lee
+ * la trompeta» es solo el dibujo (`visualTranspose`): el sonido nunca se mueve.
+ *
+ * @returns La altura, o `null` si el elemento no es una nota
+ */
+export function alturaMidi(elementos: Elemento[], i: number, tono?: string | null): number | null {
+  const el = elementos[i];
+  if (!el || el.tipo !== "nota") return null;
+
+  const octava = Math.floor(el.paso / 7);
+  const indice = ((el.paso % 7) + 7) % 7;
+  const base = 60 + 12 * octava + SEMITONOS_LETRA[indice];
+
+  let alteracion: number | null = el.alteracion ? VALOR_ALTERACION[el.alteracion] : null;
+
+  // 2 · lo que arrastra el compás: hacia atrás hasta la barra anterior.
+  for (let j = i - 1; alteracion === null && j >= 0; j--) {
+    const previo = elementos[j];
+    if (previo.tipo === "barra") break;
+    if (previo.tipo === "nota" && previo.paso === el.paso && previo.alteracion) {
+      alteracion = VALOR_ALTERACION[previo.alteracion];
+    }
+  }
+
+  // 3 · la armadura.
+  if (alteracion === null) alteracion = armadura(tono)[LETRAS[indice]] ?? 0;
+
+  return base + alteracion;
+}
+
 /**
  * El texto ABC COMPLETO, con su cabecera, listo para dibujar.
  *

@@ -24,6 +24,8 @@ const {
   puedeVerMelodia,
   ROLES_MELODIA,
   DURACIONES,
+  alturaMidi,
+  armadura,
 } = await cargar("melodia");
 
 const nota = (paso, duracion = 2, alteracion = null, ligada = false) => ({
@@ -220,4 +222,68 @@ test("vacía es vacía: ni tramos fantasma ni «tiene melodía»", () => {
   assert.equal(tieneMelodia(null), false);
   assert.equal(tieneMelodia("[A]\n"), false, "una seccion sin notas no es melodia");
   assert.equal(tieneMelodia("[A]\nC2"), true);
+});
+
+// ─────────────────────────────────────────────────────────────
+// O-75 · Lo que SUENA. Si esto falla, la nota suena medio tono desplazada y
+// quien escribe la melodía cree que se equivocó él.
+// ─────────────────────────────────────────────────────────────
+
+const altura = (els, i, tono) => alturaMidi(els, i, tono);
+const barra = { tipo: "barra" };
+
+test("O-75 · las alturas en Do: el do central es 60", () => {
+  assert.equal(altura([nota(0)], 0, "C"), 60, "do central");
+  assert.equal(altura([nota(4)], 0, "C"), 67, "sol");
+  assert.equal(altura([nota(7)], 0, "C"), 72, "do de arriba");
+  assert.equal(altura([nota(-7)], 0, "C"), 48, "do de abajo");
+  assert.equal(altura([nota(-1)], 0, "C"), 59, "el si de debajo del do central");
+});
+
+test("O-75 · la ARMADURA de los tonos que hay de verdad en el repertorio", () => {
+  assert.deepEqual(armadura("C"), {});
+  assert.deepEqual(armadura("D"), { F: 1, C: 1 }, "D es el más usado: 16 canciones");
+  assert.deepEqual(armadura("F"), { B: -1 }, "F, el segundo: 11 canciones");
+  assert.deepEqual(armadura("Bb"), { B: -1, E: -1 });
+  assert.deepEqual(armadura("Dm"), { B: -1 }, "Dm comparte armadura con F");
+  assert.deepEqual(armadura("Bm"), { F: 1, C: 1 }, "Bm comparte armadura con D");
+  assert.equal(Object.keys(armadura("G#m")).length, 5, "G#m: cinco sostenidos");
+  assert.deepEqual(armadura("no-es-un-tono"), {}, "lo que no se reconoce, como Do");
+  assert.deepEqual(armadura(null), {});
+});
+
+test("🔴 O-75 · en Re mayor el fa SUENA sostenido aunque no se escriba", () => {
+  assert.equal(altura([nota(3)], 0, "D"), 66, "fa → fa#");
+  assert.equal(altura([nota(0)], 0, "D"), 61, "do → do#");
+  assert.equal(altura([nota(4)], 0, "D"), 67, "el sol no se toca");
+  assert.equal(altura([nota(6)], 0, "F"), 70, "en Fa, el si es si bemol");
+});
+
+test("O-75 · la alteración ESCRITA manda sobre la armadura", () => {
+  assert.equal(altura([nota(0, 2, "sostenido")], 0, "C"), 61);
+  assert.equal(altura([nota(3, 2, "becuadro")], 0, "D"), 65, "el ♮ quita el sostenido de la armadura");
+  assert.equal(altura([nota(6, 2, "bemol")], 0, "C"), 70);
+});
+
+test("🔴 O-75 · la alteración sigue valiendo HASTA LA BARRA, no más", () => {
+  const compas = [nota(3, 2, "sostenido"), nota(3)];
+  assert.equal(altura(compas, 1, "C"), 66, "en Do, ^F F son DOS fa sostenidos");
+
+  const conBarra = [nota(3, 2, "sostenido"), barra, nota(3)];
+  assert.equal(altura(conBarra, 2, "C"), 65, "después de la barra vuelve a ser natural");
+
+  const anulada = [nota(3, 2, "sostenido"), nota(3, 2, "becuadro"), nota(3)];
+  assert.equal(altura(anulada, 2, "C"), 65, "un ♮ anula lo arrastrado");
+});
+
+test("O-75 · lo arrastrado es de ESA línea: no salta de octava", () => {
+  // Un fa# abajo no convierte en sostenido el fa de arriba: es otra línea.
+  const dos = [nota(3, 2, "sostenido"), nota(10)];
+  assert.equal(altura(dos, 1, "C"), 77, "el fa de la octava de arriba sigue natural");
+});
+
+test("O-75 · un silencio o una barra no suenan", () => {
+  assert.equal(altura([{ tipo: "silencio", duracion: 2 }], 0, "C"), null);
+  assert.equal(altura([barra], 0, "C"), null);
+  assert.equal(altura([], 0, "C"), null);
 });

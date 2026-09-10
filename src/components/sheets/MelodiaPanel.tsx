@@ -285,6 +285,7 @@ export default function MelodiaPanel({
               elementos={parsearMelodia(t.abc)}
               onChange={(els) => cambiarTramo(i, els)}
               alto={220}
+              tono={tono}
             />
             {t.abc && (
               <Tramito abc={t.abc} compas={compas} tono={tono} semitonos={semitonosDe(transpositor)} />

@@ -5,6 +5,22 @@
 
 ---
 
+## 10 de septiembre de 2026
+
+### 🎺 La melodía ya suena mientras la escribes
+
+- 🆕 **Cada nota que colocas en el pentagrama, suena** — y también al subirla o bajarla con las
+  flechas, al arrastrarla o al ponerle un sostenido o un bemol. Así sabes al momento si es la que
+  querías.
+- **Suena como en la partitura de verdad:** respeta el tono de la canción —en Re mayor el fa suena
+  sostenido aunque no se lo pongas— y un sostenido sigue valiendo hasta la barra del compás.
+- **Eliges cómo suena:** 🎺 trompeta, 🎹 piano o 🔇 sin sonido. Se recuerda en tu aparato.
+- ⚠️ **Necesita internet:** los sonidos se bajan la primera vez (unos 25 KB por nota) y después
+  quedan guardados.
+- El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega.
+
+---
+
 ## 7 de septiembre de 2026
 
 ### ❤️ Tus canciones favoritas

@@ -70,6 +70,30 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "10 de septiembre de 2026",
+    "iso": "2026-09-10",
+    "entrada": "La melodía ya suena mientras la escribes.",
+    "secciones": [
+      {
+        "titulo": "La melodía ya suena mientras la escribes",
+        "resumen": "Al colocar una nota en el pentagrama, suena: así sabes al momento si es la que querías.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Cada nota que colocas, suena.",
+            "detalle": [
+              "Al escribir una melodía, <strong>la nota suena en cuanto la pones</strong> — y también al subirla o bajarla con las flechas, al arrastrarla o al ponerle un sostenido o un bemol. Así sabes al momento si es la que querías.",
+              "Suena <strong>como en la partitura de verdad</strong>: respeta el tono de la canción —en Re mayor, el fa suena sostenido aunque no se lo pongas— y un sostenido sigue valiendo hasta la barra del compás.",
+              "Puedes elegir cómo suena: <strong>🎺 trompeta, 🎹 piano o 🔇 sin sonido</strong>. Se recuerda en tu aparato.",
+              "⚠️ <strong>Necesita internet</strong>: los sonidos se bajan la primera vez (unos 25 KB por nota) y luego quedan guardados.",
+              "El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "7 de septiembre de 2026",
     "iso": "2026-09-07",
     "entrada": "Ya puedes marcar tus canciones favoritas.",

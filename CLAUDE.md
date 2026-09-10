@@ -86,9 +86,9 @@ cada push a `main`.
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **207 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **15.960 líneas** de TypeScript
-   en **87 archivos**. *(Contado el 2026-09-07. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **214 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.247 líneas** de TypeScript
+   en **88 archivos**. *(Contado el 2026-09-07. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -131,7 +131,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 207 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 214 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -279,7 +279,7 @@ repo/
                                     20240020 (usuario desactivado) · 20240021 (melody)
                                     20240022 (notas_musico)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       207 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       214 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -778,7 +778,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **0** | 🟢 **O-75 · Escuchar la melodía — APROBADA, las tres fases** | Isaac, 2026-09-10: sonidos **de fuera** · instrumento **a elegir** (trompeta y piano) · fases **1** oír la nota al colocarla → **2** reproductor (play, pausa, detener, tempo, metrónomo, repetir, nota resaltada) → **3** cuenta de entrada y volumen. **No hay que instalar nada**: `abcjs` ya trae el reproductor |
+| **0** | 🟢 **O-75 · Escuchar la melodía — FASE 1 HECHA (r65), faltan la 2 y la 3** | Isaac, 2026-09-10: sonidos **de fuera** · instrumento **a elegir** (trompeta y piano) · fases **1** oír la nota al colocarla → **2** reproductor (play, pausa, detener, tempo, metrónomo, repetir, nota resaltada) → **3** cuenta de entrada y volumen. **No hay que instalar nada**: `abcjs` ya trae el reproductor |
 | **1** | 🔴 **TRES MIGRACIONES esperando al primo** (`20240020`, `20240021` y la nueva `20240022`) | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
 | **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
@@ -808,8 +808,8 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 |---|---|
 | Último commit publicado | **`c2a68b0`**, y `origin/main` va igual. **Árbol limpio** |
 | Última versión | **r64** |
-| Pruebas | **207** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **15.960 líneas** de TypeScript en **87 archivos** |
+| Pruebas | **214** · lint **0 errores, 60 avisos** · build **0** |
+| Tamaño | **16.247 líneas** de TypeScript en **88 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, y **las TRES últimas SIN APLICAR**: `20240020`, `20240021`, `20240022` |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -4245,7 +4245,7 @@ página de flat.io»*.
 |---|---|
 | **¿Hay que instalar algo?** | ✅ **NO.** `abcjs` 6.7.0 —ya es dependencia desde r48— **trae el sintetizador entero**: `CreateSynth`, `SynthController`, `CreateSynthControl` (la barra de play/pausa/tempo) y `playEvent` (tocar una nota suelta) |
 | **De dónde salen los sonidos** | 🔴 **De fuera**: `paulrosen.github.io/midi-js-soundfonts/abcjs/` —el servidor del autor de `abcjs`—. **Nada viene dentro del paquete** |
-| **Cuánto pesan** | **Un archivo por NOTA, no por instrumento**: la trompeta en C4 son **~97 KB** (medido). Una melodía de 12–15 notas distintas ≈ **1,2–1,5 MB** la primera vez; después quedan en caché. Los paquetes «un archivo por instrumento» (`trumpet-mp3.js`) **dan 404** |
+| **Cuánto pesan** | **Un archivo por NOTA, no por instrumento**, ~**25 KB** cada uno (trompeta y piano). Una melodía de 12–15 notas distintas ≈ **300–400 KB** la primera vez; después quedan en caché. 🔴 *Aquí ponía «~97 KB» y «1,2–1,5 MB»: se había medido la colección `abcjs/`, y **el reproductor pide `FluidR3_GM/`**. Lo destapó el registro de red. Corregido el mismo día (L-249)* |
 | **¿Algo en la página los bloquea?** | ✅ **No.** No hay `Content-Security-Policy`, y el service worker **deja pasar lo de fuera** (`sw.js:41`) |
 | **Dónde se engancha «oír la nota al colocarla»** | `EditorMelodia.tsx` → **`insertar()`** (línea 169): todo lo que se pone pasa por ahí. También al afinar con el teclado y al cambiar la alteración |
 | **Dónde va el reproductor** | `Pentagrama.tsx`, que **lo usan el editor Y la presentación** (modo melodía): uno sirve para los dos. `renderAbc` ya devuelve lo que el sintetizador necesita |
@@ -4265,7 +4265,7 @@ comprobar si el sintetizador hereda ese desplazamiento del dibujo y, si lo hered
 | | |
 |---|---|
 | **A1 · Del servidor de fuera** *(la recomendada, por coherencia con P-06)* | **0 MB en el repositorio.** Pero **sin internet no suena**, y depende de un servidor de un tercero |
-| **A2 · Copiados al proyecto** | Suena **sin depender de nadie**. Pero mete **~3 MB por instrumento** (la trompeta, ~33 notas) en el repositorio de su primo |
+| **A2 · Copiados al proyecto** | Suena **sin depender de nadie**. Pero mete **~0,8 MB por instrumento** (la trompeta, ~33 notas × 25 KB) en el repositorio de su primo. *Ponía «~3 MB», con la cifra equivocada de arriba* |
 
 **B · Qué instrumento suena**: trompeta —es para el trompetista—, piano, o elegirlo.
 
@@ -4288,6 +4288,37 @@ comprobar si el sintetizador hereda ese desplazamiento del dibujo y, si lo hered
 📌 **Y pidió expresamente que quede como PENDIENTE**, con sus palabras enteras —*«también anota esto
 como pendiente»*—. Está en §9.0 como el punto 0, y **se sigue por las fases en orden**: la 2 no
 empieza hasta que la 1 esté probada.
+
+#### ✅ FASE 1 HECHA (2026-09-10) — r65 · oír la nota al colocarla
+
+| | |
+|---|---|
+| `lib/melodia.ts` → `armadura()` y `alturaMidi()` | **La cuenta de QUÉ nota suena**, que es lo que puede estar mal sin que nadie se entere. Regla de la partitura: alteración escrita › la que arrastra el compás hasta la barra › la armadura. **Cubierta por el CI: 7 pruebas nuevas** |
+| `lib/sonido.ts` | Tocar una nota con `abcjs` (cargado diferido) y recordar el instrumento de cada músico. **Colección de sonidos fijada a mano** (`FluidR3_GM/`) |
+| `EditorMelodia` | Suena **la nota seleccionada cada vez que cambia su altura** —al ponerla, subirla o bajarla con las flechas, arrastrarla o cambiarle la alteración—. **No** vuelve a sonar si solo cambia la duración. Selector **🎺 Trompeta · 🎹 Piano · 🔇 Sin sonido** |
+| `MelodiaPanel` | Le pasa el **tono** al editor. Sin eso, en Re mayor el fa sonaba natural |
+
+**Comprobado:**
+
+| | |
+|---|---|
+| Pruebas | **214** (7 nuevas: en Re mayor el fa suena sostenido, `^F F` son dos fa#, la barra corta, un ♮ anula…) |
+| El servidor de sonidos | `Access-Control-Allow-Origin: *` — **deja pedir desde cualquier web**, que es lo que hace falta para que suene en producción |
+| 🔬 **Qué sonido pide de verdad** | Con el **registro de red** del navegador (`--log-net-log`), tocando un fa# de trompeta: pide **`FluidR3_GM/trumpet-mp3/Gb4.mp3`**. Trompeta, y **fa# 4** —`abcjs` nombra con bemoles—. **La cadena entera cuadra**: nota del editor → altura → archivo |
+| Los nombres con bemol | `Db4`, `Gb4`, `Bb4`… **todos existen** en el servidor (200) |
+| Lint · build · pantallas | 0 errores (60 avisos, los mismos) · compila · **26 de 26** |
+
+⬜ **Lo que NO se pudo comprobar, y va delante:**
+* **El sonido.** El navegador sin ventana **congela su reloj mientras hay una descarga pendiente**, así
+  que la página de ensayo se quedó en «esperando…» — lo mismo que pasó con el buscador (O-71).
+  **Lo prueba el registro de red, no los oídos.** Oírlo es de Isaac.
+* **El selector en pantalla.** El editor de melodía **no viene en el HTML del servidor** —se monta en
+  el navegador—, así que buscarlo con `curl` da 0. Compila y está en el código; **verlo es de Isaac**.
+
+🔴 **La lección de la tanda, que ya está en la carpeta compartida como L-249:** se midió **la colección
+que yo creía** y no **la que el programa pide**, y la cifra que se le dio a Isaac salió **cuatro veces
+más grande**. El registro de red lo destapó en un minuto. **Lo que cuesta un recurso se mide en lo que
+el programa pide de verdad, no en lo que uno supone que pide.**
 
 ⬜ **Lo que NO se puede comprobar desde aquí, y va delante:** **el sonido.** El navegador sin ventana
 no oye. Se podrá medir que el reproductor arranca, que pide **las notas correctas** al servidor y que
@@ -6494,6 +6525,10 @@ solo tenía «Primos-Dev»; **entrar después en otra organización no amplía e
 → **LO QUE FALTA, y es de Isaac, una vez:** **volver a conectar el conector de Supabase** en los
 ajustes de claude.ai y, en la pantalla de Supabase que se abre, **marcar la organización del primo**
 (además de la suya). No hace falta nada más del primo.
+
+🔁 **Vuelto a mirar el mismo día, al cerrar la fase 1 de O-75 (r65): todo IGUAL** — solo «Primos-Dev»,
+solo «Sistema Biometrico», y `get_project` sigue negando el permiso. **El conector no se ha vuelto a
+conectar todavía.** Mientras tanto, las migraciones 20240020–22 siguen sin aplicar.
 
 ⚠️ **Y un aviso de la misma documentación, que hay que tener presente:** Supabase recomienda *no*
 conectar el MCP a producción, o hacerlo en modo **solo lectura**. Partituras **es** producción. Aquí
