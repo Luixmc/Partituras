@@ -84,11 +84,14 @@ cada push a `main`.
    nada, y sin que Isaac pueda ver los logs (§6). Un push a `main` es un despliegue.
 3. **La base de datos de producción tiene datos reales en uso** (~80 canciones, 4 cultos).
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
+   🔑 **Cómo se entra, desde el 2026-09-10:** conector local `supabase-partituras`, **solo lectura**,
+   con la llave personal de Isaac en `SUPABASE_ACCESS_TOKEN`. **NO** el conector de claude.ai: esa
+   cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **214 pruebas** (`npm test`, sin dependencias
    nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.247 líneas** de TypeScript
-   en **88 archivos**. *(Contado el 2026-09-07. Estas tres cifras cambian cada tanda: **antes de
+   en **88 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -779,7 +782,8 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | **0** | 🟢 **O-75 · Escuchar la melodía — FASE 1 HECHA (r65), faltan la 2 y la 3** | Isaac, 2026-09-10: sonidos **de fuera** · instrumento **a elegir** (trompeta y piano) · fases **1** oír la nota al colocarla → **2** reproductor (play, pausa, detener, tempo, metrónomo, repetir, nota resaltada) → **3** cuenta de entrada y volumen. **No hay que instalar nada**: `abcjs` ya trae el reproductor |
-| **1** | 🔴 **TRES MIGRACIONES esperando al primo** (`20240020`, `20240021` y la nueva `20240022`) | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
+| **0-bis** | 🟡 **ACCESO A LA BASE: MONTADO, falta probarlo desde un chat nuevo** (Isaac, 2026-09-10) | Eligió la **llave local de solo lectura** (no el conector de claude.ai, que es de la cuenta de su hermano). Llave en `SUPABASE_ACCESS_TOKEN` (usuario de Windows), **ya probada contra la API: 200, Partituras**. Conector `supabase-partituras` en `Documents\Partituras\.mcp.json`. **AL RETOMAR:** (1) comprobar que se ven sus herramientas y hacer una lectura (`list_tables`); (2) leer las políticas reales (`pg_policies`); (3) recordarle **cambiar la llave**, que pasó por el chat. Las migraciones de la fila 1 **siguen esperando su OK y la copia**. Todo en §12.2-ter |
+| **1** | 🔴 **TRES MIGRACIONES esperando** (`20240020`, `20240021` y la nueva `20240022`) — ya no al primo: a la fila 0-bis | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
 | **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
@@ -6529,6 +6533,70 @@ ajustes de claude.ai y, en la pantalla de Supabase que se abre, **marcar la orga
 🔁 **Vuelto a mirar el mismo día, al cerrar la fase 1 de O-75 (r65): todo IGUAL** — solo «Primos-Dev»,
 solo «Sistema Biometrico», y `get_project` sigue negando el permiso. **El conector no se ha vuelto a
 conectar todavía.** Mientras tanto, las migraciones 20240020–22 siguen sin aplicar.
+
+🔁 **Y después de que Isaac dijera que lo había reconectado (mismo día): IGUAL otra vez.** Tres causas
+posibles, sin saber aún cuál: (1) esta conversación sigue usando el permiso viejo y hace falta abrir
+un chat nuevo; (2) en la pantalla de Supabase no quedó marcada la organización del primo; (3) entró
+con una cuenta de Supabase distinta de la invitada, o la invitación no está aceptada. **La prueba que
+lo aclara es de Isaac:** entrar a supabase.com/dashboard y mirar si ve Partituras ahí.
+
+📸 **Lo que vio Isaac en el panel (captura, mismo día):** la organización **«Quaker»** (Free), con un
+solo proyecto, **«mi-dinero»**, pausado. **Ni Partituras ni «Primos-Dev».** O sea: su navegador está
+en una organización que el conector **no** ve, y el conector ve una («Primos-Dev») que el panel no
+enseñaba de entrada. Siguiente paso: abrir el **selector de organizaciones** (las flechitas ⇕ junto a
+«Quaker») para ver **todas** las de esa cuenta — ahí se sabe si la del primo está, y si «Primos-Dev»
+es de la misma cuenta o de otra. ⚠️ «mi-dinero» no es de Partituras: no se toca.
+
+✅ **Segunda captura: en su cuenta SÍ está «Luixmc's Org»** (`eimslmepayitqcebzcwy`), con **Partituras**
+(us-west-2, NANO) y «paginaiglesia» (pausado). **La invitación está aceptada; la cuenta del navegador
+es la buena.** Pero el conector, probado justo después, **sigue viendo solo «Primos-Dev»**. Quedan dos
+causas: (a) **el conector está autorizado con OTRA cuenta de Supabase**, la que tiene «Primos-Dev»; o
+(b) esta conversación arrastra el permiso viejo. **Cómo se distingue:** si «Primos-Dev» **no** sale en
+el selector ⇕ de la cuenta del navegador → es (a): reconectar entrando con la cuenta que tiene
+«Luixmc's Org». Si sale → es (b): reconectar marcando «Luixmc's Org» y abrir un chat nuevo.
+
+🎯 **RESUELTO QUÉ PASA (tercera captura, mismo día):** el selector de su cuenta tiene **solo «Luixmc's
+Org» y «Quaker»** — **no hay «Primos-Dev»**. Es la causa (a): **Isaac tiene DOS cuentas de Supabase**,
+y el conector de Claude está autorizado con la otra. El conector **no dice el correo** de la cuenta
+(`get_organization` solo da nombre y plan). → **Arreglo:** cerrar sesión en supabase.com, reconectar
+el conector en claude.ai y entrar con **la cuenta que ve «Luixmc's Org»**.
+**Esa cuenta buena es la suya que tiene GitHub enlazado** (él lo dijo; el correo no se escribe aquí
+porque este repositorio es público). Al reconectar, entrar **con el botón de GitHub** —el mismo
+GitHub— lleva a esa cuenta sin equivocarse.
+
+🔴 **CAMBIA TODO (Isaac, mismo día): la cuenta de claude.ai con la que habla conmigo ES DE SU HERMANO.**
+*«el claude.ai que uso para hablar contigo es el de furbogoat, que es de mi hermano»*. Consecuencias:
+* ⚠️ **SUPERADO lo de arriba de que «Primos-Dev» es «la de Isaac»**: no lo es en su cuenta de Supabase.
+  Lo más probable es que «Primos-Dev» y «Sistema Biometrico» sean **del hermano** — sin confirmar.
+* **Reconectar el conector de claude.ai con la cuenta de Isaac le quitaría al hermano el suyo**, y
+  además **dejaría la base de producción del primo al alcance de cualquier chat de esa cuenta**. No
+  se hace sin que Isaac lo decida sabiendo esto, y sin preguntarle al hermano.
+* **La alternativa recomendada:** no usar el conector de claude.ai, sino **uno local de Claude Code
+  en este PC**, con una **llave personal de Isaac** (Supabase → Account → Access Tokens), limitado a
+  **solo el proyecto Partituras** y en **solo lectura**. No toca nada del hermano, y la llave queda
+  en este equipo, **nunca en el repositorio**. Las migraciones se aplicarían aparte, con su OK.
+  ~~PENDIENTE: que Isaac elija.~~ ✅ **ISAAC ELIGIÓ (2026-09-10): «vamos entonces con la opción 1»**
+  — la llave local de solo lectura. Se le explicó antes lo que cuesta: solo desde este PC; cualquiera
+  en este usuario de Windows la tendría; para migraciones, subir a escritura un momento o que él pegue
+  el SQL en el SQL Editor (ya es miembro). **La llave nunca pasa por el chat**: él la pone en una
+  variable de entorno de Windows (`SUPABASE_ACCESS_TOKEN`) y el servidor la lee de ahí.
+
+  **Montado (2026-09-10):** `Documents\Partituras\.mcp.json` — la carpeta desde la que corre Claude
+  Code, **FUERA del repositorio** (`repo\`), así que no se puede subir por accidente. Servidor
+  `supabase-partituras` = `@supabase/mcp-server-supabase@0.12.0` (versión fijada) con
+  `--read-only --project-ref=pcayahwnxbigiuhvtwhd`. Las tres cosas —las dos opciones y leer la llave
+  de `SUPABASE_ACCESS_TOKEN`— **se comprobaron en el código del paquete**, no en la documentación.
+  El archivo **no lleva la llave**. En Windows va con `cmd /c npx`. No hay CLI `claude` en este PC.
+  ⚠️ **La llave de Supabase vale para TODA la cuenta de Isaac** (también «Quaker»); lo que la limita
+  a Partituras y a leer es cómo arranca el servidor, no la llave. Si se filtra, se borra en Supabase.
+  ~~**Falta, de Isaac:** crear la llave, ponerla en la variable, reiniciar VS Code y aprobar el servidor.~~
+  ✅ **Llave creada y puesta (2026-09-10).** Isaac prefirió **pegarla en el chat** en vez de ponerla
+  él; se guardó en la variable de usuario `SUPABASE_ACCESS_TOKEN` y **se comprobó contra la API de
+  Supabase: 200, «Partituras», ACTIVE_HEALTHY, en «Luixmc's Org»**. ⚠️ Por haber pasado por el chat,
+  queda en el historial de esta conversación **en este PC** (que usa también la cuenta de claude.ai
+  del hermano): **se le recomendó cambiarla** por una nueva que ponga él. **La llave NUNCA se escribe
+  en ningún archivo del repositorio ni de la carpeta compartida.**
+  **Falta:** cerrar y abrir VS Code, aprobar «supabase-partituras» y probar desde un chat nuevo.
 
 ⚠️ **Y un aviso de la misma documentación, que hay que tener presente:** Supabase recomienda *no*
 conectar el MCP a producción, o hacerlo en modo **solo lectura**. Partituras **es** producción. Aquí
