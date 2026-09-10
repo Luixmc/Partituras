@@ -7,6 +7,11 @@
 
 ## 10 de septiembre de 2026
 
+### ⛪ El logo de la iglesia al entrar
+
+- 🆕 **La pantalla para iniciar sesión lleva ahora el logo de La Casa de mi Padre**, en vez del
+  signo musical que había.
+
 ### 🎺 La melodía ya suena mientras la escribes
 
 - 🆕 **Cada nota que colocas en el pentagrama, suena** — y también al subirla o bajarla con las

@@ -90,7 +90,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **214 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.255 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.281 líneas** de TypeScript
    en **88 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -797,7 +797,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **0** | 🟢 **O-75 · FASE 1 ✅ PROBADA POR ISAAC → SIGUE LA FASE 2, el reproductor** | 2026-09-10: *«ya probé la melodia y si suena»*. Fase 1 cerrada (probada en Agnus Dei, en Re). *(No dijo nada del botón «Guardar melodía»: eso sigue sin confirmar por él.)* **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
+| **0** | 🟢 **O-75 · FASE 2 EN MARCHA — el reproductor** (Isaac, 2026-09-10: *«si guarda la melodia, adelante con la fase 2»*) | Fase 1 cerrada: *«ya probé la melodia y si suena»*. ✅ **Y el guardado, confirmado por él**: *«si guarda la melodia»*. Las subfases, en §9.2 → O-75 «FASE 2». **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
 | **1** | ⬜ **O-74 · SOLO D, las NOTAS PRIVADAS** — después de la fase 2 de O-75 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
 
 ✅ **HECHO el 2026-09-10 (tarde), con sus palabras:** *«2. si la b es para que lo hagas entonces la b, 3. ok, 4. hazlo»* →
@@ -810,6 +810,13 @@ Code: API 200 y el conector responde — que borrara la vieja en supabase.com no
 desde aquí) · **publicado como r66** con su permiso (*«sube lo que tengas que subir»*, válido solo
 para ese trabajo): exportador arreglado (T-18), «la melodía ya se guarda» en `/novedades` y
 `CAMBIOS.md`, README y cabeceras de las migraciones.
+✅ **O-76 · el LOGO de la iglesia en el login — r67** (Isaac, 2026-09-10, con captura: *«en vez de ese
+icono de signo musical que coloques el logotipo de la iglesia, tu tienes la imagen en las carpetas»*;
+y *«lo subes enseguida no esperes mi aprobación»*, permiso **solo para este cambio**). En
+`src/app/(auth)/layout.tsx`: el cuadrito con ♪ → **`public/icon-192.png`**, el mismo logo del icono de
+la app instalada (O-15), **96 px y redondo**. **Ninguna imagen nueva en el repositorio.** Visto en
+captura, en PC y en ancho de teléfono. ⚠️ Una captura sin ventana a 400 px sale con la tarjeta cortada
+**también en producción, antes del cambio**: es el navegador sin ventana, que no baja de cierto ancho.
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -827,7 +834,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (tarde), todo PUBLICADO en r66**
+#### Estado del árbol — **2026-09-10 (noche), PUBLICADO hasta r67 · la fase 2 de O-75 sin empezar a programar**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -835,10 +842,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r66** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r66** — migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Último commit publicado | el de **r67** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r67** — el logo de la iglesia en el login (O-76). Antes, **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
 | Pruebas | **214** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **16.255 líneas** de TypeScript en **88 archivos** |
+| Tamaño | **16.281 líneas** de TypeScript en **88 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -4352,6 +4359,31 @@ empieza hasta que la 1 esté probada.
 que yo creía** y no **la que el programa pide**, y la cifra que se le dio a Isaac salió **cuatro veces
 más grande**. El registro de red lo destapó en un minuto. **Lo que cuesta un recurso se mide en lo que
 el programa pide de verdad, no en lo que uno supone que pide.**
+
+#### 🟢 FASE 2 — EL REPRODUCTOR · en marcha desde el 2026-09-10 (Isaac: *«adelante con la fase 2»*)
+
+**Lo medido antes de diseñar (2026-09-10):**
+
+| | |
+|---|---|
+| 🔴 **La trampa de la trompeta, resuelta por `abcjs`** | Su secuenciador hace `transpose = midiTranspose − visualTranspose` (`abc_midi_sequencer.js:22-25`): **el dibujo transportado NO mueve el sonido**. En el editor basta con no pasar nada |
+| 🔴 **Pero en la PRESENTACIÓN hay dos cosas mezcladas** | `totalSemitones` = tono del culto + ± del músico + **instrumento**. Las dos primeras **SÍ tienen que sonar** (el grupo toca ahí); la del instrumento **no**. → `midiTranspose` = tono del culto + ±, sin el instrumento |
+| **La melodía va por SECCIONES** | Cada sección es un pentagrama aparte. Para no tocar lo que Isaac ya aprobó, **se siguen dibujando aparte** y el sonido sale de **un solo ABC** con todas seguidas (con una barra entre secciones, igual que el editor, donde cada sección empieza sin alteraciones arrastradas) |
+| **La nota resaltada** | El modelo es sencillo —notas, silencios, barras, ligaduras; sin repeticiones ni tresillos— así que **cuándo empieza cada nota se calcula en `lib/`** y lo cubre el CI. Se resalta por su **orden** dentro de su sección |
+| **Tempo** | Existe `sheets.tempo`, pero **0 de 85 canciones lo tienen**. → Empieza en **80 negras por minuto**, se cambia de 40 a 200, y si algún día la canción trae tempo, manda ese. *(Es un valor de arranque que se cambia con un botón, no una regla)* |
+| **Metrónomo** | `abcjs` lo trae (`drum`) y marca en cada barra. Compases del repertorio: **2/2, 4/4, 6/8**. La percusión está en el mismo servidor: `FluidR3_GM/percussion-mp3/…`, **~10 KB por golpe** (medido: 200) |
+
+**Las subfases:**
+
+| | Qué | Estado |
+|---|---|---|
+| **2.1** | `lib/reproduccion.ts`, **puro y con pruebas**: la línea de tiempo (cuándo empieza cada nota, por sección y orden), el ABC para sonar (secciones seguidas, tempo, metrónomo por compás) y los semitonos que SUENAN en la presentación | ⬜ |
+| **2.2** | `Pentagrama`: resaltar la nota N **sin volver a dibujar** | ⬜ |
+| **2.3** | `lib/reproductor.ts`: el motor con `abcjs` — reproducir, pausar, detener, repetir, tempo (también sonando), metrónomo, y el reloj que dice qué nota va | ⬜ |
+| **2.4** | `Reproductor.tsx`: la barra de botones, con el instrumento (🎺/🎹) | ⬜ |
+| **2.5** | En el **editor** de melodía y en su vista de solo lectura | ⬜ |
+| **2.6** | En la **presentación** (modo melodía): suena en el tono del culto; **se detiene al pasar de canción** | ⬜ |
+| **2.7** | Comprobar: pruebas, lint, build, pantallas, **registro de red** (que pida las notas y la percusión correctas) · README, `CAMBIOS.md`, `/novedades` | ⬜ |
 
 ⬜ **Lo que NO se puede comprobar desde aquí, y va delante:** **el sonido.** El navegador sin ventana
 no oye. Se podrá medir que el reproductor arranca, que pide **las notas correctas** al servidor y que

@@ -75,6 +75,19 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "El logo de la iglesia al entrar",
+        "resumen": "La pantalla para iniciar sesión lleva ahora el logo de La Casa de mi Padre.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "El logo de la iglesia al iniciar sesión.",
+            "detalle": [
+              "Al entrar a la página, arriba sale ahora <strong>el logo de La Casa de mi Padre</strong>, en vez del signo musical que había."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "La melodía ya suena mientras la escribes",
         "resumen": "Al colocar una nota en el pentagrama, suena: así sabes al momento si es la que querías.",
         "cambios": [
