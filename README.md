@@ -145,11 +145,15 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## Migraciones de base de datos
 
-Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 21**, y **las dos últimas
-todavía no están aplicadas**: `20240020` (que un usuario desactivado tampoco pueda leer por la API)
-y `20240021` (la columna `sheets.melody`).
+Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 22, y todas están
+aplicadas** (las tres últimas, el 2026-09-10): `20240020` (un usuario desactivado tampoco lee ni
+escribe por la API), `20240021` (la columna `sheets.melody`) y `20240022` (`notas_musico`).
 
-> 🔴 **El código publicado NO las necesita, a propósito.** La sección de melodía detecta que la
+> ⚠️ **Los nombres de los archivos no son los de la base.** Producción registra las migraciones con
+> su propia fecha y nombre, y alguna política se llama distinto que en el repositorio. **Antes de
+> una migración que cambie algo que ya existe, se comparan los nombres con `pg_policies`.**
+
+> 📌 **El código aguanta que falte una columna, a propósito.** La sección de melodía detecta que la
 > columna no existe y lo **dice** —«todavía no se puede guardar»— en vez de fingir que guardó; y la
 > melodía se pide en una consulta **aparte**, para que una columna ausente no pueda vaciar la
 > pantalla del culto.
@@ -266,7 +270,7 @@ src/
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
 pruebas/                    → las 214 pruebas (ver más abajo)
-supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
+supabase/migrations/        → 22 migraciones (todas aplicadas)
 ```
 
 > 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron
@@ -304,7 +308,8 @@ supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 - [x] `/novedades`: comunicado público de cambios
 - [x] **Secciones largas que se reparten solas** entre los cuadros, midiendo lo que cabe
 - [x] **Melodía en pentagrama** *(en preparación, solo administradores)*: escribirla con el ratón,
-      leerla como suena o como la lee la trompeta, y el tercer modo a pantalla completa
+      **oírla nota a nota** (trompeta o piano), **guardarla**, leerla como suena o como la lee la
+      trompeta, y el tercer modo a pantalla completa
 - [x] **Diálogos con el diseño de la app**, uno solo para toda la app, y **red de seguridad** para
       que no se pierda lo que se está escribiendo
 
@@ -312,10 +317,10 @@ supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 
 - [ ] Etiquetas e historial de versiones en la UI (las tablas ya existen). **Los favoritos ya están
       hechos** (r63/r64)
-- [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción y **armar
-      cultos sin publicarlos**. Elegido por el mantenedor el 2026-09-05. ⚠️ **Las dos necesitan
-      migración**: `20240022` está escrita y sin aplicar, y la de los cultos no se escribe hasta
-      poder leer las políticas reales de la base
+- [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción. La tabla
+      (`20240022`) **ya está aplicada** y falta su pantalla
+- [ ] **Reproductor de la melodía**: reproducir, pausar, tempo, metrónomo y la nota que suena resaltada
+- ~~Que un músico arme cultos sin publicarlos~~ — **descartado** el 2026-09-10
 - ~~Subida y visor de PDF original + miniaturas~~ — **descartado** el 2026-09-05
 - ~~Sincronización con Google Drive~~ — **descartado** el 2026-09-05
 
@@ -328,13 +333,8 @@ supabase/migrations/        → 22 migraciones (las 3 últimas, sin aplicar)
 - **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
   `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
   antes la clave `service_role`, porque `npm run export` depende de esa lectura.
-- **Tres migraciones escritas y SIN APLICAR**: `20240020` (que un usuario desactivado tampoco pueda
-  leer por la API), `20240021` (la columna `sheets.melody`) y `20240022` (`notas_musico`, las notas
-  privadas de cada músico). El código publicado **no las necesita**: detecta que falta y lo dice, en
-  vez de fingir que guardó. **De `20240022` no hay pantalla todavía, a propósito**: un botón que
-  guarda en una tabla que no existe es peor que no tener botón.
-- **Queda medio P-01**: por la web un usuario desactivado ya no entra, pero **un token guardado
-  puede seguir leyendo por la API** hasta que caduque. Eso lo cierra la migración `20240020`.
+- **La tabla `notas_musico` existe pero no tiene pantalla todavía** (migración `20240022`, aplicada
+  el 2026-09-10).
 - **60 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
 
 > 🔎 **Cuatro puntos que estaban aquí y ERAN FALSOS, corregidos el 2026-09-04** — se apuntan porque

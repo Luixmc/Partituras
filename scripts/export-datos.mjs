@@ -48,7 +48,33 @@ if (!URL_BASE || !ANON) {
 //     entrando y copiando el `access_token`. Añadido el 2026-08-21, cuando se
 //     vio que el respaldo se dejaba fuera 8 canciones.
 //  3. Solo la clave pública — se deja fuera lo que esté en borrador.
-const TOKEN = env.SUPABASE_ACCESS_TOKEN;
+//
+// 🔴 `SUPABASE_ACCESS_TOKEN` tiene DOS significados, y el 2026-09-10 chocaron.
+// Para este script es una SESIÓN (un JWT: tres trozos con punto). Para el
+// conector de Supabase de Claude es la LLAVE PERSONAL de Isaac (`sbp_…`), y esa
+// se puso como variable de Windows — que pisa a `.env.local`. Resultado: la
+// copia salió con 8 fallos «Expected 3 parts in JWT» justo antes de una
+// migración. → Solo se acepta como sesión lo que PARECE una sesión, y si no hay
+// ninguna se saca con la cuenta de prueba (administradora), como `pruebas/sesion.mjs`.
+const esSesion = (t) => typeof t === "string" && t.split(".").length === 3;
+
+async function sesionDePrueba() {
+  if (!env.PRUEBA_EMAIL || !env.PRUEBA_PASSWORD) return undefined;
+  const res = await fetch(`${URL_BASE}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: ANON, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: env.PRUEBA_EMAIL, password: env.PRUEBA_PASSWORD }),
+  });
+  if (!res.ok) {
+    console.log(`  (no se pudo entrar con la cuenta de prueba: HTTP ${res.status})`);
+    return undefined;
+  }
+  return (await res.json()).access_token;
+}
+
+const TOKEN = SERVICE
+  ? undefined
+  : [env.SESION_ADMIN, env.SUPABASE_ACCESS_TOKEN].find(esSesion) ?? (await sesionDePrueba());
 const CLAVE = SERVICE || ANON;
 const AUTORIZACION = SERVICE || TOKEN || ANON;
 const COMPLETO = Boolean(SERVICE || TOKEN);

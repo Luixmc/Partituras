@@ -7,10 +7,8 @@
 -- Son las suyas: «yo la toco en G», «entro en el segundo compás», «aquí subo
 -- una octava». No las ve nadie más — ni el administrador.
 --
--- 🔴 ESCRITA Y SIN APLICAR. Como la 20240020 y la 20240021, espera a que el
--- primo la ejecute en el SQL Editor o invite a Isaac a la organización (§9.1).
--- El código que la use NO se publica hasta entonces: un botón que guarda en una
--- tabla que no existe es peor que no tener botón.
+-- ✅ APLICADA el 2026-09-10 con el OK de Isaac (en la base: `20260910202930
+-- notas_musico`). Todavía no tiene pantalla.
 --
 -- ⚠️ Esta es de las SEGURAS: crea una tabla nueva y no toca ninguna política ya
 -- existente, así que no puede dejar a nadie fuera. Es lo contrario de la

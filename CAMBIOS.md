@@ -18,6 +18,9 @@
 - ⚠️ **Necesita internet:** los sonidos se bajan la primera vez (unos 25 KB por nota) y después
   quedan guardados.
 - El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega.
+- 🆕 **La melodía ya se guarda.** Hasta hoy se podía escribir y mirar, pero no guardar: faltaba
+  prepararle su sitio en la base de datos. Ya está, y el botón «Guardar melodía» funciona. Sigue
+  siendo, por ahora, solo para quien administra.
 
 ---
 

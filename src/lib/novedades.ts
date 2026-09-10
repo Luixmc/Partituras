@@ -88,6 +88,14 @@ export const TANDAS: Tanda[] = [
               "⚠️ <strong>Necesita internet</strong>: los sonidos se bajan la primera vez (unos 25 KB por nota) y luego quedan guardados.",
               "El reproductor completo —reproducir, pausar, metrónomo— viene en la siguiente entrega."
             ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "La melodía ya se guarda.",
+            "detalle": [
+              "Hasta hoy la melodía se podía escribir y mirar, pero <strong>no guardar</strong>: faltaba prepararle su sitio en la base de datos. <strong>Ya está</strong>, y el botón «Guardar melodía» funciona.",
+              "Sigue siendo, por ahora, <strong>solo para quien administra</strong>, mientras se escriben las melodías. Cuando estén, se abre para todos."
+            ]
           }
         ]
       }

@@ -82,7 +82,7 @@ cada push a `main`.
    Isaac** (ver §11). Que Isaac sea el mantenedor **no** convierte el permiso en permanente.
 2. **Cada push a `main` PUBLICA en producción en menos de un minuto**, sin que nadie apriete
    nada, y sin que Isaac pueda ver los logs (§6). Un push a `main` es un despliegue.
-3. **La base de datos de producción tiene datos reales en uso** (~80 canciones, 4 cultos).
+3. **La base de datos de producción tiene datos reales en uso** (85 canciones, 3 cultos — contados el 2026-09-10).
    No ejecutar nada contra ella sin decírselo a Isaac (D-04).
    🔑 **Cómo se entra, desde el 2026-09-10:** conector local `supabase-partituras`, **solo lectura**,
    con la llave personal de Isaac en `SUPABASE_ACCESS_TOKEN`. **NO** el conector de claude.ai: esa
@@ -90,7 +90,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **214 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.247 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **16.255 líneas** de TypeScript
    en **88 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -277,10 +277,8 @@ repo/
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
-  supabase/migrations/           22 migraciones ⚠️ desincronizadas con la BD (T-01)
-                                 ⚠️ las TRES últimas SIN APLICAR:
-                                    20240020 (usuario desactivado) · 20240021 (melody)
-                                    20240022 (notas_musico)
+  supabase/migrations/           22 migraciones ⚠️ con otros nombres en la BD (T-01)
+                                 ✅ TODAS aplicadas (las tres últimas, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
   pruebas/                       214 pruebas + el recorrido de las 26 pantallas
 ```
@@ -394,8 +392,9 @@ Todo esto es del **2026-08-19**, leyendo el repositorio y el proyecto vivo.
 | Líneas de TypeScript en `src/` | **7.029** |
 | Pruebas automáticas | **0** |
 | Migraciones en el repositorio | **14** |
-| Migraciones registradas en la BD | **18**, y **no coinciden** con las del repo (T-01) |
-| **Canciones (CONTADAS, 2026-09-04)** | **80 = 72 publicadas + 8 en borrador.** ⚠️ **Isaac sigue montando canciones**: eran 69+6 el 20-ago, 67+8 el 21-ago y 72+8 hoy. → **Cualquier respaldo tiene días contados, y cualquier cifra escrita aquí también.** Antes de citarla, contarla |
+| Migraciones registradas en la BD | **18**, y **no coinciden** con las del repo (T-01) · *el 2026-09-10: **23**, leídas con el conector* |
+| **Canciones (CONTADAS en la base, 2026-09-10)** | **85 = 76 publicadas + 9 sin publicar** · 14 categorías · 3 cultos · 7 usuarios. *El 2026-09-04 eran 80 = 72 + 8.* |
+| *Canciones (2026-09-04)* | *80 = 72 publicadas + 8 en borrador.* ⚠️ **Isaac sigue montando canciones**: eran 69+6 el 20-ago, 67+8 el 21-ago y 72+8 hoy. → **Cualquier respaldo tiene días contados, y cualquier cifra escrita aquí también.** Antes de citarla, contarla |
 | **Caracteres de acordes transcritos** | **28.203** — el trabajo que hay que proteger |
 | **Categorías (CONTADAS)** | **14** |
 | **Vínculos canción↔categoría** | **94** |
@@ -451,6 +450,11 @@ repositorio tiene 14 con nombres `20240001…`. **`sheet_categories` (010) y `ad
 podrían haberse ejecutado a mano en el SQL Editor y no constar.
 *Cómo se resuelve:* antes de tocar permisos, **comprobar las políticas reales** (`pg_policies`),
 no los archivos.
+✅ **Leído por fin el 2026-09-10** con el conector `supabase-partituras`: la base registra **23
+migraciones** (la última, `rpc_solo_autenticados` = nuestra `20240019`), y **la trampa era real**:
+la `20240020` hacía `alter policy sheets_select_viewer` y en producción se llama **`sheets_select`**
+— habría fallado. Corregida. Las políticas de verdad se sacan con
+`select tablename, policyname, cmd, qual from pg_policies where schemaname='public'`.
 
 **T-02 · El service worker hace que un despliegue correcto parezca que no se aplicó.**
 *Síntoma:* «se puede subir el cambio, pero no se aplica de inmediato en Vercel» — lo que le
@@ -511,6 +515,18 @@ se leía estaba mal.
 *Cómo se resuelve:* el modo se lleva aparte (`esMenor` en `music.ts`) y se vuelve a pegar al
 final. **Afectaba a 17 de las 75 canciones** (las que están en Dm, Bm, Em, G#m, Am o Cm).
 *Encontrado por Isaac usando la app el 2026-08-20.*
+
+**T-18 · `SUPABASE_ACCESS_TOKEN` significa DOS cosas, y el 2026-09-10 chocaron.**
+*Síntoma:* `npm run export`, justo antes de aplicar tres migraciones, dio **8 fallos** `HTTP 401 ·
+PGRST301 · Expected 3 parts in JWT; got 1`. Sin copia no se aplica nada, así que todo se paró.
+*Causa:* para el exportador esa variable era **la sesión de un administrador** (un JWT, tres trozos
+con punto). Esa misma mañana se puso en **Windows** con **la llave personal de Isaac** (`sbp_…`) para
+el conector de Supabase — y la variable de Windows **pisa** a la de `.env.local`. Mismo nombre, dos
+cosas distintas: nadie se enteró hasta que hizo falta la copia.
+*Cómo se resolvió:* el exportador solo acepta como sesión **lo que parece una sesión** (3 trozos), y
+si no hay ninguna **la saca él solo con la cuenta de prueba** (`PRUEBA_EMAIL`/`PRUEBA_PASSWORD`, que es
+administradora), como `pruebas/sesion.mjs`. Resultado: **85 canciones, las 9 sin publicar incluidas**.
+→ **Regla:** antes de guardar una variable de entorno **global**, buscar ese nombre en el proyecto.
 
 **T-17 · El middleware se ejecuta en CADA navegacion: ir a la base desde ahi tumba la pagina.**
 *Sintoma:* Isaac, 2026-08-28, entrando desde casa: **`504: GATEWAY_TIMEOUT` ·
@@ -781,10 +797,19 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **0** | 🟢 **O-75 · Escuchar la melodía — FASE 1 HECHA (r65), faltan la 2 y la 3** | Isaac, 2026-09-10: sonidos **de fuera** · instrumento **a elegir** (trompeta y piano) · fases **1** oír la nota al colocarla → **2** reproductor (play, pausa, detener, tempo, metrónomo, repetir, nota resaltada) → **3** cuenta de entrada y volumen. **No hay que instalar nada**: `abcjs` ya trae el reproductor |
-| **0-bis** | 🟡 **ACCESO A LA BASE: MONTADO, falta probarlo desde un chat nuevo** (Isaac, 2026-09-10) | Eligió la **llave local de solo lectura** (no el conector de claude.ai, que es de la cuenta de su hermano). Llave en `SUPABASE_ACCESS_TOKEN` (usuario de Windows), **ya probada contra la API: 200, Partituras**. Conector `supabase-partituras` en `Documents\Partituras\.mcp.json`. **AL RETOMAR:** (1) comprobar que se ven sus herramientas y hacer una lectura (`list_tables`); (2) leer las políticas reales (`pg_policies`); (3) recordarle **cambiar la llave**, que pasó por el chat. Las migraciones de la fila 1 **siguen esperando su OK y la copia**. Todo en §12.2-ter |
-| **1** | 🔴 **TRES MIGRACIONES esperando** (`20240020`, `20240021` y la nueva `20240022`) — ya no al primo: a la fila 0-bis | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
-| **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
+| **0** | 🟢 **O-75 · FASE 1 ✅ PROBADA POR ISAAC → SIGUE LA FASE 2, el reproductor** | 2026-09-10: *«ya probé la melodia y si suena»*. Fase 1 cerrada (probada en Agnus Dei, en Re). *(No dijo nada del botón «Guardar melodía»: eso sigue sin confirmar por él.)* **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
+| **1** | ⬜ **O-74 · SOLO D, las NOTAS PRIVADAS** — después de la fase 2 de O-75 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
+
+✅ **HECHO el 2026-09-10 (tarde), con sus palabras:** *«2. si la b es para que lo hagas entonces la b, 3. ok, 4. hazlo»* →
+**las TRES migraciones aplicadas** (`20240020` + `get_my_role()` mirando `active`, `20240021`, `20240022`),
+**con copia previa** y **comprobadas después**: el admin activo ve 85 canciones y 3 cultos y sigue siendo
+admin; sin sesión se ven las 76 publicadas y el único culto publicado, igual que antes. Vía: la API de
+gestión de Supabase con su llave (§12.2-ter). Detalle en §13.
+✅ **Y también el 2026-09-10:** la **llave cambiada** por Isaac (*«listo»*; comprobada tras reiniciar VS
+Code: API 200 y el conector responde — que borrara la vieja en supabase.com no se puede comprobar
+desde aquí) · **publicado como r66** con su permiso (*«sube lo que tengas que subir»*, válido solo
+para ese trabajo): exportador arreglado (T-18), «la melodía ya se guarda» en `/novedades` y
+`CAMBIOS.md`, README y cabeceras de las migraciones.
 
 #### ✅ ISAAC LO MIRÓ TODO, y lo dio por bueno (2026-09-04 y 05)
 
@@ -802,7 +827,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-07, todo PUBLICADO**
+#### Estado del árbol — **2026-09-10 (tarde), todo PUBLICADO en r66**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -810,12 +835,12 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | **`c2a68b0`**, y `origin/main` va igual. **Árbol limpio** |
-| Última versión | **r64** |
+| Último commit publicado | el de **r66** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r66** — migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
 | Pruebas | **214** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **16.247 líneas** de TypeScript en **88 archivos** |
+| Tamaño | **16.255 líneas** de TypeScript en **88 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
-| Migraciones | **22**, y **las TRES últimas SIN APLICAR**: `20240020`, `20240021`, `20240022` |
+| Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
 | `abcjs` | **dependencia de verdad** desde r48, cargada de forma diferida y **fuera del paquete compartido** (medido en `build-manifest.json`) |
 
@@ -909,7 +934,7 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       Free). **No creó ningún proyecto dentro**, y es lo correcto: para Partituras no hace falta
       —basta con que el primo lo invite a «Luixmc's Org»— y un proyecto sin usar se pausa solo
       por inactividad. El proyecto de GestionDineroTrabajo se creará cuando esa fase arranque.
-- [ ] **Que el primo lo invite a «Luixmc's Org»** para poder entrar a Partituras con su cuenta.
+- [x] ~~**Que el primo lo invite a «Luixmc's Org»**~~ → ✅ **HECHO** (Isaac ya es miembro, 2026-09-10; §12.2-ter).
 - [x] ~~**Reconectar el conector de Supabase de Claude con la cuenta de Isaac**~~ →
       🔴 **YA PASO, Y PASO LO QUE ESTABA AVISADO AQUI: SE PERDIO EL ACCESO A PARTITURAS.**
       Comprobado el **2026-09-03**: el conector lista **un solo proyecto, «Sistema Biometrico»**
@@ -934,9 +959,11 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       2. **Que el primo ejecute el SQL** desde el panel de Supabase. Son 3 lineas y estan
          escritas en `supabase/migrations/20240021_sheet_melody.sql`.
       3. **Volver a conectar el conector a la cuenta del primo**, que es como estaba.
-- [ ] 🔴 **CONSECUENCIA: ninguna migracion se puede ejecutar hasta que esto se resuelva.**
+- [x] ✅ **RESUELTO el 2026-09-10: ya hay vía, y las migraciones que esperaban están APLICADAS**
+      (`20240020`, `20240021`, `20240022`). La vía es la llave personal de Isaac (§12.2-ter).
+      ~~🔴 **CONSECUENCIA: ninguna migracion se puede ejecutar hasta que esto se resuelva.**
       Hay **dos esperando**: `20240020` (usuario desactivado, §9.3) y `20240021` (la columna
-      `melody`, con el OK de Isaac ya dado y la copia hecha).
+      `melody`, con el OK de Isaac ya dado y la copia hecha).~~
 
       #### 🔴 «¿Y si dejo los datos publicos?» — NO sirve, y hay que saber por que (2026-09-04)
 
@@ -1008,8 +1035,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
       internet.
       ✅ **Y ya se puede cerrar de verdad: P-01 se arregló el 2026-08-28** y desactivar **sí** echa a
       la sesión (lo probó el propio Isaac con esta cuenta). *Aquí ponía lo contrario —«hoy desactivar
-      NO le impide entrar»— hasta el 2026-09-05.* Queda la mitad de la base (migración `20240020`),
-      pero **por la web ya no entra**, que es el uso real.
+      NO le impide entrar»— hasta el 2026-09-05.* ~~Queda la mitad de la base (migración `20240020`)~~
+      → ✅ **aplicada el 2026-09-10**: desactivada, tampoco lee ni escribe por la API.
+      ⚠️ **Ojo: `npm run export` saca su sesión con ESTA cuenta** desde el 2026-09-10 (T-18). Si se
+      desactiva, la copia pierde las canciones sin publicar — antes hay que darle otra vía.
 - [x] ~~El push de la tanda 33~~ → ✅ **HECHO el 2026-08-21 con su permiso** (*«adelante sube todo
       lo que no está subido, y en el orden que dices»*), commit `c1b4b40` (r44). Verificado en
       producción. **El permiso valía para ese trabajo: el siguiente push se le vuelve a pedir.**
@@ -6034,6 +6063,13 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
          repositorio no es la base**. Si en producción esa política se llama de otra forma, la
          migración **falla a mitad**. → Hay que **leer `pg_policies` primero**, y hoy no se puede:
          la herramienta de Supabase lleva denegando las consultas desde el 2026-08-28.
+         ✅ **LEÍDO el 2026-09-10 — y fallaba:** `sheets_select_viewer` no existe en producción, se
+         llama `sheets_select`. **Corregido en el archivo.** `services_select_viewer` sí existe, e
+         `is_admin()` en la base es idéntica a la del repositorio. **Afectaría hoy a 3 cuentas
+         desactivadas** (2 admin y 1 músico), que ya no entran por la web.
+         ✅✅ **APLICADA el 2026-09-10** con el OK de Isaac, **sola** y con copia previa, y con un
+         añadido que él pidió («hazlo»): **`get_my_role()` también mira `active`**, así que un músico
+         desactivado tampoco escribe por la API. Comprobado después: nadie activo se quedó fuera.
       2. 🔴 **Es el cambio con más capacidad de dejar a todo el mundo fuera** de cuantos se han
          hecho aquí: toca `is_admin()`, que sostiene **todas** las políticas de escritura. Si algo
          sale mal, no es que falle una pantalla — **es que no entra nadie**.
@@ -6061,7 +6097,7 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       de funcionar **hasta que llegue la clave `service_role`**. → El orden correcto es: **primero
       la clave, después cerrar la lectura.** Y cerrarla es una migración, o sea que también espera
       al primo.
-- [ ] **P-03 · «Solo el admin edita» puede ser solo apariencia.** Depende de si la migración
+- [x] ✅ **CERRADO el 2026-09-10 (leído en `pg_policies`, abajo).** ~~**P-03 · «Solo el admin edita» puede ser solo apariencia.**~~ Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.
 
@@ -6081,7 +6117,13 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       **Resultado: `204` en `sheets` y en `services`** → la política **bloquea**. Con la clave
       pública nadie puede modificar ni borrar canciones ni cultos.
 
-      ⬜ **Lo que sigue sin medir es la otra mitad:** si un **`musician` CON sesión** puede escribir.
+      ✅ **Y LA OTRA MITAD, LEÍDA EN `pg_policies` el 2026-09-10 → P-03 CERRADO.** Crear una canción
+      (`sheets_insert_admin`) exige `is_admin()`, y las versiones por tono (`sheet_keys_write`)
+      también: **un músico no puede crear canciones ni por la API**. La 011 está aplicada. El único
+      resto: `sheets_update` deja al músico editar las canciones **que él creó** — y **ninguna de
+      las 85 es de un músico** (todas de administradores activos). Lo del músico desactivado va a
+      §9.0, fila 2.
+      ~~⬜ **Lo que sigue sin medir es la otra mitad:** si un **`musician` CON sesión** puede escribir.~~
       Para eso hace falta una cuenta de músico, y **no hay** — la de prueba es administradora y se
       queda así por decisión de Isaac (§9.1). *Si algún día quiere cerrarlo del todo: una cuenta de
       músico un rato, o leer `pg_policies`, que necesita el acceso del primo.*
@@ -6333,7 +6375,11 @@ Del `roadmap` del README, ninguna aprobada todavía:
   ⚠️ Y **C sin tocar la base sería un engaño**: el botón aparecería y la base lo rechazaría —o peor,
   lo dejaría pasar (P-03 está medido solo a medias)—.
 
-  #### ✅ ISAAC ELIGIÓ (2026-09-07): **D · las notas privadas** y **E · armar cultos**
+  > 🔴 **SUPERADO EN PARTE el 2026-09-10 — MANDA ESTO:** Isaac *«cambié de opinión, que solamente
+  > pueda hacer las notas privadas, lo de armar cultos ya no va»*. → **Solo D.** La E queda
+  > **descartada**; lo que sigue sobre ella es historia, **no se hace**.
+
+  #### ✅ ISAAC ELIGIÓ (2026-09-07): **D · las notas privadas** y ~~**E · armar cultos**~~ *(E descartada el 2026-09-10)*
 
   🔴 **Y AL IR A HACERLO SE VIO QUE YO LE HABÍA DICHO MAL LO DE LA E.** En la tabla de arriba puse
   que «E se queda en la pantalla y se puede hacer hoy». **Es falso.** La política de la base dice:
@@ -6353,11 +6399,11 @@ Del `roadmap` del README, ninguna aprobada todavía:
 
   | | |
   |---|---|
-  | **D · notas privadas** | 📄 **Migración `20240022` ESCRITA y sin aplicar.** Crea `notas_musico` con sus cuatro políticas —cada uno solo las suyas, **el administrador tampoco las ve**—. ⚠️ Es de las **seguras**: tabla nueva, no toca ninguna política existente, así que **no puede dejar a nadie fuera** (al revés que la `20240020`) |
-  | **E · armar cultos** | ⬜ **NI ESCRITA.** Y es deliberado: cambiar quién escribe cultos es `alter policy` sobre un nombre que sale del repositorio, y **T-01 dice que el repositorio no es la base**. Es exactamente lo que tiene bloqueada la `20240020`. → **Primero se leen las políticas reales, y para eso hace falta el acceso** |
-  | **La pantalla de las dos** | ⬜ **Sin empezar, a propósito.** Un botón que guarda en una tabla que no existe **es peor que no tener botón**: es el engaño que ya está escrito arriba para la opción C |
+  | **D · notas privadas** | ✅ **Migración `20240022` APLICADA el 2026-09-10** (antes: *escrita y sin aplicar*). Crea `notas_musico` con sus cuatro políticas —cada uno solo las suyas, **el administrador tampoco las ve**—. ⚠️ Es de las **seguras**: tabla nueva, no toca ninguna política existente, así que **no puede dejar a nadie fuera** (al revés que la `20240020`) |
+  | **E · armar cultos** | ⬜ **NI ESCRITA.** Y es deliberado: cambiar quién escribe cultos es `alter policy` sobre un nombre que sale del repositorio, y **T-01 dice que el repositorio no es la base**. Es exactamente lo que tiene bloqueada la `20240020`. → **Primero se leen las políticas reales, y para eso hace falta el acceso** · ✅ **Leídas el 2026-09-10:** en producción son `services_write_admin` y `service_songs_write_admin` (las dos `ALL`, `is_admin()`). **Ya se puede escribir**, cuando Isaac la pida |
+  | **La pantalla de las dos** | ⬜ **Sin empezar.** Era a propósito —un botón que guarda en una tabla que no existe es peor que no tener botón—; **desde el 2026-09-10 la D ya tiene su tabla** y se puede hacer (§9.0 fila 2) |
 
-  #### El diseño de la E, para cuando se pueda
+  #### ~~El diseño de la E, para cuando se pueda~~ — ❌ DESCARTADA el 2026-09-10, no se hace
 
   Un músico **crea y ordena** cultos, pero **no los publica**:
   * `insert` en `services`: se le permite, **pero solo con `status = 'draft'`**.
@@ -6596,7 +6642,25 @@ GitHub— lleva a esa cuenta sin equivocarse.
   queda en el historial de esta conversación **en este PC** (que usa también la cuenta de claude.ai
   del hermano): **se le recomendó cambiarla** por una nueva que ponga él. **La llave NUNCA se escribe
   en ningún archivo del repositorio ni de la carpeta compartida.**
-  **Falta:** cerrar y abrir VS Code, aprobar «supabase-partituras» y probar desde un chat nuevo.
+  ~~**Falta:** cerrar y abrir VS Code, aprobar «supabase-partituras» y probar desde un chat nuevo.~~
+  ✅ **PROBADO desde un chat nuevo (2026-09-10, 15:15): FUNCIONA.** Ve las 22 tablas de `public`, las
+  23 migraciones registradas y las políticas reales. Lo que salió de leerlas está en §9.0 (filas 1 y
+  2), en T-01 y en P-03. ✅ **Y la llave ya está cambiada** (2026-09-10, la puso él; probada tras
+  reiniciar VS Code). La que pasó por el chat se le pidió borrarla en supabase.com.
+
+  #### 🔧 CÓMO SE APLICA UNA MIGRACIÓN (desde el 2026-09-10)
+
+  El conector se queda **siempre en solo lectura**. Para escribir se usa **la misma llamada que el
+  `apply_migration` del conector** —leída en su código, `dist/chunk-*.js`—, directamente con la llave:
+  `POST https://api.supabase.com/v1/projects/pcayahwnxbigiuhvtwhd/database/migrations` con
+  `{"name": "...", "query": "<el .sql>"}` y `Authorization: Bearer $SUPABASE_ACCESS_TOKEN`. Queda
+  **registrada** en `supabase_migrations.schema_migrations` con la fecha del día (así se ve con
+  `list_migrations`). Isaac eligió esta vía el 2026-09-10 («si la b es para que lo hagas entonces la b»).
+  **Cada vez:** OK expreso de Isaac → `npm run export` completo → guardar cómo deshacerla con las
+  definiciones leídas de producción → aplicar **de una en una** la que toque permisos → comprobar en
+  la base **y** con una sesión real (admin activo y sin sesión).
+  ⚠️ En Windows, Node puede terminar con `Assertion failed … async.c` **después** del `HTTP 200`: es
+  del propio Node al cerrarse, no de la base. Se comprueba siempre leyendo la base.
 
 ⚠️ **Y un aviso de la misma documentación, que hay que tener presente:** Supabase recomienda *no*
 conectar el MCP a producción, o hacerlo en modo **solo lectura**. Partituras **es** producción. Aquí
@@ -6746,6 +6810,35 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (tarde) · El acceso a la base, probado — y la `20240020` habría fallado
+
+**Chat nuevo, como pedía §9.0 fila 0-bis.** El conector `supabase-partituras` (solo lectura) responde:
+22 tablas, 23 migraciones registradas, políticas reales. **Nada escrito en la base.**
+
+| Qué salió | |
+|---|---|
+| 🔴 **`20240020`** | `alter policy sheets_select_viewer` → en producción es **`sheets_select`**. Habría fallado. **Corregida en el archivo, sin aplicar** (T-01 era real) |
+| ✅ `20240021`, `20240022` | Aplican limpias |
+| ✅ **P-03 cerrado** | Crear canciones exige `is_admin()` en la base; las 85 son de admins activos |
+| ⬜ Hueco nuevo, para Isaac | `get_my_role()` no mira `active`: un músico desactivado podría escribir por la API. Hoy no muerde → §9.0 fila 2 |
+| Cifras | 85 canciones (76 + 9), 14 categorías, 3 cultos, 7 usuarios |
+
+~~Queda de Isaac: **cambiar la llave**, **elegir la vía** para las migraciones y **dar el OK** de la 20 y la 22.~~
+
+**Y en el mismo rato, Isaac respondió** — *«1. dame el paso a paso, 2. si la b es para que lo hagas
+entonces la b, 3. ok, 4. hazlo, 5. no lo he probado dame la pagina para probarlo»*:
+
+| | |
+|---|---|
+| 🔴 **La copia falló primero** | 8 × `401 Expected 3 parts in JWT`: la variable `SUPABASE_ACCESS_TOKEN` de Windows (la llave nueva) pisaba la sesión que espera el exportador. **T-18.** Arreglado el exportador; copia completa: **85 canciones** en `_RESPALDOS\Partituras-datos-2026-09-10` |
+| ✅ **`20240020`** + `get_my_role()` | Aplicada **sola**, con la vuelta atrás preparada. Comprobado: admin activo ve 85 y 3 cultos, `is_admin() = true`; sin sesión, 76 y 1, como antes |
+| ✅ **`20240021`**, **`20240022`** | Aplicadas. `sheets.melody` existe; `notas_musico` con RLS y sus 4 políticas. **La melodía ya se guarda** |
+| Comunicado | `CAMBIOS.md` y `/novedades`: «la melodía ya se guarda» — **sin publicar**, espera permiso |
+| Llave | Paso a paso dado; **cambiada por él y comprobada** (API 200, conector responde) |
+| O-75 | Se le dio la dirección: **Agnus Dei** (Re) → pestaña Melodía. ✅ *«ya probé la melodia y si suena»* → **fase 1 cerrada** |
+| O-74 | 🔴 **E (armar cultos) DESCARTADA**: *«que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. Queda solo D |
+| Publicación | **r66**, con su permiso *«sube lo que tengas que subir»* |
 
 ### 2026-09-05 · Isaac cierra lo último que solo podía cerrar él
 

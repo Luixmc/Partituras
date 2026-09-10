@@ -64,7 +64,8 @@ try {
 // Cuántas migraciones están sin aplicar. Se lee del propio CLAUDE.md, que es
 // donde se lleva la cuenta — aquí solo se comprueba que el número cuadre con
 // las que hay escritas después de la última aplicada.
-const ULTIMA_APLICADA = "20240019";
+// 2026-09-10: la 20, la 21 y la 22 se aplicaron con la llave de Isaac (§9.0).
+const ULTIMA_APLICADA = "20240022";
 const sinAplicar = migraciones.filter((f) => f.slice(0, 8) > ULTIMA_APLICADA).length;
 
 const real = {

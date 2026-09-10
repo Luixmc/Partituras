@@ -8,7 +8,8 @@
 -- token puede seguir leyendo por la API hasta que caduque, porque las
 -- políticas de la base no miran `active` en ninguna parte. Esto lo cierra.
 --
--- ⚠️ SIN EJECUTAR. Necesita el OK expreso de Isaac (D-04) y copia previa.
+-- ✅ APLICADA el 2026-09-10 con el OK de Isaac y copia previa. En la base se
+-- registró como `20260910202620 usuario_desactivado`.
 -- ─────────────────────────────────────────────────────────────
 
 -- ── 1 · Una función que responda «¿esta persona sigue activa?» ──
@@ -49,16 +50,35 @@ returns boolean language sql stable security definer as $$
   );
 $$;
 
+-- ── 2-bis · `get_my_role()` tampoco da rol a una cuenta desactivada ──
+--
+-- Isaac, 2026-09-10: «hazlo». Leído en `pg_policies` ese día: `sheets_update`,
+-- `songs`, `mosaics`, `song_sections`, `sheet_tags`, `tags` y `sheet_versions`
+-- dejan escribir al rol `musician` preguntando a `get_my_role()`, y esa
+-- función NO miraba `active`. Desactivada, la cuenta devuelve NULL, y
+-- `NULL = ANY(...)` no es verdadero: ninguna de esas políticas la deja pasar.
+-- La aplicación no llama a esta función (comprobado en `src/`); solo las políticas.
+create or replace function public.get_my_role()
+returns user_role language sql stable security definer as $$
+  select role from public.profiles
+  where id = auth.uid()
+    and coalesce(active, true);   -- ← lo único que cambia
+$$;
+
 -- ── 3 · Y la lectura, tabla por tabla ──
 --
 -- ⚠️ Se toca SOLO la lectura de quien tiene sesión. Lo público —el enlace
 -- `/s/<token>` y lo que lee el exportador— no se altera, porque quien no ha
 -- entrado no tiene cuenta que desactivar y `esta_activo()` le responde `true`.
 --
--- Las políticas de escritura NO hacen falta: todas pasan por `is_admin()`,
--- que ya quedó cerrada en el paso 2.
+-- Las políticas de escritura NO hacen falta: pasan por `is_admin()` o por
+-- `get_my_role()`, y las dos quedaron cerradas en los pasos 2 y 2-bis.
+--
+-- 🔴 Los nombres son los de PRODUCCIÓN, leídos en `pg_policies` el 2026-09-10.
+-- Aquí ponía `sheets_select_viewer`, que existe en el repositorio pero NO en
+-- la base: allí se llama `sheets_select`, y la migración habría fallado (T-01).
 
-alter policy sheets_select_viewer on public.sheets
+alter policy sheets_select on public.sheets
   using (
     (status = 'published' or created_by = auth.uid() or public.is_admin())
     and public.esta_activo()
