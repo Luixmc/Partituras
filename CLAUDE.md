@@ -778,6 +778,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
+| **0** | ⬜ **O-75 · Escuchar la melodía** | **Dictada el 2026-09-10 y analizada.** Espera que Isaac apruebe el plan y elija **de dónde salen los sonidos** (fuera, 0 MB · o dentro, ~3 MB) y **qué instrumento**. No hay que instalar nada: `abcjs` ya trae el reproductor |
 | **1** | 🔴 **TRES MIGRACIONES esperando al primo** (`20240020`, `20240021` y la nueva `20240022`) | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
 | **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
@@ -4230,6 +4231,55 @@ r54. *La comprobación cara se repite cuando se toca lo que mide.*
 
 **Comprobado:** tipos limpios · **197 pruebas** · lint **0 errores** · build **0** · **26 de 26**
 pantallas.
+
+**O-75 · ESCUCHAR la melodía: la nota al colocarla, y un reproductor como el de flat.io.**
+⬜ **DICTADA el 2026-09-10 y ANALIZADA. Sin programar: espera que Isaac apruebe el plan.**
+Isaac: *«que se pueda escuchar si correctamente esa es la nota que se está colocando, ya sea al
+momento de que cuando esté colocando nota por nota para hacer la melodía o cuando ya se termine, que
+tenga unos botones de reproducir, pausar, metrónomo y demás herramientas que tiene por ejemplo la
+página de flat.io»*.
+
+#### Lo medido antes de proponer nada (2026-09-10)
+
+| | |
+|---|---|
+| **¿Hay que instalar algo?** | ✅ **NO.** `abcjs` 6.7.0 —ya es dependencia desde r48— **trae el sintetizador entero**: `CreateSynth`, `SynthController`, `CreateSynthControl` (la barra de play/pausa/tempo) y `playEvent` (tocar una nota suelta) |
+| **De dónde salen los sonidos** | 🔴 **De fuera**: `paulrosen.github.io/midi-js-soundfonts/abcjs/` —el servidor del autor de `abcjs`—. **Nada viene dentro del paquete** |
+| **Cuánto pesan** | **Un archivo por NOTA, no por instrumento**: la trompeta en C4 son **~97 KB** (medido). Una melodía de 12–15 notas distintas ≈ **1,2–1,5 MB** la primera vez; después quedan en caché. Los paquetes «un archivo por instrumento» (`trumpet-mp3.js`) **dan 404** |
+| **¿Algo en la página los bloquea?** | ✅ **No.** No hay `Content-Security-Policy`, y el service worker **deja pasar lo de fuera** (`sw.js:41`) |
+| **Dónde se engancha «oír la nota al colocarla»** | `EditorMelodia.tsx` → **`insertar()`** (línea 169): todo lo que se pone pasa por ahí. También al afinar con el teclado y al cambiar la alteración |
+| **Dónde va el reproductor** | `Pentagrama.tsx`, que **lo usan el editor Y la presentación** (modo melodía): uno sirve para los dos. `renderAbc` ya devuelve lo que el sintetizador necesita |
+| **La melodía hoy** | ⚠️ **No se puede GUARDAR** —falta la migración `20240021`—, **pero sí escribir y mirar**. O sea que **oírla sirve desde el primer día**, justo para lo que él quiere: comprobar que la nota es la correcta mientras la coloca |
+
+#### 🔴 La trampa que hay que vigilar: la TROMPETA
+
+El panel enseña la melodía «como suena» o «como la lee la trompeta» (un tono arriba), y lo hace con
+`visualTranspose`, que **cambia el dibujo**. **Lo que suena tiene que ser SIEMPRE el tono real** —si
+no, el trompetista oiría su parte un tono desplazada y creería que está mal escrita—. Hay que
+comprobar si el sintetizador hereda ese desplazamiento del dibujo y, si lo hereda, compensarlo.
+
+#### ⬜ Lo que decide Isaac
+
+**A · De dónde salen los sonidos** — es el mismo dilema que P-06, y allí eligió *«déjalo como está»*:
+
+| | |
+|---|---|
+| **A1 · Del servidor de fuera** *(la recomendada, por coherencia con P-06)* | **0 MB en el repositorio.** Pero **sin internet no suena**, y depende de un servidor de un tercero |
+| **A2 · Copiados al proyecto** | Suena **sin depender de nadie**. Pero mete **~3 MB por instrumento** (la trompeta, ~33 notas) en el repositorio de su primo |
+
+**B · Qué instrumento suena**: trompeta —es para el trompetista—, piano, o elegirlo.
+
+#### El plan, por fases
+
+| Fase | Qué | |
+|---|---|---|
+| **1** | **Oír la nota al colocarla** —y al subirla, bajarla o cambiarle la alteración— en el editor | Lo que pidió primero |
+| **2** | **El reproductor**: reproducir · pausar · detener · **tempo** · **metrónomo** · **repetir** · y **la nota que suena, resaltada** en el pentagrama. En el editor **y** en la presentación | Lo de flat.io |
+| **3** | *(si la pide)* cuenta de entrada, volumen, elegir instrumento | Extras |
+
+⬜ **Lo que NO se puede comprobar desde aquí, y va delante:** **el sonido.** El navegador sin ventana
+no oye. Se podrá medir que el reproductor arranca, que pide **las notas correctas** al servidor y que
+el tiempo cuadra — pero **si suena bien lo dicen sus oídos**.
 
 **O-64 · El `:|` se va SOLO a otra linea: un bloque fantasma en 22 de las 72 canciones.**
 Isaac, 2026-09-04, con una captura del telefono: *«cuando quiero acomodar el texto a lo que pueda en
