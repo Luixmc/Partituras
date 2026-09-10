@@ -778,7 +778,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **0** | ⬜ **O-75 · Escuchar la melodía** | **Dictada el 2026-09-10 y analizada.** Espera que Isaac apruebe el plan y elija **de dónde salen los sonidos** (fuera, 0 MB · o dentro, ~3 MB) y **qué instrumento**. No hay que instalar nada: `abcjs` ya trae el reproductor |
+| **0** | 🟢 **O-75 · Escuchar la melodía — APROBADA, las tres fases** | Isaac, 2026-09-10: sonidos **de fuera** · instrumento **a elegir** (trompeta y piano) · fases **1** oír la nota al colocarla → **2** reproductor (play, pausa, detener, tempo, metrónomo, repetir, nota resaltada) → **3** cuenta de entrada y volumen. **No hay que instalar nada**: `abcjs` ya trae el reproductor |
 | **1** | 🔴 **TRES MIGRACIONES esperando al primo** (`20240020`, `20240021` y la nueva `20240022`) | La `20240022` es de los **favoritos del rol músico**: las **notas privadas** que Isaac eligió el 2026-09-07. Es de las seguras —tabla nueva, no toca nada—. Las otras dos, abajo |
 | **2** | 🔴 **La MIGRACIÓN `20240021`** (`sheets.melody`) | Isaac dio el OK el 2026-09-03 y la copia está hecha, pero **no hay vía**: el conector de Supabase ya no llega al proyecto, y **hacer públicos los datos NO sirve** —eso está medido y explicado en §9.1—. Son **3 líneas para su primo** en el SQL Editor, o que lo invite a «Luixmc's Org». Espera también la `20240020` |
 
@@ -4277,6 +4277,18 @@ comprobar si el sintetizador hereda ese desplazamiento del dibujo y, si lo hered
 | **2** | **El reproductor**: reproducir · pausar · detener · **tempo** · **metrónomo** · **repetir** · y **la nota que suena, resaltada** en el pentagrama. En el editor **y** en la presentación | Lo de flat.io |
 | **3** | *(si la pide)* cuenta de entrada, volumen, elegir instrumento | Extras |
 
+#### ✅ ISAAC DECIDIÓ (2026-09-10) — y aprobó las TRES fases
+
+| | |
+|---|---|
+| **Los sonidos** | **A1 · del servidor de fuera.** 0 MB en el repositorio; sin internet no suena. Coherente con P-06 |
+| **El instrumento** | 🔴 **QUE SE PUEDA ELEGIR** — trompeta y piano. No uno fijo |
+| **El plan** | *«sí, apruebo las tres fases»* → **1** oír la nota al colocarla · **2** el reproductor completo · **3** cuenta de entrada y volumen |
+
+📌 **Y pidió expresamente que quede como PENDIENTE**, con sus palabras enteras —*«también anota esto
+como pendiente»*—. Está en §9.0 como el punto 0, y **se sigue por las fases en orden**: la 2 no
+empieza hasta que la 1 esté probada.
+
 ⬜ **Lo que NO se puede comprobar desde aquí, y va delante:** **el sonido.** El navegador sin ventana
 no oye. Se podrá medir que el reproductor arranca, que pide **las notas correctas** al servidor y que
 el tiempo cuadra — pero **si suena bien lo dicen sus oídos**.
@@ -6462,6 +6474,31 @@ ella** (ver §9.1). Pedirla fue perseguir la llave equivocada durante semanas.
 📌 **Y lo que él no pierde, que es lo que conviene decirle:** sigue siendo **el dueño** de todo,
 puede **quitar el acceso cuando quiera**, y **no cuesta un peso** — invitar a la organización es
 gratis en el plan Free.
+
+#### 🟡 ESTADO 2026-09-10: Isaac YA ES MIEMBRO de la organización del primo — pero el conector todavía no la ve
+
+Isaac: *«hablé con mi [primo] y ya hago parte de su organización, verifica a ver todo y dime si hay
+algo que necesites»*. Se comprobó ese mismo día:
+
+| | |
+|---|---|
+| `list_organizations` | **solo «Primos-Dev»** — la de Isaac |
+| `list_projects` | **solo «Sistema Biometrico»** — Partituras **no aparece** |
+| `get_project pcayahwnxbigiuhvtwhd` | 🔴 **«You do not have permission to perform this action»** — el ID es el correcto (Isaac lo confirmó); lo que falta es el permiso del conector |
+
+🔴 **La causa, de la documentación oficial del servidor MCP de Supabase:** al conectar, *«be sure to
+choose the organization that contains the project you wish to work with»* — **la autorización del
+conector se da POR ORGANIZACIÓN**, en el momento de conectarlo. El conector se autorizó cuando Isaac
+solo tenía «Primos-Dev»; **entrar después en otra organización no amplía ese permiso solo**.
+
+→ **LO QUE FALTA, y es de Isaac, una vez:** **volver a conectar el conector de Supabase** en los
+ajustes de claude.ai y, en la pantalla de Supabase que se abre, **marcar la organización del primo**
+(además de la suya). No hace falta nada más del primo.
+
+⚠️ **Y un aviso de la misma documentación, que hay que tener presente:** Supabase recomienda *no*
+conectar el MCP a producción, o hacerlo en modo **solo lectura**. Partituras **es** producción. Aquí
+se mantiene lo de siempre: **las migraciones y cualquier escritura en la base se le preguntan a Isaac
+antes** (D-04, §11), y **antes de cada migración se saca la copia** con `npm run export`.
 
 ### 12.2-bis 🔑 LA MUDANZA — dejar de depender del primo para siempre
 
