@@ -43,6 +43,10 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
 - **Aviso de cambios sin guardar** al salir del editor, de la letra o al cerrar la pestaña.
 - **Autenticación y roles** (admin / músico / lector) con Supabase Auth + Row Level Security.
+- **Notas privadas** («Mis notas»): el músico y el administrador apuntan lo suyo en cada canción
+  —en la ficha— y lo ven a pantalla completa y en los cultos. **Cada uno solo ve las suyas, y el
+  administrador tampoco las de otros**: lo impide la base (`notas_musico`, migración `20240022`).
+  El lector no las tiene; es lo que distingue al músico.
 - **`/novedades`**: página pública con lo que va cambiando, contado para los músicos.
 - **Instalable como app (PWA)**: se instala desde el propio navegador —sin tienda— y se abre con su
   icono y sin barra de direcciones. El caché del *service worker* lleva el id del despliegue, así
@@ -123,7 +127,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 237 pruebas |
+| `npm test` | Las 240 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -276,7 +280,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 237 pruebas (ver más abajo)
+pruebas/                    → las 240 pruebas (ver más abajo)
 supabase/migrations/        → 22 migraciones (todas aplicadas)
 ```
 
@@ -325,8 +329,6 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 
 - [ ] Etiquetas e historial de versiones en la UI (las tablas ya existen). **Los favoritos ya están
       hechos** (r63/r64)
-- [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción. La tabla
-      (`20240022`) **ya está aplicada** y falta su pantalla
 - ~~Que un músico arme cultos sin publicarlos~~ — **descartado** el 2026-09-10
 - ~~Subida y visor de PDF original + miniaturas~~ — **descartado** el 2026-09-05
 - ~~Sincronización con Google Drive~~ — **descartado** el 2026-09-05
@@ -340,8 +342,6 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 - **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
   `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
   antes la clave `service_role`, porque `npm run export` depende de esa lectura.
-- **La tabla `notas_musico` existe pero no tiene pantalla todavía** (migración `20240022`, aplicada
-  el 2026-09-10).
 - **60 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
 
 > 🔎 **Cuatro puntos que estaban aquí y ERAN FALSOS, corregidos el 2026-09-04** — se apuntan porque
@@ -356,7 +356,7 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 237 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 240 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI

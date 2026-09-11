@@ -75,6 +75,36 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "El tempo se guarda con la canción",
+        "resumen": "El tempo del reproductor ya no vuelve a 80: se guarda con la melodía y vale para todos.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El tempo de la melodía se guarda.",
+            "detalle": [
+              "El tempo del reproductor volvía siempre a 80. Ahora, en el editor de melodía, el tempo que dejes <strong>se guarda con «Guardar melodía»</strong> y es el de esa canción <strong>para todos</strong>: el reproductor arranca ahí, también a pantalla completa.",
+              "Cambiar el tempo cuenta como cambio sin guardar: se enciende el botón y, si te vas, te avisa. Si alguien lo cambia mientras toca a pantalla completa, vale solo para ese rato."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Tus notas privadas en cada canción",
+        "resumen": "Cada músico puede apuntar lo suyo en cada canción, y solo lo ve él.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "«Mis notas»: tus apuntes en cada canción, solo para ti.",
+            "detalle": [
+              "Cada músico puede escribir sus propias notas en cada canción —«la toco en G», «entro en el segundo compás», «aquí subo una octava»—. Van en un recuadro amarillo, <strong>«Mis notas»</strong>, en la ficha de la canción, con su botón de guardar.",
+              "🔒 <strong>Son solo tuyas:</strong> nadie más las ve, <strong>ni quien administra la página</strong>. Eso no lo decide la pantalla: lo impide la base de datos.",
+              "<strong>A pantalla completa y en los cultos</strong> tu nota sale arriba de la canción, en pequeño, para leerla mientras tocas. Si escribes una nota y te vas sin guardarla, te avisa.",
+              "Las tienen <strong>los músicos y los administradores</strong>. Si tu cuenta es de lector y quieres usarlas, pídele a quien lleva la página que te ponga como músico."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Las pestañas de la canción, enteras en el teléfono",
         "resumen": "En el teléfono, las pestañas de la canción ya caben: se reparten en dos filas.",
         "cambios": [

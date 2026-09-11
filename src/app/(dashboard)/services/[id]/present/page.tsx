@@ -4,6 +4,8 @@ import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { mapPresentSongs } from "@/lib/services";
 import { melodiasDe, ponerMelodias } from "@/lib/melodiaBase";
+import { puedeTenerNotas } from "@/lib/notas";
+import { notasDe } from "@/lib/notasBase";
 import { puedeVerMelodia } from "@/lib/melodia";
 import { puedeVerLetras } from "@/lib/letras";
 import { puedeVerCulto } from "@/lib/cultos";
@@ -48,6 +50,12 @@ export default async function ServicePresentPage(
   if (puedeVerMelodia(perfil?.role)) {
     const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
     ponerMelodias(songs, melodias);
+  }
+
+  // Las NOTAS PRIVADAS de quien presenta (O-74), leídas con su sesión.
+  if (puedeTenerNotas(perfil?.role)) {
+    const notas = await notasDe(supabase, songs.map((s) => s.id));
+    for (const cancion of songs) cancion.nota = notas.get(cancion.id) ?? null;
   }
 
   return <PresentationView title={service.name} songs={songs} backHref={`/services/${params.id}`} />;

@@ -4,6 +4,8 @@ import PresentationView from "@/components/services/PresentationView";
 import { createClient } from "@/lib/supabase/server";
 import { puedeVerLetras } from "@/lib/letras";
 import { melodiasDe, ponerMelodias } from "@/lib/melodiaBase";
+import { puedeTenerNotas } from "@/lib/notas";
+import { notasDe } from "@/lib/notasBase";
 import { puedeVerMelodia } from "@/lib/melodia";
 import { buscarCanciones, filtrosAQuery, type FiltrosCatalogo } from "@/lib/catalogo";
 import type { PresentSong } from "@/types";
@@ -90,6 +92,13 @@ export default async function SongPresentPage(
   if (puedeVerMelodia(perfil?.role)) {
     const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
     ponerMelodias(songs, melodias);
+  }
+
+  // Las NOTAS PRIVADAS de quien mira (O-74): músico y administrador. Se leen
+  // con SU sesión, así que la base solo devuelve las suyas.
+  if (puedeTenerNotas(perfil?.role)) {
+    const notas = await notasDe(supabase, songs.map((s) => s.id));
+    for (const cancion of songs) cancion.nota = notas.get(cancion.id) ?? null;
   }
 
   const inicio = Math.max(0, songs.findIndex((s) => s.id === params.id));

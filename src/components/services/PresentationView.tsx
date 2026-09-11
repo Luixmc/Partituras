@@ -843,6 +843,21 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         )}
       >
         <div ref={contentRef}>
+          {/* ── LA NOTA PRIVADA de quien toca (O-74) ──
+              Isaac, 2026-09-10: «salen a pantalla completa y en los cultos como
+              un aviso pequeño arriba». Solo llega si es suya (la lee el
+              servidor con su sesión) y solo a músico y administrador.
+              📌 Va DENTRO de `contentRef` a propósito: el auto-ajuste mide esa
+              caja, así que cuenta la nota y la canción sigue cabiendo entera. */}
+          {song?.nota && (
+            <div
+              data-nota-pantalla
+              className="mb-2 whitespace-pre-line rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
+            >
+              <span className="mr-1.5 font-semibold">📝 Tu nota:</span>
+              {song.nota}
+            </div>
+          )}
           {/* 🔴 El AUTOR no se dibuja en la presentacion, ni en pantalla
               completa ni fuera de ella. Isaac, 2026-09-02, con mayusculas:
               *«QUE NO SALGA EN EL MODO PANTALLA COMPLETA PARA NADA, NI CUANDO

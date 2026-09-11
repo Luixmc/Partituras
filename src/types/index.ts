@@ -111,6 +111,9 @@ export interface PresentSong {
       rellenos cuando la canción la tiene. Ver `lib/melodiaBase.ts`. */
   time_signature?: string | null;
   tempo?:        number | null;
+  /** La nota PRIVADA de quien mira (O-74). Solo llega a músico y admin, y
+      solo la suya: la lee el servidor con su sesión. El enlace público no la lleva. */
+  nota?:         string | null;
 }
 
 export interface ServiceSong {

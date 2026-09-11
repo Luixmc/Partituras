@@ -7,6 +7,27 @@
 
 ## 10 de septiembre de 2026
 
+### ⏱️ El tempo se guarda con la canción
+
+- 🔧 **Arreglado:** el tempo del reproductor volvía siempre a 80. Ahora, en el editor de melodía,
+  el tempo que dejes **se guarda con «Guardar melodía»** y es el de esa canción **para todos**:
+  el reproductor arranca ahí, también a pantalla completa.
+- Cambiar el tempo cuenta como cambio sin guardar: se enciende el botón y, si te vas, te avisa.
+- Si alguien lo cambia mientras toca a pantalla completa, vale solo para ese rato.
+
+### 📝 Tus notas privadas en cada canción
+
+- 🆕 **Cada músico puede escribir sus propias notas en cada canción** —«la toco en G», «entro en
+  el segundo compás», «aquí subo una octava»—. Van en un recuadro amarillo, **«Mis notas»**, en la
+  ficha de la canción, con su botón de guardar.
+- 🔒 **Son solo tuyas:** nadie más las ve, **ni quien administra la página**. Eso no lo decide la
+  pantalla: lo impide la base de datos.
+- **A pantalla completa y en los cultos** tu nota sale arriba de la canción, en pequeño, para
+  leerla mientras tocas.
+- Si escribes una nota y te vas sin guardarla, te avisa.
+- Las tienen **los músicos y los administradores**. Si tu cuenta es de lector y quieres usarlas,
+  pídele a quien lleva la página que te ponga como músico.
+
 ### 📱 Las pestañas de la canción, enteras en el teléfono
 
 - 🔧 **Arreglado:** en el teléfono, la fila de pestañas de la canción (Vista, Edición, Letra,

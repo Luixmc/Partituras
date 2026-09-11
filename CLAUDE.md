@@ -87,6 +87,10 @@ cada push a `main`.
    comunicado/documentación. **NO** vale para nada más: ni migraciones ni base de datos, ni otras
    pantallas, ni borrar o reescribir historial. Se sube **después** de las comprobaciones de siempre
    (pruebas, lint, build, navegador) y se le **dice** qué se subió.
+   ⚠️ **Si en el árbol hay a la vez algo que SÍ necesita permiso, lo de la melodía no se puede subir
+   suelto**: las cifras que vigila `npm run docs` en el CI (archivos, líneas, pruebas) son las del
+   árbol entero, y un commit parcial las deja mintiendo. → **Publicar lo de la melodía antes de
+   empezar otra cosa**, o pedir el OK de todo junto. Pasó el 2026-09-10 con O-81 y O-74.
 2. **Cada push a `main` PUBLICA en producción en menos de un minuto**, sin que nadie apriete
    nada, y sin que Isaac pueda ver los logs (§6). Un push a `main` es un despliegue.
 3. **La base de datos de producción tiene datos reales en uso** (85 canciones, 3 cultos — contados el 2026-09-10).
@@ -96,9 +100,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **237 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.592 líneas** de TypeScript
-   en **91 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **240 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.988 líneas** de TypeScript
+   en **94 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -141,7 +145,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 237 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 240 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -283,6 +287,7 @@ repo/
         MelodiaPanel.tsx         La melodía por secciones: escribirla, oírla, guardarla (O-57, O-75)
         Pentagrama.tsx           Dibuja la melodía con abcjs, y colorea la nota que suena
         Reproductor.tsx          La barra ▶ ⏸ ⏹ · tempo · metrónomo · repetir (O-75 fase 2)
+        NotaPrivada.tsx          «Mis notas»: la nota privada de quien mira, en la ficha (O-74)
       services/
         ServiceEditor.tsx        Armar el culto (876 líneas), arrastrando
         PresentationView.tsx ★   Modo presentación (1.016 líneas): acordes ↔ letra ↔ melodía
@@ -297,13 +302,15 @@ repo/
       reproduccion.ts            Las cuentas del reproductor: cuándo suena cada nota, el metrónomo — con pruebas
       reproductor.ts             El motor: el sintetizador de abcjs y el reloj del audio (sin pruebas: es audio)
       sonido.ts                  Tocar una nota suelta y el instrumento elegido (O-75 fase 1)
+      notas.ts                   Quién tiene notas privadas (admin, músico) y cómo se guardan — con pruebas
+      notasBase.ts               Leer y guardar las notas en `notas_musico` (la base solo da las propias)
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
   supabase/migrations/           22 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (las tres últimas, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       237 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       240 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -824,7 +831,8 @@ tabla, no por lo último que se dijo en el chat anterior.
 | **0-quater** | 🟢 **O-79 · La barra del editor de melodía, más a lo ANCHO que a lo largo** (Isaac, 2026-09-10, noche, con captura de r71 en modo oscuro: *«está bien pero se podria aprovechar mas los espacios para que sean mas a lo ancho que a lo largo»*) | **Medido en su captura:** el cuadro de duraciones a la izquierda, Sonido · Alteración · Poner en fila a su lado, y **Corregir cae a una fila propia debajo** — sobra más de un tercio del ancho a la derecha y la barra mide ~290 px de alto. **Arreglo:** los cuatro grupos de la derecha en **dos filas junto al cuadro** (Sonido + Alteración · Poner + Corregir), así la barra mide lo que el cuadro (~170 px); en el teléfono se siguen apilando. Ajuste de O-78 (plan aprobado). ✅ **HECHO, MEDIDO y PUBLICADO en r72** (Isaac: *«sube, no me pidas permiso para esto de la melodia»* — ver §1, la excepción) — falta que él lo vea: a **1512 px** la barra mide **185 px** de alto (en su captura, ~290); a **400 px** (teléfono emulado con `Emulation.setDeviceMetricsOverride`, que sí baja de 500 px) los grupos se apilan y cabe (usa 314 de 327 px). ⚠️ **Visto al medir, sin pedir y sin tocar:** en el teléfono aparece una barra de desplazamiento horizontal **de una caja interior** —la página mide 400 de 400—, probablemente la fila de pestañas de la canción («Pantalla completa» sale cortada). **Ya estaba en producción antes** (medido igual en r71). Se le comenta a Isaac |
 | **0-ter** | ✅ **HECHA, MEDIDA y PUBLICADA en r71** (Isaac: *«subes enseguida, no esperes mi aprovación»* — **solo para este cambio**) — **falta que él la vea**. **Medido en navegador** (`probar-o78.mjs`, solo mira): **15 botones** de duración de **44 px**; la **negra con doble puntillo** puesta con un clic real sale en el editor con **2 puntos**, en el texto como **`G7/2`**, en la vista previa con dos puntos, y **dura 1.315 ms** al sonar (tocan 1.312 a ♩=80); claro y oscuro, en captura. **2 pruebas nuevas** (237). — Isaac eligió el **cuadro 5 × 3** (*«Cuadro 5 × 3 (Recomendado)»*): **OK del plan** · **O-78 · El editor de MELODÍA: faltan duraciones y los botones casi no se ven** (Isaac, 2026-09-10, noche, con captura en modo oscuro) | *«si yo quiero colocar una negra con doble puntillo no veo el boton para ello, osea que le faltan la otras duraciones, y seria bueno que los botones sean mas grandes porque casi que no se ven sobretodo las duraciones y si son corcheas con puntillos o no»*. **PLAN APROBADO (cuadro 5 × 3).** Hoy la barra «Dura» tiene **8** (semicorchea, corchea, corchea·, negra, negra·, blanca, blanca·, redonda), pintadas con caracteres Unicode diminutos (`𝅘𝅥𝅮.`). **Lo medido:** el editor de ACORDES ya tiene las **15** (5 figuras × sin, 1 y 2 puntillos, O-49), y `NoteFigure` (`MusicFigures.tsx`) + `figuraDe()` (`lib/figuras.ts`, con pruebas) ya dibujan y reconocen las 15 — **se reutilizan**. 🔴 **Trampa encontrada:** `duracionAbc()` (`lib/melodia.ts`) solo sabe escribir **medios**: la corchea con doble puntillo (1,75) se guardaría como `4/2` = **negra**, callado. **Plan:** (1) `DURACIONES` a las 15 y `duracionAbc` con cuartos y octavos (`3/4`, `7/8`, `7/4`, `7/2`), con prueba de **ida y vuelta de las 15**; (2) el dibujo de cada nota en el editor sale de `figuraDe` (corchetes y **dos** puntillos bien); (3) la barra «Dura» como **cuadro de 5 × 3** —una columna por figura, una fila por puntillos— con la figura dibujada en grande (`NoteFigure`) y botones de ~44 px, **todos** los de la barra más grandes, y el nombre completo al pasar el ratón; (4) comprobar en navegador —claro y oscuro— que la negra con doble puntillo se pone, se guarda como `7/2`, se dibuja con dos puntos y dura lo que debe |
 | **0-quinquies** | 🟢 **O-80 · La barra de desplazamiento horizontal en el teléfono (fila de pestañas de la canción)** — Isaac, 2026-09-10, noche: *«adelante con las dos cosas»* (esto y O-74) | Visto al medir O-79: a 400 px aparece una barra horizontal de una **caja interior** (la página mide 400 de 400); «Pantalla completa» sale cortada. Ya estaba en producción. ✅ **HECHO, MEDIDO y PUBLICADO en r73** (permiso: *«Sí, súbelo ya»*, 2026-09-10). La fila de pestañas se parte en dos filas a todo lo ancho en pantallas estrechas (`flex-wrap` + `grow`, `sm:` deja el PC como estaba). **Medido a 400 px:** antes la caja principal se pasaba **60 px** de lado y «Pantalla completa» salía cortada; después, **ninguna caja se desplaza** y no se corta nada. A 1512 px, sin cambios |
-| **1** | 🟢 **EN MARCHA** (Isaac: *«adelante con las dos cosas»*, 2026-09-10) · ✅ **ISAAC DECIDIÓ (2026-09-10, noche):** **quién** = **músico y administrador** (el lector no; cada uno solo ve las suyas, el admin tampoco ve las de otros) · **dónde** = **se escriben en la ficha de la canción (Vista) y salen a pantalla completa y en los cultos** como un aviso pequeño arriba · **probar** = **sí, escribir UNA nota con la cuenta de prueba y borrarla al terminar** (permiso expreso sobre D-14) · **no es de la melodía → para subirla, se pide permiso** · **O-74 · SOLO D, las NOTAS PRIVADAS** — después de O-78 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
+| **0-sexies** | ✅ **PUBLICADA en r74** con O-74 (Isaac: *«sube lo pendiente»*) — **falta que él pruebe el guardado** (poner otro tempo, «Guardar melodía», recargar) · **O-81 · El TEMPO del reproductor no se guarda** (Isaac, 2026-09-10, noche: *«fijate que la velocidad del tempo no se guarda como uno quiere»*) | **Medido:** el tempo vivía solo en el estado del reproductor —al recargar volvía a 80— y **0 de 85** canciones tienen `sheets.tempo`, aunque la columna existe. ✅ **ISAAC ELIGIÓ: «En la canción, para todos (Recomendado)»** → el tempo que se deje en el EDITOR se guarda con **«Guardar melodía»** en `sheets.tempo`, y el reproductor **arranca ahí para todos**, también a pantalla completa (ya lo lee `melodiasDe`). Si alguien lo cambia tocando, **vale solo para ese rato**. Cambiar el tempo **cuenta como cambio sin guardar** (enciende el botón y la protección de salir). Es de la melodía: **se sube sin pedir permiso** — ✅ **HECHO** (`Reproductor` avisa del tempo con `onTempo`; `MelodiaPanel` lee `melody, tempo`, lo cuenta en `sucio` y lo guarda con la melodía). **Medido en navegador** (`probar-o81.mjs`, **sin pulsar Guardar**: guardar tocaría una canción de Isaac): abre en 80 con «Guardado»; a 60, «Guardar melodía» encendido; pasar de canción **avisa**; de vuelta a 80, «Guardado». ⚠️ **Sin medir: el guardado mismo** (es un `update` con una columna más, `tempo`, que existe) → que lo pruebe Isaac. ⚠️ **Y NO SE PUBLICÓ SOLO:** el árbol lleva también O-74 (notas privadas), que **sí necesita permiso**, y separarlas rompe las cifras que vigila el CI → se le pidió el OK de O-74 para subir las dos juntas |
+| **1** | ✅ **PUBLICADA en r74** con O-81 (Isaac: *«sube lo pendiente»*, 2026-09-10, noche) — falta que él la vea, y que ponga el rol de músico a quien la vaya a usar. Antes: HECHA Y MEDIDA, SIN PUBLICAR (no es de la melodía). **Medido en navegador** (`probar-o74.mjs`, cuenta de prueba, con su permiso): el recuadro sale en la ficha; se escribió **UNA** nota, se guardó (en la base: **1 fila**, de `pruebaclaude`, en Agnus Dei); con la nota a medias, **pasar de canción avisa** («Tu nota tiene cambios sin guardar») y **recargar también** (el navegador pide confirmar: `beforeunload`); tras recargar queda la guardada; **a pantalla completa sale arriba** («📝 Tu nota: …») y la canción sigue cabiendo; al vaciarla y guardar dice «Nota borrada», deja de salir, y **la base vuelve a 0 filas**. **3 pruebas nuevas** (240). ⚠️ **No medido:** que un músico NO vea la de otro — no hay otra cuenta; lo garantizan las políticas de la base (leídas el 2026-09-10) · (Isaac: *«adelante con las dos cosas»*, 2026-09-10) · ✅ **ISAAC DECIDIÓ (2026-09-10, noche):** **quién** = **músico y administrador** (el lector no; cada uno solo ve las suyas, el admin tampoco ve las de otros) · **dónde** = **se escriben en la ficha de la canción (Vista) y salen a pantalla completa y en los cultos** como un aviso pequeño arriba · **probar** = **sí, escribir UNA nota con la cuenta de prueba y borrarla al terminar** (permiso expreso sobre D-14) · **no es de la melodía → para subirla, se pide permiso** · **SUBFASES:** **N.1** `lib/notas.ts` puro y con pruebas (quién puede: `ROLES_NOTAS = admin, musician`; recortar y validar el texto) · **N.2** `lib/notasBase.ts`: leer la suya, guardarla (`upsert` por `user_id + sheet_id`) y borrarla si queda vacía — la base ya filtra por dueño (RLS) · **N.3** la ficha (Vista): recuadro «Mis notas · solo las ves tú», con **su botón de guardar** (como la melodía) y **protegido** por el aviso de cambios sin guardar (O-61) · **N.4** pantalla completa y cultos: la nota sale como **aviso pequeño arriba** si la hay (se lee en el servidor con la sesión; el enlace público no lleva nada) · **N.5** comprobar en navegador —escribir UNA nota con la cuenta de prueba, verla a pantalla completa, **borrarla** y comprobar que la base queda sin ella— y documentar · **O-74 · SOLO D, las NOTAS PRIVADAS** — después de O-78 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
 
 ✅ **HECHO el 2026-09-10 (tarde), con sus palabras:** *«2. si la b es para que lo hagas entonces la b, 3. ok, 4. hazlo»* →
 **las TRES migraciones aplicadas** (`20240020` + `get_my_role()` mirando `active`, `20240021`, `20240022`),
@@ -860,7 +868,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r73**
+#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r74**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -868,10 +876,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r73** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r73** — las pestañas de la canción ya no se salen en el teléfono (O-80). Antes, **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
-| Pruebas | **237** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **17.592 líneas** de TypeScript en **91 archivos** |
+| Último commit publicado | el de **r74** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r74** — las notas privadas (O-74) y el tempo guardado con la canción (O-81). Antes, **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Pruebas | **240** · lint **0 errores, 60 avisos** · build **0** |
+| Tamaño | **17.988 líneas** de TypeScript en **94 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -6955,6 +6963,21 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (noche) · 🚀 r73 las pestañas en el teléfono · 🚀 r74 las notas privadas y el tempo guardado
+
+Isaac: *«sube lo pendiente»* → **r74** lleva O-74 (notas privadas) y O-81 (el tempo se guarda con la
+canción, que eligió él: «En la canción, para todos»).
+
+
+Isaac: *«adelante con las dos cosas»*, y eligió: notas para **músico y admin**, **en la ficha y a
+pantalla completa**, **probar con una nota de la cuenta de prueba y borrarla**, y **subir ya** lo de
+las pestañas (r73). Notas: `lib/notas.ts` (3 pruebas), `lib/notasBase.ts`, `NotaPrivada.tsx`, la
+nota en las dos presentaciones y la ficha protegida (diálogo propio: «Guardar y salir» guarda la
+canción, no la nota). Medido en navegador y **la nota de prueba borrada: la base vuelve a 0**.
+⚠️ **Lo que me costó:** al recargar con la nota a medias el script se quedó colgado — era el aviso
+`beforeunload` del navegador (la protección funcionando). Se contesta con
+`Page.handleJavaScriptDialog`.
 
 ### 2026-09-10 (noche) · 🚀 r72 O-79: la barra del editor de melodía, más ancha · permiso fijo para la melodía
 

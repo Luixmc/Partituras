@@ -40,6 +40,7 @@ const MODULOS = [
   "texto",
   "melodia",
   "reproduccion",
+  "notas",
 ];
 
 function preparar() {

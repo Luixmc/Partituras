@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import EditorMelodia from "@/components/sheets/EditorMelodia";
 import Pentagrama from "@/components/sheets/Pentagrama";
 import Reproductor from "@/components/sheets/Reproductor";
-import type { Momento } from "@/lib/reproduccion";
+import { tempoValido, type Momento } from "@/lib/reproduccion";
 import AutoTextarea from "@/components/ui/AutoTextarea";
 import {
   andamioDeMelodia,
@@ -83,8 +83,15 @@ export default function MelodiaPanel({
   const [transpositor, setTranspositor] = useState("do");
   // R.3: la segunda via, para pegar o corregir a mano.
   const [modoTexto, setModoTexto] = useState(false);
+  // ── El TEMPO de la canción (O-81) ──
+  // Isaac, 2026-09-10: «la velocidad del tempo no se guarda como uno quiere», y
+  // eligió «en la canción, para todos». Se guarda en `sheets.tempo` con el mismo
+  // botón que la melodía; a pantalla completa arranca ahí. Cambiarlo cuenta
+  // como cambio sin guardar, igual que una nota.
+  const [tempoGuardado, setTempoGuardado] = useState<number | null>(tempo ?? null);
+  const [tempoActual, setTempoActual] = useState(() => tempoValido(tempo));
 
-  const sucio = melodia !== guardado;
+  const sucio = melodia !== guardado || (puedeEscribir && tempoActual !== tempoValido(tempoGuardado));
 
   // 🔴 Avisa hacia FUERA de que hay melodía sin guardar (O-61).
   //
@@ -120,7 +127,7 @@ export default function MelodiaPanel({
       const supabase = createClient();
       const { data, error } = await supabase
         .from("sheets")
-        .select("melody")
+        .select("melody, tempo")
         .eq("id", sheetId)
         .single();
       if (!vivo) return;
@@ -129,9 +136,14 @@ export default function MelodiaPanel({
         setEstado(error.code === "42703" ? "sin-columna" : "listo");
         return;
       }
-      const texto = (data as { melody?: string | null })?.melody ?? "";
+      const fila = data as { melody?: string | null; tempo?: number | null } | null;
+      const texto = fila?.melody ?? "";
       setMelodia(texto);
       setGuardado(texto);
+      // El tempo se lee aquí, al día: el de la ficha pudo quedarse viejo si se
+      // acaba de guardar otro. El reproductor se monta DESPUÉS de esto.
+      setTempoGuardado(fila?.tempo ?? null);
+      setTempoActual(tempoValido(fila?.tempo));
       setEstado("listo");
     })();
     return () => {
@@ -149,8 +161,9 @@ export default function MelodiaPanel({
       tramos={elementosPorTramo}
       compas={compas}
       tono={tono}
-      tempoInicial={tempo}
+      tempoInicial={tempoGuardado}
       onMomento={setSonando}
+      onTempo={setTempoActual}
       debajoDe="[data-cabecera-cancion]"
     />
   );
@@ -186,7 +199,8 @@ export default function MelodiaPanel({
     const supabase = createClient();
     const { error } = await supabase
       .from("sheets")
-      .update({ melody: melodia.trim() || null })
+      // Con la melodía va su TEMPO (O-81): el que haya puesto en el reproductor.
+      .update({ melody: melodia.trim() || null, tempo: tempoActual })
       .eq("id", sheetId);
     setGuardando(false);
     if (error) {
@@ -200,7 +214,8 @@ export default function MelodiaPanel({
       return;
     }
     setGuardado(melodia);
-    setAviso("Melodía guardada.");
+    setTempoGuardado(tempoActual);
+    setAviso(`Melodía guardada, con el tempo ♩ = ${tempoActual}.`);
   };
 
   if (estado === "cargando") {

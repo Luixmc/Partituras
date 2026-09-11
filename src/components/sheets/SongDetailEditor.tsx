@@ -9,6 +9,8 @@ import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import LetraPanel from "@/components/sheets/LetraPanel";
 import MelodiaPanel from "@/components/sheets/MelodiaPanel";
+import NotaPrivada from "@/components/sheets/NotaPrivada";
+import { puedeTenerNotas } from "@/lib/notas";
 import { puedeVerLetras } from "@/lib/letras";
 import { puedeVerMelodia } from "@/lib/melodia";
 // 🔴 `parseSections` vivía AQUÍ, copiada. Era P-09, y lo que dejó la
@@ -170,8 +172,14 @@ export default function SongDetailEditor({
   // 📌 Es la lección de O-43 otra vez: lo que se añade DESPUÉS no hereda la red.
   const [melodiaSucia, setMelodiaSucia] = useState(false);
   const [versionesSucias, setVersionesSucias] = useState(false);
+  // La NOTA PRIVADA (O-74) vive en la pestaña Vista y también guarda aparte:
+  // sin esto, escribirla y pasar de canción la perdería sin avisar (O-43 otra vez).
+  const [notaSucia, setNotaSucia] = useState(false);
+  const tenerNotas = puedeTenerNotas(rol);
 
-  const isDirty = currentSnapshot !== savedSnapshot || melodiaSucia || versionesSucias;
+  const isDirty = currentSnapshot !== savedSnapshot || melodiaSucia || versionesSucias || notaSucia;
+  // Dónde hay algo que proteger: las pestañas que escriben, y la Vista si la nota está a medias.
+  const protegido = mode === "edit" || mode === "letra" || mode === "melodia" || notaSucia;
 
   // Aviso al cerrar/recargar la pestaña si hay cambios sin guardar.
   useEffect(() => {
@@ -203,7 +211,7 @@ export default function SongDetailEditor({
   useEffect(() => {
     // 🔴 «melodia» tiene que estar aquí. En O-43 faltaba «letra» y escribir una
     // estrofa y pasar de canción la perdía sin avisar — el mismo fallo, otra vez.
-    if ((mode !== "edit" && mode !== "letra" && mode !== "melodia") || !isDirty) return;
+    if (!protegido || !isDirty) return;
     const handler = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
         return;
@@ -220,7 +228,7 @@ export default function SongDetailEditor({
     };
     document.addEventListener("click", handler, true);
     return () => document.removeEventListener("click", handler, true);
-  }, [mode, isDirty, router]);
+  }, [protegido, isDirty, router]);
 
 
   const restoreSnapshot = () => {
@@ -240,7 +248,7 @@ export default function SongDetailEditor({
 
   // Pide salir: si hay cambios, muestra el diálogo; si no, sigue de una.
   const requestLeave = (proceed: () => void) => {
-    if ((mode === "edit" || mode === "letra" || mode === "melodia") && isDirty) setLeavePrompt({ proceed });
+    if (protegido && isDirty) setLeavePrompt({ proceed });
     else proceed();
   };
 
@@ -423,7 +431,30 @@ export default function SongDetailEditor({
       {/* La SEGUNDA copia de este diálogo, ahora con el componente único (O-60).
           Estaba calcada de `ServiceEditor` salvo una frase — comprobado línea
           por línea antes de unificar, como se hizo con `parseSections`. */}
-      {leavePrompt && (
+      {/* 🔴 Si lo único pendiente es la NOTA, el diálogo lo dice tal cual: «Guardar
+          y salir» guarda la CANCIÓN, no la nota — y un músico ni siquiera puede
+          guardar la canción. Se le ofrece volver a guardarla o descartarla. */}
+      {leavePrompt && mode === "view" && notaSucia ? (
+        <Dialogo
+          titulo="Tu nota tiene cambios sin guardar"
+          onCancelar={() => setLeavePrompt(null)}
+          acciones={[
+            { texto: "Volver para guardarla", onClick: () => setLeavePrompt(null) },
+            {
+              texto: "Descartar la nota y salir",
+              estilo: "peligro-suave",
+              onClick: () => {
+                const proceed = leavePrompt.proceed;
+                setNotaSucia(false);
+                setLeavePrompt(null);
+                proceed();
+              },
+            },
+          ]}
+        >
+          Lo que escribiste en «Mis notas» todavía no está guardado. Si sales ahora, se pierde.
+        </Dialogo>
+      ) : leavePrompt && (
         <Dialogo
           titulo="Cambios sin guardar"
           onCancelar={saving ? undefined : () => setLeavePrompt(null)}
@@ -650,6 +681,9 @@ export default function SongDetailEditor({
                   ))}
                 </div>
               )}
+
+              {/* Las NOTAS PRIVADAS de quien mira (O-74): músico y administrador. */}
+              {tenerNotas && <NotaPrivada key={sheet.id} sheetId={sheet.id} onSucio={setNotaSucia} />}
             </header>
 
             {viewContent.trim() ? (

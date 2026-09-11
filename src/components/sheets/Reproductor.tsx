@@ -49,6 +49,11 @@ type Props = {
   /** La nota que suena, o `null`. Solo se llama cuando CAMBIA. */
   onMomento?: (m: Momento | null) => void;
   /**
+   * El tempo que hay puesto, cada vez que cambia (O-81): el editor lo usa para
+   * GUARDARLO en la canción con «Guardar melodía».
+   */
+  onTempo?: (tempo: number) => void;
+  /**
    * La cabecera fija que hay encima, si la hay (un selector): la barra se pega
    * JUSTO DEBAJO de ella. Sin esto se metería por detrás.
    */
@@ -65,6 +70,7 @@ export default function Reproductor({
   tempoInicial,
   semitonos = 0,
   onMomento,
+  onTempo,
   debajoDe,
   className,
 }: Props) {
@@ -90,6 +96,12 @@ export default function Reproductor({
     return () => observador.disconnect();
   }, [debajoDe]);
   const [tempo, setTempo] = useState(() => tempoValido(tempoInicial));
+  // O-81 · Isaac: «la velocidad del tempo no se guarda como uno quiere». El
+  // tempo de la canción se guarda en `sheets.tempo`; quien la escribe lo fija
+  // con «Guardar melodía», y para eso tiene que saber cuál hay puesto.
+  useEffect(() => {
+    onTempo?.(tempo);
+  }, [tempo, onTempo]);
   const [metronomo, setMetronomo] = useState(false);
   const [repetir, setRepetir] = useState(false);
   const [aviso, setAviso] = useState<Aviso>({ estado: "parado", momento: null, progreso: 0, cuenta: null });
