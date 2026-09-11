@@ -75,6 +75,19 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "Las pestañas de la canción, enteras en el teléfono",
+        "resumen": "En el teléfono, las pestañas de la canción ya caben: se reparten en dos filas.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Las pestañas ya no se salen de la pantalla del teléfono.",
+            "detalle": [
+              "En el teléfono, la fila de pestañas de la canción (Vista, Edición, Letra, Melodía, Pantalla completa) no cabía: «Pantalla completa» salía cortada y la página se movía de lado. Ahora se reparten en <strong>dos filas</strong> y se ven todas. En el ordenador no cambia nada."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "Todas las duraciones para la melodía, y botones que se ven",
         "resumen": "Las 15 duraciones —con puntillo y con doble puntillo— en botones grandes, con la figura dibujada.",
         "cambios": [

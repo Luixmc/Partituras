@@ -488,11 +488,16 @@ export default function SongDetailEditor({
             </div>
           )}
 
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
+          {/* Las pestañas. O-80 · En el teléfono no cabían en una fila (~520 px
+              en ~370): la caja entera se desplazaba de lado y «Pantalla
+              completa» salía cortada. Ahora, en pantallas estrechas, se
+              reparten en dos filas a todo lo ancho (`flex-wrap` + `grow`); en
+              el PC siguen en una fila, como antes (`sm:w-auto`, `sm:grow-0`). */}
+          <div className="flex w-full flex-wrap rounded-lg border border-slate-200 bg-slate-50 p-1 sm:w-auto dark:border-slate-700 dark:bg-slate-800">
             <button
               type="button"
               onClick={requestLeaveEdit}
-              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+              className={`inline-flex grow items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold sm:grow-0 ${
                 mode === "view"
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
@@ -505,7 +510,7 @@ export default function SongDetailEditor({
               <button
                 type="button"
                 onClick={() => requestLeave(() => setMode("edit"))}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+                className={`inline-flex grow items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold sm:grow-0 ${
                   mode === "edit"
                     ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
                     : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
@@ -522,7 +527,7 @@ export default function SongDetailEditor({
             <button
               type="button"
               onClick={() => requestLeave(() => setMode("letra"))}
-              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+              className={`inline-flex grow items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold sm:grow-0 ${
                 mode === "letra"
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
@@ -538,7 +543,7 @@ export default function SongDetailEditor({
             <button
               type="button"
               onClick={() => requestLeave(() => setMode("melodia"))}
-              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold ${
+              className={`inline-flex grow items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold sm:grow-0 ${
                 mode === "melodia"
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
@@ -560,7 +565,7 @@ export default function SongDetailEditor({
                   parametros.get("culto") ? `?culto=${parametros.get("culto")}` : filtro
                 }`}
                 title="Ver a pantalla completa"
-                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                className="inline-flex grow items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold sm:grow-0 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 <Maximize2 className="h-4 w-4" />
                 Pantalla completa

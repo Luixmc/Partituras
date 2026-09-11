@@ -7,6 +7,12 @@
 
 ## 10 de septiembre de 2026
 
+### 📱 Las pestañas de la canción, enteras en el teléfono
+
+- 🔧 **Arreglado:** en el teléfono, la fila de pestañas de la canción (Vista, Edición, Letra,
+  Melodía, Pantalla completa) no cabía: «Pantalla completa» salía cortada y la página se movía de
+  lado. Ahora se reparten en **dos filas** y se ven todas. En el ordenador no cambia nada.
+
 ### 🎵 Todas las duraciones para la melodía, y botones que se ven
 
 - 🆕 **Las 15 duraciones**: cada figura —semicorchea, corchea, negra, blanca y redonda— **sin
