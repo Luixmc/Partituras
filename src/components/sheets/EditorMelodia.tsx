@@ -28,7 +28,8 @@ import {
   alturaMidi,
   armaduraDibujada,
 } from "@/lib/melodia";
-import { RestFigure } from "@/components/sheets/MusicFigures";
+import { NoteFigure, RestFigure } from "@/components/sheets/MusicFigures";
+import { figuraDe } from "@/lib/figuras";
 import { cn } from "@/lib/utils";
 import { INSTRUMENTOS, guardarInstrumento, tocarNota, useInstrumento, useVolumen } from "@/lib/sonido";
 
@@ -262,13 +263,32 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
     <div>
       {/* ── La barra de herramientas ── */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-        <Grupo titulo="Dura">
-          {DURACIONES.map((d) => (
-            <Boton key={d.valor} activo={duracion === d.valor} onClick={() => ponDuracion(d.valor)} titulo={d.nombre}>
-              {ICONO_DURACION[d.valor]}
-            </Boton>
-          ))}
-        </Grupo>
+        {/* ── LAS 15 DURACIONES, en un cuadro de 5 × 3 (O-78) ──
+            Isaac, 2026-09-10: «le faltan las otras duraciones… que los botones
+            sean más grandes porque casi que no se ven, sobre todo las
+            duraciones y si son corcheas con puntillos o no». Eligió él el
+            cuadro: **una columna por figura, una fila por puntillos**, así la
+            negra con doble puntillo está en la columna de la negra, abajo.
+            📌 La figura es `NoteFigure`, la MISMA que se ve encima de los
+            acordes: antes eran caracteres Unicode, diminutos, y el puntillo era
+            un punto de texto que casi no se distinguía. */}
+        <div>
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Duración</div>
+          <div className="grid grid-cols-[auto_repeat(5,auto)] items-center gap-1">
+            {[0, 1, 2].map((puntillos) => (
+              <Fila key={puntillos} puntillos={puntillos}>
+                {DURACIONES.filter((d) => d.puntillos === puntillos).map((d) => (
+                  <Boton key={d.valor} activo={duracion === d.valor} onClick={() => ponDuracion(d.valor)} titulo={d.nombre}>
+                    {/* El alto de la figura va en `em`: con 18 px de letra, ~29 px. */}
+                    <span className="flex items-center justify-center" style={{ fontSize: 18 }}>
+                      <NoteFigure beats={d.valor / 2} />
+                    </span>
+                  </Boton>
+                ))}
+              </Fila>
+            ))}
+          </div>
+        </div>
 
         {/* El instrumento lo elige cada músico y se recuerda en su navegador.
             «Sin sonido» está a propósito: en un ensayo tiene que poder callarse. */}
@@ -411,10 +431,15 @@ function Dibujo({ el, i, sel, izq }: { el: Elemento; i: number; sel: boolean; iz
   }
 
   const cy = y(el.paso);
-  const hueca = el.duracion >= 4;
-  const conPlica = el.duracion < 8;
-  const corchetes = el.duracion <= 0.5 ? 2 : el.duracion <= 1.5 ? 1 : 0;
-  const puntillo = el.duracion === 1.5 || el.duracion === 3 || el.duracion === 6;
+  // 🔴 La figura sale de `figuraDe` (O-78), la misma cuenta que dibuja las
+  // figuras sobre los acordes. Antes eran comparaciones sueltas —`=== 1.5 || 3
+  // || 6`— que solo conocían el puntillo simple: una negra con doble puntillo
+  // se habría dibujado sin puntos, y una semicorchea con puntillo, con un solo
+  // corchete. ⚠️ `figuraDe` cuenta en NEGRAS y aquí se cuenta en corcheas: /2.
+  const { base, puntillos } = figuraDe(el.duracion / 2);
+  const hueca = base >= 2;
+  const conPlica = base < 4;
+  const corchetes = base <= 0.25 ? 2 : base <= 0.5 ? 1 : 0;
 
   // 🔴 LA PLICA CAMBIA DE LADO EN LA LÍNEA DEL MEDIO, como en cualquier
   // partitura: de la tercera línea (el `B`, paso 6) hacia arriba baja por la
@@ -498,7 +523,9 @@ function Dibujo({ el, i, sel, izq }: { el: Elemento; i: number; sel: boolean; iz
         );
       })}
 
-      {puntillo && <circle cx={cx + 20} cy={cy - 4} r="3" className={sel ? "fill-brand-600" : "fill-slate-900 dark:fill-slate-100"} />}
+      {Array.from({ length: puntillos }, (_, k) => (
+        <circle key={k} cx={cx + 20 + k * 8} cy={cy - 4} r="3" className={sel ? "fill-brand-600" : "fill-slate-900 dark:fill-slate-100"} />
+      ))}
       {el.ligada && <path d={`M${cx + 4} ${cy + 16} q ${COL / 2} 14 ${COL - 8} 0`} className={sel ? "stroke-brand-600" : "stroke-slate-900 dark:stroke-slate-100"} strokeWidth="2" fill="none" />}
     </g>
   );
@@ -512,16 +539,17 @@ function rayasDe(paso: number): number[] {
   return r;
 }
 
-const ICONO_DURACION: Record<number, string> = {
-  0.5: "𝅘𝅥𝅯",
-  1: "𝅘𝅥𝅮",
-  1.5: "𝅘𝅥𝅮.",
-  2: "𝅘𝅥",
-  3: "𝅘𝅥.",
-  4: "𝅗𝅥",
-  6: "𝅗𝅥.",
-  8: "𝅝",
-};
+/** Una fila del cuadro de duraciones, con su rótulo delante. */
+function Fila({ puntillos, children }: { puntillos: number; children: React.ReactNode }) {
+  return (
+    <>
+      <div className="pr-1 text-right text-xs font-semibold text-slate-500 dark:text-slate-400">
+        {puntillos === 0 ? "Sin puntillo" : puntillos === 1 ? "Puntillo" : "Doble puntillo"}
+      </div>
+      {children}
+    </>
+  );
+}
 
 function Grupo({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
@@ -554,8 +582,10 @@ function Boton({
       aria-label={titulo}
       onClick={onClick}
       disabled={apagado}
+      // O-78: más grandes. Isaac: «casi que no se ven». ~44 px de alto, que es
+      // además lo mínimo cómodo para pulsar con el dedo en la tablet.
       className={cn(
-        "min-w-[2.2rem] rounded-lg border px-2 py-1.5 text-sm font-semibold transition",
+        "inline-flex h-11 min-w-[2.75rem] items-center justify-center rounded-lg border px-2.5 text-lg font-semibold transition",
         apagado && "cursor-not-allowed opacity-40",
         activo
           ? "border-brand-600 bg-brand-600 text-white"

@@ -68,6 +68,28 @@ test("las duraciones, con L:1/8", () => {
   assert.equal(elementoAbc(nota(0, 1.5)), "C3/2"); // corchea con puntillo
 });
 
+test("O-78 · las 15 duraciones: 5 figuras, sin puntillo, con uno y con dos", () => {
+  assert.equal(DURACIONES.length, 15);
+  // Isaac: «si yo quiero colocar una negra con doble puntillo no veo el boton».
+  const negraDoble = DURACIONES.find((d) => d.nombre === "Negra con doble puntillo");
+  assert.equal(negraDoble.valor, 3.5);
+  assert.deepEqual(
+    DURACIONES.filter((d) => d.puntillos === 2).map((d) => d.valor),
+    [0.875, 1.75, 3.5, 7, 14]
+  );
+});
+
+test("O-78 · 🔴 los dobles puntillos se ESCRIBEN exactos (antes la corchea con doble puntillo se guardaba como negra)", () => {
+  assert.equal(elementoAbc(nota(0, 1.75)), "C7/4"); // corchea con doble puntillo — antes salía «C4/2» = negra
+  assert.equal(elementoAbc(nota(0, 3.5)), "C7/2"); // negra con doble puntillo
+  assert.equal(elementoAbc(nota(0, 0.875)), "C7/8"); // semicorchea con doble puntillo
+  assert.equal(elementoAbc(nota(0, 0.75)), "C3/4"); // semicorchea con puntillo
+  assert.equal(elementoAbc(nota(0, 14)), "C14"); // redonda con doble puntillo
+  for (const d of [0.75, 0.875, 1.75, 3.5, 12, 14]) {
+    assert.equal(parsearMelodia(elementoAbc(nota(0, d)))[0].duracion, d, `ida y vuelta de ${d}`);
+  }
+});
+
 test("alteraciones, silencios, ligaduras y barras", () => {
   assert.equal(elementoAbc(nota(0, 2, "sostenido")), "^C2");
   assert.equal(elementoAbc(nota(0, 2, "bemol")), "_C2");
@@ -96,7 +118,7 @@ test("🔴 IDA Y VUELTA: lo que se guarda vuelve igual", () => {
 });
 
 test("la ida y vuelta aguanta TODAS las combinaciones", () => {
-  // 8 duraciones x 4 alteraciones x 2 (ligada o no) x alturas de 3 octavas.
+  // 15 duraciones x 4 alteraciones x 2 (ligada o no) x alturas de 3 octavas.
   for (const { valor } of DURACIONES) {
     for (const alt of [null, "sostenido", "bemol", "becuadro"]) {
       for (const ligada of [false, true]) {

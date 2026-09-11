@@ -51,17 +51,33 @@ export type Elemento =
   | { tipo: "silencio"; duracion: number }
   | { tipo: "barra" };
 
-/** Las duraciones, en corcheas — que es la unidad de ABC (`L:1/8`). */
-export const DURACIONES = [
+/**
+ * Las duraciones, en corcheas — que es la unidad de ABC (`L:1/8`).
+ *
+ * 🔴 SON 15: cada una de las 5 figuras, sin puntillo, con uno y con dos (O-78).
+ * Isaac, 2026-09-10: «si yo quiero colocar una negra con doble puntillo no veo
+ * el boton». Hasta entonces eran 8 —faltaban los dos puntillos, la semicorchea
+ * con puntillo y la redonda con puntillo—, mientras el editor de ACORDES ya
+ * tenía las 15 desde O-49. Un puntillo alarga la mitad; dos, la mitad más un
+ * cuarto — la misma cuenta que `lib/figuras.ts`.
+ */
+const FIGURAS_MELODIA = [
   { valor: 0.5, nombre: "Semicorchea" },
   { valor: 1, nombre: "Corchea" },
-  { valor: 1.5, nombre: "Corchea con puntillo" },
   { valor: 2, nombre: "Negra" },
-  { valor: 3, nombre: "Negra con puntillo" },
   { valor: 4, nombre: "Blanca" },
-  { valor: 6, nombre: "Blanca con puntillo" },
   { valor: 8, nombre: "Redonda" },
 ] as const;
+const PUNTILLOS = [
+  { factor: 1, nombre: "" },
+  { factor: 1.5, nombre: " con puntillo" },
+  { factor: 1.75, nombre: " con doble puntillo" },
+] as const;
+
+export const DURACIONES: { valor: number; nombre: string; figura: string; puntillos: number }[] =
+  PUNTILLOS.flatMap((p, puntillos) =>
+    FIGURAS_MELODIA.map((f) => ({ valor: f.valor * p.factor, nombre: f.nombre + p.nombre, figura: f.nombre, puntillos }))
+  );
 
 const LETRAS = ["C", "D", "E", "F", "G", "A", "B"];
 const SIGNO: Record<Exclude<Alteracion, null>, string> = {
@@ -74,13 +90,24 @@ const SIGNO: Record<Exclude<Alteracion, null>, string> = {
  * La duración, como la escribe ABC con `L:1/8`.
  *
  * Entera se pone tal cual (`2` = negra); las que no lo son van en quebrado
- * sobre 2 — la semicorchea es `/2` y la corchea con puntillo `3/2`.
+ * con el denominador más pequeño que la dé EXACTA: `/2` la semicorchea, `3/2`
+ * la corchea con puntillo, `7/4` la corchea con doble puntillo, `7/8` la
+ * semicorchea con doble puntillo.
+ *
+ * 🔴 Solo sabía hacer MEDIOS hasta O-78, y con los dobles puntillos eso era un
+ * error callado: `Math.round(1.75 * 2) = 4` → `4/2` = **una negra**. La nota se
+ * habría guardado con otra duración sin que nada avisara.
  */
 function duracionAbc(d: number): string {
   if (d === 1) return "";
   if (Number.isInteger(d)) return String(d);
-  const mitades = Math.round(d * 2);
-  return mitades === 1 ? "/2" : `${mitades}/2`;
+  for (const den of [2, 4, 8, 16]) {
+    const num = d * den;
+    if (Math.abs(num - Math.round(num)) < 1e-9) {
+      return Math.round(num) === 1 ? `/${den}` : `${Math.round(num)}/${den}`;
+    }
+  }
+  return `${Math.round(d * 16)}/16`; // nada de lo que escribe el editor llega aquí
 }
 
 /** Un escalón, a como se escribe en ABC: `C` es el do central, `c` el de arriba. */

@@ -7,6 +7,17 @@
 
 ## 10 de septiembre de 2026
 
+### 🎵 Todas las duraciones para la melodía, y botones que se ven
+
+- 🆕 **Las 15 duraciones**: cada figura —semicorchea, corchea, negra, blanca y redonda— **sin
+  puntillo, con puntillo y con doble puntillo**. Antes faltaban siete, entre ellas la negra con
+  doble puntillo.
+- 🆕 **Botones más grandes**, con la figura dibujada como la que se ve encima de los acordes, y
+  ordenados en un cuadro: **una columna por figura y una fila por puntillos**. Al pasar el ratón
+  dicen su nombre completo.
+- Los demás botones del editor de melodía también son más grandes, y más fáciles de pulsar con el
+  dedo en la tablet.
+
 ### 🎼 La armadura en el pentagrama donde se escribe la melodía
 
 - 🆕 **El pentagrama donde se pincha para escribir la melodía ya lleva la armadura del tono**:

@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "Todas las duraciones para la melodía, y botones que se ven",
+        "resumen": "Las 15 duraciones —con puntillo y con doble puntillo— en botones grandes, con la figura dibujada.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Las 15 duraciones, en botones grandes.",
+            "detalle": [
+              "<strong>Las 15 duraciones</strong>: cada figura —semicorchea, corchea, negra, blanca y redonda— <strong>sin puntillo, con puntillo y con doble puntillo</strong>. Antes faltaban siete, entre ellas la negra con doble puntillo.",
+              "<strong>Botones más grandes</strong>, con la figura dibujada como la que se ve encima de los acordes, y ordenados en un cuadro: <strong>una columna por figura y una fila por puntillos</strong>. Al pasar el ratón dicen su nombre completo.",
+              "Los demás botones del editor de melodía también son más grandes, y más fáciles de pulsar con el dedo en la tablet."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "La armadura en el pentagrama donde se escribe la melodía",
         "resumen": "El pentagrama para escribir la melodía ya lleva los sostenidos o bemoles del tono.",
         "cambios": [
