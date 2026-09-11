@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ContentScale from "@/components/theme/ContentScale";
 import ReadingControls from "@/components/theme/ReadingControls";
 import { createClient } from "@/lib/supabase/server";
-import { formatServiceDate, metaDeCulto } from "@/lib/services";
+import { formatServiceDate, metaDeCulto, type CultoPorEnlace } from "@/lib/services";
 
 export default async function PublicServicePage(
   props: {
@@ -17,14 +17,12 @@ export default async function PublicServicePage(
   const params = await props.params;
   const supabase = await createClient();
 
-  const { data: service } = await supabase
-    .from("services")
-    .select(
-      "id, name, service_type, service_date, notes, public_token, service_songs(sheet_id, position, key_override, sheet_key:sheet_keys(key_signature), sheet:sheets(title, composer, key_signature))"
-    )
-    .eq("public_token", params.token)
-    .eq("is_public", true)
-    .single();
+  // 🔴 P-02 · El culto llega por `culto_por_enlace` (migración 023), no leyendo
+  // las tablas: desde la 024 las tablas ya no se leen sin cuenta. La función
+  // repite las reglas de siempre —compartido, publicado, canción visible— y
+  // devuelve la misma forma que la consulta anidada que había aquí.
+  const { data } = await supabase.rpc("culto_por_enlace", { p_token: params.token });
+  const service = data as CultoPorEnlace | null;
 
   if (!service) notFound();
 

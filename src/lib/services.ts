@@ -27,6 +27,36 @@ export function metaDeCulto(tipo: unknown) {
   return SERVICE_TYPE_META[clave];
 }
 
+/**
+ * Lo que devuelve `culto_por_enlace(token)` (migración 023, P-02): el culto
+ * compartido y sus filas, con la MISMA forma que tenía la consulta anidada
+ * `services → service_songs → sheets/sheet_keys` que usaban las páginas del
+ * enlace. `sheet` llega a `null` si la canción no se puede ver (borrador).
+ */
+export type FilaCultoEnlace = {
+  sheet_id: string;
+  position: number;
+  key_override: string | null;
+  sheet_key_id: string | null;
+  sheet_key: { key_signature: string | null; content: string | null } | null;
+  sheet: {
+    title: string;
+    composer: string | null;
+    key_signature: string | null;
+    content: string | null;
+    editor_type: PresentSong["editor_type"];
+  } | null;
+};
+export type CultoPorEnlace = {
+  id: string;
+  name: string;
+  service_type: string | null;
+  service_date: string | null;
+  notes: string | null;
+  public_token: string;
+  service_songs: FilaCultoEnlace[];
+};
+
 /** Convierte las filas embebidas service_songs(...sheet) en canciones de presentación. */
 /**
  * @param conLetra  Incluir la letra de cada canción. **Va apagado por

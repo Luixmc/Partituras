@@ -101,7 +101,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **240 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.988 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.008 líneas** de TypeScript
    en **94 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -307,8 +307,8 @@ repo/
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
-  supabase/migrations/           22 migraciones ⚠️ con otros nombres en la BD (T-01)
-                                 ✅ TODAS aplicadas (las tres últimas, el 2026-09-10)
+  supabase/migrations/           23 migraciones ⚠️ con otros nombres en la BD (T-01)
+                                 ✅ TODAS aplicadas (de la 020 a la 023, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
   pruebas/                       240 pruebas + el recorrido de las 26 pantallas
 ```
@@ -827,6 +827,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
+| 🟢 | **P-02 EN MARCHA — cerrar la lectura sin cuenta** (Isaac, 2026-09-10, noche: *«están bien todo, haz lo que está pendiente»*) | Tras preguntarle qué faltaba. **Lo que da por bueno:** O-74 (notas), O-78 (duraciones), O-79 (barra), O-80 (pestañas), O-81 (tempo). **Lo que es suyo y no se hace sin él:** poner el rol de músico, y abrir letras y melodías a todos (`ROLES_LETRAS`/`ROLES_MELODIA`). **Lo mío:** P-02, con su OK a la migración — pero **con el orden de T-07**: primero lo que no rompe nada, después el código, y el cierre al final; copia antes y vuelta atrás preparada. Plan detallado en P-02 (§9.3) |
 | ✅ | **O-75 y O-77 CERRADAS por Isaac** (2026-09-10, noche) | *«los sonidos están bien, el volumen tambien, en el telefono se ve bien, al igual que lo la pentagrama»* → el reproductor entero (fases 1, 2 y 3, r65–r69) y la armadura del editor (r70) **dados por buenos**, también en el teléfono |
 | **0-quater** | 🟢 **O-79 · La barra del editor de melodía, más a lo ANCHO que a lo largo** (Isaac, 2026-09-10, noche, con captura de r71 en modo oscuro: *«está bien pero se podria aprovechar mas los espacios para que sean mas a lo ancho que a lo largo»*) | **Medido en su captura:** el cuadro de duraciones a la izquierda, Sonido · Alteración · Poner en fila a su lado, y **Corregir cae a una fila propia debajo** — sobra más de un tercio del ancho a la derecha y la barra mide ~290 px de alto. **Arreglo:** los cuatro grupos de la derecha en **dos filas junto al cuadro** (Sonido + Alteración · Poner + Corregir), así la barra mide lo que el cuadro (~170 px); en el teléfono se siguen apilando. Ajuste de O-78 (plan aprobado). ✅ **HECHO, MEDIDO y PUBLICADO en r72** (Isaac: *«sube, no me pidas permiso para esto de la melodia»* — ver §1, la excepción) — falta que él lo vea: a **1512 px** la barra mide **185 px** de alto (en su captura, ~290); a **400 px** (teléfono emulado con `Emulation.setDeviceMetricsOverride`, que sí baja de 500 px) los grupos se apilan y cabe (usa 314 de 327 px). ⚠️ **Visto al medir, sin pedir y sin tocar:** en el teléfono aparece una barra de desplazamiento horizontal **de una caja interior** —la página mide 400 de 400—, probablemente la fila de pestañas de la canción («Pantalla completa» sale cortada). **Ya estaba en producción antes** (medido igual en r71). Se le comenta a Isaac |
 | **0-ter** | ✅ **HECHA, MEDIDA y PUBLICADA en r71** (Isaac: *«subes enseguida, no esperes mi aprovación»* — **solo para este cambio**) — **falta que él la vea**. **Medido en navegador** (`probar-o78.mjs`, solo mira): **15 botones** de duración de **44 px**; la **negra con doble puntillo** puesta con un clic real sale en el editor con **2 puntos**, en el texto como **`G7/2`**, en la vista previa con dos puntos, y **dura 1.315 ms** al sonar (tocan 1.312 a ♩=80); claro y oscuro, en captura. **2 pruebas nuevas** (237). — Isaac eligió el **cuadro 5 × 3** (*«Cuadro 5 × 3 (Recomendado)»*): **OK del plan** · **O-78 · El editor de MELODÍA: faltan duraciones y los botones casi no se ven** (Isaac, 2026-09-10, noche, con captura en modo oscuro) | *«si yo quiero colocar una negra con doble puntillo no veo el boton para ello, osea que le faltan la otras duraciones, y seria bueno que los botones sean mas grandes porque casi que no se ven sobretodo las duraciones y si son corcheas con puntillos o no»*. **PLAN APROBADO (cuadro 5 × 3).** Hoy la barra «Dura» tiene **8** (semicorchea, corchea, corchea·, negra, negra·, blanca, blanca·, redonda), pintadas con caracteres Unicode diminutos (`𝅘𝅥𝅮.`). **Lo medido:** el editor de ACORDES ya tiene las **15** (5 figuras × sin, 1 y 2 puntillos, O-49), y `NoteFigure` (`MusicFigures.tsx`) + `figuraDe()` (`lib/figuras.ts`, con pruebas) ya dibujan y reconocen las 15 — **se reutilizan**. 🔴 **Trampa encontrada:** `duracionAbc()` (`lib/melodia.ts`) solo sabe escribir **medios**: la corchea con doble puntillo (1,75) se guardaría como `4/2` = **negra**, callado. **Plan:** (1) `DURACIONES` a las 15 y `duracionAbc` con cuartos y octavos (`3/4`, `7/8`, `7/4`, `7/2`), con prueba de **ida y vuelta de las 15**; (2) el dibujo de cada nota en el editor sale de `figuraDe` (corchetes y **dos** puntillos bien); (3) la barra «Dura» como **cuadro de 5 × 3** —una columna por figura, una fila por puntillos— con la figura dibujada en grande (`NoteFigure`) y botones de ~44 px, **todos** los de la barra más grandes, y el nombre completo al pasar el ratón; (4) comprobar en navegador —claro y oscuro— que la negra con doble puntillo se pone, se guarda como `7/2`, se dibuja con dos puntos y dura lo que debe |
@@ -868,7 +869,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r74**
+#### Estado del árbol — **2026-09-10 (noche), PUBLICADO hasta r75 · P-02 a mitad: falta el cierre (024)**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -876,12 +877,12 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r74** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r74** — las notas privadas (O-74) y el tempo guardado con la canción (O-81). Antes, **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Último commit publicado | el de **r75** (rama `isaac/arranque` → `main`); `git log -1` da el hash |
+| Última versión | **r75** — el enlace público del culto por su función (P-02, paso 1). Antes, **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
 | Pruebas | **240** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **17.988 líneas** de TypeScript en **94 archivos** |
+| Tamaño | **18.008 líneas** de TypeScript en **94 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
-| Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
+| Migraciones | **23**, **todas aplicadas** (las cuatro últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
 | `abcjs` | **dependencia de verdad** desde r48, cargada de forma diferida y **fuera del paquete compartido** (medido en `build-manifest.json`) |
 
@@ -6250,6 +6251,47 @@ código, ordenados por lo que más puede morder. **Ninguno está aprobado.**
       de funcionar **hasta que llegue la clave `service_role`**. → El orden correcto es: **primero
       la clave, después cerrar la lectura.** Y cerrarla es una migración, o sea que también espera
       al primo.
+      🟢 **CAMBIÓ el 2026-09-10 — ya no espera a nadie:** (1) las migraciones ya se aplican sin el
+      primo (§12.2-ter), y (2) **la copia ya no depende del hueco**: desde T-18 `npm run export` saca
+      la sesión de la cuenta de prueba (administradora) y baja las 85, borradores incluidos. La
+      `service_role` sigue sin hacer falta.
+      ⚠️ **Lo que hay que mirar ANTES de cerrarlo:** el **enlace público del culto** (`/s/<token>`),
+      que se abre **sin cuenta** y lee canciones. Si la lectura de `sheets` pasa a exigir sesión, ese
+      enlace podría quedarse sin canciones. → Analizar cómo lee (¿con la clave pública? ¿una función de
+      la base?) y proponer a Isaac. **Es una migración: con su permiso.**
+
+      #### 🟢 EN MARCHA (2026-09-10, noche) — Isaac: *«haz lo que está pendiente»*
+
+      **Analizado:** las TRES páginas del enlace (`/s/<token>`, `/present`, `/imprimir`) leen
+      `services` → `service_songs` → `sheets`/`sheet_keys` **directamente, con la clave pública**,
+      filtrando por `public_token` + `is_public`, y la base añade sus reglas (culto publicado, canción
+      visible). Cerrar las tablas sin más **vaciaría el enlace**. Hoy hay **un** culto compartido:
+      «Escuela Dominical», publicado, 7 canciones.
+
+      **El plan, en el orden de T-07 (primero lo que no rompe, el cierre al final):**
+
+      | | Qué | Riesgo |
+      |---|---|---|
+      | **P2.1** | Copia (`npm run export`) y medir lo que ve hoy alguien SIN cuenta, tabla por tabla | ninguno |
+      | **P2.2** | Migración **`20240023`**: función `culto_por_enlace(token)` (`security definer`) que devuelve el culto **solo con su enlace**, repitiendo las reglas de hoy —compartido, publicado (o admin/creador), canción visible— y con la misma forma de datos | **solo AÑADE**: no cambia nada de lo que hay |
+      | **P2.3** | Las tres páginas del enlace pasan a la función; se **publica** y se comprueba en producción | la función ya existe, así que funciona antes y después del cierre |
+      | **P2.4** | Migración **`20240024`**: las lecturas de las tablas de contenido pasan de `public` a **`authenticated`** (13 políticas; las de `tcg_*` no se tocan), con la vuelta atrás preparada | el cierre: se hace **solo** y se mide al momento |
+      | **P2.5** | Medir: sin cuenta, **0 filas** en las tablas; **el enlace sigue** (las tres páginas); con cuenta, **26 de 26** pantallas; la copia sigue completa. Documentar | — |
+
+      **Hecho y medido:**
+      * **P2.1** ✅ copia completa (85) en `_RESPALDOS\Partituras-datos-2026-09-11` (fecha UTC). **Sin cuenta
+        se leían:** `sheets` 76 · `sheet_keys` 14 · `categories` 14 · `sheet_categories` 104 · `services` 1 ·
+        `service_songs` 13 · `songs` 4 · `song_sections` 8 · `mosaics` 1 · `mosaic_entries` 4 · (y 0 en
+        `profiles`, `notas_musico`, `favorites`, `tags`, `sheet_tags`, `sheet_versions`).
+      * **P2.2** ✅ `20240023` aplicada. ⚠️ **El primer intento FALLÓ entero** (`uuid = text`:
+        `public_token` es `uuid`) y **no dejó nada a medias** (0 funciones). Arreglado comparando como
+        texto, que además hace que un enlace mal copiado dé «no existe» en vez de un error. **Medido sin
+        cuenta:** con el enlace de «Escuela Dominical», el culto con sus **7 canciones y sus acordes**; con
+        uno inventado, `null`.
+      * **P2.3** ✅ las tres páginas por la función (tipo `CultoPorEnlace` en `lib/services.ts`, sin `any`
+        nuevos). **Medido en local sin cookie, igual que producción:** las tres responden 200 con el culto,
+        la lista con las mismas filas, y un enlace inventado da 404. **26 de 26** con sesión. → Se publica
+        como **r75** ANTES de cerrar nada.
 - [x] ✅ **CERRADO el 2026-09-10 (leído en `pg_policies`, abajo).** ~~**P-03 · «Solo el admin edita» puede ser solo apariencia.**~~ Depende de si la migración
       011 está aplicada de verdad (T-01). Si no lo está, un `musician` puede crear y editar
       canciones llamando a la API directamente, aunque no vea el botón.

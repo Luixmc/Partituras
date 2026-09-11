@@ -156,7 +156,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## Migraciones de base de datos
 
-Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 22, y todas están
+Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 23, y todas están
 aplicadas** (las tres últimas, el 2026-09-10): `20240020` (un usuario desactivado tampoco lee ni
 escribe por la API), `20240021` (la columna `sheets.melody`) y `20240022` (`notas_musico`).
 
@@ -281,7 +281,7 @@ src/
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
 pruebas/                    → las 240 pruebas (ver más abajo)
-supabase/migrations/        → 22 migraciones (todas aplicadas)
+supabase/migrations/        → 23 migraciones (todas aplicadas)
 ```
 
 > 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron

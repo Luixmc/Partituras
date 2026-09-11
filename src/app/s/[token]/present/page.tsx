@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import PresentationView from "@/components/services/PresentationView";
-import { mapPresentSongs } from "@/lib/services";
+import { mapPresentSongs, type CultoPorEnlace } from "@/lib/services";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PublicServicePresentPage(
@@ -12,14 +12,10 @@ export default async function PublicServicePresentPage(
   const params = await props.params;
   const supabase = await createClient();
 
-  const { data: service } = await supabase
-    .from("services")
-    .select(
-      "name, public_token, service_songs(sheet_id, position, key_override, sheet_key_id, sheet_key:sheet_keys(key_signature, content), sheet:sheets(title, composer, key_signature, content, editor_type))"
-    )
-    .eq("public_token", params.token)
-    .eq("is_public", true)
-    .single();
+  // P-02 · Por la función del enlace (migración 023): las tablas ya no se leen
+  // sin cuenta. Misma forma de datos que la consulta que había aquí.
+  const { data } = await supabase.rpc("culto_por_enlace", { p_token: params.token });
+  const service = data as CultoPorEnlace | null;
 
   if (!service) notFound();
 

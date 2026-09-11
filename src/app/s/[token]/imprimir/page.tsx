@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import PrintableService from "@/components/services/PrintableService";
 import { createClient } from "@/lib/supabase/server";
-import { formatServiceDate, mapPresentSongs, metaDeCulto } from "@/lib/services";
+import { formatServiceDate, mapPresentSongs, metaDeCulto, type CultoPorEnlace } from "@/lib/services";
 
 /**
  * La misma hoja imprimible, para quien recibió el enlace compartido y no tiene
@@ -16,14 +16,10 @@ export default async function ImprimirCultoPublicoPage(
   const params = await props.params;
   const supabase = await createClient();
 
-  const { data: service } = await supabase
-    .from("services")
-    .select(
-      "name, service_type, service_date, public_token, service_songs(sheet_id, position, key_override, sheet_key_id, sheet_key:sheet_keys(key_signature, content), sheet:sheets(title, composer, key_signature, content, editor_type))"
-    )
-    .eq("public_token", params.token)
-    .eq("is_public", true)
-    .single();
+  // P-02 · Por la función del enlace (migración 023): las tablas ya no se leen
+  // sin cuenta. Misma forma de datos que la consulta que había aquí.
+  const { data } = await supabase.rpc("culto_por_enlace", { p_token: params.token });
+  const service = data as CultoPorEnlace | null;
 
   if (!service) notFound();
 
