@@ -146,6 +146,32 @@ export function armadura(tono: string | null | undefined): Record<string, number
   return mapa;
 }
 
+/**
+ * DÓNDE se dibuja cada alteración de la armadura, en clave de sol (O-77).
+ *
+ * Isaac, 2026-09-10: «que el pentagrama tenga ya alterado tanto F como C en #».
+ * Son las alturas de toda la vida en clave de sol, en escalones (0 = do
+ * central): los sostenidos fa5 do5 sol5 re5 la4 mi5 si4; los bemoles si4 mi5
+ * la4 re5 sol4 do5 fa4.
+ *
+ * 📌 Solo es el DIBUJO: lo que suena ya lo decide `armadura()` + `alturaMidi()`
+ * desde la fase 1 de O-75. Por eso esto sale de la misma cuenta —cuántas y de
+ * qué signo—, y no de otra tabla que se pudiera contradecir.
+ */
+const PASOS_SOSTENIDOS = [10, 7, 11, 8, 5, 9, 6];
+const PASOS_BEMOLES = [6, 9, 5, 8, 4, 7, 3];
+
+export function armaduraDibujada(
+  tono: string | null | undefined
+): { paso: number; signo: "sostenido" | "bemol" }[] {
+  const mapa = armadura(tono);
+  const letras = Object.keys(mapa);
+  if (!letras.length) return [];
+  const sostenidos = mapa[letras[0]] > 0;
+  const pasos = sostenidos ? PASOS_SOSTENIDOS : PASOS_BEMOLES;
+  return pasos.slice(0, letras.length).map((paso) => ({ paso, signo: sostenidos ? "sostenido" : "bemol" }));
+}
+
 /** Semitonos de cada letra sobre el do de su octava. */
 const SEMITONOS_LETRA = [0, 2, 4, 5, 7, 9, 11];
 

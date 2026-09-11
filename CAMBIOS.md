@@ -7,6 +7,13 @@
 
 ## 10 de septiembre de 2026
 
+### 🎼 La armadura en el pentagrama donde se escribe la melodía
+
+- 🆕 **El pentagrama donde se pincha para escribir la melodía ya lleva la armadura del tono**:
+  en una canción en Re salen el fa# y el do# junto a la clave, igual que en una partitura.
+- **Una nota sin alteración suena según la armadura**, como ya pasaba: en Re, un fa suena
+  sostenido. Ahora además **se ve por qué**. Para un fa natural, el botón ♮.
+
 ### 🔔 La cuenta antes de empezar, y el volumen
 
 - 🆕 **Botón «Cuenta»** en el reproductor: antes de que entre la melodía suena **un compás de

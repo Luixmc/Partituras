@@ -27,7 +27,8 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 - **Letras** de las canciones: escribirlas, leerlas, buscarlas y alternarlas con los acordes a
   pantalla completa.
 - **Melodía en pentagrama** *(en preparación, solo administradores)*: se escribe **con el ratón**
-  sobre el pentagrama —o a mano en notación ABC—, sección por sección, y se lee **como suena** o
+  sobre el pentagrama —que ya lleva **la armadura del tono**— o a mano en notación ABC, sección por
+  sección, y se lee **como suena** o
   **como la lee la trompeta** (un tono arriba). A pantalla completa hay un botón que rota
   **acordes → letra → melodía**. Se dibuja con [`abcjs`](https://www.abcjs.net/), cargado de forma
   diferida y **solo en esa pantalla**.
@@ -121,7 +122,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 232 pruebas |
+| `npm test` | Las 235 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -274,7 +275,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 232 pruebas (ver más abajo)
+pruebas/                    → las 235 pruebas (ver más abajo)
 supabase/migrations/        → 22 migraciones (todas aplicadas)
 ```
 
@@ -325,8 +326,6 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
       hechos** (r63/r64)
 - [ ] **Rol `musician`**: que un músico pueda tener **notas privadas** en cada canción. La tabla
       (`20240022`) **ya está aplicada** y falta su pantalla
-- [ ] **La armadura en el pentagrama del editor de melodía**: que una canción en Re ya salga con
-      fa# y do# al escribir (hoy solo la lleva la vista previa)
 - ~~Que un músico arme cultos sin publicarlos~~ — **descartado** el 2026-09-10
 - ~~Subida y visor de PDF original + miniaturas~~ — **descartado** el 2026-09-05
 - ~~Sincronización con Google Drive~~ — **descartado** el 2026-09-05
@@ -356,7 +355,7 @@ supabase/migrations/        → 22 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 232 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 235 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI

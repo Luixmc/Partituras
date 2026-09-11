@@ -18,7 +18,7 @@
 // usar también desde una tablet.
 // ─────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   DURACIONES,
@@ -26,6 +26,7 @@ import {
   type Alteracion,
   type Elemento,
   alturaMidi,
+  armaduraDibujada,
 } from "@/lib/melodia";
 import { RestFigure } from "@/components/sheets/MusicFigures";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,13 @@ type Props = {
 const PASO = 10; // píxeles por escalón
 const BASE = 170; // dónde cae el do central (paso 0)
 const COL = 44; // ancho de cada columna
-const IZQ = 52; // sitio para la clave
+const IZQ_CLAVE = 52; // sitio para la clave
+// La ARMADURA (O-77) va tras la clave y empuja las notas a la derecha: cada
+// alteración ocupa esto, más un respiro para que el ♯ propio de la primera
+// nota no se pegue al último de la armadura.
+const X_ARMADURA = 44;
+const ANCHO_ALTERACION = 13;
+const RESPIRO_ARMADURA = 14;
 
 const y = (paso: number) => BASE - paso * PASO;
 const pasoDe = (py: number) => Math.round((BASE - py) / PASO);
@@ -63,6 +70,20 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
   const [deshacer, setDeshacer] = useState<Elemento[][]>([]);
   const svgRef = useRef<SVGSVGElement>(null);
   const arrastrando = useRef(false);
+
+  // ── La armadura del tono (O-77) ──
+  //
+  // Isaac, 2026-09-10: «agnus dei es en D, por lo tanto que el pentagrama tenga
+  // ya alterado tanto F como C en #». Lo que SUENA ya la respetaba desde la
+  // fase 1 de O-75; faltaba que se VIERA. Sale de la misma cuenta
+  // (`armaduraDibujada`), así que dibujo y sonido no pueden contradecirse.
+  // 🔴 `izq` es DÓNDE EMPIEZAN LAS NOTAS, y lo usan a la vez el dibujo y el
+  // clic: si solo se moviera el dibujo, pinchar pondría la nota una columna
+  // más allá de donde se ve (el mismo tipo de fallo que el de `puntoDe`).
+  const armaduraPintada = useMemo(() => armaduraDibujada(tono), [tono]);
+  const izq = armaduraPintada.length
+    ? X_ARMADURA + armaduraPintada.length * ANCHO_ALTERACION + RESPIRO_ARMADURA
+    : IZQ_CLAVE;
 
   /** Todo cambio pasa por aquí, para que SIEMPRE se pueda deshacer. */
   const cambiar = useCallback(
@@ -111,7 +132,7 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
     const ctm = svg?.getScreenCTM();
     if (!svg || !ctm) return null;
     const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
-    return { i: Math.floor((p.x - IZQ) / COL), paso: pasoDe(p.y) };
+    return { i: Math.floor((p.x - izq) / COL), paso: pasoDe(p.y) };
   };
 
   const alBajar = (e: React.PointerEvent) => {
@@ -235,7 +256,7 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
   }, [sel, midiSel, instrumento, volumen]);
 
   const columnas = Math.max(elementos.length + 2, 14);
-  const ancho = IZQ + columnas * COL;
+  const ancho = izq + columnas * COL;
 
   return (
     <div>
@@ -305,17 +326,32 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
         onPointerLeave={() => setFantasma(null)}
       >
         {LINEAS.map((p) => (
-          <line key={p} x1={IZQ - 26} x2={ancho - 8} y1={y(p)} y2={y(p)} className="stroke-slate-700 dark:stroke-slate-300" strokeWidth="1.5" />
+          <line key={p} x1={IZQ_CLAVE - 26} x2={ancho - 8} y1={y(p)} y2={y(p)} className="stroke-slate-700 dark:stroke-slate-300" strokeWidth="1.5" />
         ))}
         <text x={4} y={y(4.6)} fontSize="58" className="fill-slate-700 dark:fill-slate-200">𝄞</text>
 
+        {/* La ARMADURA (O-77). `data-armadura` es para poder medirlo (§2.3-bis). */}
+        <g data-armadura={armaduraPintada.map((a) => `${a.signo === "sostenido" ? "#" : "b"}${a.paso}`).join(" ")}>
+          {armaduraPintada.map((a, k) => (
+            <text
+              key={k}
+              x={X_ARMADURA + k * ANCHO_ALTERACION}
+              y={y(a.paso) + 7}
+              fontSize="22"
+              className="fill-slate-900 dark:fill-slate-100"
+            >
+              {a.signo === "sostenido" ? "♯" : "♭"}
+            </text>
+          ))}
+        </g>
+
         {/* La nota que sigue al puntero, para ver dónde va a caer */}
         {fantasma && (
-          <ellipse cx={IZQ + fantasma.i * COL + 15} cy={y(fantasma.paso)} rx="11" ry="8.5" className="fill-brand-500" opacity="0.3" />
+          <ellipse cx={izq + fantasma.i * COL + 15} cy={y(fantasma.paso)} rx="11" ry="8.5" className="fill-brand-500" opacity="0.3" />
         )}
 
         {elementos.map((el, i) => (
-          <Dibujo key={i} el={el} i={i} sel={sel === i} />
+          <Dibujo key={i} el={el} i={i} sel={sel === i} izq={izq} />
         ))}
       </svg>
       </div>
@@ -330,8 +366,8 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
 }
 
 // ── El dibujo de un elemento ──
-function Dibujo({ el, i, sel }: { el: Elemento; i: number; sel: boolean }) {
-  const cx = IZQ + i * COL + 15;
+function Dibujo({ el, i, sel, izq }: { el: Elemento; i: number; sel: boolean; izq: number }) {
+  const cx = izq + i * COL + 15;
 
   if (el.tipo === "barra") {
     return (

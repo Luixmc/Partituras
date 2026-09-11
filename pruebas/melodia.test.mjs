@@ -26,6 +26,7 @@ const {
   DURACIONES,
   alturaMidi,
   armadura,
+  armaduraDibujada,
 } = await cargar("melodia");
 
 const nota = (paso, duracion = 2, alteracion = null, ligada = false) => ({
@@ -286,4 +287,35 @@ test("O-75 · un silencio o una barra no suenan", () => {
   assert.equal(altura([{ tipo: "silencio", duracion: 2 }], 0, "C"), null);
   assert.equal(altura([barra], 0, "C"), null);
   assert.equal(altura([], 0, "C"), null);
+});
+
+// ── O-77 · la armadura DIBUJADA en el editor ──
+
+test("O-77 · la armadura dibujada: Re lleva fa# y do#, en su sitio de clave de sol", () => {
+  // Isaac: «agnus dei es en D, por lo tanto que el pentagrama tenga ya alterado tanto F como C en #».
+  assert.deepEqual(armaduraDibujada("D"), [
+    { paso: 10, signo: "sostenido" }, // fa, quinta línea
+    { paso: 7, signo: "sostenido" }, // do, tercer espacio
+  ]);
+});
+
+test("O-77 · los bemoles, los menores y lo que no se entiende", () => {
+  assert.deepEqual(armaduraDibujada("Bb"), [
+    { paso: 6, signo: "bemol" }, // si, tercera línea
+    { paso: 9, signo: "bemol" }, // mi, cuarto espacio
+  ]);
+  // Si menor tiene la armadura de Re mayor.
+  assert.deepEqual(armaduraDibujada("Bm"), armaduraDibujada("D"));
+  assert.equal(armaduraDibujada("F#").length, 6);
+  assert.deepEqual(armaduraDibujada("C"), []);
+  assert.deepEqual(armaduraDibujada("Am"), []);
+  assert.deepEqual(armaduraDibujada(null), []);
+  assert.deepEqual(armaduraDibujada("basura"), [], "un tono que no se reconoce: sin armadura, no una inventada");
+});
+
+test("O-77 · 🔴 lo que se DIBUJA y lo que SUENA salen de la misma cuenta", () => {
+  // En todos los tonos del repertorio: tantas alteraciones dibujadas como letras alteradas al sonar.
+  for (const tono of ["D", "F", "G", "E", "Dm", "C", "Bm", "Bb", "F#", "Am", "A", "Em", "B", "G#m", "Cm"]) {
+    assert.equal(armaduraDibujada(tono).length, Object.keys(armadura(tono)).length, tono);
+  }
 });

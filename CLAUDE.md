@@ -89,8 +89,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **232 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.415 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **235 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.491 líneas** de TypeScript
    en **91 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -134,7 +134,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 232 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 235 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -287,7 +287,7 @@ repo/
   supabase/migrations/           22 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (las tres últimas, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       232 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       235 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -805,7 +805,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | **0** | 🟡 **O-75 · FASE 3 PUBLICADA (r69) — espera que Isaac la OIGA** (él: *«continua con la fase 3»*, y *«sube»*, 2026-09-10) | ✅ **Fase 2 cerrada por él**: *«se oye bien»* (r68). **Fase 3: hecha, medida en navegador y publicada** (subfases y medidas en §9.2 → O-75 «FASE 3»). **AL RETOMAR, preguntarle:** ¿la cuenta y el volumen suenan bien? ¿cómo se ve la barra en el teléfono? Con eso, **O-75 entera queda cerrada**. Después: **O-77** (fila 0-bis) | **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
-| **0-bis** | ⬜ **O-77 · La ARMADURA en el pentagrama del EDITOR** (Isaac, 2026-09-10, noche, antes de apagar: *«seria bueno que el pentagrama tenga las alteraciones que se coloque al momento de crear una cancion, por ejemplo agnus dei es en D, por lo tanto que el pentagrama tenga ya alterado tanto F como C en #»*) | **DICTADA, SIN ANALIZAR A FONDO NI PROGRAMAR** — al retomar: analizar → proponer plan → **esperar su OK**. Lo que ya se sabe: el pentagrama donde se pincha es **`EditorMelodia.tsx`, dibujado a mano** (`IZQ = 52`, sitio solo para la clave) y **no pinta armadura**; el de debajo (`abcjs`, la vista previa) **sí** la pinta. El **sonido ya la respeta** desde la fase 1 (`alturaMidi` + `armadura(tono)` en `lib/melodia.ts`, con pruebas) → es **solo el dibujo**. La armadura sale de `sheets.key_signature` (Agnus Dei = `D` → F# y C#). **Preguntas para el plan:** ¿al pinchar un fa en Re se dibuja sin ♯ (como en una partitura, porque ya lo dice la armadura)? ¿Y qué pasa con las notas que ya llevan `^F` escrito — el editor lo trata como alteración propia? Ojo con los tonos con bemoles (Bb, F, Eb) y los menores (Bm, Dm…) — `armadura()` ya los cubre |
+| **0-bis** | ✅ **O-77 PUBLICADA en r70** (Isaac: *«subelo»*, 2026-09-10, noche) — **falta que él la vea** en el editor. Detalle: **Medido en navegador de verdad** (`probar-o77.mjs` en el `scratchpad`, solo mira): las **5 secciones** de Agnus Dei dibujan `#10 #7` = **fa# en la 5.ª línea y do# en el 3.er espacio**; un **clic de ratón real** en la 1.ª columna de una sección vacía puso la nota **exactamente ahí** (`cx = izq + 15`, a la altura del sol) — el margen crece con la armadura y el clic lo sigue. **3 pruebas nuevas** (235), una de ellas: en los 15 tonos del repertorio, **tantas alteraciones dibujadas como letras alteradas al sonar**. — Empezó 19:15, Isaac: *«adelante»*. **Analizado:** su pregunta 1 **ya se cumple hoy** (una nota sin alteración se dibuja sin ♯ y SUENA con la armadura: `alturaMidi`); lo único que falta es **dibujar la armadura** tras la clave. La pregunta 2 **no toca nada**: el `^F2` de Agnus Dei suena igual y solo enseña un ♯ redundante — **sus datos no se tocan**; si lo quiere quitar, botón «–». **Plan:** (1) `armaduraDibujada(tono)` en `lib/melodia.ts`, con pruebas —dónde va cada ♯/♭ en clave de sol—; (2) `EditorMelodia` la dibuja y **abre sitio a la izquierda** según cuántas lleve (el clic tiene que seguir cayendo donde se pincha); (3) comprobar en navegador y documentar · ⬜ **O-77 · La ARMADURA en el pentagrama del EDITOR** (Isaac, 2026-09-10, noche, antes de apagar: *«seria bueno que el pentagrama tenga las alteraciones que se coloque al momento de crear una cancion, por ejemplo agnus dei es en D, por lo tanto que el pentagrama tenga ya alterado tanto F como C en #»*) | **DICTADA, SIN ANALIZAR A FONDO NI PROGRAMAR** — al retomar: analizar → proponer plan → **esperar su OK**. Lo que ya se sabe: el pentagrama donde se pincha es **`EditorMelodia.tsx`, dibujado a mano** (`IZQ = 52`, sitio solo para la clave) y **no pinta armadura**; el de debajo (`abcjs`, la vista previa) **sí** la pinta. El **sonido ya la respeta** desde la fase 1 (`alturaMidi` + `armadura(tono)` en `lib/melodia.ts`, con pruebas) → es **solo el dibujo**. La armadura sale de `sheets.key_signature` (Agnus Dei = `D` → F# y C#). **Preguntas para el plan:** ¿al pinchar un fa en Re se dibuja sin ♯ (como en una partitura, porque ya lo dice la armadura)? ¿Y qué pasa con las notas que ya llevan `^F` escrito — el editor lo trata como alteración propia? Ojo con los tonos con bemoles (Bb, F, Eb) y los menores (Bm, Dm…) — `armadura()` ya los cubre |
 | **1** | ⬜ **O-74 · SOLO D, las NOTAS PRIVADAS** — después de la fase 2 de O-75 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
 
 ✅ **HECHO el 2026-09-10 (tarde), con sus palabras:** *«2. si la b es para que lo hagas entonces la b, 3. ok, 4. hazlo»* →
@@ -842,7 +842,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r69**
+#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r70**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -850,10 +850,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r69** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r69** — cuenta de entrada y volumen del reproductor (O-75 fase 3). Antes, **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
-| Pruebas | **232** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **17.415 líneas** de TypeScript en **91 archivos** |
+| Último commit publicado | el de **r70** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r70** — la armadura en el pentagrama del editor (O-77). Antes, **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Pruebas | **235** · lint **0 errores, 60 avisos** · build **0** |
+| Tamaño | **17.491 líneas** de TypeScript en **91 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -6937,6 +6937,16 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (noche, 19:15 →) · 🚀 r70 O-77: la armadura en el pentagrama del editor
+
+Isaac: *«adelante»*, y luego *«subelo»* → **r70**. Al analizar, **su pregunta 1 ya se cumplía** (nota sin alteración = sin ♯
+dibujado, y suena con la armadura) y **la 2 no toca nada** (su `^F2` se deja). Solo faltaba el
+dibujo: `armaduraDibujada()` en `lib/melodia.ts` (3 pruebas) y `EditorMelodia` la pinta tras la clave,
+con el margen de las notas creciendo con ella. **Medido en navegador**: la armadura y el clic.
+⚠️ La herramienta bloqueó **dos veces** comandos de PowerShell con `//` dentro de un texto
+(«Remove-Item on system path '//'»): falso positivo. **Los cambios con comentarios se hacen con
+ediciones sueltas, no con un script de PowerShell.**
 
 ### 2026-09-10 (noche, 17:53 →) · 🚀 r69 La fase 3 del reproductor: cuenta de entrada y volumen
 

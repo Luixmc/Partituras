@@ -75,6 +75,20 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "La armadura en el pentagrama donde se escribe la melodía",
+        "resumen": "El pentagrama para escribir la melodía ya lleva los sostenidos o bemoles del tono.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "La armadura del tono, junto a la clave.",
+            "detalle": [
+              "El pentagrama donde se pincha para escribir la melodía <strong>ya lleva la armadura del tono</strong>: en una canción en Re salen el fa# y el do# junto a la clave, igual que en una partitura.",
+              "<strong>Una nota sin alteración suena según la armadura</strong>, como ya pasaba: en Re, un fa suena sostenido. Ahora además <strong>se ve por qué</strong>. Para un fa natural, el botón ♮."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "La cuenta antes de empezar, y el volumen",
         "resumen": "Un compás de golpes antes de que entre la melodía, y el volumen del sonido.",
         "cambios": [
