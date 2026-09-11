@@ -17,6 +17,8 @@
   dicen su nombre completo.
 - Los demás botones del editor de melodía también son más grandes, y más fáciles de pulsar con el
   dedo en la tablet.
+- **La barra ocupa menos alto**: el resto de los botones va en dos filas al lado del cuadro de
+  duraciones, así queda más sitio para el pentagrama. En el teléfono se ponen uno debajo de otro.
 
 ### 🎼 La armadura en el pentagrama donde se escribe la melodía
 

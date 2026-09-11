@@ -262,7 +262,13 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
   return (
     <div>
       {/* ── La barra de herramientas ── */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+      {/* O-79 · Isaac, 2026-09-10: «se podría aprovechar más los espacios para
+          que sean más a lo ancho que a lo largo». Con los grupos sueltos en una
+          sola fila, «Corregir» caía a una fila propia y la barra medía ~290 px
+          de alto con un tercio del ancho vacío. Ahora: el cuadro de duraciones
+          a la izquierda y los otros cuatro grupos en DOS filas a su lado, así
+          la barra mide lo que el cuadro. En el teléfono se apilan igual. */}
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
         {/* ── LAS 15 DURACIONES, en un cuadro de 5 × 3 (O-78) ──
             Isaac, 2026-09-10: «le faltan las otras duraciones… que los botones
             sean más grandes porque casi que no se ven, sobre todo las
@@ -290,6 +296,9 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
           </div>
         </div>
 
+        {/* Los otros cuatro grupos, en dos filas: Sonido + Alteración, y
+            Poner + Corregir. En pantallas estrechas, uno detrás de otro. */}
+        <div className="flex flex-wrap gap-x-6 gap-y-3 sm:grid sm:grid-cols-[auto_auto] sm:content-start">
         {/* El instrumento lo elige cada músico y se recuerda en su navegador.
             «Sin sonido» está a propósito: en un ensayo tiene que poder callarse. */}
         <Grupo titulo="Sonido">
@@ -319,6 +328,7 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
             Deshacer
           </Boton>
         </Grupo>
+        </div>
       </div>
 
       {/* ── El pentagrama para pinchar ──

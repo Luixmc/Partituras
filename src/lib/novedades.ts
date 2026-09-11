@@ -84,7 +84,8 @@ export const TANDAS: Tanda[] = [
             "detalle": [
               "<strong>Las 15 duraciones</strong>: cada figura —semicorchea, corchea, negra, blanca y redonda— <strong>sin puntillo, con puntillo y con doble puntillo</strong>. Antes faltaban siete, entre ellas la negra con doble puntillo.",
               "<strong>Botones más grandes</strong>, con la figura dibujada como la que se ve encima de los acordes, y ordenados en un cuadro: <strong>una columna por figura y una fila por puntillos</strong>. Al pasar el ratón dicen su nombre completo.",
-              "Los demás botones del editor de melodía también son más grandes, y más fáciles de pulsar con el dedo en la tablet."
+              "Los demás botones del editor de melodía también son más grandes, y más fáciles de pulsar con el dedo en la tablet.",
+              "<strong>La barra ocupa menos alto</strong>: el resto de los botones va en dos filas al lado del cuadro de duraciones, así queda más sitio para el pentagrama. En el teléfono se ponen uno debajo de otro."
             ]
           }
         ]

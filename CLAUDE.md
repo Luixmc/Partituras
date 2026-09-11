@@ -80,6 +80,13 @@ cada push a `main`.
    del repositorio, del hosting y de la base sigue siendo el primo → **Nunca `push --force`,
    nunca reescribir historial, nunca borrar ramas. Nunca `commit` ni `push` sin pedírselo a
    Isaac** (ver §11). Que Isaac sea el mantenedor **no** convierte el permiso en permanente.
+   🟢 **UNA EXCEPCIÓN, DADA POR ÉL (2026-09-10, noche): LO DE LA MELODÍA se sube sin pedir permiso.**
+   *«sube, no me pidas permiso para esto de la melodia»*. Vale para los cambios de la **sección de
+   melodía** —el editor (`EditorMelodia`, `MelodiaPanel`), el pentagrama, el reproductor, el sonido,
+   `lib/melodia.ts`, `lib/reproduccion.ts`, `lib/reproductor.ts`, `lib/sonido.ts`— y su
+   comunicado/documentación. **NO** vale para nada más: ni migraciones ni base de datos, ni otras
+   pantallas, ni borrar o reescribir historial. Se sube **después** de las comprobaciones de siempre
+   (pruebas, lint, build, navegador) y se le **dice** qué se subió.
 2. **Cada push a `main` PUBLICA en producción en menos de un minuto**, sin que nadie apriete
    nada, y sin que Isaac pueda ver los logs (§6). Un push a `main` es un despliegue.
 3. **La base de datos de producción tiene datos reales en uso** (85 canciones, 3 cultos — contados el 2026-09-10).
@@ -90,7 +97,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **237 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.563 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.574 líneas** de TypeScript
    en **91 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -206,6 +213,15 @@ así se cazó O-66:
 - `next start` sirve `public/` **desde el build**: un archivo nuevo ahí **no se sirve hasta
   recompilar**. Da 404 y parece un problema de ruta.
 - Fuera de `/s/`, `/novedades`, `/login` y `/salir`, el middleware **redirige a `/login`** (307).
+
+📌 **Desde el 2026-09-10 hay otra forma, sin página desechable:** manejar Brave sin ventana por su
+**protocolo de depuración** (`--remote-debugging-port=9333`) desde un script de Node en el
+`scratchpad`, con la cookie de la cuenta de prueba: pulsa botones, hace clics de ratón reales
+(`Input.dispatchMouseEvent`), apunta qué cambia en pantalla con su hora y qué pide a la red, y saca
+capturas. Así se midió todo el reproductor (O-75) y O-77/O-78/O-79. Dos cosas que saber:
+**`Runtime.evaluate` no devuelve elementos** (se pregunta `!!document.querySelector(…)`), y **el ancho
+de teléfono sí se puede**: `Emulation.setDeviceMetricsOverride({ width: 400 })` — con
+`--window-size` no baja de ~500 px.
 
 🔴 **Y la página se BORRA al terminar.** Han existido seis desechables y **ninguna ha llegado a
 producción**; esta vivió en `public/s/medir-o66.html` y se borró en el mismo cambio.
@@ -805,6 +821,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 | # | Qué | Por qué ahí |
 |---|---|---|
 | ✅ | **O-75 y O-77 CERRADAS por Isaac** (2026-09-10, noche) | *«los sonidos están bien, el volumen tambien, en el telefono se ve bien, al igual que lo la pentagrama»* → el reproductor entero (fases 1, 2 y 3, r65–r69) y la armadura del editor (r70) **dados por buenos**, también en el teléfono |
+| **0-quater** | 🟢 **O-79 · La barra del editor de melodía, más a lo ANCHO que a lo largo** (Isaac, 2026-09-10, noche, con captura de r71 en modo oscuro: *«está bien pero se podria aprovechar mas los espacios para que sean mas a lo ancho que a lo largo»*) | **Medido en su captura:** el cuadro de duraciones a la izquierda, Sonido · Alteración · Poner en fila a su lado, y **Corregir cae a una fila propia debajo** — sobra más de un tercio del ancho a la derecha y la barra mide ~290 px de alto. **Arreglo:** los cuatro grupos de la derecha en **dos filas junto al cuadro** (Sonido + Alteración · Poner + Corregir), así la barra mide lo que el cuadro (~170 px); en el teléfono se siguen apilando. Ajuste de O-78 (plan aprobado). ✅ **HECHO, MEDIDO y PUBLICADO en r72** (Isaac: *«sube, no me pidas permiso para esto de la melodia»* — ver §1, la excepción) — falta que él lo vea: a **1512 px** la barra mide **185 px** de alto (en su captura, ~290); a **400 px** (teléfono emulado con `Emulation.setDeviceMetricsOverride`, que sí baja de 500 px) los grupos se apilan y cabe (usa 314 de 327 px). ⚠️ **Visto al medir, sin pedir y sin tocar:** en el teléfono aparece una barra de desplazamiento horizontal **de una caja interior** —la página mide 400 de 400—, probablemente la fila de pestañas de la canción («Pantalla completa» sale cortada). **Ya estaba en producción antes** (medido igual en r71). Se le comenta a Isaac |
 | **0-ter** | ✅ **HECHA, MEDIDA y PUBLICADA en r71** (Isaac: *«subes enseguida, no esperes mi aprovación»* — **solo para este cambio**) — **falta que él la vea**. **Medido en navegador** (`probar-o78.mjs`, solo mira): **15 botones** de duración de **44 px**; la **negra con doble puntillo** puesta con un clic real sale en el editor con **2 puntos**, en el texto como **`G7/2`**, en la vista previa con dos puntos, y **dura 1.315 ms** al sonar (tocan 1.312 a ♩=80); claro y oscuro, en captura. **2 pruebas nuevas** (237). — Isaac eligió el **cuadro 5 × 3** (*«Cuadro 5 × 3 (Recomendado)»*): **OK del plan** · **O-78 · El editor de MELODÍA: faltan duraciones y los botones casi no se ven** (Isaac, 2026-09-10, noche, con captura en modo oscuro) | *«si yo quiero colocar una negra con doble puntillo no veo el boton para ello, osea que le faltan la otras duraciones, y seria bueno que los botones sean mas grandes porque casi que no se ven sobretodo las duraciones y si son corcheas con puntillos o no»*. **PLAN APROBADO (cuadro 5 × 3).** Hoy la barra «Dura» tiene **8** (semicorchea, corchea, corchea·, negra, negra·, blanca, blanca·, redonda), pintadas con caracteres Unicode diminutos (`𝅘𝅥𝅮.`). **Lo medido:** el editor de ACORDES ya tiene las **15** (5 figuras × sin, 1 y 2 puntillos, O-49), y `NoteFigure` (`MusicFigures.tsx`) + `figuraDe()` (`lib/figuras.ts`, con pruebas) ya dibujan y reconocen las 15 — **se reutilizan**. 🔴 **Trampa encontrada:** `duracionAbc()` (`lib/melodia.ts`) solo sabe escribir **medios**: la corchea con doble puntillo (1,75) se guardaría como `4/2` = **negra**, callado. **Plan:** (1) `DURACIONES` a las 15 y `duracionAbc` con cuartos y octavos (`3/4`, `7/8`, `7/4`, `7/2`), con prueba de **ida y vuelta de las 15**; (2) el dibujo de cada nota en el editor sale de `figuraDe` (corchetes y **dos** puntillos bien); (3) la barra «Dura» como **cuadro de 5 × 3** —una columna por figura, una fila por puntillos— con la figura dibujada en grande (`NoteFigure`) y botones de ~44 px, **todos** los de la barra más grandes, y el nombre completo al pasar el ratón; (4) comprobar en navegador —claro y oscuro— que la negra con doble puntillo se pone, se guarda como `7/2`, se dibuja con dos puntos y dura lo que debe |
 | **1** | ⬜ **O-74 · SOLO D, las NOTAS PRIVADAS** — después de O-78 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
 
@@ -842,7 +859,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r71**
+#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r72**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -850,10 +867,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r71** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r71** — las 15 duraciones y los botones grandes en el editor de melodía (O-78). Antes, **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Último commit publicado | el de **r72** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r72** — la barra del editor de melodía, más ancha que alta (O-79). Antes, **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
 | Pruebas | **237** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **17.563 líneas** de TypeScript en **91 archivos** |
+| Tamaño | **17.574 líneas** de TypeScript en **91 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -6937,6 +6954,14 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (noche) · 🚀 r72 O-79: la barra del editor de melodía, más ancha · permiso fijo para la melodía
+
+Isaac, con captura: *«se podria aprovechar mas los espacios para que sean mas a lo ancho que a lo
+largo»* → la barra pasa de ~290 a **185 px** de alto a 1512 px (medido). Y: *«sube, no me pidas
+permiso para esto de la melodia»* → **excepción escrita en §1**, solo para la sección de melodía.
+Nuevo en el método de medir (§2.3-bis): el ancho de teléfono se emula con
+`Emulation.setDeviceMetricsOverride`.
 
 ### 2026-09-10 (noche) · 🚀 r71 O-78: las 15 duraciones y botones grandes · O-75 y O-77 cerradas
 
