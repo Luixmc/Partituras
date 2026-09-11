@@ -88,7 +88,6 @@ if (!SERVICE && !TOKEN) {
 }
 const CLAVE = SERVICE || ANON;
 const AUTORIZACION = SERVICE || TOKEN || ANON;
-const COMPLETO = Boolean(SERVICE || TOKEN);
 
 // `profiles` se deja fuera a propósito: son datos personales de los usuarios y
 // no forman parte del trabajo que hay que proteger.
@@ -147,7 +146,30 @@ if (existsSync(carpeta)) {
 }
 mkdirSync(carpeta, { recursive: true });
 
-const COMO = SERVICE ? "TODO (clave maestra)" : "TODO (sesion de administrador)";
+// 🔴 SE PREGUNTA A LA BASE QUÉ ROL TIENE LA SESIÓN, en vez de darlo por hecho.
+// El 2026-09-10 Isaac pasó la cuenta de prueba a MÚSICO para probar las notas,
+// y la copia salió con 76 canciones en vez de 85 —sin los borradores— **diciendo
+// «TODO (sesión de administrador)»**. Una copia que se cree completa y no lo es
+// es peor que un error: se descubre el día que hace falta.
+let rol = "admin";
+if (!SERVICE) {
+  try {
+    const r = await fetch(`${URL_BASE}/rest/v1/rpc/get_my_role`, {
+      method: "POST",
+      headers: { apikey: ANON, Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    rol = r.ok ? JSON.parse(await r.text()) ?? "desconocido" : "desconocido";
+  } catch {
+    rol = "desconocido";
+  }
+}
+const COMPLETA = SERVICE || rol === "admin";
+const COMO = SERVICE
+  ? "TODO (clave maestra)"
+  : COMPLETA
+    ? "TODO (sesion de administrador)"
+    : `SOLO LO PUBLICADO: la cuenta es «${rol}», no administradora`;
 console.log("");
 console.log("Exportando " + COMO);
 console.log("");
@@ -168,7 +190,7 @@ for (const tabla of TABLAS) {
 writeFileSync(
   join(carpeta, `TODO-${fecha}.json`),
   JSON.stringify(
-    { exportado: new Date().toISOString(), proyecto: URL_BASE, completo: COMPLETO, datos },
+    { exportado: new Date().toISOString(), proyecto: URL_BASE, completo: Boolean(COMPLETA), rol, datos },
     null,
     2
   ),
@@ -176,3 +198,10 @@ writeFileSync(
 );
 
 console.log("\nGuardado en:", carpeta);
+if (!COMPLETA) {
+  console.log(
+    `\n⚠️  COPIA INCOMPLETA: la cuenta de PRUEBA_EMAIL es «${rol}», no administradora,\n` +
+      "    así que FALTAN las canciones y los cultos en borrador. Para una copia completa,\n" +
+      "    usa una cuenta de administrador."
+  );
+}

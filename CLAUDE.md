@@ -182,6 +182,13 @@ ninguna pantalla protegida. Ahora se regenera en un segundo.
 → ⚠️ **La contraseña NO se escribe en este archivo ni en ningún otro del repositorio**, que es
 público. Y con esa cuenta **solo se mira** (D-14).
 
+👥 **Desde el 2026-09-10 hay DOS cuentas de prueba** (Isaac: *«para que tengas dos una admin, y otra
+musico»*): `pruebaclaude@gmail.com` —**administradora**: con ella entran `npm run export` y
+`pruebas/pantallas.mjs`— y `pruebaclaude2@gmail.com` —**músico**: para probar lo que ve y hace un
+músico—. Las dos en `.env.local` (`PRUEBA_*` y `PRUEBA_MUSICO_*`). ⚠️ **Si la de administrador deja
+de serlo, la copia sale sin los borradores** —el exportador ahora lo dice en grande— y el recorrido
+no puede abrir las pantallas de administrador.
+
 Por dentro, el script hace esto (por si algún día hay que repetirlo a mano):
 
 1. `POST /auth/v1/token?grant_type=password` contra Supabase con el correo y la contraseña →
@@ -827,7 +834,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| 🟢 | **La cuenta de prueba pasa a MÚSICO para probar las notas** (Isaac, 2026-09-10, noche: *«sube la nota y mira tu cuenta, lo puse en musico para que lo pruebes»*) | 🔴 **Consecuencias, a vigilar:** la copia (`npm run export`) y el recorrido de pantallas entraban con esta cuenta **como administradora**. Como músico, la copia **deja fuera las canciones sin publicar** y el recorrido no puede abrir las pantallas de administrador. Se le dice |
+| 🟢 | **La cuenta de prueba pasa a MÚSICO para probar las notas** (Isaac, 2026-09-10, noche: *«sube la nota y mira tu cuenta, lo puse en musico para que lo pruebes»*) | 🔴 **Consecuencias, a vigilar:** la copia (`npm run export`) y el recorrido de pantallas entraban con esta cuenta **como administradora**. Como músico, la copia **deja fuera las canciones sin publicar** y el recorrido no puede abrir las pantallas de administrador. Se le dice. ✅ **PROBADO COMO MÚSICO, en producción** (`probar-musico.mjs`, `musico-api.mjs`): ve **Vista, Pantalla completa y «Mis notas»**; **no ve** Edición, Letra ni Melodía; la nota se guardó, salió a pantalla completa y se **borró** (base: **0**); `/admin` y `/sheets/new` lo devuelven a `/catalog`; por la API **lee 76 canciones y 1 culto** (solo lo publicado) y **no puede modificar** canciones ni cultos (0 filas: bloqueado, sin escribir nada). 🔴 **MEDIDO:** la copia salió con **76 y 1** en vez de 85 y 3 **diciendo «TODO (sesión de administrador)»** → **arreglado el exportador**: pregunta el rol a la base y avisa «COPIA INCOMPLETA». El recorrido da **23 de 26** (las 3 de administrador echan al músico, como deben). ✅ **ISAAC DECIDIÓ (mismo día):** *«ya te creé otra cuenta de musico, para que tengas dos una admin, y otra musico»* → **segunda cuenta de prueba, `pruebaclaude2@gmail.com`, rol músico**; su contraseña está **SOLO en `.env.local`** (`PRUEBA_MUSICO_EMAIL`/`PRUEBA_MUSICO_PASSWORD`; ignorado por git, comprobado) — **pasó por el chat**, como la llave. Las dos entran (probado). ~~⚠️ PERO `pruebaclaude` SIGUE EN MÚSICO: falta que Isaac la vuelva a administradora.~~ ✅ **Hecho por Isaac** (*«ya tienes una en admin y otra en musico ahora si, sube todo»*): leído en la base, **`pruebaclaude` = admin, `pruebaclaude2` = musician**; la copia vuelve a **85 y 3** («TODO (sesión de administrador)») y el recorrido a **26 de 26**. ✅ **Y con las dos cuentas se midió lo que faltaba de O-74, LA PRIVACIDAD** (`privacidad-notas.mjs`): la 2 escribe una nota; la 1 **no la lee (0 filas), no la cambia (0), no la borra (0)** y **no puede escribir a nombre de la 2 (403 · 42501)**; la 2 la ve intacta y la borra; base en **0** |
 | ✅ | **P-02 CERRADO y PUBLICADO (r75 + r76)**: sin cuenta no se lee ninguna tabla; el enlace del culto sigue por `culto_por_enlace`; 26 de 26; copia completa. Detalle en P-02 (§9.3) · ~~P-02 EN MARCHA — cerrar la lectura sin cuenta~~ (Isaac, 2026-09-10, noche: *«están bien todo, haz lo que está pendiente»*) | Tras preguntarle qué faltaba. **Lo que da por bueno:** O-74 (notas), O-78 (duraciones), O-79 (barra), O-80 (pestañas), O-81 (tempo). **Lo que es suyo y no se hace sin él:** poner el rol de músico, y abrir letras y melodías a todos (`ROLES_LETRAS`/`ROLES_MELODIA`). **Lo mío:** P-02, con su OK a la migración — pero **con el orden de T-07**: primero lo que no rompe nada, después el código, y el cierre al final; copia antes y vuelta atrás preparada. Plan detallado en P-02 (§9.3) |
 | ✅ | **O-75 y O-77 CERRADAS por Isaac** (2026-09-10, noche) | *«los sonidos están bien, el volumen tambien, en el telefono se ve bien, al igual que lo la pentagrama»* → el reproductor entero (fases 1, 2 y 3, r65–r69) y la armadura del editor (r70) **dados por buenos**, también en el teléfono |
 | **0-quater** | 🟢 **O-79 · La barra del editor de melodía, más a lo ANCHO que a lo largo** (Isaac, 2026-09-10, noche, con captura de r71 en modo oscuro: *«está bien pero se podria aprovechar mas los espacios para que sean mas a lo ancho que a lo largo»*) | **Medido en su captura:** el cuadro de duraciones a la izquierda, Sonido · Alteración · Poner en fila a su lado, y **Corregir cae a una fila propia debajo** — sobra más de un tercio del ancho a la derecha y la barra mide ~290 px de alto. **Arreglo:** los cuatro grupos de la derecha en **dos filas junto al cuadro** (Sonido + Alteración · Poner + Corregir), así la barra mide lo que el cuadro (~170 px); en el teléfono se siguen apilando. Ajuste de O-78 (plan aprobado). ✅ **HECHO, MEDIDO y PUBLICADO en r72** (Isaac: *«sube, no me pidas permiso para esto de la melodia»* — ver §1, la excepción) — falta que él lo vea: a **1512 px** la barra mide **185 px** de alto (en su captura, ~290); a **400 px** (teléfono emulado con `Emulation.setDeviceMetricsOverride`, que sí baja de 500 px) los grupos se apilan y cabe (usa 314 de 327 px). ⚠️ **Visto al medir, sin pedir y sin tocar:** en el teléfono aparece una barra de desplazamiento horizontal **de una caja interior** —la página mide 400 de 400—, probablemente la fila de pestañas de la canción («Pantalla completa» sale cortada). **Ya estaba en producción antes** (medido igual en r71). Se le comenta a Isaac |
@@ -878,7 +885,7 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r76** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Último commit publicado | el que sigue a **r76**: el exportador que avisa si la copia sale incompleta, y la documentación de las dos cuentas de prueba (sin cambios en la página). `git log -1` da el hash. **Árbol limpio** |
 | Última versión | **r76** — sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024). Antes, **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
 | Pruebas | **240** · lint **0 errores, 60 avisos** · build **0** |
 | Tamaño | **18.022 líneas** de TypeScript en **94 archivos** |
@@ -7018,6 +7025,13 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (noche) · Dos cuentas de prueba (admin y músico), y el músico probado de verdad
+
+Isaac pasó la cuenta de prueba a músico para probar; se probó en producción lo que ve y no ve un
+músico y las notas. La copia salió sin borradores **diciendo «TODO»** → el exportador ahora pregunta el
+rol y avisa (L-255). Isaac creó una segunda cuenta de músico y devolvió la primera a administradora;
+con las dos se midió **la privacidad de las notas** (0 filas / 403). Copia 85 y 26 de 26 otra vez.
 
 ### 2026-09-10 (noche) · 🚀 r75–r76 P-02: las canciones, solo con cuenta
 
