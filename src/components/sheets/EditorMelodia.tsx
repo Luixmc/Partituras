@@ -29,7 +29,7 @@ import {
 } from "@/lib/melodia";
 import { RestFigure } from "@/components/sheets/MusicFigures";
 import { cn } from "@/lib/utils";
-import { INSTRUMENTOS, guardarInstrumento, tocarNota, useInstrumento } from "@/lib/sonido";
+import { INSTRUMENTOS, guardarInstrumento, tocarNota, useInstrumento, useVolumen } from "@/lib/sonido";
 
 type Props = {
   elementos: Elemento[];
@@ -219,6 +219,8 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
   // 📌 Si solo cambia la DURACIÓN no vuelve a sonar: la altura es la misma, y
   // repetir el sonido en cada clic cansaría en vez de ayudar.
   const instrumento = useInstrumento();
+  // El volumen del reproductor vale también aquí (O-75, fase 3).
+  const volumen = useVolumen();
   const midiSel = sel == null ? null : alturaMidi(elementos, sel, tono);
   const ultimoSonido = useRef<string | null>(null);
   useEffect(() => {
@@ -229,8 +231,8 @@ export default function EditorMelodia({ elementos, onChange, alto = 260, tono }:
     const clave = `${sel}:${midiSel}`;
     if (clave === ultimoSonido.current) return;
     ultimoSonido.current = clave;
-    void tocarNota(midiSel, instrumento);
-  }, [sel, midiSel, instrumento]);
+    void tocarNota(midiSel, instrumento, volumen);
+  }, [sel, midiSel, instrumento, volumen]);
 
   const columnas = Math.max(elementos.length + 2, 14);
   const ancho = IZQ + columnas * COL;

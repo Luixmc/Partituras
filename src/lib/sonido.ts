@@ -23,6 +23,8 @@
 
 import { useSyncExternalStore } from "react";
 
+import { VOLUMEN_POR_DEFECTO, volumenValido } from "@/lib/reproduccion";
+
 export type Instrumento = "trompeta" | "piano" | "silencio";
 
 /**
@@ -100,6 +102,51 @@ export function useInstrumento(): Instrumento {
   return useSyncExternalStore(suscribir, leer, () => INSTRUMENTO_POR_DEFECTO);
 }
 
+// ── El VOLUMEN y la CUENTA DE ENTRADA (O-75, fase 3) ──
+//
+// Se recuerdan igual que el instrumento: en el navegador de cada músico, y con
+// el mismo aviso para que todo lo abierto en la pestaña se entere.
+const CLAVE_VOLUMEN = "melodia-volumen";
+const CLAVE_ENTRADA = "melodia-cuenta";
+
+function leerTexto(clave: string): string | null {
+  try {
+    return window.localStorage.getItem(clave);
+  } catch {
+    return null;
+  }
+}
+
+function guardarTexto(clave: string, valor: string) {
+  try {
+    window.localStorage.setItem(clave, valor);
+  } catch {
+    /* almacenamiento lleno o bloqueado: se sigue sin guardar */
+  }
+  window.dispatchEvent(new Event(AVISO));
+}
+
+const leerVolumen = () => {
+  const v = leerTexto(CLAVE_VOLUMEN);
+  return v == null ? VOLUMEN_POR_DEFECTO : volumenValido(Number(v));
+};
+
+export function useVolumen(): number {
+  return useSyncExternalStore(suscribir, leerVolumen, () => VOLUMEN_POR_DEFECTO);
+}
+
+export function guardarVolumen(v: number) {
+  guardarTexto(CLAVE_VOLUMEN, String(volumenValido(v)));
+}
+
+export function useEntrada(): boolean {
+  return useSyncExternalStore(suscribir, () => leerTexto(CLAVE_ENTRADA) === "si", () => false);
+}
+
+export function guardarEntrada(si: boolean) {
+  guardarTexto(CLAVE_ENTRADA, si ? "si" : "no");
+}
+
 /**
  * Toca UNA nota, corta, con el instrumento elegido.
  *
@@ -109,8 +156,13 @@ export function useInstrumento(): Instrumento {
  *
  * @param midi         La altura, en números MIDI (60 = do central)
  * @param instrumento  El elegido; con «silencio» no hace nada
+ * @param volumen      De 10 a 100 %, el mismo del reproductor (fase 3)
  */
-export async function tocarNota(midi: number, instrumento: Instrumento): Promise<void> {
+export async function tocarNota(
+  midi: number,
+  instrumento: Instrumento,
+  volumen: number = VOLUMEN_POR_DEFECTO
+): Promise<void> {
   const inst = INSTRUMENTOS.find((i) => i.id === instrumento);
   if (!inst || inst.programa == null) return;
   try {
@@ -119,7 +171,8 @@ export async function tocarNota(midi: number, instrumento: Instrumento): Promise
     // Media redonda en un compás de 1,2 s = 0,6 s: lo justo para reconocer la
     // nota sin que se monte con la siguiente si se colocan deprisa.
     await abcjs.synth.playEvent(
-      [{ pitch: midi, instrument: inst.programa, duration: 0.5, volume: 80, start: 0, gap: 0 }],
+      // 80 es la fuerza que tenía desde la fase 1: el 100 % suena igual que antes.
+      [{ pitch: midi, instrument: inst.programa, duration: 0.5, volume: Math.round((80 * volumenValido(volumen)) / 100), start: 0, gap: 0 }],
       undefined,
       1200,
       SONIDOS

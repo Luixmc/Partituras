@@ -21,6 +21,10 @@ const {
   vozMetronomo,
   abcParaSonar,
   semitonosQueSuenan,
+  corcheasPorCompas,
+  corcheasDeEntrada,
+  volumenValido,
+  multiplicadorVolumen,
   TEMPO_POR_DEFECTO,
 } = await cargar("reproduccion");
 const { parsearMelodia } = await cargar("melodia");
@@ -159,4 +163,46 @@ test("lo que SUENA en la presentación: el tono del culto y los ± del músico, 
   assert.equal(semitonosQueSuenan(0, -1), -1);
   assert.equal(semitonosQueSuenan(7, 0), -5);
   assert.equal(semitonosQueSuenan(6, 0), 6);
+});
+
+// ── FASE 3 · la cuenta de entrada y el volumen ──
+
+test("un compás dura 8 corcheas en 4/4 y 2/2, 6 en 3/4 y 6/8, 3 en 3/8", () => {
+  assert.equal(corcheasPorCompas("4/4"), 8);
+  assert.equal(corcheasPorCompas("2/2"), 8);
+  assert.equal(corcheasPorCompas("3/4"), 6);
+  assert.equal(corcheasPorCompas("6/8"), 6);
+  assert.equal(corcheasPorCompas("3/8"), 3);
+  assert.equal(corcheasDeEntrada("4/4", true), 8);
+  assert.equal(corcheasDeEntrada("4/4", false), 0, "sin cuenta, la melodía empieza en cero");
+});
+
+test("la CUENTA: un compás de golpes antes, y la melodía calla ese compás", () => {
+  const abc = abcParaSonar({ tramos: [parsearMelodia("^F2 G2 A2 B2 A2")], tono: "D", entrada: true });
+  const lineas = abc.split("\n");
+  // La melodía: un compás de silencio y su barra, y después lo escrito.
+  assert.equal(lineas[lineas.indexOf("V:1") + 1], "z8 | ^F2 G2 A2 B2 A2");
+  // 🔴 Con el metrónomo APAGADO, la cuenta suena igual, y después se calla.
+  assert.equal(lineas[lineas.length - 1], "!mp! =e2 =f2 =f2 =f2 |");
+});
+
+test("la cuenta con el metrónomo encendido: los golpes siguen sin cortarse", () => {
+  const abc = abcParaSonar({ tramos: [parsearMelodia("C2 D2")], entrada: true, metronomo: true });
+  assert.equal(abc.split("\n").pop(), "!mp! =e2 =f2 =f2 =f2 | =e2 =f2");
+});
+
+test("la cuenta en 6/8 se cuenta en dos, como el metrónomo", () => {
+  const abc = abcParaSonar({ tramos: [parsearMelodia("C3 D3")], compas: "6/8", entrada: true });
+  const lineas = abc.split("\n");
+  assert.equal(lineas[lineas.indexOf("V:1") + 1], "z6 | C3 D3");
+  assert.equal(lineas[lineas.length - 1], "!mp! =e3 =f3 |");
+});
+
+test("el volumen: 100 % es como sonaba antes, y no se pasa de ahí ni baja de 10", () => {
+  assert.equal(multiplicadorVolumen(100), 3, "el 3,0 que abcjs usa con FluidR3_GM");
+  assert.equal(multiplicadorVolumen(50), 1.5);
+  assert.equal(volumenValido(null), 100);
+  assert.equal(volumenValido(0), 10);
+  assert.equal(volumenValido(150), 100, "más arriba satura");
+  assert.equal(volumenValido(74), 70, "de 10 en 10");
 });

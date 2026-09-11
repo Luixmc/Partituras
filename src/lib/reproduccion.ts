@@ -121,6 +121,45 @@ export function pulsoDe(compas: string | null | undefined): { golpes: number; co
   return { golpes: num, corcheas: 8 / den };
 }
 
+/** Cuánto dura un compás, en corcheas: 8 en 4/4 y 2/2, 6 en 3/4 y 6/8. */
+export function corcheasPorCompas(compas: string | null | undefined): number {
+  const { golpes, corcheas } = pulsoDe(compas);
+  return golpes * corcheas;
+}
+
+/**
+ * Lo que dura la CUENTA DE ENTRADA, en corcheas (O-75, fase 3): un compás, o
+ * nada si está apagada.
+ *
+ * 📌 Un compás, como flat.io: es lo que cuenta un director —«un, dos, tres,
+ * cuatro»— antes de que entre el grupo. Es un valor de arranque, no una regla.
+ */
+export function corcheasDeEntrada(compas: string | null | undefined, entrada: boolean): number {
+  return entrada ? corcheasPorCompas(compas) : 0;
+}
+
+/**
+ * El VOLUMEN, en tanto por ciento (O-75, fase 3).
+ *
+ * 📌 **100 % es como sonaba antes de que existiera el botón**: con la colección
+ * `FluidR3_GM/`, `abcjs` multiplica por **3,0** (`create-synth.js:52-53`).
+ * Por encima satura, así que el tope es 100.
+ */
+export const VOLUMEN_POR_DEFECTO = 100;
+export const VOLUMEN_MINIMO = 10;
+export const VOLUMEN_MAXIMO = 100;
+const MULTIPLICADOR_DE_ABCJS = 3;
+
+export function volumenValido(v: number | null | undefined): number {
+  if (v == null || !Number.isFinite(v)) return VOLUMEN_POR_DEFECTO;
+  return Math.min(VOLUMEN_MAXIMO, Math.max(VOLUMEN_MINIMO, Math.round(v / 10) * 10));
+}
+
+/** El número que entiende `abcjs` (`soundFontVolumeMultiplier`). */
+export function multiplicadorVolumen(v: number): number {
+  return (MULTIPLICADOR_DE_ABCJS * volumenValido(v)) / 100;
+}
+
 /**
  * El METRÓNOMO, escrito como una segunda voz de percusión: un golpe por pulso,
  * el primero de cada compás en el bloque de madera agudo (`e` = 76) y los
@@ -139,12 +178,21 @@ export function pulsoDe(compas: string | null | undefined): { golpes: number; co
  * cuica). Por eso los golpes van con **becuadro** (`=e`, `=f`): así dan 76 y 77
  * en cualquier tono.
  *
+ * 📌 **La cuenta de entrada (fase 3) es el mismo metrónomo, un compás antes**:
+ * suena aunque el metrónomo esté apagado, y entonces se calla al entrar la
+ * melodía.
+ *
  * @param total  Lo que dura la melodía, en corcheas: se cubre entera.
  */
-export function vozMetronomo(compas: string | null | undefined, total: number): string {
+export function vozMetronomo(
+  compas: string | null | undefined,
+  total: number,
+  opciones: { entrada?: boolean; metronomo?: boolean } = {}
+): string {
+  const { entrada = false, metronomo = true } = opciones;
   const { golpes, corcheas } = pulsoDe(compas);
   const dur = corcheas === 1 ? "" : String(corcheas);
-  const cuantos = Math.max(1, Math.ceil(total / corcheas));
+  const cuantos = (entrada ? golpes : 0) + (metronomo ? Math.max(1, Math.ceil(total / corcheas)) : 0);
   const partes: string[] = [];
   for (let i = 0; i < cuantos; i++) {
     partes.push((i % golpes === 0 ? "=e" : "=f") + dur);
@@ -171,6 +219,8 @@ export function abcParaSonar(opciones: {
   tempo?: number | null;
   /** Añadir el metrónomo como segunda voz (ver `vozMetronomo`). */
   metronomo?: boolean;
+  /** Un compás de cuenta antes de la melodía (fase 3). */
+  entrada?: boolean;
 }): string {
   const cuerpo: string[] = [];
   for (const elementos of opciones.tramos) {
@@ -181,7 +231,6 @@ export function abcParaSonar(opciones: {
     }
     cuerpo.push(melodiaAbc(elementos));
   }
-  const melodia = cuerpo.join(" ") || "z8";
   const cabecera = [
     "X:1",
     `M:${opciones.compas || "4/4"}`,
@@ -189,9 +238,15 @@ export function abcParaSonar(opciones: {
     `Q:1/4=${tempoValido(opciones.tempo)}`,
     `K:${opciones.tono || "C"}`,
   ];
-  if (!opciones.metronomo) return [...cabecera, melodia].join("\n");
+  // La cuenta: la melodía calla un compás entero, y la barra de después hace
+  // que ese silencio no se mezcle con el primer compás de verdad.
+  const entrada = Boolean(opciones.entrada);
+  const silencio = entrada ? `z${corcheasPorCompas(opciones.compas)} | ` : "";
+  const melodia = silencio + (cuerpo.join(" ") || "z8");
+  if (!opciones.metronomo && !entrada) return [...cabecera, melodia].join("\n");
   const total = duracionTotal(lineaDeTiempo(opciones.tramos));
-  return [...cabecera, "V:1", melodia, "V:2 clef=perc", vozMetronomo(opciones.compas, total)].join("\n");
+  const golpes = vozMetronomo(opciones.compas, total, { entrada, metronomo: Boolean(opciones.metronomo) });
+  return [...cabecera, "V:1", melodia, "V:2 clef=perc", golpes].join("\n");
 }
 
 /**

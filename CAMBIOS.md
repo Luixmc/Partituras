@@ -7,6 +7,15 @@
 
 ## 10 de septiembre de 2026
 
+### 🔔 La cuenta antes de empezar, y el volumen
+
+- 🆕 **Botón «Cuenta»** en el reproductor: antes de que entre la melodía suena **un compás de
+  golpes** —«1, 2, 3, 4»—, con el número en grande, para entrar a tiempo. Suena aunque el
+  metrónomo esté apagado. Al repetir o al seguir desde la pausa ya no vuelve a contar.
+- 🆕 **Volumen** con − y +, de 10 en 10. Vale para el reproductor y para la nota que suena al
+  escribir. El 100 % es como sonaba hasta ahora.
+- La cuenta y el volumen **se recuerdan** en tu aparato, como el instrumento.
+
 ### ▶️ La melodía ya se reproduce entera
 
 - 🆕 **Un reproductor encima de la melodía**, como el de flat.io: **reproducir, pausar y

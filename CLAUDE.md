@@ -89,8 +89,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **227 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.178 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **232 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **17.415 líneas** de TypeScript
    en **91 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -134,7 +134,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 227 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 232 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -287,7 +287,7 @@ repo/
   supabase/migrations/           22 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (las tres últimas, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       227 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       232 pruebas + el recorrido de las 26 pantallas
 ```
 
 ### El formato de acordes (la sintaxis REAL, no la del README)
@@ -804,7 +804,7 @@ tabla, no por lo último que se dijo en el chat anterior.
 
 | # | Qué | Por qué ahí |
 |---|---|---|
-| **0** | 🟡 **O-75 · FASE 2 PUBLICADA (r68) — espera que Isaac la OIGA** (él: *«si guarda la melodia, adelante con la fase 2»*; y *«sube todo»*, 2026-09-10 noche) | Fase 1 cerrada: *«ya probé la melodia y si suena»*. ✅ **Y el guardado, confirmado por él**: *«si guarda la melodia»*. **Fase 2: hecha, medida en navegador y publicada** (subfases y medidas en §9.2 → O-75 «FASE 2»). **AL RETOMAR, preguntarle:** ¿suena bien? ¿el metrónomo? ¿y en el teléfono la barra se ve bien? **Después, la FASE 3** (cuenta de entrada y volumen), ya aprobada — y antes o después de O-77, según él. **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
+| **0** | 🟡 **O-75 · FASE 3 PUBLICADA (r69) — espera que Isaac la OIGA** (él: *«continua con la fase 3»*, y *«sube»*, 2026-09-10) | ✅ **Fase 2 cerrada por él**: *«se oye bien»* (r68). **Fase 3: hecha, medida en navegador y publicada** (subfases y medidas en §9.2 → O-75 «FASE 3»). **AL RETOMAR, preguntarle:** ¿la cuenta y el volumen suenan bien? ¿cómo se ve la barra en el teléfono? Con eso, **O-75 entera queda cerrada**. Después: **O-77** (fila 0-bis) | **Fase 2, aprobada desde el principio:** reproductor en editor y presentación — reproducir · pausar · detener · tempo · metrónomo · repetir · nota que suena resaltada. Después la **3**: cuenta de entrada y volumen. Sonidos **de fuera**, instrumento **a elegir**. Va **antes** que las notas privadas (fila 1): se le recomendó así porque hoy **no hay ninguna cuenta de músico activa**, y no lo objetó |
 | **0-bis** | ⬜ **O-77 · La ARMADURA en el pentagrama del EDITOR** (Isaac, 2026-09-10, noche, antes de apagar: *«seria bueno que el pentagrama tenga las alteraciones que se coloque al momento de crear una cancion, por ejemplo agnus dei es en D, por lo tanto que el pentagrama tenga ya alterado tanto F como C en #»*) | **DICTADA, SIN ANALIZAR A FONDO NI PROGRAMAR** — al retomar: analizar → proponer plan → **esperar su OK**. Lo que ya se sabe: el pentagrama donde se pincha es **`EditorMelodia.tsx`, dibujado a mano** (`IZQ = 52`, sitio solo para la clave) y **no pinta armadura**; el de debajo (`abcjs`, la vista previa) **sí** la pinta. El **sonido ya la respeta** desde la fase 1 (`alturaMidi` + `armadura(tono)` en `lib/melodia.ts`, con pruebas) → es **solo el dibujo**. La armadura sale de `sheets.key_signature` (Agnus Dei = `D` → F# y C#). **Preguntas para el plan:** ¿al pinchar un fa en Re se dibuja sin ♯ (como en una partitura, porque ya lo dice la armadura)? ¿Y qué pasa con las notas que ya llevan `^F` escrito — el editor lo trata como alteración propia? Ojo con los tonos con bemoles (Bb, F, Eb) y los menores (Bm, Dm…) — `armadura()` ya los cubre |
 | **1** | ⬜ **O-74 · SOLO D, las NOTAS PRIVADAS** — después de la fase 2 de O-75 | La tabla `notas_musico` **ya existe** (migración aplicada); falta la pantalla. 🔴 **E · armar cultos: DESCARTADA por Isaac el 2026-09-10** — *«cambié de opinión, que solamente pueda hacer las notas privadas, lo de armar cultos ya no va»*. **Lo único que un músico tendrá de más que un lector son sus notas privadas.** Escribir cultos sigue siendo **solo del administrador**, como hoy |
 
@@ -842,7 +842,7 @@ pantallas: **el único que puede cerrarlas es él, con la mano.** Por eso llevab
 ⚠️ **Y «hasta ahora» es literal, dos veces.** Vale como visto bueno de quien lo ha usado unos días;
 no como garantía de que un culto entero de dos horas se lea bien. Si algo aparece tocando, vuelve.
 
-#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r68**
+#### Estado del árbol — **2026-09-10 (noche), todo PUBLICADO en r69**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -850,10 +850,10 @@ no como garantía de que un culto entero de dos horas se lea bien. Si algo apare
 
 | | |
 |---|---|
-| Último commit publicado | el de **r68** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r68** — el reproductor de la melodía (O-75 fase 2). Antes, **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
-| Pruebas | **227** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **17.178 líneas** de TypeScript en **91 archivos** |
+| Último commit publicado | el de **r69** (rama `isaac/arranque` → `main`); `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r69** — cuenta de entrada y volumen del reproductor (O-75 fase 3). Antes, **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76); **r66**: migraciones aplicadas, la melodía se guarda, exportador arreglado (T-18) |
+| Pruebas | **232** · lint **0 errores, 60 avisos** · build **0** |
+| Tamaño | **17.415 líneas** de TypeScript en **91 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **22**, **todas aplicadas** (las tres últimas, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -4428,6 +4428,57 @@ del instrumento es una): se excluye `SELECT` igual que `INPUT` y `TEXTAREA`.
 ⬜ **Lo que NO se pudo comprobar:** que **suene bien** (el navegador sin ventana no oye: se comprobó que
 pide los sonidos correctos y que el tiempo cuadra), y la barra **en un teléfono** (el navegador sin
 ventana no baja de ~500 px de ancho). Eso es de Isaac.
+✅ **Isaac, 2026-09-10, 17:53: *«se oye bien»*** → fase 2 cerrada.
+
+#### 🟢 FASE 3 — CUENTA DE ENTRADA Y VOLUMEN · en marcha desde el 2026-09-10, 17:53
+
+Isaac: *«continua con la fase 3»* (aprobada con las otras dos: *«sí, apruebo las tres fases»*).
+
+**Lo medido antes de diseñar:**
+
+| | |
+|---|---|
+| **El volumen, en `abcjs`** | Se fija **al preparar** el sonido (`soundFontVolumeMultiplier`, `create-synth.js:50-57`), no se puede mover mientras suena sin tocar sus tripas: cada nota se mezcla en un búfer y ese búfer va **directo a los altavoces** (`:558`). → Cambiar el volumen **rehace el sonido y sigue desde la misma nota** — lo mismo que ya hace el tempo en la fase 2 |
+| **Cuánto suena hoy** | Con `FluidR3_GM/` —la colección fijada— el multiplicador por defecto es **3,0**. → **100 % = como suena hoy**. Ir más arriba satura |
+| **La cuenta de entrada** | No hace falta nada de `abcjs`: la voz de percusión del metrónomo (fase 2) ya existe — la cuenta es **un compás de golpes antes**, con la melodía callada ese compás |
+
+**Decisiones de arranque, que se cambian con un botón** *(no son reglas; si Isaac quiere otra cosa, se cambia)*:
+**la cuenta dura UN compás** (lo que hace flat.io) y suena **aunque el metrónomo esté apagado** · al
+**repetir** o al **seguir desde la pausa**, **no** se vuelve a contar · **volumen de 10 % a 100 %**, de
+10 en 10, y **empieza en 100 %** · la cuenta y el volumen **se recuerdan en el aparato**, como el
+instrumento · el volumen vale **también para la nota suelta** del editor (fase 1).
+
+| | Qué | Estado |
+|---|---|---|
+| **3.1** | `lib/reproduccion.ts`, con pruebas: la **cuenta** (un compás de silencio en la melodía y de golpes en la percusión), cuánto dura un compás, y el volumen → multiplicador | ✅ **5 pruebas** |
+| **3.2** | El motor: el reloj **descuenta la cuenta** (la nota no se colorea mientras se cuenta, y dice por qué pulso va); repetir y seguir sin volver a contar; el volumen al preparar | ✅ |
+| **3.3** | La barra: botón **Cuenta**, el **número del pulso** grande (amarillo) mientras cuenta, y **volumen − % +**; recordados con el mismo mecanismo que el instrumento (`lib/sonido.ts`) | ✅ |
+| **3.4** | La nota suelta del editor, con el mismo volumen | ✅ |
+| **3.5** | Comprobar en el navegador de verdad · pruebas, lint, build · README, `CAMBIOS.md`, `/novedades` | ✅ — **publicada en r69**; falta que **Isaac lo oiga** |
+
+#### ✅ FASE 3 HECHA (2026-09-10, noche) — 🚀 PUBLICADA en r69 (*«sube»*) · falta que Isaac la oiga
+
+🔬 **Medido en el navegador de verdad** (el mismo método de la fase 2; script `probar-fase3.mjs` en el
+`scratchpad`; **solo mira**, y deja la cuenta y el volumen como estaban):
+
+| Qué | Medido |
+|---|---|
+| **De fábrica** | Cuenta **apagada**, volumen **100 %** |
+| **La cuenta, a ♩=80** | «1, 2, 3, 4» cada ~750 ms y **la nota 0 entra un compás después**; con el **metrónomo apagado** pide igual la percusión (`E5`, `F5`) y se calla al entrar la melodía |
+| **Pausa en la nota 2** | se queda en la 2 y al seguir **no vuelve a contar** |
+| **Repetir** | cuenta **solo la primera vez**: de la nota 4 vuelve directo a la 0 |
+| **Volumen 100 → 50 % sonando** | rehace el sonido en **~40 ms** y **sigue desde la misma nota** |
+| **Recargar la página** | la cuenta y el 50 % **se recuerdan** |
+
+⚠️ **Un detalle visto al medir, sin arreglo porque no hace falta:** el «1» sale unos 250 ms **antes**
+de que suene el primer golpe — es lo que tarda el audio del navegador en arrancar. El resto de la
+cuenta y las notas van pegadas al sonido, porque el reloj es el del audio (fase 2).
+⚠️ **Y dos fallos MÍOS al probar, no del programa:** la espera del script devolvía un elemento de la
+página, que el protocolo no puede pasar, y nunca se cumplía (se arregla con `!!`); y un comando largo
+de PowerShell lo bloqueó la herramienta por un falso positivo con `//` — se hizo con ediciones sueltas.
+
+⬜ **Lo que no se puede comprobar desde aquí:** que suene bien, y la barra en el teléfono (ahora es
+más ancha: en un teléfono ocupará dos o tres filas).
 
 ⬜ **Lo que NO se puede comprobar desde aquí, y va delante:** **el sonido.** El navegador sin ventana
 no oye. Se podrá medir que el reproductor arranca, que pide **las notas correctas** al servidor y que
@@ -6886,6 +6937,16 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 ---
 
 ## 13 · Historial
+
+### 2026-09-10 (noche, 17:53 →) · 🚀 r69 La fase 3 del reproductor: cuenta de entrada y volumen
+
+Isaac: *«sube»* → publicada como **r69**.
+
+
+Isaac, al volver: *«se oye bien, continua con la fase 3»* → fase 2 cerrada. Fase 3 hecha y medida en
+navegador (§9.2 → O-75 «FASE 3»): la cuenta entra un compás antes y no se repite al pausar ni al
+repetir; el volumen se cambia sonando sin perder la nota; los dos se recuerdan. **232 pruebas** (5
+nuevas).
 
 ### 2026-09-10 (noche) · 🚀 r67 el logo en el login · 🚀 r68 el reproductor de la melodía
 

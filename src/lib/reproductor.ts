@@ -22,10 +22,13 @@
 import type { Elemento } from "@/lib/melodia";
 import {
   abcParaSonar,
+  corcheasDeEntrada,
   duracionTotal,
   lineaDeTiempo,
   momentoEn,
   msPorCorchea,
+  multiplicadorVolumen,
+  pulsoDe,
   tempoValido,
   type Momento,
 } from "@/lib/reproduccion";
@@ -43,6 +46,10 @@ export type Ajustes = {
   repetir: boolean;
   /** Cuánto se mueve lo que suena (el tono del culto en la presentación). */
   semitonos: number;
+  /** Un compás de cuenta antes de empezar (fase 3). */
+  entrada: boolean;
+  /** De 10 a 100 % (fase 3). */
+  volumen: number;
 };
 
 export type Aviso = {
@@ -50,6 +57,8 @@ export type Aviso = {
   momento: Momento | null;
   /** De 0 a 1, para la barra de progreso. */
   progreso: number;
+  /** Mientras se cuenta la entrada, el pulso por el que va (1, 2, 3…); si no, `null`. */
+  cuenta: number | null;
 };
 
 /** Lo que se usa del sintetizador de `abcjs` que sus tipos no declaran. */
@@ -70,6 +79,9 @@ export class Reproductor {
   private linea: Momento[] = [];
   private total = 0; // en corcheas
   private posicion = 0; // en corcheas, al pausar o detener
+  // Lo que dura la cuenta de entrada, en corcheas. El audio empieza con ella;
+  // la MELODÍA, después. El reloj la descuenta (fase 3).
+  private entrada = 0;
   private estado: EstadoReproductor = "parado";
   private cuadro = 0;
   // Cada preparación lleva su número: si llega tarde —porque el músico ya
@@ -97,7 +109,8 @@ export class Reproductor {
 
   pausar(): void {
     if (this.estado !== "sonando" || !this.sintetizador) return;
-    this.posicion = this.ahora();
+    // Pausar durante la cuenta deja la posición en cero: al seguir, se cuenta otra vez.
+    this.posicion = Math.max(0, this.ahora());
     this.sintetizador.pause();
     cancelAnimationFrame(this.cuadro);
     this.aviso("pausado", momentoEn(this.linea, this.posicion));
@@ -126,7 +139,7 @@ export class Reproductor {
     // de la nota iría desfasado del sonido.
     const seguir = sonaba || this.estado === "cargando";
     if (sonaba) {
-      this.posicion = this.ahora();
+      this.posicion = Math.max(0, this.ahora());
       cancelAnimationFrame(this.cuadro);
       try {
         this.sintetizador?.stop();
@@ -184,6 +197,7 @@ export class Reproductor {
           tono: ajustes.tono,
           tempo: ajustes.tempo,
           metronomo: ajustes.metronomo,
+          entrada: ajustes.entrada,
         })
       );
       const sintetizador = new abcjs.synth.CreateSynth() as unknown as Sintetizador;
@@ -194,11 +208,15 @@ export class Reproductor {
           program: programa,
           midiTranspose: ajustes.semitonos,
           qpm: tempoValido(ajustes.tempo),
+          // El volumen se fija AQUÍ: abcjs lo mezcla al preparar, y cambiarlo
+          // obliga a rehacer el sonido (fase 3, ver §9.2 del CLAUDE.md).
+          soundFontVolumeMultiplier: multiplicadorVolumen(ajustes.volumen),
         },
       });
       await sintetizador.prime();
       if (turno !== this.turno) return false; // llegó tarde: ya hay otra
       this.sintetizador = sintetizador;
+      this.entrada = corcheasDeEntrada(ajustes.compas, ajustes.entrada);
       this.contexto = (abcjs.synth as unknown as { activeAudioContext(): AudioContext }).activeAudioContext();
       return true;
     } catch {
@@ -209,21 +227,32 @@ export class Reproductor {
     }
   }
 
-  private arrancar(): void {
+  /**
+   * @param contar  Si suena la cuenta de entrada. Por defecto, solo al empezar
+   *                desde el principio: al SEGUIR desde la pausa o al REPETIR,
+   *                se entra directo — así lo hace flat.io.
+   */
+  private arrancar(contar = this.posicion <= 0): void {
     if (!this.sintetizador || !this.ajustes) return;
     if (this.posicion >= this.total) this.posicion = 0;
-    this.sintetizador.seek((this.posicion * msPorCorchea(this.ajustes.tempo)) / 1000, "seconds");
+    // El audio lleva la cuenta delante: la melodía empieza en `entrada`.
+    const enElAudio = contar ? 0 : this.posicion + this.entrada;
+    this.sintetizador.seek((enElAudio * msPorCorchea(this.ajustes.tempo)) / 1000, "seconds");
     this.sintetizador.start();
     this.estado = "sonando";
     this.latir();
   }
 
-  /** Dónde va el sonido, en corcheas, leído del reloj del audio. */
+  /**
+   * Dónde va la MELODÍA, en corcheas, leído del reloj del audio.
+   * ⚠️ Es NEGATIVO mientras suena la cuenta de entrada: la melodía aún no ha
+   * empezado.
+   */
   private ahora(): number {
     const s = this.sintetizador;
     if (!s || !this.ajustes || !this.contexto || s.startTimeSec == null) return this.posicion;
     const segundos = this.contexto.currentTime - s.startTimeSec;
-    return Math.max(0, (segundos * 1000) / msPorCorchea(this.ajustes.tempo));
+    return (segundos * 1000) / msPorCorchea(this.ajustes.tempo) - this.entrada;
   }
 
   private latir = (): void => {
@@ -233,19 +262,31 @@ export class Reproductor {
         // Vuelta al principio sin volver a preparar: los sonidos ya están.
         this.sintetizador?.stop();
         this.posicion = 0;
-        this.arrancar();
+        this.arrancar(false); // al repetir no se vuelve a contar
         return;
       }
       this.detener();
       return;
     }
-    this.aviso("sonando", momentoEn(this.linea, t), t);
+    if (t < 0) {
+      // La cuenta: qué pulso va sonando, para enseñarlo en grande.
+      const pulso = pulsoDe(this.ajustes?.compas).corcheas;
+      this.aviso("sonando", null, 0, Math.floor((t + this.entrada) / pulso) + 1);
+    } else {
+      this.aviso("sonando", momentoEn(this.linea, t), t);
+    }
     this.cuadro = requestAnimationFrame(this.latir);
   };
 
-  private aviso(estado: EstadoReproductor, momento: Momento | null, t = this.posicion): void {
+  private aviso(
+    estado: EstadoReproductor,
+    momento: Momento | null,
+    t = this.posicion,
+    cuenta: number | null = null
+  ): void {
     this.estado = estado;
-    this.avisar({ estado, momento, progreso: this.total ? Math.min(1, t / this.total) : 0 });
+    const progreso = this.total ? Math.min(1, Math.max(0, t) / this.total) : 0;
+    this.avisar({ estado, momento, progreso, cuenta });
   }
 }
 
@@ -258,6 +299,8 @@ function iguales(a: Ajustes, b: Ajustes): boolean {
     a.tempo === b.tempo &&
     a.instrumento === b.instrumento &&
     a.metronomo === b.metronomo &&
-    a.semitonos === b.semitonos
+    a.semitonos === b.semitonos &&
+    a.entrada === b.entrada &&
+    a.volumen === b.volumen
   );
 }

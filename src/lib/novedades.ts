@@ -75,6 +75,21 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "La cuenta antes de empezar, y el volumen",
+        "resumen": "Un compás de golpes antes de que entre la melodía, y el volumen del sonido.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "La cuenta de entrada y el volumen.",
+            "detalle": [
+              "<strong>Botón «Cuenta»</strong> en el reproductor: antes de que entre la melodía suena <strong>un compás de golpes</strong> —«1, 2, 3, 4»—, con el número en grande, para entrar a tiempo. Suena aunque el metrónomo esté apagado. Al repetir o al seguir desde la pausa ya no vuelve a contar.",
+              "<strong>Volumen</strong> con − y +, de 10 en 10. Vale para el reproductor y para la nota que suena al escribir. El 100 % es como sonaba hasta ahora.",
+              "La cuenta y el volumen <strong>se recuerdan</strong> en tu aparato, como el instrumento."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "La melodía ya se reproduce entera",
         "resumen": "Un reproductor como el de flat.io: reproducir, pausar, tempo, metrónomo y repetir, con la nota que suena pintada de azul.",
         "cambios": [
