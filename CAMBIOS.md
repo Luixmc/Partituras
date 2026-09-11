@@ -7,6 +7,15 @@
 
 ## 10 de septiembre de 2026
 
+### 🔒 Las canciones, solo para quien tiene cuenta
+
+- 🔧 **Arreglado:** hasta hoy, alguien con conocimientos podía leer las canciones publicadas
+  —con sus acordes— desde fuera de la página, sin iniciar sesión. **Ya no:** sin cuenta no se lee
+  nada.
+- **El enlace de los cultos que se comparte por WhatsApp sigue funcionando igual**, sin cuenta: el
+  que lo recibe ve ese culto y nada más.
+- Para quien entra con su cuenta **no cambia nada**.
+
 ### ⏱️ El tempo se guarda con la canción
 
 - 🔧 **Arreglado:** el tempo del reproductor volvía siempre a 80. Ahora, en el editor de melodía,

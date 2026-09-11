@@ -156,9 +156,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## Migraciones de base de datos
 
-Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 23, y todas están
-aplicadas** (las tres últimas, el 2026-09-10): `20240020` (un usuario desactivado tampoco lee ni
-escribe por la API), `20240021` (la columna `sheets.melody`) y `20240022` (`notas_musico`).
+Todas viven en `supabase/migrations/` y se aplican en orden. **Hoy son 24, y todas están
+aplicadas** (las cinco últimas, el 2026-09-10): `20240020` (un usuario desactivado tampoco lee ni
+escribe por la API), `20240021` (la columna `sheets.melody`), `20240022` (`notas_musico`),
+`20240023` (`culto_por_enlace`, la función que entrega el culto compartido a quien trae su enlace) y
+`20240024` (**sin sesión no se lee ninguna tabla de contenido**).
 
 > ⚠️ **Los nombres de los archivos no son los de la base.** Producción registra las migraciones con
 > su propia fecha y nombre, y alguna política se llama distinto que en el repositorio. **Antes de
@@ -281,7 +283,7 @@ src/
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
 pruebas/                    → las 240 pruebas (ver más abajo)
-supabase/migrations/        → 23 migraciones (todas aplicadas)
+supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
 > 🔴 **`sections.ts` y `catalogo.ts` son de uso COMPARTIDO a propósito.** Las dos estuvieron
@@ -339,9 +341,11 @@ supabase/migrations/        → 23 migraciones (todas aplicadas)
 
 - **`pdfjs-dist`**: el *worker* se sirve desde `public/pdf.worker.min.mjs` (copia local). Si actualizas `pdfjs-dist`, regenera la copia con `npm run copy-pdf-worker`.
 - **Tabla `songs`** (migraciones `20240008`/`20240009`, del antiguo módulo de mosaicos) sigue en el esquema pero no se usa en la app.
-- **El catálogo es legible sin sesión** con la clave pública (`sheets`, `categories`,
-  `service_songs`). Los cultos y los borradores **sí** están cerrados. Cerrarlo del todo exige tener
-  antes la clave `service_role`, porque `npm run export` depende de esa lectura.
+- ~~**El catálogo es legible sin sesión**~~ → **cerrado el 2026-09-10** (migración `20240024`): sin
+  sesión no se lee ninguna tabla de contenido. El **enlace público del culto** (`/s/<token>`) sigue
+  funcionando sin cuenta porque pasa por la función `culto_por_enlace` (`20240023`), que solo entrega
+  el culto de ese enlace. La copia (`npm run export`) entra con la sesión de una cuenta de
+  administrador (`PRUEBA_EMAIL`/`PRUEBA_PASSWORD` en `.env.local`).
 - **60 avisos de lint** (0 errores): `any` heredados y notas del compilador de React.
 
 > 🔎 **Cuatro puntos que estaban aquí y ERAN FALSOS, corregidos el 2026-09-04** — se apuntan porque

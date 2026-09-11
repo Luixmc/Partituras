@@ -55,38 +55,31 @@ async function identificadores() {
       .split(/\r?\n/).filter((l) => l.includes("="))
       .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()])
   );
-  const cab = {
-    apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    Authorization: "Bearer " + env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  };
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
-  const uno = async (tabla, campos) =>
-    (await (await fetch(`${url}/rest/v1/${tabla}?select=${campos}&limit=1`, { headers: cab })).json())[0];
 
-  const cancion = await uno("sheets", "id");
-  let culto = await uno("services", "id,public_token");
-
-  // 🔴 Si con la clave publica no sale ningun culto, NO es que la prueba este
-  // rota: es que **no hay ninguno publicado**. Paso el 2026-09-01, con los
-  // cuatro cultos en borrador — y entonces esto abortaba entero y no se
-  // comprobaba ni una pantalla.
-  // → Se vuelve a preguntar con la cuenta de pruebas, que si los ve. Las rutas
-  //   publicas `/s/<token>` se saltan solas mas abajo, avisando.
-  if (!culto && env.PRUEBA_EMAIL && env.PRUEBA_PASSWORD) {
+  // 🔴 SE PREGUNTA CON LA CUENTA DE PRUEBAS, NO CON LA CLAVE PÚBLICA. Desde la
+  // migración 024 (P-02, 2026-09-10) **sin sesión no se lee ninguna tabla**:
+  // con la clave pública esto devolvía 0 filas y el recorrido entero abortaba
+  // con «No se pudieron leer identificadores». Era la PRUEBA la que dependía
+  // del hueco que se acababa de cerrar, no la página.
+  // (Antes ya se usaba la cuenta, pero solo cuando no salía ningún culto — lo
+  // que pasó el 2026-09-01 con los cuatro en borrador.)
+  let autorizacion = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (env.PRUEBA_EMAIL && env.PRUEBA_PASSWORD) {
     const r = await fetch(`${url}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({ email: env.PRUEBA_EMAIL, password: env.PRUEBA_PASSWORD }),
     });
     const j = await r.json();
-    if (j.access_token) {
-      const cabSesion = { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, Authorization: `Bearer ${j.access_token}` };
-      const lista = await (
-        await fetch(`${url}/rest/v1/services?select=id,public_token&limit=1`, { headers: cabSesion })
-      ).json();
-      culto = lista[0];
-    }
+    if (j.access_token) autorizacion = j.access_token;
   }
+  const cab = { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, Authorization: `Bearer ${autorizacion}` };
+  const uno = async (tabla, campos) =>
+    (await (await fetch(`${url}/rest/v1/${tabla}?select=${campos}&limit=1`, { headers: cab })).json())[0];
+
+  const cancion = await uno("sheets", "id");
+  const culto = await uno("services", "id,public_token");
 
   // 🔴 Para las rutas `/s/<token>` hace falta un culto CON EL ENLACE PUBLICO
   // ACTIVADO, y no vale el primero que salga: el 2026-08-29 aparecio uno nuevo
@@ -95,7 +88,9 @@ async function identificadores() {
   // es justo lo que debe pasar cuando el enlace esta apagado.
   // Un culto con el enlace publico activado Y publicado. Si no hay ninguno, las
   // tres rutas compartidas se saltan: no se puede comprobar lo que no existe.
-  const publico = await uno("services", "public_token&is_public=eq.true");
+  // (Con la sesión de administrador se ven también los borradores: se pide
+  // el publicado a propósito, que es el único que abre el enlace.)
+  const publico = await uno("services", "public_token&is_public=eq.true&status=eq.published");
 
   return {
     cancion: cancion?.id,

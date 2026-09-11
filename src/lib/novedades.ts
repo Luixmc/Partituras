@@ -75,6 +75,20 @@ export const TANDAS: Tanda[] = [
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",
     "secciones": [
       {
+        "titulo": "Las canciones, solo para quien tiene cuenta",
+        "resumen": "Sin cuenta ya no se pueden leer las canciones desde fuera; el enlace de los cultos sigue igual.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Sin cuenta ya no se leen las canciones.",
+            "detalle": [
+              "Hasta hoy, alguien con conocimientos podía leer las canciones publicadas —con sus acordes— desde fuera de la página, sin iniciar sesión. <strong>Ya no:</strong> sin cuenta no se lee nada.",
+              "<strong>El enlace de los cultos que se comparte por WhatsApp sigue funcionando igual</strong>, sin cuenta: el que lo recibe ve ese culto y nada más. Para quien entra con su cuenta no cambia nada."
+            ]
+          }
+        ]
+      },
+      {
         "titulo": "El tempo se guarda con la canción",
         "resumen": "El tempo del reproductor ya no vuelve a 80: se guarda con la melodía y vale para todos.",
         "cambios": [

@@ -47,7 +47,10 @@ if (!URL_BASE || !ANON) {
 //     mismo que ve él en la página, **incluidos los borradores**. Se saca
 //     entrando y copiando el `access_token`. Añadido el 2026-08-21, cuando se
 //     vio que el respaldo se dejaba fuera 8 canciones.
-//  3. Solo la clave pública — se deja fuera lo que esté en borrador.
+//  3. ~~Solo la clave pública — se deja fuera lo que esté en borrador.~~
+//     🔴 **YA NO EXISTE desde la migración 024 (P-02, 2026-09-10):** sin sesión
+//     no se lee ninguna tabla. Si no hay ni clave maestra ni sesión, el script
+//     PARA y lo dice, en vez de guardar una copia vacía que parezca buena.
 //
 // 🔴 `SUPABASE_ACCESS_TOKEN` tiene DOS significados, y el 2026-09-10 chocaron.
 // Para este script es una SESIÓN (un JWT: tres trozos con punto). Para el
@@ -75,6 +78,14 @@ async function sesionDePrueba() {
 const TOKEN = SERVICE
   ? undefined
   : [env.SESION_ADMIN, env.SUPABASE_ACCESS_TOKEN].find(esSesion) ?? (await sesionDePrueba());
+if (!SERVICE && !TOKEN) {
+  console.error(
+    "\nNo hay con qué entrar: ni SUPABASE_SERVICE_ROLE_KEY ni una sesión.\n" +
+      "Desde la migración 024 (P-02) sin sesión no se lee ninguna tabla, así que la copia saldría VACÍA.\n" +
+      "Pon PRUEBA_EMAIL y PRUEBA_PASSWORD (una cuenta de administrador) en .env.local y vuelve a ejecutar."
+  );
+  process.exit(1);
+}
 const CLAVE = SERVICE || ANON;
 const AUTORIZACION = SERVICE || TOKEN || ANON;
 const COMPLETO = Boolean(SERVICE || TOKEN);
@@ -136,9 +147,7 @@ if (existsSync(carpeta)) {
 }
 mkdirSync(carpeta, { recursive: true });
 
-const COMO = SERVICE ? "TODO (clave maestra)"
-  : TOKEN ? "TODO (sesion de administrador)"
-  : "solo lo publicado (clave publica)";
+const COMO = SERVICE ? "TODO (clave maestra)" : "TODO (sesion de administrador)";
 console.log("");
 console.log("Exportando " + COMO);
 console.log("");
@@ -167,9 +176,3 @@ writeFileSync(
 );
 
 console.log("\nGuardado en:", carpeta);
-if (!COMPLETO) {
-  console.log(
-    "\nAVISO: sin SUPABASE_SERVICE_ROLE_KEY faltan las canciones en BORRADOR.\n" +
-      "Ponla en .env.local y vuelve a ejecutar para una copia completa."
-  );
-}
