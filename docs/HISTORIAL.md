@@ -4,6 +4,13 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-11 · Se sube sin pedir permiso, para todo
+
+Preguntado cuál de las dos reglas valía (§11: sin permiso desde el 2026-09-05; §1, D-01,
+`PROYECTOS.md` y la memoria: con permiso salvo la melodía), Isaac: *«para todo, no me pidas permiso»*. Se dejó una
+sola regla escrita en todos los sitios. Siguen preguntándose las migraciones y las escrituras en la
+base; `--force`, nunca.
+
 ### 2026-09-11 · El recorte del CLAUDE.md (L-256) · dos cuentas de Claude
 
 Isaac: *«lee _CLAUDE-COMPARTIDO\PROMPT-RECORTAR-CLAUDE-MD.md y aplícalo a este proyecto»*. El

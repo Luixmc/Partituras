@@ -78,8 +78,14 @@ cada push a `main`.
    Isaac le pidió permiso para encargarse de las actualizaciones y su primo se lo dio: **el
    primo ya no va a hacer correcciones** (aclarado por Isaac el 2026-08-20). Aun así el dueño
    del repositorio, del hosting y de la base sigue siendo el primo → **Nunca `push --force`,
-   nunca reescribir historial, nunca borrar ramas. Nunca `commit` ni `push` sin pedírselo a
-   Isaac** (ver §11). Que Isaac sea el mantenedor **no** convierte el permiso en permanente.
+   nunca reescribir historial, nunca borrar ramas.** ~~Nunca `commit` ni `push` sin pedírselo a
+   Isaac.~~
+   🟢 **SUPERADO el 2026-09-11 — SE SUBE TODO SIN PEDIR PERMISO.** Isaac: *«para todo, no me pidas permiso»*. Vale para
+   **todo** el trabajo, no solo la melodía. Siguen igual: se sube **comprobado** (pruebas, lint, build,
+   pantallas; comprobar y subir en pasos separados, L-254), **se le dice qué se subió**, y **las
+   migraciones o cualquier escritura en la base se le siguen preguntando** (D-04); `--force` y
+   reescribir historial, nunca (D-02). Detalle en §11.
+   📌 *Lo de abajo es cómo empezó (la excepción solo para la melodía); desde el 2026-09-11 vale para todo.*
    🟢 **UNA EXCEPCIÓN, DADA POR ÉL (2026-09-10, noche): LO DE LA MELODÍA se sube sin pedir permiso.**
    *«sube, no me pidas permiso para esto de la melodia»*. Vale para los cambios de la **sección de
    melodía** —el editor (`EditorMelodia`, `MelodiaPanel`), el pentagrama, el reproductor, el sonido,
@@ -359,7 +365,7 @@ llevaba equivocado desde el 2026-08-28, que es cuando se cerró P-07.* Lo que va
 
 | # | Decisión | Por qué | Fecha |
 |---|---|---|---|
-| **D-01** | **Nunca `commit` ni `push` sin pedírselo a Isaac.** Cada permiso es para un trabajo concreto, **nunca permanente** | El repositorio es del primo y no quiere pisarle nada | 2026-08-19 |
+| **D-01** | ~~**Nunca `commit` ni `push` sin pedírselo a Isaac.** Cada permiso es para un trabajo concreto, **nunca permanente**~~ → 🔴 **SUPERADO el 2026-09-11:** *«para todo, no me pidas permiso»* (§11). Migraciones y escrituras en la base se siguen preguntando | El repositorio es del primo y no quiere pisarle nada | 2026-08-19 |
 | **D-02** | **Nunca `push --force`, ni reescribir historial, ni borrar ramas** | Igual: repositorio compartido | 2026-08-19 |
 | **D-03** | **Se trabaja en rama aparte, no sobre `main`** | Un push a `main` es un despliegue a producción (§6) | 2026-08-19 |
 | **D-04** | **Una migración existente NO se modifica: se añade una nueva.** Y no se ejecuta nada contra la BD de producción sin decírselo | Las viejas ya están aplicadas en una base con datos reales | 2026-08-19 |
@@ -571,8 +577,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 3 | **P.3 · El PDF del culto en el tono del instrumento** (trompeta) | **A decidir por Isaac.** P.1 y P.2 hechas. Detalle en `docs/ENCARGOS_CERRADOS.md` (busca «**P.3**») |
 | 4 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
 | 5 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
-| 6 | **¿Hay que pedir permiso para subir lo que NO es melodía?** Los documentos se contradicen: §11 dice que desde el 2026-09-05 se sube sin preguntar; `PROYECTOS.md` y la memoria dicen «lo demás, con permiso cada vez» | **Preguntárselo a Isaac** y dejar escrita solo la que valga. Mientras tanto, **se pregunta** (lo más prudente). El recorte lo subió con su «ok» del 2026-09-11 |
-| 7 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
+| 6 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
 
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
@@ -610,12 +615,16 @@ las O-xx y P-xx)— está **tal cual** en **`docs/ENCARGOS_CERRADOS.md`**.
   `TablaturePreview.tsx` y `PresentationView.tsx`: seguir ese nivel.
 - **Migraciones**: se añade una nueva, nunca se toca una existente (D-04). Numeración
   correlativa siguiendo `supabase/migrations/`.
-- **Git**: rama aparte (D-03), nada de `commit`/`push` sin permiso concreto (D-01), jamás
+- **Git**: rama aparte (D-03), `commit`/`push` **sin pedir permiso** desde el 2026-09-11 (D-01 superado), jamás
   `--force` (D-02).
 - **El push se hace así**, desde `isaac/arranque`, y publica en producción:
   ```bash
   git push origin isaac/arranque:main
   ```
+- 🔴 **2026-09-11, CONFIRMADO Y SIN EXCEPCIONES DE ÁREA: «para todo, no me pidas permiso».** Lo dijo
+  al preguntarle cuál de las dos reglas valía (§11 decía que no hacía falta; §1, D-01, `PROYECTOS.md` y
+  la memoria decían que sí). **Manda esta.** Lo que sigue abajo sobre qué NO cubre (migraciones,
+  escribir en la base, `--force`) y sobre subir comprobado **sigue igual**.
 - 🔴 **DESDE EL 2026-09-05, ISAAC NO QUIERE QUE SE LE PIDA PERMISO PARA CADA PUSH.**
   Sus palabras: *«apenas hagas estos cambios sube todo enseguida, no me pidas permiso»*.
   → **Esto SUPERA la parte de D-01 que decía «cada permiso vale para ese trabajo».** Manda esto.
@@ -631,10 +640,9 @@ las O-xx y P-xx)— está **tal cual** en **`docs/ENCARGOS_CERRADOS.md`**.
   📌 *Lo de abajo —«cada push se le pide»— queda como historia de cómo se trabajó hasta hoy.*
 - 🔴 **Desde el 2026-09-04 el entorno de Claude tiene una regla que PERMITE ese comando**
   (`Bash(git push origin isaac/arranque:main)` en `C:\Users\TECSISTEMAS\.claude\settings.json`).
-  **Eso NO sustituye el permiso de Isaac.** La regla solo evita que el entorno corte el comando;
-  **D-01 sigue mandando: cada push se le pide, y cada permiso vale para ese trabajo.** Que ahora
-  sea técnicamente posible empujar sin preguntar es exactamente el motivo por el que queda escrito
-  aquí.
+  ~~**Eso NO sustituye el permiso de Isaac.** La regla solo evita que el entorno corte el comando;
+  **D-01 sigue mandando: cada push se le pide, y cada permiso vale para ese trabajo.**~~ → superado
+  el 2026-09-11 (arriba): la regla del entorno ya coincide con lo que él quiere.
   ⚠️ **Y es una regla de comando EXACTO:** `git push origin isaac/arranque:main | tail -5` **no
   casa** y el entorno lo bloquea. Se ejecuta a secas, con el `cd` en una llamada aparte.
 - No se comparte código con los otros proyectos de Isaac, solo criterio.
@@ -743,6 +751,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-09-11 | **Subir sin pedir permiso, para TODO** (*«para todo, no me pidas permiso»*; D-01 superado, §11) |
 | 2026-09-11 | **El recorte de este archivo: de 566 KB a 56 KB (762 líneas)** · dos cuentas de Claude (§1) |
 | 2026-09-10 (noche) | Dos cuentas de prueba (admin y músico); el exportador pregunta el rol (L-255) |
 | 2026-09-10 (noche) | 🚀 r75–r76 **P-02**: sin cuenta no se lee ninguna tabla; el enlace del culto por `culto_por_enlace` |

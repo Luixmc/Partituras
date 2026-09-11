@@ -4,6 +4,15 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-11 · ¿permiso para subir lo que no es melodía?
+
+Estaba en §9.0 del `CLAUDE.md` como fila 6:
+
+| 6 | **¿Hay que pedir permiso para subir lo que NO es melodía?** Los documentos se contradicen: §11 dice que desde el 2026-09-05 se sube sin preguntar; `PROYECTOS.md` y la memoria dicen «lo demás, con permiso cada vez» | **Preguntárselo a Isaac** y dejar escrita solo la que valga. Mientras tanto, **se pregunta** (lo más prudente). El recorte lo subió con su «ok» del 2026-09-11 |
+
+→ **Respuesta de Isaac:** *«para todo, no me pidas permiso»*. Escrito en §1, D-01 y §11 del `CLAUDE.md`, en la memoria, en
+`PROYECTOS.md` y en el `CLAUDE.md` global.
+
 ### 9.0 🔜 POR DÓNDE SE SIGUE (reescrito el 2026-09-04 al cerrar)
 
 **Lo primero que hay que leer al retomar.** Isaac: *«mañana continuamos; cuando te diga que
