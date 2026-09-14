@@ -5,6 +5,18 @@
 
 ---
 
+## 13 de septiembre de 2026
+
+### 🎵 El calderón, con su punto
+
+- 🔧 **Arreglado:** el calderón —el arco con un punto debajo, el que dice que ese acorde se
+  alarga— salía con el punto **pegado al arco**, así que en la tablet los dos se juntaban y
+  parecía un arco pelado.
+- Ahora el arco va un poco más alto y el punto un poco más abajo: **se ve separado**. Se nota en
+  cualquier canción con un acorde alargado, por ejemplo en el «Final».
+
+---
+
 ## 10 de septiembre de 2026
 
 ### 🔒 Las canciones, solo para quien tiene cuenta

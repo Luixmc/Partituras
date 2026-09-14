@@ -4,6 +4,22 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-13 · r77 · El calderón con su punto (O-82), y dos encargos anotados
+
+Isaac pidió dos cosas y **las dos se escribieron en §9 antes de tocar código** (regla 0): el
+calderón sin punto (**O-82**) y, de parte de **Carlos, el líder de alabanza**, un color por sección
+elegido por cada músico (**O-83**, sin empezar: faltan cuatro decisiones suyas).
+
+**O-82, arreglado y publicado.** El punto **sí se dibujaba**: estaba pegado al arco —cima del arco
+en y=7 con trazo 1,8, punto de 7,7 a 11,3— y al tamaño real se fundían. Se midió con Brave sin
+ventana antes de tocar nada, se dibujaron cuatro variantes y se eligió mirándolas. La pista falsa
+que costó un rato: `circle.r.baseVal.value` da 0 porque lee el ATRIBUTO, y el navegador resuelve el
+`calc()` como propiedad CSS — para saber si un punto se ve, `getBoundingClientRect()`.
+
+**De O-83 se contó la base antes de diseñar:** las etiquetas `[...]` son texto libre y hay más de
+300 distintas, pero **su primera palabra es un conjunto cerrado de 16** (intro · a · b · c · d · e ·
+f · final · coda · coro · puente · sin nombre + cuatro rarezas). El color se ata a la inicial.
+
 ### 2026-09-11 · Se sube sin pedir permiso, para todo
 
 Preguntado cuál de las dos reglas valía (§11: sin permiso desde el 2026-09-05; §1, D-01,

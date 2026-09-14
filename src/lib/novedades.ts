@@ -70,6 +70,27 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "13 de septiembre de 2026",
+    "iso": "2026-09-13",
+    "entrada": "El calderón vuelve a tener su punto.",
+    "secciones": [
+      {
+        "titulo": "El calderón, con su punto",
+        "resumen": "El signo de alargar el acorde salía como un arco pelado; ya se le ve el punto debajo.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El calderón ya se le ve el punto.",
+            "detalle": [
+              "El calderón —el arco con un punto debajo, el que dice que ese acorde se alarga— salía con el punto <strong>pegado al arco</strong>, así que en la tablet los dos se juntaban y parecía un arco a secas.",
+              "Ahora el arco va un poco más alto y el punto un poco más abajo: <strong>se ve separado</strong>, como tiene que ser. Se nota en cualquier canción que lleve un acorde alargado, por ejemplo en el «Final»."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "10 de septiembre de 2026",
     "iso": "2026-09-10",
     "entrada": "La melodía ya se reproduce entera, y suena mientras la escribes.",

@@ -150,7 +150,32 @@ export function SlurFigure({ className }: { className?: string }) {
   );
 }
 
-/** Calderón (fermata): arco con punto, para acordes de pausa/alargación. */
+/**
+ * Calderón (fermata): arco con punto, para acordes de pausa/alargación.
+ *
+ * 🔴 O-82 · EL PUNTO TIENE QUE TENER AIRE POR DEBAJO DEL ARCO, y ese aire se
+ * calcula, no se mira. Isaac, 2026-09-13: *«sale la línea curva pero no el
+ * punto»*. **El punto se dibujaba**: lo que pasaba es que estaba PEGADO al
+ * arco y al tamaño real los dos se funden en un churro.
+ *
+ * Medido en la versión vieja: el arco `Q 12 1` tenía la cima en **y=7** y con
+ * un trazo de 1,8 su borde de abajo llegaba a **7,9**; el punto ocupaba de
+ * **7,7 a 11,3** (cy 9,5 · r 1,8). **Se solapaban.** Ampliado x9 el punto
+ * colgaba del arco como una gota; a 25 px de alto, que es como se ve en la
+ * tablet, no se distinguía nada.
+ *
+ * → Ahora el arco sube (cima en **y=5,5**, borde de abajo en 6,4) y el punto
+ * baja y adelgaza (cy 10,3 · r 1,7, borde de arriba en 8,6): quedan **2,2
+ * unidades de aire**, que al tamaño real son unos 3 px y **sí se ven**.
+ * Elegido sobre el dibujo, como el silencio de negra (O-47), no por
+ * descripción escrita.
+ *
+ * ⚠️ La pista falsa que costó un rato: `circle.r.baseVal.value` da **0** aquí,
+ * porque `radioPunto` pasa un `calc()` y `baseVal` lee el ATRIBUTO. El
+ * navegador lo resuelve igual como propiedad CSS de geometría —medido, 5,76 px
+ * de diámetro, lo mismo que con un número—. **Para comprobar si un punto se ve,
+ * `getBoundingClientRect()`, no `baseVal`.**
+ */
 export function FermataFigure({ className }: { className?: string }) {
   return (
     <svg
@@ -160,8 +185,8 @@ export function FermataFigure({ className }: { className?: string }) {
       fill="none"
       aria-hidden="true"
     >
-      <path d="M3 13 Q 12 1 21 13" stroke="currentColor" strokeWidth={trazo(1.8)} fill="none" strokeLinecap="round" />
-      <circle cx="12" cy="9.5" r={radioPunto(1.8)} fill="currentColor" />
+      <path d="M3 13 Q 12 -2 21 13" stroke="currentColor" strokeWidth={trazo(1.8)} fill="none" strokeLinecap="round" />
+      <circle cx="12" cy="10.3" r={radioPunto(1.7)} fill="currentColor" />
     </svg>
   );
 }

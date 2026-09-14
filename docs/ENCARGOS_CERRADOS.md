@@ -4,6 +4,35 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-13 · O-82 · El calderón salía sin el punto (r77)
+
+Isaac: *«quiero que arregles el calderón, sale la línea curva pero no el punto»*.
+
+🔬 **MEDIDO Y MIRADO antes de tocar nada** (método de §2.3-bis, página aparte en el `scratchpad` +
+Brave sin ventana). **El punto no falta: está pegado al arco.**
+* El primer sospechoso era el radio: `r={radioPunto(1.8)}` pasa un **`calc()` a un atributo SVG**.
+  Se comprobó y **no es eso**: `getBoundingClientRect()` da **5,76 px de diámetro**, igual que con un
+  número escrito a mano. El navegador lo resuelve como propiedad CSS de geometría. *(Ojo: sí sale 0
+  si se lee `circle.r.baseVal.value`, que mira el ATRIBUTO y no la propiedad. Eso es una pista
+  falsa, no el fallo.)*
+* La causa real, en `MusicFigures.tsx:153-167`: el arco `M3 13 Q 12 1 21 13` tiene su **cima en
+  y=7** y un trazo de 1,8, así que **su borde de abajo llega a y=7,9**; el punto ocupa de **7,7 a
+  11,3** (cy 9,5 · r 1,8). **Se solapan.** Ampliado x10 se ve que el punto cuelga del arco como una
+  gota; al tamaño real (≈25 px de alto) los dos se funden en un churro y **el calderón parece un
+  arco a secas**, que es justo lo que ve Isaac.
+* 📌 **La regla, que es la misma de siempre aquí:** dos números escritos en sitios distintos que
+  tenían que cuadrar —la cima del arco y la altura del punto— y nadie los cuadró. **El punto tiene
+  que tener aire por debajo del arco**, y ese aire hay que medirlo, no mirarlo.
+
+✅ **ARREGLADO Y PUBLICADO en r77.** El arco sube (cima en **y=5,5**, borde de abajo en 6,4) y el
+punto baja y adelgaza (cy **10,3** · r **1,7**, borde de arriba en 8,6): quedan **2,2 unidades de
+aire**, unos 3 px al tamaño real. Elegido **sobre el dibujo** entre cuatro variantes miradas al
+tamaño real y ampliadas x9, como el silencio de negra (O-47).
+
+**Comprobado:** 240 pruebas · lint 0 errores · build 0 · y **mirado en la app** (culto público
+«Escuela Dominical», canción «No Hay Lugar Más Alto», sección «Final»), ampliado x7: arco y punto
+separados.
+
 #### ✅ Cerrado el 2026-09-11 · ¿permiso para subir lo que no es melodía?
 
 Estaba en §9.0 del `CLAUDE.md` como fila 6:
