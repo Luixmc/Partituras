@@ -623,14 +623,21 @@ etiquetas `[...]` de las 87 canciones son **texto libre**: hay **más de 300 dis
 Lo raro —`bombo`, `pitos`, `banda`, `cosa`, una vez cada una— tiene que caer en un color por defecto
 **sin romperse**.
 
-⚠️ **Lo que hay que preguntarle a Isaac antes de codificar** (anotado para no perderlo):
-* **¿Qué se pinta?** ¿Solo la etiqueta `[Intro]`, o el **bloque entero** de la sección (fondo)?
-  Pintar el fondo entero de rojo detrás de los acordes puede dejarlos ilegibles en el culto.
-* **¿Dónde?** ¿En la canción, en la pantalla completa del culto, o en las dos? ¿Y en el **PDF**?
-* **¿Elegir color uno por uno, o paletas ya hechas?** Doce selectores de color en una tablet es mucho
-  toqueteo; dos o tres paletas y listo puede ser lo que quiere Carlos.
-* **¿La elección es de cada músico o de Carlos para todos?** Isaac dijo *de cada músico*; si Carlos
-  quiere que todos vean lo mismo, eso **sí** sería un dato de la base y cambia el diseño entero.
+✅ **CONTESTADO POR ISAAC el 2026-09-13**, y esto es lo que manda:
+
+| Pregunta | Lo que dijo |
+|---|---|
+| **¿Qué se pinta?** | **Solo la ETIQUETA** de la sección. Los acordes siguen negros sobre blanco. → Descartados el fondo entero y la banda de color: el fondo fuerte deja los acordes peor de leer en el culto, que es justo donde se usa |
+| **¿Dónde?** | **Pantalla completa del culto** y **la ficha de la canción**. **En el PDF NO** — se imprime en blanco y negro y el color se vuelve gris |
+| **¿Cómo elige?** | **Tres o cuatro paletas ya hechas**, no doce selectores de color. Un toque en la tablet en vez de doce |
+| **¿De quién es la elección?** | **De cada músico**, en su aparato (ya lo dijo al encargarlo). **No es un dato de la canción y no toca la base** |
+
+📌 **Dónde se pinta, que es UN solo sitio:** la etiqueta la dibuja la cabecera de `TablaturePreview`
+(`TablaturePreview.tsx:876-886`, el `<div>` con el icono y `{label || "Notas"}`). Esa cabecera la
+usan **las cinco** pantallas —ficha, pantalla completa, PDF, versiones por tono y «nueva canción»—,
+así que **el color no puede ir cableado ahí dentro**: tiene que entrar por una propiedad que solo
+pasen las dos pantallas que Isaac dijo. Si se pinta dentro, aparece en el PDF, que es lo que él
+descartó.
 
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
