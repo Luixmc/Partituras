@@ -7,6 +7,16 @@
 
 ## 13 de septiembre de 2026
 
+### 🎨 Un color para cada sección, si tú quieres
+
+- 🆕 **Lo pidió Carlos:** que la intro salga verde, la parte A roja, y así, para saber de un vistazo
+  dónde vas mientras tocas. Se pinta **el nombre de la sección** —«Intro», «A (a tus pies...)»,
+  «Final»—; los acordes se quedan negros, que es como se leen mejor.
+- **Viene apagado y lo enciendes tú.** Hay un botón con una paleta 🎨 en la ficha de la canción y en
+  la barra de pantalla completa: *Sin colores*, *Suaves*, *Fuertes* o *Solo el principio y el final*.
+- **Es tuyo y de tu aparato:** lo que elijas no le cambia la pantalla a nadie más.
+- **En el PDF no sale**, a propósito: se imprime en blanco y negro y los colores saldrían grises.
+
 ### 🎵 El calderón, con su punto
 
 - 🔧 **Arreglado:** el calderón —el arco con un punto debajo, el que dice que ese acorde se

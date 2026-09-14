@@ -110,9 +110,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **240 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.068 líneas** de TypeScript
-   en **94 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **256 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.476 líneas** de TypeScript
+   en **96 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -155,7 +155,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 240 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 256 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -327,7 +327,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       240 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       256 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -578,71 +578,11 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 4 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
 | 5 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 6 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
-| 7 | **O-83 · Un color por sección, y que cada músico elija** | **De Carlos** (líder de alabanza), traído por Isaac el 2026-09-13. Detalle abajo |
-
-#### O-83 · Un color por cada sección, y que cada músico elija (Carlos, traído por Isaac, 2026-09-13)
-
-Isaac: *«el líder del grupo de la alabanza, Carlos, me pide que se pueda pintar con color diferente
-para cada sección de una canción, es decir, que intro tenga color verde, la parte A con color rojo y
-así, pero esto lo quiero lo mismo que con el tamaño de la pantalla completa, que cada músico pueda
-elegir si quiere o no esto y que en caso de sí que elija los colores»*.
-
-**Es el PRIMER encargo que no viene de Isaac: viene de Carlos, el líder de alabanza.** Queda anotado
-así para no perder de quién es.
-
-**Lo que pide, en tres piezas:**
-1. Cada sección de la canción, **de un color**: Intro verde, A rojo, y así.
-2. **Cada músico decide si lo quiere o no** — apagado no cambia nada de lo que ve hoy.
-3. Si lo quiere, **elige los colores él**.
-
-📌 **«Lo mismo que con el tamaño de la pantalla completa»** dice DÓNDE vive esto: es una
-**preferencia de quien lee, en su aparato**, como el tamaño de letra y el recorrido de la
-presentación (`PresentationView.tsx`, `CLAVE_TAMANOS` / `CLAVE_RECORRIDO` en `localStorage`, leídas
-**después** de montar para no romper el render del servidor). **No es un dato de la canción y no
-toca la base** — así no hace falta migración ni permiso de Isaac para la base.
-
-🔬 **CONTADO EN LA BASE REAL antes de diseñar nada** (lectura, conector en solo lectura). Las
-etiquetas `[...]` de las 87 canciones son **texto libre**: hay **más de 300 distintas**, casi todas
-únicas, porque llevan pegado el primer verso — `[A (cuando nadie me ve...)]`, `[Intro sinte guitar]`,
-`[C coro (un gozo pegajoso...)]`. **Pintar por etiqueta completa no vale para nada.**
-→ **Pero su PRIMERA PALABRA sí es un conjunto cerrado**, y con esto se cubre todo:
-
-| Inicial | Veces | | Inicial | Veces |
-|---|---|---|---|---|
-| *(sin nombre)* | 129 | | coda | 8 |
-| final | 85 | | coro | 3 |
-| a | 85 | | puente | 2 |
-| intro | 84 | | f | 2 |
-| b | 81 | | bombo · pitos · banda · cosa | 1 cada una |
-| c | 71 | | | |
-| d | 37 | | | |
-| e | 15 | | | |
-
-→ **Dieciséis en total, y doce cubren el 99 %.** El color se ata a **la inicial de la sección**
-(intro · a · b · c · d · e · f · final · coda · coro · puente · sin nombre), no a la etiqueta entera.
-Lo raro —`bombo`, `pitos`, `banda`, `cosa`, una vez cada una— tiene que caer en un color por defecto
-**sin romperse**.
-
-✅ **CONTESTADO POR ISAAC el 2026-09-13**, y esto es lo que manda:
-
-| Pregunta | Lo que dijo |
-|---|---|
-| **¿Qué se pinta?** | **Solo la ETIQUETA** de la sección. Los acordes siguen negros sobre blanco. → Descartados el fondo entero y la banda de color: el fondo fuerte deja los acordes peor de leer en el culto, que es justo donde se usa |
-| **¿Dónde?** | **Pantalla completa del culto** y **la ficha de la canción**. **En el PDF NO** — se imprime en blanco y negro y el color se vuelve gris |
-| **¿Cómo elige?** | **Tres o cuatro paletas ya hechas**, no doce selectores de color. Un toque en la tablet en vez de doce |
-| **¿De quién es la elección?** | **De cada músico**, en su aparato (ya lo dijo al encargarlo). **No es un dato de la canción y no toca la base** |
-
-📌 **Dónde se pinta, que es UN solo sitio:** la etiqueta la dibuja la cabecera de `TablaturePreview`
-(`TablaturePreview.tsx:876-886`, el `<div>` con el icono y `{label || "Notas"}`). Esa cabecera la
-usan **las cinco** pantallas —ficha, pantalla completa, PDF, versiones por tono y «nueva canción»—,
-así que **el color no puede ir cableado ahí dentro**: tiene que entrar por una propiedad que solo
-pasen las dos pantallas que Isaac dijo. Si se pinta dentro, aparece en el PDF, que es lo que él
-descartó.
 
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-13 (noche), todo PUBLICADO en r77**
+#### Estado del árbol — **2026-09-13 (noche), todo PUBLICADO en r78**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -650,10 +590,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r77** — el calderón con su punto (O-82), con su comunicado. `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r77** — el calderón salía sin el punto: estaba pegado al arco y se fundían (O-82). Antes, **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77); **r69**: cuenta de entrada y volumen del reproductor (O-75 fase 3); **r68**: el reproductor de la melodía (O-75 fase 2); **r67**: el logo en el login (O-76) |
-| Pruebas | **240** · lint **0 errores, 60 avisos** · build **0** |
-| Tamaño | **18.068 líneas** de TypeScript en **94 archivos** |
+| Último commit publicado | **r78** — un color por sección (O-83), con su comunicado y el README al día. `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r78** — **un color por sección** (O-83, de Carlos): la etiqueta se pinta según su primera palabra, tres paletas, apagado por defecto, en la ficha y a pantalla completa y **no** en el PDF. Antes, **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77) |
+| Pruebas | **256** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **18.476 líneas** de TypeScript en **96 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -811,6 +751,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-09-13 | **r78** · un color por sección (O-83, de Carlos), con sus tres paletas y el README recuperado |
 | 2026-09-13 | **r77** · el calderón con su punto (O-82). Anotados O-82 y **O-83** (el color por sección, de Carlos) |
 | 2026-09-11 | **Subir sin pedir permiso, para TODO** (*«para todo, no me pidas permiso»*; D-01 superado, §11) |
 | 2026-09-11 | **El recorte de este archivo: de 566 KB a 56 KB (762 líneas)** · dos cuentas de Claude (§1) |

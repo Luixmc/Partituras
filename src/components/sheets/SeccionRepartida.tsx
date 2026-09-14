@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 type Props = {
   notes: string;
   label?: string;
+  /** La paleta de colores de sección del músico (O-83). Solo pasa de largo. */
+  paletaId?: string | null;
   fontScale?: number;
   dense?: boolean;
   /** Clases de cada casilla (las pone la pantalla que dibuja la rejilla). */
@@ -49,6 +51,7 @@ type Props = {
 export default function SeccionRepartida({
   notes,
   label,
+  paletaId = null,
   fontScale = 1,
   dense = false,
   claseCelda,
@@ -260,6 +263,12 @@ export default function SeccionRepartida({
               // seccion partida en seis, las cabeceras ocupaban tanto como la
               // musica. Se ve en la captura de media pantalla del 2026-09-01.
               label={i === 0 ? label : etiquetaCorta(label)}
+              // 🔴 El trozo que sigue lleva el MISMO color: «C (sigue)» empieza
+              // por «c», igual que «C (Porque todo...)», así que la clave sale
+              // sola. Si no se pasara aquí, con el recorrido por columnas el
+              // trozo aterrizaría en la otra columna en gris, lejos del primero
+              // y sin nada que dijera de quién es.
+              paletaId={paletaId}
               fontScale={fontScale}
               dense={dense}
             />
@@ -292,7 +301,7 @@ export default function SeccionRepartida({
                 className="pointer-events-none absolute inset-x-0 top-0 -z-10"
                 style={{ visibility: "hidden" }}
               >
-                <TablaturePreview notes={notes} label={label} fontScale={fontScale} dense={dense} />
+                <TablaturePreview notes={notes} label={label} paletaId={paletaId} fontScale={fontScale} dense={dense} />
               </div>
             )}
           </div>

@@ -40,6 +40,11 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   internet**.
 - **Importar canciones desde archivos**: PDF (texto), imagen escaneada (OCR con `tesseract.js`) o
   texto plano. Extrae el contenido y sugiere el título.
+- **Un color por sección**, a elección de cada músico: el nombre de cada sección —`Intro`, `A`, `B`,
+  `Final`…— se pinta de un color, con tres paletas hechas y apagado por defecto. El color sale de la
+  **primera palabra** de la etiqueta, que es lo único cerrado: las etiquetas completas llevan pegado
+  el primer verso y hay más de 300 distintas. Sale en la ficha y a pantalla completa; **en el PDF
+  no**, que se imprime en blanco y negro. Se guarda en el navegador de cada uno.
 - **Vista de lectura** con tamaño de letra ajustable y modo claro/oscuro (se recuerdan en el navegador).
 - **Aviso de cambios sin guardar** al salir del editor, de la letra o al cerrar la pestaña.
 - **Autenticación y roles** (admin / músico / lector) con Supabase Auth + Row Level Security.
@@ -127,7 +132,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 240 pruebas |
+| `npm test` | Las 256 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -282,7 +287,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 240 pruebas (ver más abajo)
+pruebas/                    → las 256 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -360,7 +365,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 240 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 256 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -410,6 +415,19 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **256 pruebas** |
+| **r77** | **El calderón con su punto** (O-82): el punto se dibujaba pegado al arco y a tamaño real los dos se fundían. Medido antes de tocar nada y elegido entre cuatro variantes miradas al tamaño real |
+| **r76** | **Sin cuenta ya no se leen las canciones** (P-02, paso 2, migración `20240024`): se cierra el acceso anónimo que quedaba abierto desde agosto |
+| **r75** | **El enlace público del culto, por su función** (P-02, paso 1): quien recibe el enlace ve ese culto y nada más |
+| **r74** | **Las notas privadas del músico** (O-74, migración `20240022`) y **el tempo se guarda con la canción** (O-81) |
+| **r73** | **Las pestañas de la canción ya no se salen en el teléfono** (O-80): se reparten en dos filas |
+| **r72** | **La barra del editor de melodía, más ancha que alta** (O-79): queda más sitio para el pentagrama |
+| **r71** | **Las 15 duraciones y botones grandes** en el editor de melodía (O-78): faltaban siete, entre ellas la negra con doble puntillo |
+| **r70** | **La armadura del tono en el pentagrama** del editor de melodía (O-77) |
+| **r69** | **Cuenta de entrada y volumen** en el reproductor de la melodía (O-75, fase 3) |
+| **r68** | **El reproductor de la melodía** (O-75, fase 2): reproducir, pausar, detener, tempo, metrónomo y repetir, coloreando la nota que suena |
+| **r67** | **El logo de la iglesia en el login** (O-76) |
+| **r66** | **Migraciones aplicadas y la melodía se guarda**: las tres que llevaban semanas esperando entran con copia previa. El exportador, arreglado (T-18) |
 | **r65** | **La melodía suena al escribirla** (O-75, fase 1): suena la nota seleccionada cada vez que cambia su altura, con trompeta, piano o sin sonido. La altura sale de `alturaMidi()` —alteración escrita › la del compás › la armadura— y la cubre el CI. **Sin dependencia nueva**: `abcjs` ya traía el sintetizador. Sonidos de fuera (`FluidR3_GM`, ~25 KB por nota, fijado a mano). **214 pruebas** |
 | **r64** | **El corazón, también en Letras y Melodías** (O-73). Y se escribe la migración `20240022` para las **notas privadas** del rol músico (O-74), sin pantalla hasta que se pueda aplicar |
 | **r63** | **Favoritos por músico** (O-73): corazón en cada tarjeta del catálogo y filtro «Mis favoritas». La tabla `favorites` ya existía con sus políticas, así que **no hizo falta migración** — comprobado contra la base antes de escribir código, incluido que **nadie puede marcar favoritos en la cuenta de otro** (403) |

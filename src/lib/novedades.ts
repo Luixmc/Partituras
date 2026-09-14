@@ -72,8 +72,24 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "13 de septiembre de 2026",
     "iso": "2026-09-13",
-    "entrada": "El calderón vuelve a tener su punto.",
+    "entrada": "Cada sección puede salir de su color, si tú quieres. Y el calderón vuelve a tener su punto.",
     "secciones": [
+      {
+        "titulo": "Un color para cada sección, si tú quieres",
+        "resumen": "El nombre de cada sección puede salir de un color distinto. Lo eliges tú, en tu aparato.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Cada sección, de su color.",
+            "detalle": [
+              "Lo pidió <strong>Carlos</strong>: que la intro salga verde, la parte A roja, y así, para encontrar de un vistazo dónde vas mientras tocas. Ahora se pinta <strong>el nombre de la sección</strong> —«Intro», «A (a tus pies...)», «Final»—; los acordes se quedan negros, que es como se leen mejor.",
+              "<strong>Viene apagado y lo enciendes tú.</strong> Hay un botón con una paleta 🎨 en la ficha de la canción y en la barra de pantalla completa: eliges <em>Sin colores</em>, <em>Suaves</em>, <em>Fuertes</em> o <em>Solo el principio y el final</em>.",
+              "<strong>Es tuyo y de tu aparato:</strong> lo que elijas no le cambia la pantalla a nadie más, y si tocas con el teléfono y con la tablet, cada uno lleva lo suyo.",
+              "En el <strong>PDF no sale</strong>, a propósito: se imprime en blanco y negro y los colores saldrían grises."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El calderón, con su punto",
         "resumen": "El signo de alargar el acorde salía como un arco pelado; ya se le ve el punto debajo.",

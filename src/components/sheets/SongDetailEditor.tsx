@@ -18,6 +18,7 @@ import { puedeVerMelodia } from "@/lib/melodia";
 // común, esa tercera pantalla no tenía a cuál llamar. Se comprobó que las
 // dos copias eran idénticas antes de quitarla.
 import { parseSections } from "@/lib/sections";
+import SelectorColoresSeccion, { usePaletaSecciones } from "@/components/sheets/ColoresSeccion";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
@@ -175,6 +176,11 @@ export default function SongDetailEditor({
   // La NOTA PRIVADA (O-74) vive en la pestaña Vista y también guarda aparte:
   // sin esto, escribirla y pasar de canción la perdería sin avisar (O-43 otra vez).
   const [notaSucia, setNotaSucia] = useState(false);
+
+  // El color de las secciones (O-83): preferencia de este músico, guardada en
+  // su aparato. La misma que usa la pantalla completa, así que quien la elija
+  // ahí se la encuentra aquí.
+  const { paletaId, elegir: elegirPaleta } = usePaletaSecciones();
   const tenerNotas = puedeTenerNotas(rol);
 
   const isDirty = currentSnapshot !== savedSnapshot || melodiaSucia || versionesSucias || notaSucia;
@@ -647,6 +653,14 @@ export default function SongDetailEditor({
                 {sheet.category && <span>{sheet.category.name}</span>}
                 {viewKeyLabel && <span>Tono: {viewKeyLabel}</span>}
                 {timeSignature && <span>Compas: {timeSignature}</span>}
+                {/* El color de las secciones (O-83). Aquí y en la pantalla
+                    completa comparten la elección: es la misma clave en el
+                    aparato del músico, no dos ajustes distintos. */}
+                <SelectorColoresSeccion
+                  paletaId={paletaId}
+                  elegir={elegirPaleta}
+                  className="ml-auto font-normal"
+                />
               </div>
 
               {/* Selector de tonalidad: original + versiones guardadas */}
@@ -701,6 +715,7 @@ export default function SongDetailEditor({
                       key={idx}
                       notes={section.content}
                       label={section.title}
+                      paletaId={paletaId}
                       compact
                     />
                   ))}

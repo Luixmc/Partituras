@@ -7,11 +7,18 @@ import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NoteFigure, RestFigure, FermataFigure, SlurFigure, FIGURA_ALTO } from "@/components/sheets/MusicFigures";
 import { duracionDe, DURACION } from "@/lib/figuras";
+import { colorDeEtiqueta } from "@/lib/coloresSeccion";
 
 type Props = {
   notes: string;
   compact?: boolean;
   label?: string;
+  /**
+   * La paleta de colores de sección que eligió ESTE músico (O-83), o
+   * `null`/sin pasar para no pintar nada. La pasan solo la ficha de la canción
+   * y la pantalla completa; el PDF y las demás no, y por eso se quedan igual.
+   */
+  paletaId?: string | null;
   /** Escala de la letra (1 = normal). */
   fontScale?: number;
   /** Compacta los márgenes (título de sección y contenido) para ganar espacio. */
@@ -858,6 +865,7 @@ export default function TablaturePreview({
   notes,
   compact = false,
   label,
+  paletaId = null,
   fontScale = 1,
   dense = false,
   segmentos,
@@ -878,7 +886,20 @@ export default function TablaturePreview({
           "flex items-center justify-between border-b border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60",
           dense ? "px-3 py-0.5" : "px-4 py-2"
         )}>
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {/* 🔴 O-83 · EL COLOR ENTRA POR UNA PROPIEDAD, no se decide aquí.
+              Esta cabecera la dibujan CINCO pantallas —la ficha, la pantalla
+              completa, el PDF del culto, las versiones por tono y «nueva
+              canción»— y Isaac solo quiso color en las dos primeras: el PDF se
+              imprime en blanco y negro y el color se vuelve gris. Si el color
+              se calculara aquí dentro saldría en las cinco.
+              `colorDeEtiqueta` devuelve `undefined` cuando no hay paleta, así
+              que sin ella queda exactamente la clase de siempre. */}
+          <div
+            className={cn(
+              "flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100",
+              colorDeEtiqueta(label, paletaId)
+            )}
+          >
             <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
             {label || "Notas"}
           </div>

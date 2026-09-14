@@ -4,6 +4,90 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-13 · O-83 · Un color por cada sección (r78)
+
+Isaac: *«el líder del grupo de la alabanza, Carlos, me pide que se pueda pintar con color diferente
+para cada sección de una canción, es decir, que intro tenga color verde, la parte A con color rojo y
+así, pero esto lo quiero lo mismo que con el tamaño de la pantalla completa, que cada músico pueda
+elegir si quiere o no esto y que en caso de sí que elija los colores»*.
+
+**Es el PRIMER encargo que no viene de Isaac: viene de Carlos, el líder de alabanza.** Queda anotado
+así para no perder de quién es.
+
+**Lo que pide, en tres piezas:**
+1. Cada sección de la canción, **de un color**: Intro verde, A rojo, y así.
+2. **Cada músico decide si lo quiere o no** — apagado no cambia nada de lo que ve hoy.
+3. Si lo quiere, **elige los colores él**.
+
+📌 **«Lo mismo que con el tamaño de la pantalla completa»** dice DÓNDE vive esto: es una
+**preferencia de quien lee, en su aparato**, como el tamaño de letra y el recorrido de la
+presentación (`PresentationView.tsx`, `CLAVE_TAMANOS` / `CLAVE_RECORRIDO` en `localStorage`, leídas
+**después** de montar para no romper el render del servidor). **No es un dato de la canción y no
+toca la base** — así no hace falta migración ni permiso de Isaac para la base.
+
+🔬 **CONTADO EN LA BASE REAL antes de diseñar nada** (lectura, conector en solo lectura). Las
+etiquetas `[...]` de las 87 canciones son **texto libre**: hay **más de 300 distintas**, casi todas
+únicas, porque llevan pegado el primer verso — `[A (cuando nadie me ve...)]`, `[Intro sinte guitar]`,
+`[C coro (un gozo pegajoso...)]`. **Pintar por etiqueta completa no vale para nada.**
+→ **Pero su PRIMERA PALABRA sí es un conjunto cerrado**, y con esto se cubre todo:
+
+| Inicial | Veces | | Inicial | Veces |
+|---|---|---|---|---|
+| *(sin nombre)* | 129 | | coda | 8 |
+| final | 85 | | coro | 3 |
+| a | 85 | | puente | 2 |
+| intro | 84 | | f | 2 |
+| b | 81 | | bombo · pitos · banda · cosa | 1 cada una |
+| c | 71 | | | |
+| d | 37 | | | |
+| e | 15 | | | |
+
+→ **Dieciséis en total, y doce cubren el 99 %.** El color se ata a **la inicial de la sección**
+(intro · a · b · c · d · e · f · final · coda · coro · puente · sin nombre), no a la etiqueta entera.
+Lo raro —`bombo`, `pitos`, `banda`, `cosa`, una vez cada una— tiene que caer en un color por defecto
+**sin romperse**.
+
+✅ **CONTESTADO POR ISAAC el 2026-09-13**, y esto es lo que manda:
+
+| Pregunta | Lo que dijo |
+|---|---|
+| **¿Qué se pinta?** | **Solo la ETIQUETA** de la sección. Los acordes siguen negros sobre blanco. → Descartados el fondo entero y la banda de color: el fondo fuerte deja los acordes peor de leer en el culto, que es justo donde se usa |
+| **¿Dónde?** | **Pantalla completa del culto** y **la ficha de la canción**. **En el PDF NO** — se imprime en blanco y negro y el color se vuelve gris |
+| **¿Cómo elige?** | **Tres o cuatro paletas ya hechas**, no doce selectores de color. Un toque en la tablet en vez de doce |
+| **¿De quién es la elección?** | **De cada músico**, en su aparato (ya lo dijo al encargarlo). **No es un dato de la canción y no toca la base** |
+
+📌 **Dónde se pinta, que es UN solo sitio:** la etiqueta la dibuja la cabecera de `TablaturePreview`
+(`TablaturePreview.tsx:876-886`, el `<div>` con el icono y `{label || "Notas"}`). Esa cabecera la
+usan **las cinco** pantallas —ficha, pantalla completa, PDF, versiones por tono y «nueva canción»—,
+así que **el color no puede ir cableado ahí dentro**: tiene que entrar por una propiedad que solo
+pasen las dos pantallas que Isaac dijo. Si se pinta dentro, aparece en el PDF, que es lo que él
+descartó.
+
+✅ **HECHO Y PUBLICADO en r78**, las cinco fases seguidas, con el plan aprobado por Isaac
+(*«adelante»*).
+
+| Pieza | Dónde |
+|---|---|
+| Quién decide el color | `lib/coloresSeccion.ts` — `claveDe()` y las tres paletas |
+| La preferencia del músico | `localStorage`, clave `secciones-paleta`, leída **después** de montar |
+| El interruptor | `components/sheets/ColoresSeccion.tsx` — el hook y el `<select>` |
+| Pintar | la cabecera de `TablaturePreview`, por la propiedad `paletaId` |
+| Quién la pasa | **solo** `SongDetailEditor` (ficha) y `PresentationView` → `SeccionRepartida` |
+
+🔴 **Dos cosas que se cazaron MIRÁNDOLO y no se habrían cazado leyendo el código:**
+1. **`final` estaba en índigo y se confundía con el azul de `b`** en la captura del culto, que es
+   donde `Intro · A · B · C · D · Final` salen todas a la vez. Pasó a **fucsia**. Lo que hay que
+   comparar no son dos colores cualesquiera, sino **los que aparecen juntos en una canción**.
+2. **Las clases de Tailwind no se generaban.** `src/lib` no estaba en `content`, y Tailwind lee el
+   código como texto. Se **midió las dos veces**: sin la línea, `text-emerald-600` aparece **0**
+   veces en el CSS compilado; con ella, **1**. Sin ese `content`, la página habría salido idéntica a
+   como estaba y nadie habría visto un error en ninguna parte.
+
+**Comprobado:** 256 pruebas · lint 0 errores · build 0 · y **mirado**: ficha apagada (igual que
+siempre) y encendida, culto a pantalla completa en **claro y en oscuro**, **teléfono de 400 px** (la
+barra se parte en dos filas, no se sale nada) y **el PDF con el color encendido, sin colores**. La
+consola del navegador, sin una sola queja.
+
 #### ✅ Cerrado el 2026-09-13 · O-82 · El calderón salía sin el punto (r77)
 
 Isaac: *«quiero que arregles el calderón, sale la línea curva pero no el punto»*.

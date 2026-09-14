@@ -6,6 +6,11 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // 🔴 `src/lib` entró el 2026-09-13 con O-83: los colores de sección viven
+    // en `lib/coloresSeccion.ts`, y Tailwind lee el código como TEXTO. Sin esta
+    // línea esas clases no se generan y el color NO SALE, sin ningún error ni
+    // en el build ni en la consola: la etiqueta se queda del color de siempre.
+    "./src/lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

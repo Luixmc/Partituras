@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Columns2, Columns3, CornerDownRight, Expand,
 import { estrofasDe } from "@/lib/letras";
 
 import SeccionRepartida from "@/components/sheets/SeccionRepartida";
+import SelectorColoresSeccion, { usePaletaSecciones } from "@/components/sheets/ColoresSeccion";
 import Pentagrama from "@/components/sheets/Pentagrama";
 import Reproductor from "@/components/sheets/Reproductor";
 import { parsearMelodia, tramosDe } from "@/lib/melodia";
@@ -162,6 +163,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // Se arranca en "filas" y se lee el guardado ya en el navegador: leerlo en el
   // estado inicial rompería el render del servidor (no hay localStorage allí).
   const [recorrido, setRecorrido] = useState<Recorrido>("filas");
+
+  // ── El color de las secciones (O-83) ──────────────────────
+  //
+  // Otra preferencia de quien lee, como el recorrido y el tamaño: vive en su
+  // aparato y arranca apagada. Aquí es donde Carlos lo va a usar — tocando.
+  const { paletaId, elegir: elegirPaleta } = usePaletaSecciones();
 
   // ── El instrumento de quien lee (D-28) ────────────────────
   //
@@ -799,6 +806,11 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
               {recorrido === "filas" ? <CornerDownRight className="h-4 w-4" /> : <TextQuote className="h-4 w-4" />}
             </button>
           )}
+
+          {/* El color de las secciones (O-83). Va aquí, con el recorrido y las
+              columnas, porque es de la misma familia: cómo quiere VER esto el
+              que está tocando, no qué canción es. */}
+          <SelectorColoresSeccion paletaId={paletaId} elegir={elegirPaleta} variante="compacto" />
         </div>
 
         {/* Tu instrumento (D-28). Va pegado al tono porque es justo lo que
@@ -1041,6 +1053,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                   key={i}
                   notes={sec.content}
                   label={sec.title}
+                  paletaId={paletaId}
                   fontScale={fontScale}
                   dense
                   // El envoltorio es lo que se mantiene entero dentro de una

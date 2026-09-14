@@ -41,6 +41,7 @@ const MODULOS = [
   "melodia",
   "reproduccion",
   "notas",
+  "coloresSeccion",
 ];
 
 function preparar() {

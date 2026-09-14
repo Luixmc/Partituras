@@ -4,6 +4,35 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-13 · r78 · Un color por sección (O-83), el primer encargo de Carlos
+
+Isaac contestó las cuatro preguntas —**solo la etiqueta**, en **la ficha y la pantalla completa**
+(en el PDF no), con **tres paletas hechas** y la elección **de cada músico**—, se escribieron en §9
+antes de programar, y aprobó el plan por fases (*«adelante»*).
+
+**Lo que decidió el diseño fue contar la base, no elegir a ojo:** las etiquetas `[...]` de las 87
+canciones son texto libre —más de 300 distintas, casi todas únicas porque llevan pegado el primer
+verso—, pero **su primera palabra es un conjunto cerrado de 16**, y doce cubren el 99 %. Un color
+por etiqueta habría dado 300 colores; por inicial, doce.
+
+🔴 **Dos trampas, las dos cazadas mirando:**
+* **`final` en índigo se confundía con el azul de `b`** en la captura del culto, que es donde
+  `Intro · A · B · C · D · Final` salen juntas. Pasó a fucsia. Lo que hay que comparar no son dos
+  colores cualesquiera: son **los que aparecen a la vez en una canción**. Es **L-291**.
+* **Tailwind no generaba las clases** porque `src/lib` no estaba en su `content`. Medido las dos
+  veces: sin la línea, `text-emerald-600` aparece **0** veces en el CSS compilado; con ella, **1**.
+  Habría salido la página de siempre, sin un solo error. Es **L-289**.
+
+Y por el camino, dos cosas del arnés de capturas que costaron vueltas y quedaron en **L-286**
+(hablar con un navegador zombi por reutilizar el puerto) y **L-290** (Git Bash convierte
+`/catalog/...` en una ruta de Windows antes de que el guion lo vea).
+
+**Comprobado:** 256 pruebas · lint 0 · build 0 · ficha apagada y encendida · culto en claro y en
+oscuro · teléfono de 400 px · **y el PDF con el color encendido, sin colores**.
+
+De paso, el **README** llevaba sin tocarse desde **r65**: se le devolvieron las **doce versiones**
+que faltaban (r66–r77) además de la nueva.
+
 ### 2026-09-13 · r77 · El calderón con su punto (O-82), y dos encargos anotados
 
 Isaac pidió dos cosas y **las dos se escribieron en §9 antes de tocar código** (regla 0): el
