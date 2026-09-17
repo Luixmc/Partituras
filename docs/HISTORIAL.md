@@ -35,8 +35,12 @@ para confirmar que **sube** con la trompeta.
 la respuesta correcta es que **los acordes se transponen igual** —el trompetista los necesita—; lo
 que no se puede es inventarle un nombre al tono. Es **L-339**.
 
-⚠️ **Lo que NO se comprobó:** que el archivo PDF guardado lleve los pentagramas. Se comprobó la
-espera y que se dibujan en pantalla; **guardar el archivo le toca a Isaac**.
+✅ **Y lo que se había dejado sin comprobar, se comprobó el mismo día:** el PDF **guardado de
+verdad** lleva el pentagrama. Se imprime con `Page.printToPDF` y se cuentan las órdenes de dibujo
+dentro del archivo con `pdfjs`: la página de «Agnus Dei» tiene **344 trazos con melodía contra 280
+con el pentagrama oculto** —64 de diferencia, los del pentagrama— y las otras dos páginas salen
+idénticas. El método —imprimir dos veces, una con un `display:none` sobre lo que se quiere medir—
+**aísla la pieza** y vale para cualquier PDF de aquí. Es **L-341**.
 
 ### 2026-09-17 · r81 · El silencio ya no se sale por abajo (O-54 ②)
 

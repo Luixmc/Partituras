@@ -68,9 +68,25 @@ necesita igual—, lo que no se puede es inventarle un nombre al tono.
 **sin heredar los bemoles de F**), y el PDF con cuenta con la melodía, en los dos instrumentos —
 medida la huella vertical del pentagrama para confirmar que **sube** con la trompeta (3607 → 3543).
 
-⚠️ **Lo que NO se ha comprobado, y se dice:** que el PDF guardado de verdad —el archivo— lleve los
-pentagramas. Se comprobó la espera y que se dibujan en pantalla; guardar el archivo y abrirlo **le
-toca a Isaac**.
+✅ **COMPROBADO DESPUÉS, en el archivo de verdad (2026-09-17).** Se dijo «esto le toca a Isaac» y
+luego se pudo hacer aquí: se guarda el PDF **como lo guarda la app** —`Page.printToPDF` desde el
+navegador— y se cuentan las órdenes de dibujo **dentro del archivo** con `pdfjs`, que ya es
+dependencia del proyecto.
+
+| Página | Con melodía | Con el pentagrama oculto |
+|---|---|---|
+| 1 | 197 trazos | 197 |
+| **2 · «Agnus Dei»** | **344 trazos** | **280** |
+| 3 | 432 trazos | 432 |
+
+**64 trazos de diferencia en la única página con melodía**, y son justo los ~61 que tiene el
+pentagrama dibujado en pantalla. Las otras dos, idénticas. → **El pentagrama SÍ llega al archivo
+guardado**, y la espera del botón hace su trabajo.
+
+📌 **Y el método sirve para cualquier PDF de este proyecto:** imprimir dos veces —una normal y otra
+con un `display:none` inyectado sobre lo que se quiere medir— y comparar los trazos por página
+**aísla exactamente esa pieza**. Comparar el tamaño del archivo no vale: cambia por mil motivos.
+
 
 #### ✅ Cerrado el 2026-09-17 · O-54 ② · El alto del silencio (r81)
 
@@ -107,10 +123,17 @@ ve*. Mientras el lienzo llevó 24 unidades de aire, **cualquier número escrito 
 colocando aire**, no el signo — y por eso encogerlo, ponerle `height` y centrarlo se quedaron todos
 a medias.
 
-⚠️ **Un cabo suelto, medido y anotado sin inflarlo:** en esa misma canción **una** celda da
-solapamiento de **cajas** de 4,1 px entre la figura y su acorde —un `Dm7` cuya caja mide 35 px—.
-**No se ve ningún choque de tinta** en las capturas, así que no se tocó. Si algún día Isaac ve una
-figura rozando un acorde, **se empieza por ahí**.
+✅ **El cabo suelto que quedó, perseguido y CERRADO el mismo día.** La medición decía que en esa
+canción **una** celda solapaba 4,1 px entre la figura y su acorde. **No es un defecto:** ese `Dm7`
+lleva **la letra dentro de su caja** («Dios… x8»), así que la caja mide **35 px** con una letra de
+24 — empieza 11 px por encima del glifo—. Lo que se solapa es **caja contra caja**; mirado ampliado,
+los símbolos sobre `D` y `C` están claramente separados de los acordes y **no se tocan**.
+
+📌 **La regla que deja, porque volverá a aparecer:** medir cajas es barato y sirve para BUSCAR, pero
+**una caja no es lo que se ve**. Antes de arreglar un solapamiento hay que comprobar si se solapa la
+TINTA —y aquí las dos partes mienten a la vez: la figura tiene lienzo vacío abajo (O-54 ②) y el
+acorde tiene la letra dentro—. Si se hubiera «arreglado» por el número, se habría movido algo que
+estaba bien.
 
 **Comprobado:** 263 pruebas · lint 0 errores · build 0 por código de salida · y **mirado**: la celda
 del silencio ampliada x5, la barra de acordes y el editor de melodía.
