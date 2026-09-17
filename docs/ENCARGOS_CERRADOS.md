@@ -4,6 +4,74 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-17 · O-86 · El PDF en el tono del instrumento y con la melodía (r82)
+
+Isaac: *«vamos con lo del pdf»*, y preguntado cuál de los dos pendientes, **«los dos, empezando por
+el tono»**.
+
+**FASE ① · El PDF en el tono del instrumento (era P.3, de agosto).** Hoy el trompetista **sí** ve la
+canción transpuesta a pantalla completa (D-28, P.1 y P.2), pero **el PDF sale siempre en el tono del
+grupo**, así que en papel no le sirve. Que pueda guardarlo ya transpuesto.
+
+**FASE ② · El PDF con la melodía.** Que el pentagrama salga en el PDF además de los acordes.
+⚠️ **Y un aviso que hay que darle antes de gastar la tanda:** hoy hay **una sola canción con melodía
+escrita** de 87. La fase se puede hacer, pero **se va a notar en una canción**, y el resto del PDF
+quedará igual que ahora hasta que él escriba más melodías.
+
+📌 **Lo que ya se sabe del terreno, comprobado antes de planificar:** `PrintableService` **no sabe
+nada de instrumentos ni de melodía** — sus propiedades son título, tipo, fecha, canciones y el
+enlace de vuelta, y punto. Las dos fases son añadirle algo que hoy no tiene.
+
+✅ **LAS DOS FASES, HECHAS Y PUBLICADAS en r82.**
+
+**Fase ① · El PDF en el tono del instrumento.** El PDF gana el selector *Como suena / Trompeta*, que
+lee **la misma preferencia que la pantalla completa** (`lectura-transpositor`): quien ya eligió
+«Trompeta» tocando se la encuentra puesta, y si la cambia aquí la cambia para las dos. La cabecera
+de cada canción enseña **los dos tonos** —`Tono: G · suena F`—, que es la decisión 1 de D-28, y en
+papel importa más que en pantalla: **ahí nadie puede tocar un botón para comprobarlo**.
+
+🔴 **Lo que de verdad cambió el diseño: la cuenta del tono se sacó a `lib/tonoLeido.ts`.** Estaba
+escrita en línea dentro de `PresentationView` desde agosto, y copiarla al PDF habría sido la cuarta
+vez que este proyecto escribe lo mismo dos veces —pasó con `parseSections` (P-09) y con la tabla de
+nombres de nota, que estaba en `music.ts` **y** copiada dentro de la presentación—. Aquí el precio de
+que se separen no es cosmético: **el papel diría un tono y la tablet otro, y se descubriría en mitad
+de un culto**. Ahora sale de un solo sitio, y de golpe: cuánto transponer, con qué ortografía, qué se
+lee y qué suena — para que ninguna se pueda calcular por su cuenta y contradecir a las otras (T-14).
+
+**Fase ② · El PDF con la melodía.** El pentagrama sale **debajo de los acordes** —el papel se lee de
+arriba abajo y los acordes son lo que se mira tocando— reusando el `Pentagrama` que ya existía, y se
+transpone con **el mismo número que los acordes**: si fuera por su cuenta, el trompetista leería los
+acordes en un tono y la melodía en otro.
+
+⚠️ **Tres cuidados que hacían falta y no son evidentes:**
+1. **La melodía se pide APARTE y solo a quien le toca verla** (`ROLES_MELODIA`, hoy solo admin),
+   reusando `melodiasDe`/`ponerMelodias`. No va dentro del `select` del culto: si la columna faltara,
+   metida ahí **haría fallar la consulta entera y el PDF saldría vacío**, que en algo que alguien
+   imprime el sábado es peor que no tener melodía. **El enlace público no la lleva** — comprobado:
+   esa página no la pide.
+2. **El botón de guardar ESPERA a que el pentagrama esté dibujado.** `abcjs` dibuja después de
+   cargar, y se baja sola la primera vez: quien le diera al botón enseguida **se llevaba un PDF con
+   los pentagramas en blanco, sin ningún error que lo avisara**. Ahora cuenta cuántos tiene que
+   haber, espera hasta 5 segundos y luego imprime — y si se pasa el tiempo, imprime igual: más vale
+   un PDF con los acordes que un botón que no hace nada.
+3. **El pentagrama necesita el desplazamiento CON SIGNO**, no el normalizado a 0..11 que usan los
+   acordes: para un acorde da igual, pero +10 en una partitura sube casi una octava donde se quería
+   bajar dos semitonos.
+
+**Pruebas nuevas (13, total 276).** La que justifica el módulo: **el papel y la pantalla calculan lo
+mismo** para las 17 tonalidades del repertorio, con los dos instrumentos. Y que **los acordes
+escritos coinciden con la etiqueta del tono**, que es T-14 tal cual. ⚠️ Una prueba mía estaba mal y
+lo dijo el código: sin tonalidad escrita, los **acordes sí se transponen** —el trompetista los
+necesita igual—, lo que no se puede es inventarle un nombre al tono.
+
+**Comprobado mirándolo:** el PDF público con «Trompeta» (`Tono: G · suena F`, y los acordes en G
+**sin heredar los bemoles de F**), y el PDF con cuenta con la melodía, en los dos instrumentos —
+medida la huella vertical del pentagrama para confirmar que **sube** con la trompeta (3607 → 3543).
+
+⚠️ **Lo que NO se ha comprobado, y se dice:** que el PDF guardado de verdad —el archivo— lleve los
+pentagramas. Se comprobó la espera y que se dibujan en pantalla; guardar el archivo y abrirlo **le
+toca a Isaac**.
+
 #### ✅ Cerrado el 2026-09-17 · O-54 ② · El alto del silencio (r81)
 
 Llevaba abierto desde el **2026-09-02**, con dos síntomas de Isaac: *«el silencio sobresale para

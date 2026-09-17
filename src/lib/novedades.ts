@@ -72,8 +72,31 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "17 de septiembre de 2026",
     "iso": "2026-09-17",
-    "entrada": "Los colores de sección pintan la franja entera, y el silencio ya no se monta sobre el acorde.",
+    "entrada": "El PDF del culto sale en tu tono y con la melodía. Y los colores de sección pintan la franja entera.",
     "secciones": [
+      {
+        "titulo": "El PDF del culto, en TU tono",
+        "resumen": "Quien toca trompeta puede guardarse el PDF ya transpuesto, y sale también la melodía.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "El PDF sale en el tono de tu instrumento.",
+            "detalle": [
+              "A pantalla completa la canción ya te salía transpuesta si tocas <strong>trompeta</strong> (o clarinete, o saxo tenor). Pero el PDF salía siempre en el tono del grupo, así que <strong>en papel no te servía</strong>.",
+              "Ahora el PDF tiene el mismo botón <em>Como suena / Trompeta</em>, y <strong>respeta lo que ya elegiste</strong> tocando: no hay que decirlo dos veces.",
+              "Cada canción lleva <strong>los dos tonos</strong>: «Tono: G · suena F». Así nadie discute el tono en mitad del culto: tú lees G y el grupo toca en F."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Y el PDF lleva la melodía.",
+            "detalle": [
+              "Si la canción tiene melodía escrita, el <strong>pentagrama sale en el PDF</strong>, debajo de los acordes, y <strong>en el mismo tono</strong> que ellos.",
+              "Hoy solo hay <strong>una canción</strong> con melodía escrita, así que de momento se nota en esa. A medida que se vayan escribiendo, irán apareciendo solas."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El silencio ya no se monta sobre el acorde",
         "resumen": "El signo de silencio se salía de su casilla por abajo y pisaba el nombre del acorde.",

@@ -16,7 +16,8 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 - **Diagramas de acordes**: pulsa cualquier acorde y se abre cómo se toca en **piano, bajo o
   guitarra** — el que elijas, y se recuerda. Cubre los 1.894 acordes del repertorio.
 - **Modo trompeta**: quien toca un instrumento en Bb ve la canción **ya transpuesta a su tono**, con
-  los dos tonos a la vista (el que suena y el que lee).
+  los dos tonos a la vista (el que suena y el que lee) — a pantalla completa **y en el PDF del
+  culto**, para llevárselo en papel.
 - **Pantalla completa** para tocar desde la tablet o el teléfono: pasar de canción, transponer,
   tamaño de letra guardado por canción y dos maneras de recorrer las columnas. Las barras **se
   encogen y reservan su sitio** —arriba una sola fila con salir, la canción y el tono—, así que no
@@ -135,7 +136,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 263 pruebas |
+| `npm test` | Las 276 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -290,7 +291,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 263 pruebas (ver más abajo)
+pruebas/                    → las 276 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -368,7 +369,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 263 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 276 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -420,7 +421,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
 | **r80** | **La sección sin etiqueta también lleva banda** (O-85): se quedaba gris entre las de color y parecía que le faltaba algo. Va en **neutro** —no un color más—, porque «sin clasificar» es lo que significa, y porque los siete tonos que salen juntos en una canción ya están bien separados entre sí |
 | **r79** | **El color va en la BANDA de la sección, no en la letra** (O-84): Isaac lo corrigió viéndolo en la app — *«que pinte la línea donde está el texto de la sección»*, para separar bloques a la distancia a la que se toca. Y la lista del selector, legible en oscuro: se había saltado el arreglo global de **T-12** al ponerle `bg-transparent` y letra clara |
-| **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **263 pruebas** |
+| **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **276 pruebas** |
 | **r77** | **El calderón con su punto** (O-82): el punto se dibujaba pegado al arco y a tamaño real los dos se fundían. Medido antes de tocar nada y elegido entre cuatro variantes miradas al tamaño real |
 | **r76** | **Sin cuenta ya no se leen las canciones** (P-02, paso 2, migración `20240024`): se cierra el acceso anónimo que quedaba abierto desde agosto |
 | **r75** | **El enlace público del culto, por su función** (P-02, paso 1): quien recibe el enlace ve ese culto y nada más |

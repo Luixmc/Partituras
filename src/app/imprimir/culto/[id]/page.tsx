@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import PrintableService from "@/components/services/PrintableService";
 import { createClient } from "@/lib/supabase/server";
 import { formatServiceDate, mapPresentSongs, metaDeCulto } from "@/lib/services";
+import { melodiasDe, ponerMelodias } from "@/lib/melodiaBase";
+import { puedeVerMelodia } from "@/lib/melodia";
 
 /**
  * Hoja imprimible del culto: sus canciones con acordes, una por página (O-08).
@@ -34,13 +36,34 @@ export default async function ImprimirCultoPage(
   if (!service) notFound();
 
   const meta = metaDeCulto(service.service_type);
+  const songs = mapPresentSongs(service.service_songs);
+
+  // La MELODÍA en el PDF (O-86, fase ②).
+  //
+  // 🔴 Se pide APARTE y solo a quien le toca verla (ROLES_MELODIA), igual que
+  // en la pantalla completa. Los dos motivos siguen valiendo aquí:
+  //  · **no viaja al navegador de quien no debe verla** — no basta con no
+  //    dibujarla, es que no sale del servidor;
+  //  · **no va dentro del `select` de arriba**: si la columna faltara, metida
+  //    ahí haría fallar la consulta entera y **el culto saldría vacío**, que en
+  //    un PDF que alguien va a imprimir el sábado es peor que no tener melodía.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: perfil } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  if (puedeVerMelodia(perfil?.role)) {
+    const melodias = await melodiasDe(supabase, songs.map((s) => s.id));
+    ponerMelodias(songs, melodias);
+  }
 
   return (
     <PrintableService
       title={service.name}
       typeLabel={meta.label}
       dateText={formatServiceDate(service.service_date)}
-      songs={mapPresentSongs(service.service_songs)}
+      songs={songs}
       backHref={`/services/${params.id}`}
     />
   );

@@ -4,6 +4,40 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-17 · r82 · El PDF del culto, en el tono del instrumento y con la melodía (O-86)
+
+Isaac: *«vamos con lo del pdf»*, y de los dos pendientes eligió **«los dos, empezando por el tono»**.
+
+**Fase ①.** El PDF gana el selector de instrumento y lee **la misma preferencia que la pantalla
+completa**: quien ya eligió «Trompeta» tocando se la encuentra puesta. Cada canción enseña **los dos
+tonos** (`Tono: G · suena F`), que en papel importa más que en pantalla porque ahí nadie puede tocar
+un botón para comprobarlo.
+
+🔴 **Lo que de verdad cambió el diseño:** la cuenta del tono se sacó a **`lib/tonoLeido.ts`**. Vivía
+en línea dentro de `PresentationView` desde agosto, y copiarla al PDF habría sido **la cuarta vez**
+que este proyecto escribe lo mismo dos veces —`parseSections` (P-09) y la tabla de nombres de nota,
+que estaba en `music.ts` y **copiada** dentro de la presentación—. El precio aquí no es cosmético:
+**el papel diría un tono y la tablet otro, y se descubriría en mitad de un culto**. De paso, la
+presentación pasó a usarla y se quedó **una sola** copia de los nombres de nota.
+
+**Fase ②.** El pentagrama sale debajo de los acordes, reusando el `Pentagrama` que ya existía, y con
+**el mismo desplazamiento que los acordes**. Tres cuidados que no son evidentes: la melodía se pide
+**aparte y solo a quien le toca verla** (y el enlace público no la lleva), el botón de guardar
+**espera a que `abcjs` haya dibujado** —si no, el PDF salía con los pentagramas en blanco y sin
+ningún error—, y el pentagrama necesita el desplazamiento **con signo**, no el normalizado a 0..11.
+
+**Comprobado:** 276 pruebas —13 nuevas, y la que importa es que **el papel y la pantalla calculan lo
+mismo** en las 17 tonalidades del repertorio con los dos instrumentos— · lint 0 · build 0 · y mirado:
+`Tono: G · suena F` con los acordes en G **sin heredar los bemoles de F**, y el pentagrama medido
+para confirmar que **sube** con la trompeta.
+
+📌 **Una prueba mía estaba mal y lo dijo el código:** sin tonalidad escrita yo esperaba 0 semitonos, y
+la respuesta correcta es que **los acordes se transponen igual** —el trompetista los necesita—; lo
+que no se puede es inventarle un nombre al tono. Es **L-339**.
+
+⚠️ **Lo que NO se comprobó:** que el archivo PDF guardado lleve los pentagramas. Se comprobó la
+espera y que se dibujan en pantalla; **guardar el archivo le toca a Isaac**.
+
 ### 2026-09-17 · r81 · El silencio ya no se sale por abajo (O-54 ②)
 
 El último defecto que quedaba de agosto, y llevaba en §9 como **«sin mirar»** desde el 2026-09-02.

@@ -6,7 +6,17 @@ import { ArrowLeft, Moon, Printer, RectangleHorizontal, RectangleVertical, Sun }
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { parseSections } from "@/lib/sections";
-import { prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
+import { tonoLeido } from "@/lib/tonoLeido";
+import Pentagrama from "@/components/sheets/Pentagrama";
+import { tramosDe } from "@/lib/melodia";
+import {
+  TRANSPOSITORES,
+  TRANSPOSITOR_POR_DEFECTO,
+  guardarTranspositor,
+  leerTranspositor,
+  semitonosDe,
+} from "@/lib/transpositores";
+import { transposeContent } from "@/lib/music";
 import type { PresentSong } from "@/types";
 
 // Hoja del culto para guardar en PDF: TODAS sus canciones con sus acordes y su
@@ -77,6 +87,66 @@ export default function PrintableService({
   // el navegador del MÓVIL, en cambio, guarda siempre en vertical y no hay
   // manera de obligarlo. Por eso, además de poder elegir, el contenido se
   // adapta solo a la hoja que salga (ver los estilos de más abajo).
+  // ── El instrumento de quien se lleva el papel (O-86, fase ①) ──
+  //
+  // 🔴 LEE LA MISMA PREFERENCIA QUE LA PANTALLA COMPLETA (`lectura-transpositor`),
+  // no una suya. El trompetista ya eligió «Trompeta» una vez tocando; pedírselo
+  // otra vez aquí sería tratar dos pantallas como dos aplicaciones distintas. Y
+  // si lo cambia aquí, lo cambia para las dos, que es lo que él espera.
+  //
+  // Se lee DESPUÉS de montar, como el fondo y la hoja: en el servidor no hay
+  // `localStorage`, y leerlo en el estado inicial rompe el primer dibujo.
+  const [transpositor, setTranspositor] = useState(TRANSPOSITOR_POR_DEFECTO);
+  useEffect(() => {
+    // Igual que `?fondo=` y `?hoja=`: se puede forzar por la dirección, para
+    // mandar el enlace ya puesto y para comprobarlo sin depender de lo que
+    // tenga guardado cada navegador.
+    try {
+      const pedido = new URLSearchParams(window.location.search).get("instrumento");
+      if (pedido && TRANSPOSITORES.some((i) => i.id === pedido)) {
+        setTranspositor(pedido);
+        return;
+      }
+    } catch {
+      /* sin dirección legible: se usa lo guardado */
+    }
+    setTranspositor(leerTranspositor());
+  }, []);
+  const desplazamiento = semitonosDe(transpositor);
+  const cambiarInstrumento = (id: string) => {
+    setTranspositor(id);
+    guardarTranspositor(id);
+  };
+
+  // ── Imprimir SIN que el pentagrama salga en blanco (O-86, fase ②) ──
+  //
+  // 🔴 `abcjs` dibuja DESPUÉS de que cargue la página, y encima se baja sola
+  // la primera vez (carga diferida, ~136 KB). Si alguien le da a «Guardar en
+  // PDF» antes de que termine, **el PDF sale con los pentagramas en blanco** y
+  // no hay ningún error que lo avise: el papel simplemente no los lleva.
+  //
+  // Por eso el botón no imprime a lo bruto: cuenta cuántos pentagramas tiene
+  // que haber, espera a que estén dibujados —hasta 5 segundos— y solo entonces
+  // imprime. Si pasan los 5 segundos igualmente imprime: más vale un PDF con
+  // los acordes que un botón que no hace nada.
+  const [esperandoMelodia, setEsperandoMelodia] = useState(false);
+  const pentagramasEsperados = songs.reduce(
+    (n, s) => n + (s.melody ? tramosDe(s.melody).filter((tr) => tr.abc).length : 0),
+    0
+  );
+  const imprimir = async () => {
+    if (pentagramasEsperados > 0) {
+      setEsperandoMelodia(true);
+      const hasta = Date.now() + 5000;
+      while (Date.now() < hasta) {
+        if (document.querySelectorAll(".melodia svg").length >= pentagramasEsperados) break;
+        await new Promise((listo) => setTimeout(listo, 120));
+      }
+      setEsperandoMelodia(false);
+    }
+    window.print();
+  };
+
   const [vertical, setVertical] = useState(false);
   useEffect(() => {
     try {
@@ -253,28 +323,68 @@ export default function PrintableService({
           </button>
         </div>
 
+        {/* El instrumento de quien se lleva el papel (O-86).
+            Va antes del botón de guardar a propósito: es lo último que hay que
+            decidir **antes** de guardar, y así se lee en ese orden. */}
+        <div className="flex flex-shrink-0 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
+          {TRANSPOSITORES.map((ins) => (
+            <button
+              key={ins.id}
+              type="button"
+              onClick={() => cambiarInstrumento(ins.id)}
+              title={ins.ejemplos}
+              aria-pressed={ins.id === transpositor}
+              className={
+                "inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-semibold sm:px-2.5 " +
+                (ins.id === transpositor
+                  ? "bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-white"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200")
+              }
+            >
+              {ins.nombre}
+            </button>
+          ))}
+        </div>
+
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={() => void imprimir()}
+          disabled={esperandoMelodia}
           className="inline-flex flex-shrink-0 items-center gap-2 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4 sm:py-2.5"
         >
           <Printer className="h-4 w-4" />
-          <span className="hidden sm:inline">Guardar en PDF</span>
-          <span className="sm:hidden">PDF</span>
+          <span className="hidden sm:inline">
+            {esperandoMelodia ? "Dibujando la melodía…" : "Guardar en PDF"}
+          </span>
+          <span className="sm:hidden">{esperandoMelodia ? "…" : "PDF"}</span>
         </button>
       </div>
 
       <div className="envoltorio w-full p-4">
         {songs.map((song, i) => {
-          // Cada canción sale en el tono con el que va a sonar en el culto, no
-          // en el suyo original.
-          const semis = semitonesBetween(song.original_key, song.target_key) ?? 0;
-          const bemoles = prefersFlats(song.target_key);
+          // Cada canción sale en el tono con el que va a sonar en el culto —no
+          // en el suyo original— y, desde O-86, **ya desplazada al instrumento
+          // de quien se lleva el papel**.
+          //
+          // 🔴 La cuenta NO se hace aquí: sale de `lib/tonoLeido.ts`, el mismo
+          // sitio que usa la pantalla completa. Copiarla habría dejado dos
+          // cuentas vivas, y el día que se separaran el papel diría un tono y
+          // la tablet otro — descubriéndose en mitad de un culto.
+          const tono = tonoLeido({
+            original: song.original_key,
+            destino: song.target_key,
+            desplazamiento,
+          });
           const contenido = song.content
-            ? transposeContent(song.content, semis, bemoles)
+            ? transposeContent(song.content, tono.semitonos, tono.bemoles)
             : "";
           const secciones = contenido ? parseSections(contenido) : [];
-          const tono = song.target_key || song.original_key;
+          const tramosMelodia = song.melody ? tramosDe(song.melody).filter((tr) => tr.abc) : [];
+          // 🔴 El pentagrama necesita el desplazamiento CON SIGNO, no el
+          // normalizado a 0..11 que usan los acordes. Para los acordes da
+          // igual —un acorde no tiene octava—, pero +10 en una partitura sube
+          // casi una octava donde se quería bajar dos semitonos.
+          const semitonosMelodia = tono.semitonos > 6 ? tono.semitonos - 12 : tono.semitonos;
 
           return (
             <article
@@ -286,7 +396,20 @@ export default function PrintableService({
                   <h2 className="font-display text-2xl font-bold">
                     {i + 1}. {song.title}
                   </h2>
-                  {tono && <span className="text-sm font-bold">Tono: {tono}</span>}
+                  {/* 🔴 LOS DOS TONOS cuando hay instrumento transpositor (D-28).
+                      Si el papel enseñara solo el suyo, el trompetista diría
+                      «estamos en E» y el resto «no, en D» — discutiendo el tono
+                      en mitad del culto, que es justo lo que esto vino a evitar
+                      en la pantalla. En papel el riesgo es mayor: ahí nadie
+                      puede tocar un botón para comprobarlo. */}
+                  {tono.seLee && (
+                    <span className="text-sm font-bold">
+                      Tono: {tono.seLee}
+                      {tono.suena && (
+                        <span className="ml-1 font-normal opacity-70">· suena {tono.suena}</span>
+                      )}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-0.5 text-xs opacity-70">
                   {[song.composer, typeLabel, dateText, title].filter(Boolean).join(" · ")}
@@ -305,6 +428,34 @@ export default function PrintableService({
                 </div>
               ) : (
                 <p className="text-sm opacity-60">Esta cancion no tiene acordes escritos.</p>
+              )}
+              {/* LA MELODÍA (O-86, fase ②).
+                  Va DEBAJO de los acordes, no al lado: el papel se lee de
+                  arriba abajo y los acordes son lo que se mira tocando. Solo
+                  sale si esta canción tiene melodía escrita —hoy, 1 de 87— y si
+                  a este rol le toca verla; si no, el PDF queda exactamente
+                  igual que antes.
+                  🔴 Y se transpone con `tono.semitonos`, EL MISMO número que los
+                  acordes: si el pentagrama fuera por su cuenta, el trompetista
+                  leería los acordes en un tono y la melodía en otro. */}
+              {tramosMelodia.length > 0 && (
+                <div className="melodia mt-3 border-t border-slate-300 pt-2 dark:border-slate-700">
+                  {tramosMelodia.map((tramo, j) => (
+                    <section key={j} className="mb-1">
+                      {tramo.titulo && (
+                        <h3 className="mb-0.5 text-[0.7rem] font-semibold uppercase tracking-wider opacity-70">
+                          {tramo.titulo}
+                        </h3>
+                      )}
+                      <Pentagrama
+                        abc={tramo.abc}
+                        compas={song.time_signature || "4/4"}
+                        tono={song.original_key || "C"}
+                        transponer={semitonosMelodia}
+                      />
+                    </section>
+                  ))}
+                </div>
               )}
             </article>
           );

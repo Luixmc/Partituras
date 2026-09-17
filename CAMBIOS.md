@@ -7,6 +7,18 @@
 
 ## 17 de septiembre de 2026
 
+### 🎺 El PDF del culto, en TU tono (y con la melodía)
+
+- 🆕 **El PDF sale en el tono de tu instrumento.** A pantalla completa la canción ya te salía
+  transpuesta si tocas **trompeta** (o clarinete, o saxo tenor), pero el PDF salía siempre en el tono
+  del grupo y **en papel no te servía**. Ahora el PDF tiene el mismo botón *Como suena / Trompeta*, y
+  **respeta lo que ya elegiste** tocando.
+- Cada canción lleva **los dos tonos**: «Tono: G · suena F». Así nadie discute el tono en mitad del
+  culto: tú lees G y el grupo toca en F.
+- 🆕 **Y el PDF lleva la melodía**: si la canción la tiene escrita, el pentagrama sale debajo de los
+  acordes y **en el mismo tono** que ellos. Hoy solo hay **una canción** con melodía escrita, así que
+  de momento se nota en esa.
+
 ### 🎼 El silencio ya no se monta sobre el acorde
 
 - 🔧 **Arreglado:** el signo de silencio se dibujaba **el doble de alto que su casilla**, así que se

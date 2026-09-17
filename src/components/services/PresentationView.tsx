@@ -15,7 +15,8 @@ import { semitonosQueSuenan, type Momento } from "@/lib/reproduccion";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
-import { esMenor, keyToPitch, ortografiaDe, prefersFlats, semitonesBetween, transposeContent } from "@/lib/music";
+import { transposeContent } from "@/lib/music";
+import { tonoLeido } from "@/lib/tonoLeido";
 import {
   TRANSPOSITORES,
   TRANSPOSITOR_POR_DEFECTO,
@@ -25,8 +26,6 @@ import {
 } from "@/lib/transpositores";
 import type { PresentSong } from "@/types";
 
-const PITCH_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const PITCH_FLAT  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
 
 type Props = {
   title:    string;
@@ -432,46 +431,19 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, modo, isFullscreen]);
 
 
-  // Semitonos efectivos: (original → tono del culto) + ajuste manual + el
-  // desplazamiento del instrumento.
-  const baseSemitones = semitonesBetween(song?.original_key, song?.target_key) ?? 0;
-  const totalSemitones = (((baseSemitones + liveOffset + desplazamiento) % 12) + 12) % 12;
-  // ── El tono que se está viendo, UNO SOLO ──────────────────
-  //
-  // Antes la etiqueta de arriba y los acordes de abajo lo calculaban por
-  // caminos distintos, y por eso podían contradecirse: la barra decía «E» y
-  // debajo estaba escrito en bemoles, como si fuera Fb (T-14).
-  const tonoBase = song?.target_key || song?.original_key;
-  const menor = esMenor(tonoBase);
-  const basePitch = keyToPitch(song?.target_key) ?? keyToPitch(song?.original_key);
-  // El que SUENA: sin el desplazamiento del instrumento. Es el tono del que
-  // habla el grupo.
-  const tonoQueSuena =
-    basePitch === null ? null : (((basePitch + liveOffset) % 12) + 12) % 12;
-  // El que se LEE en la pantalla: con el desplazamiento. Es el que hay que
-  // usar para escribir los acordes.
-  const tonoEfectivo =
-    tonoQueSuena === null ? null : (((tonoQueSuena + desplazamiento) % 12) + 12) % 12;
-
-  // ¿Bemoles o sostenidos? **Lo decide el tono AL QUE SE LLEGA.**
-  //
-  // 🔴 Antes se heredaba del tono de PARTIDA, más un «si baja, bemoles» que es
-  // falso: bajar de F da E, de C da B, de G da F#, y las tres son de
-  // sostenidos. Bajar no tiene nada que ver con los bemoles.
-  //
-  // Y si el músico NO ha movido el tono, no se decide nada: se respeta lo que
-  // está escrito (T-11). Elegir entre `Bb` y `A#` solo toca cuando hay que
-  // reescribir de verdad; esa elección ya la tomó quien escribió la canción.
-  //
-  // ⚠️ La excepción de T-11 —«sin mover el tono se respeta lo escrito»— vale
-  // solo cuando NO se transpone. Con un instrumento transpositor sí se
-  // reescribe, así que ahí manda otra vez el tono destino.
-  const flats =
-    !liveOffset && !desplazamiento && tonoBase
-      ? prefersFlats(tonoBase)
-      : tonoEfectivo === null
-        ? false
-        : ortografiaDe(tonoEfectivo, menor);
+  // 🔴 LA CUENTA DEL TONO VIVE EN `lib/tonoLeido.ts`, no aquí (O-86).
+  // La necesita también el PDF del culto —el trompetista se lo lleva en papel—
+  // y dos copias de esto acabarían diciendo tonos distintos en mitad de un
+  // culto. De ahí salen las cuatro cosas de golpe, para que ninguna pueda
+  // contradecir a las otras (T-14).
+  const tono = tonoLeido({
+    original: song?.original_key,
+    destino: song?.target_key,
+    ajuste: liveOffset,
+    desplazamiento,
+  });
+  const totalSemitones = tono.semitonos;
+  const flats = tono.bemoles;
 
   const content = useMemo(
     () => (song?.content ? transposeContent(song.content, totalSemitones, flats) : ""),
@@ -531,39 +503,15 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     hayMelodia
   );
 
-  // Etiqueta del tono mostrado (el original, ya transpuesto).
+  // Las dos etiquetas salen de la MISMA cuenta que los acordes (T-14): así la
+  // barra no puede volver a contradecir a la partitura.
   //
-  // Se conserva el MODO: al transponer solo se mueve la nota, así que una
-  // canción en "Bm" salía como "B" a secas — otra tonalidad distinta. El modo
-  // se lleva aparte y se vuelve a pegar al final.
-  const keyLabel = useMemo(() => {
-    const tonoBase = song?.target_key || song?.original_key;
-    // Si el músico no ha movido nada, se enseña EL TONO TAL COMO ESTÁ ESCRITO.
-    // No se recalcula: recalcular obliga a elegir entre Bb y A#, y esa elección
-    // ya la tomó quien escribió la canción. Los acordes tampoco se tocan cuando
-    // no hay transposición, así que recalcular solo servía para contradecirlos:
-    // arriba ponía "A#" y debajo estaba "Bb".
-    if (!liveOffset && !desplazamiento && tonoBase) return tonoBase;
-    if (tonoEfectivo === null) return tonoBase || null;
-    // El MISMO tono efectivo y la MISMA ortografía que usan los acordes: así la
-    // barra no puede volver a contradecir a la partitura (T-14).
-    const nota = (flats ? PITCH_FLAT : PITCH_SHARP)[tonoEfectivo];
-    return menor ? `${nota}m` : nota;
-  }, [tonoBase, tonoEfectivo, menor, liveOffset, desplazamiento, flats]);
-
-  // El tono que SUENA, para enseñarlo al lado del que se lee.
-  //
-  // 🔴 Se enseñan LOS DOS a propósito. Con solo el suyo, el trompetista diría
-  // «estamos en E» y el resto «no, en D», y acabarían discutiendo el tono en
-  // mitad del servicio. Dos números no cuestan nada y quitan el malentendido.
-  const etiquetaQueSuena = useMemo(() => {
-    if (!desplazamiento) return null;
-    if (!liveOffset && tonoBase) return tonoBase;
-    if (tonoQueSuena === null) return tonoBase || null;
-    const bemoles = ortografiaDe(tonoQueSuena, menor);
-    const nota = (bemoles ? PITCH_FLAT : PITCH_SHARP)[tonoQueSuena];
-    return menor ? `${nota}m` : nota;
-  }, [tonoBase, tonoQueSuena, menor, liveOffset, desplazamiento]);
+  // 🔴 Y se enseñan LAS DOS cuando hay instrumento transpositor, a propósito.
+  // Con solo la suya, el trompetista diría «estamos en E» y el resto «no, en
+  // D», y acabarían discutiendo el tono en mitad del servicio. Dos números no
+  // cuestan nada y quitan el malentendido (D-28).
+  const keyLabel = tono.seLee;
+  const etiquetaQueSuena = tono.suena;
 
   if (!song) {
     return (
@@ -907,7 +855,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                 compas={song?.time_signature}
                 tono={song?.original_key}
                 tempoInicial={song?.tempo}
-                semitonos={semitonosQueSuenan(baseSemitones, liveOffset)}
+                semitonos={semitonosQueSuenan(tono.semitonosDelCulto, liveOffset)}
                 onMomento={setSonandoMelodia}
               />
               {tramos.map((t, i) => (
