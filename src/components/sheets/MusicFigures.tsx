@@ -26,6 +26,28 @@ import { figuraDe } from "@/lib/figuras";
 // de los acordes (O-53). Ahora el hueco SALE DE AQUÍ y no se pueden separar.
 export const FIGURA_ALTO = "var(--figura-alto, 1.6)";
 const ALTO = `calc(${FIGURA_ALTO} * 1em)`;
+
+// 🔴 EL SILENCIO TIENE SU PROPIO ALTO, Y NO ES UN CAPRICHO (O-54 ②).
+//
+// Isaac: *«el silencio sobresale para abajo»* y *«sobra hueco arriba y abajo»*.
+// **Medido en la página real antes de tocar nada:** su caja mide 24 px y el
+// dibujo 48, así que se salía **12 px por abajo —encima del acorde— y 12 por
+// arriba**; y dentro del lienzo de 30 unidades **la tinta ocupaba 6**, con
+// 12,5 de hueco arriba y 11,5 abajo. O sea: un lienzo enorme casi vacío.
+//
+// El lienzo se recortó a la tinta de VERDAD de las cinco figuras —de y=5,4 la
+// negra a y=24,5 la semicorchea—, que es `viewBox="0 5 24 20"`. Pero recortar
+// el lienzo **agranda el dibujo** si no se toca el alto: 20 unidades repartidas
+// en el mismo alto son unidades más grandes. Por eso el alto se multiplica por
+// **20/30**, y así el signo se ve EXACTAMENTE igual que antes en los tres
+// sitios donde se usa —la cuadrícula, la barra de acordes y el editor de
+// melodía—, pero su caja ya no arrastra el vacío.
+//
+// 📌 La regla, que es la que se saltó la primera vez: **la caja de un dibujo
+// tiene que medir lo que se ve**. Mientras el lienzo llevaba 24 unidades de
+// aire, cualquier número que se escribiera para colocarlo estaba colocando
+// aire, no el signo.
+const ALTO_SILENCIO = `calc(${FIGURA_ALTO} * 1em * 20 / 30)`;
 const ESC = "calc(var(--figura-escala, 1))";
 
 /** Un grosor de trazo, reforzado por `--figura-escala`. */
@@ -220,9 +242,11 @@ export function RestFigure({ beats, className }: FigureProps) {
 
   return (
     <svg
-      viewBox="0 0 24 30"
+      // 0 5 24 20: el lienzo recortado a la tinta (O-54 ②). Antes era
+      // "0 0 24 30" y el 33 % de arriba y abajo estaba vacío.
+      viewBox="0 5 24 20"
       className={className}
-      style={{ height: ALTO, width: "auto", display: "block" }}
+      style={{ height: ALTO_SILENCIO, width: "auto", display: "block" }}
       fill="none"
       aria-hidden="true"
     >

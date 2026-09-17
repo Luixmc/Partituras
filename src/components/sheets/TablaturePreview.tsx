@@ -372,8 +372,17 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
         className="relative block leading-none text-slate-500 dark:text-slate-200"
         style={{ height: "1.5em", width: "1.5em" }}
       >
+        {/* 🔴 ANCLADO ABAJO, NO CENTRADO (O-54 ②). Centrado, lo que sobra del
+            dibujo se repartía mitad arriba y mitad abajo — y lo de abajo caía
+            **encima del nombre del acorde**, que es lo que veía Isaac
+            («sobresale para abajo»). Medido: 12 px por cada lado.
+            Anclándolo al fondo de su caja, TODO lo que sobra sube al hueco que
+            la celda ya reserva arriba para la figura —hueco que en un silencio
+            está vacío, porque la figura ES el silencio— y **por abajo no
+            sobresale nada**. El hueco de arriba mide 21,8 px medidos y lo que
+            sube son 8, así que cabe de sobra. */}
         <span
-          className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+          className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-end justify-center"
           style={{ fontSize: `calc(3em / ${FIGURA_ALTO})` }}
         >
           <RestFigure beats={token.duration ?? 4} />

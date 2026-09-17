@@ -111,7 +111,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **263 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.572 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.605 líneas** de TypeScript
    en **96 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -573,14 +573,25 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | # | Qué | De quién / dónde está el detalle |
 |---|---|---|
 | 1 | **Abrir las LETRAS (37 de 85 escritas) y la MELODÍA (1) a todos los roles** | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`) y `ROLES_MELODIA` (`lib/melodia.ts`), una línea cada uno (D-22) |
-| 2 | **O-54 ②, el ALTO del silencio**: *«sobresale para abajo»* y sobra hueco arriba y abajo | **Sin mirar.** `RestFigure` y el hueco de la celda. Detalle en `docs/ENCARGOS_CERRADOS.md` (busca «El ② (el alto)») |
-| 3 | **P.3 · El PDF del culto en el tono del instrumento** (trompeta) | **A decidir por Isaac.** P.1 y P.2 hechas. Detalle en `docs/ENCARGOS_CERRADOS.md` (busca «**P.3**») |
-| 4 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
-| 5 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
-| 6 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
-| 7 | **🔴 ABIERTO · A Isaac le sale «This request was blocked · 403» al entrar en `/catalog`** (2026-09-14, de madrugada) | **No es Supabase, es el cortafuegos de Vercel.** No reproducido. Detalle abajo |
+| 2 | **P.3 · El PDF del culto en el tono del instrumento** (trompeta) | **A decidir por Isaac.** P.1 y P.2 hechas. Detalle en `docs/ENCARGOS_CERRADOS.md` (busca «**P.3**») |
+| 3 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
+| 4 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
+| 5 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
 
-#### 🔴 ABIERTO · «This request was blocked · 403 Forbidden» en producción (2026-09-14)
+#### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
+
+> 🟢 **CERRADO el 2026-09-17: Isaac, «no ya lo estoy viendo en pc».** Volvió a entrar sin que se
+> tocara **nada** —ni código, ni Vercel, ni su navegador— tres días después. Lo que lo apagó fue el
+> propio cortafuegos de Vercel, no nosotros.
+>
+> 🔴 **Se deja escrito entero, y a propósito: esto puede volver.** Si vuelve, **no se empieza otra
+> vez por Supabase** —él dijo «es supabase» y no lo era— y **no se repite el trabajo de descarte**:
+> está todo medido abajo. Se va directo a lo que quedó sin probar: el teléfono en el wifi de casa,
+> preguntar a un músico, y que el primo mire la pestaña **Firewall** de Vercel.
+>
+> ⚠️ **Y lo que NO se puede concluir:** que se arreglara solo **no dice cuál era la causa**. Un
+> bloqueo que se va solo encaja con una regla temporal del cortafuegos de Vercel; no descarta nada
+> de lo de abajo. Si vuelve, la pestaña Firewall sigue siendo la única forma de saberlo.
 
 Isaac, de madrugada: *«está caído la página nuevamente, es supabase»*, con una captura de
 `partituras-blush.vercel.app/catalog` en negro: **«This request was blocked — 403 Forbidden —
@@ -664,7 +675,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-17, todo PUBLICADO en r80**
+#### Estado del árbol — **2026-09-17, todo PUBLICADO en r81**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -672,10 +683,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r80** — la sección sin etiqueta también lleva banda (O-85). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r80** — **la sección sin etiqueta también lleva banda**, y neutra (O-85). Antes, **r79**: el color va en la banda y no en la letra (O-84) y el selector legible en oscuro; **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81) |
+| Último commit publicado | **r81** — el silencio ya no se sale por abajo (O-54 ②). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r81** — **el silencio ya no sobresale por abajo** y su lienzo deja de arrastrar vacío (O-54 ②, el último defecto que quedaba de agosto). Antes, **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84) y el selector legible en oscuro; **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024) |
 | Pruebas | **263** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.572 líneas** de TypeScript en **96 archivos** |
+| Tamaño | **18.605 líneas** de TypeScript en **96 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -833,6 +844,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-09-17 | **r81** · el silencio ya no se sale por abajo (O-54 ②), medido antes y después |
 | 2026-09-17 | **r80** · la sección sin etiqueta también lleva banda, y neutra (O-85) |
 | 2026-09-17 | **r79** · el color en la banda y no en la letra (O-84), y el selector legible en oscuro |
 | 2026-09-13 | **r78** · un color por sección (O-83, de Carlos), con sus tres paletas y el README recuperado |

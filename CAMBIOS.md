@@ -7,6 +7,14 @@
 
 ## 17 de septiembre de 2026
 
+### 🎼 El silencio ya no se monta sobre el acorde
+
+- 🔧 **Arreglado:** el signo de silencio se dibujaba **el doble de alto que su casilla**, así que se
+  salía por arriba y por abajo, y lo de abajo caía encima del nombre del acorde. Ya no: se ve del
+  mismo tamaño de siempre, pero **por abajo no sobresale nada**.
+- Se nota en cualquier canción con silencios escritos, como «Hay Poder En La Alabanza». En la barra
+  de botones y en el editor de melodía el signo **no cambia de tamaño**.
+
 ### 🎨 El color, en toda la franja de la sección
 
 - 🔧 **Cambiado:** cuando se estrenó, el color iba en **el nombre** de la sección, y se veía poco:

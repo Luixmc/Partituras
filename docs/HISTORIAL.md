@@ -4,6 +4,26 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-17 · r81 · El silencio ya no se sale por abajo (O-54 ②)
+
+El último defecto que quedaba de agosto, y llevaba en §9 como **«sin mirar»** desde el 2026-09-02.
+Isaac lo había descrito con dos síntomas —*«sobresale para abajo»* y *«sobra hueco arriba y abajo»*—
+que resultaron ser **la misma causa**.
+
+**Medido antes de tocar nada:** la caja del silencio medía 24 px y el dibujo 48, o sea que se salía
+**12 px por abajo, encima del acorde**. Y dentro del lienzo de 30 unidades **la tinta ocupaba 6**.
+Midiendo pieza a pieza con `getBBox()`, la tinta de las cinco figuras vive entre y=5,4 y y=24,5:
+**un tercio del lienzo era aire**, y ese aire viajaba con el dibujo.
+
+**Arreglo:** lienzo recortado a la tinta (`viewBox="0 5 24 20"`), alto multiplicado por 20/30 para
+que el signo no cambie de tamaño en ninguno de los tres sitios donde se usa, y el dibujo **anclado
+abajo** en vez de centrado, para que lo que sobra suba al hueco vacío de la figura. Medido después:
+**0 px por abajo**.
+
+📌 **La regla:** la caja de un dibujo tiene que medir lo que se ve. Mientras el lienzo llevó 24
+unidades de aire, cualquier número escrito para colocarlo estaba colocando aire — por eso los tres
+intentos anteriores (encogerlo, ponerle `height`, centrarlo) se quedaron a medias. Es **L-338**.
+
 ### 2026-09-17 · r80 · La sección sin etiqueta también lleva banda (O-85)
 
 Isaac, viendo r79: *«está casi del todo bien, la lista sale bien, los colores es como yo te digo,

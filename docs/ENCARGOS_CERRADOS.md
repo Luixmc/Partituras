@@ -4,6 +4,49 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-17 · O-54 ② · El alto del silencio (r81)
+
+Llevaba abierto desde el **2026-09-02**, con dos síntomas de Isaac: *«el silencio sobresale para
+abajo»* y *«sobra hueco arriba y abajo»*. Estaba en §9 como **«sin mirar»**.
+
+🔬 **MEDIDO EN LA PÁGINA REAL ANTES DE TOCAR NADA**, con «Hay Poder En La Alabanza»:
+
+| | Antes | Ahora |
+|---|---|---|
+| Caja que le reserva la celda | 24 px | **24** |
+| Alto del dibujo | 48 px | **32** |
+| **Se sale por ABAJO** (encima del acorde) | **12 px** | **0** |
+| Se sale por arriba (al hueco vacío de la figura) | 12 px | 8 — y el hueco mide **21,8** |
+| Tinta dentro del lienzo | **6 de 30 unidades** | 6 de 20 |
+
+**Los dos síntomas eran la misma causa.** El lienzo era `0 0 24 30` y **la tinta de las cinco
+figuras vive entre y=5,4 y y=24,5** —medido pieza a pieza con `getBBox()` más el grosor del trazo—,
+o sea que **un tercio del lienzo era aire**. Ese aire viajaba con el dibujo: la caja medía el doble
+que el signo, y al centrarla en la celda la mitad sobrante caía **encima del nombre del acorde**.
+
+**El arreglo, en dos piezas:**
+1. **El lienzo se recorta a la tinta:** `viewBox="0 5 24 20"`. ⚠️ Pero recortarlo **agranda el
+   dibujo** si no se toca el alto —las mismas unidades repartidas en menos lienzo son unidades más
+   grandes—, así que el alto se multiplica por **20/30** (`ALTO_SILENCIO`). Resultado: el signo se ve
+   **exactamente igual** en los tres sitios donde se usa —la cuadrícula, la barra de acordes y el
+   editor de melodía—, comprobado mirando los tres.
+2. **El dibujo se ancla ABAJO, no centrado.** Lo que sobra sube entero al hueco que la celda ya
+   reserva arriba para la figura —vacío en un silencio, porque la figura ES el silencio— y por abajo
+   no sobresale nada.
+
+📌 **La regla, que es la que se saltó tres veces:** *la caja de un dibujo tiene que medir lo que se
+ve*. Mientras el lienzo llevó 24 unidades de aire, **cualquier número escrito para colocarlo estaba
+colocando aire**, no el signo — y por eso encogerlo, ponerle `height` y centrarlo se quedaron todos
+a medias.
+
+⚠️ **Un cabo suelto, medido y anotado sin inflarlo:** en esa misma canción **una** celda da
+solapamiento de **cajas** de 4,1 px entre la figura y su acorde —un `Dm7` cuya caja mide 35 px—.
+**No se ve ningún choque de tinta** en las capturas, así que no se tocó. Si algún día Isaac ve una
+figura rozando un acorde, **se empieza por ahí**.
+
+**Comprobado:** 263 pruebas · lint 0 errores · build 0 por código de salida · y **mirado**: la celda
+del silencio ampliada x5, la barra de acordes y el editor de melodía.
+
 #### ✅ Cerrado el 2026-09-17 · O-85 · La sección sin etiqueta también lleva banda (r80)
 
 Isaac, viendo ya r79 publicado: *«está casi del todo bien, la lista sale bien, los colores es como

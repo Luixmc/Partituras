@@ -72,8 +72,23 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "17 de septiembre de 2026",
     "iso": "2026-09-17",
-    "entrada": "Los colores de sección ahora pintan la franja entera, no solo el nombre.",
+    "entrada": "Los colores de sección pintan la franja entera, y el silencio ya no se monta sobre el acorde.",
     "secciones": [
+      {
+        "titulo": "El silencio ya no se monta sobre el acorde",
+        "resumen": "El signo de silencio se salía de su casilla por abajo y pisaba el nombre del acorde.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El silencio, dentro de su casilla.",
+            "detalle": [
+              "El signo de silencio se dibujaba <strong>el doble de alto que su casilla</strong>, así que se salía por arriba y por abajo — y lo de abajo caía encima del nombre del acorde.",
+              "Ya no: se ve del mismo tamaño de siempre, pero <strong>por abajo no sobresale nada</strong>. Lo notas en cualquier canción que lleve silencios escritos, como «Hay Poder En La Alabanza».",
+              "En la barra de botones y en el editor de melodía el signo <strong>no cambia de tamaño</strong>: sigue igual que antes."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "El color, en toda la franja de la sección",
         "resumen": "Se pinta la barra donde va el nombre, para separar una sección de la siguiente de un vistazo.",
