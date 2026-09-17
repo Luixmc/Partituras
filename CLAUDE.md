@@ -111,7 +111,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **263 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.605 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.620 líneas** de TypeScript
    en **96 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -576,7 +576,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 2 | **P.3 · El PDF del culto en el tono del instrumento** (trompeta) | **A decidir por Isaac.** P.1 y P.2 hechas. Detalle en `docs/ENCARGOS_CERRADOS.md` (busca «**P.3**») |
 | 3 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
 | 4 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
-| 5 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
+| 5 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -686,7 +686,7 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 | Último commit publicado | **r81** — el silencio ya no se sale por abajo (O-54 ②). `git log -1` da el hash. **Árbol limpio** |
 | Última versión | **r81** — **el silencio ya no sobresale por abajo** y su lienzo deja de arrastrar vacío (O-54 ②, el último defecto que quedaba de agosto). Antes, **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84) y el selector legible en oscuro; **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024) |
 | Pruebas | **263** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.605 líneas** de TypeScript en **96 archivos** |
+| Tamaño | **18.620 líneas** de TypeScript en **96 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
