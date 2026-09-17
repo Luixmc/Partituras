@@ -14,13 +14,13 @@ día 13 eligió entre **tres dibujos de texto dentro de la pregunta**; el 17 lo 
 📌 **La lección del método, que es la cara:** para algo que se juzga MIRANDO, preguntar con un
 mockup ASCII no es preguntar mirando. En este mismo proyecto ya estaba aprendido —el silencio de
 negra (O-47) y el calderón (O-82) se eligieron sobre el dibujo— y aun así la pregunta de las tres
-opciones se hizo en texto. Es **L-292**.
+opciones se hizo en texto. Es **L-336**.
 
 Y la segunda corrección suya: **la lista del selector no se leía en oscuro**. Era **T-12 otra vez**,
 que se arregló en agosto en la hoja global con `color-scheme` para los ocho `<select>` del proyecto
 — y **este se lo saltó** por llevar `bg-transparent` y `dark:text-slate-100`: letra casi blanca sobre
 la lista clara que pinta el navegador. **Un arreglo global se anula sin enterarte en cuanto un
-componente nuevo se estiliza «bonito»**; es **L-293**.
+componente nuevo se estiliza «bonito»**; es **L-337**.
 
 **Comprobado mirándolo:** culto en claro con las dos paletas, en oscuro, ficha en oscuro, teléfono de
 400 px —donde más se nota— y el PDF con el color encendido, sin bandas. **260 pruebas**, con tres
