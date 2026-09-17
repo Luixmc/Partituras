@@ -4,6 +4,23 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-17 · r80 · La sección sin etiqueta también lleva banda (O-85)
+
+Isaac, viendo r79: *«está casi del todo bien, la lista sale bien, los colores es como yo te digo,
+pero fíjate que en la sección en la que no tiene nada escrito para categorizar no tiene un color
+representativo»*.
+
+Yo había dejado `sinNombre` sin pintar **a propósito** —es la clave más frecuente, 129 de unas 500—
+razonando que pintar lo más común es ruido. 📌 **Ese razonamiento valía para el mundo anterior**, el
+de pintar la letra, donde el color adorna. Con el color en la banda el color **separa**, y entonces
+una banda gris metida entre bandas de color es exactamente el hueco donde el ojo se pierde.
+
+**La regla que queda, y vale para cualquier código por categorías:** si el color es lo que SEPARA,
+**no puede haber una categoría sin color, ni siquiera «ninguna»**. Corrige el corolario de L-291.
+
+Va en **neutro** y compartido con `otras`: las dos significan lo mismo —sin clasificar—, y los siete
+tonos que salen juntos en una canción ya estaban bien separados; un octavo color los habría acercado.
+
 ### 2026-09-17 · r79 · El color va en la BANDA, no en la letra (O-84)
 
 Isaac, con dos capturas de «Padre Celestial» ya publicada: *«los colores no son como yo te digo, es

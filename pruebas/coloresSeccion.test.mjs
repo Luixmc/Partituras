@@ -100,9 +100,17 @@ describe("apagado es apagado", () => {
   test("🔴 una sección que la paleta no pinta devuelve undefined, NUNCA cadena vacía", () => {
     // Las dos cosas son «no pintar» vistas desde fuera, pero una cadena vacía
     // obligaría a comprobarlo dos veces en cada sitio que la use.
-    assert.equal(bandaDeEtiqueta("", "fuerte"), undefined);
-    assert.equal(bandaDeEtiqueta("Bombo", "fuerte"), undefined);
+    // (Desde O-85, la que NO pinta lo que no tiene categoría es «extremos».)
+    assert.equal(bandaDeEtiqueta("", "extremos"), undefined);
+    assert.equal(bandaDeEtiqueta("Bombo", "extremos"), undefined);
     assert.equal(bandaDeEtiqueta("A (a tus pies...)", "extremos"), undefined);
+  });
+
+  test("🔴 O-85 · pero en las paletas de color, lo sin categorizar SÍ pinta", () => {
+    for (const id of ["suave", "fuerte"]) {
+      assert.ok(bandaDeEtiqueta("", id), `${id}: sección sin etiqueta sin banda`);
+      assert.ok(bandaDeEtiqueta("Bombo", id), `${id}: sección rara sin banda`);
+    }
   });
 });
 
@@ -140,15 +148,24 @@ describe("las bandas están completas y se ven en los dos modos (O-84)", () => {
   });
 
   test("🔴 y el tono oscuro es HUNDIDO, no el mismo claro repetido", () => {
-    // 100/300 en claro, 700/900 en oscuro. Repetir el claro dejaría la banda
-    // blanca sobre la página negra.
+    // 100/300 en claro, 600/700/900 en oscuro. Repetir el claro dejaría la
+    // banda blanca sobre la página negra.
+    //
+    // 📌 El mínimo del oscuro es 700 para los COLORES y 600 para la banda
+    // neutra de lo sin categorizar (O-85), y no es una excepción de
+    // conveniencia: un color saturado a 600 ya aclara demasiado para llevar
+    // letra clara encima, mientras que la pizarra a 600 sigue bastante más
+    // oscura que el fondo de la cabecera —que es de lo que tiene que
+    // despegarse— y con la letra clara contrasta de sobra.
     for (const paleta of PALETAS) {
       for (const clave of PINTADAS(paleta)) {
         const [claro, oscuro] = paleta.colores[clave].split(" ");
         const nClaro = Number(claro.match(/-(\d{3})$/)[1]);
         const nOscuro = Number(oscuro.match(/-(\d{3})$/)[1]);
+        const neutra = /slate/.test(claro);
         assert.ok(nClaro <= 300, `${paleta.id}.${clave}: el claro es ${nClaro}`);
-        assert.ok(nOscuro >= 700, `${paleta.id}.${clave}: el oscuro es ${nOscuro}`);
+        assert.ok(nOscuro >= (neutra ? 600 : 700), `${paleta.id}.${clave}: el oscuro es ${nOscuro}`);
+        assert.ok(nOscuro > nClaro, `${paleta.id}.${clave}: el oscuro no está hundido`);
       }
     }
   });
@@ -178,13 +195,31 @@ describe("las bandas están completas y se ven en los dos modos (O-84)", () => {
     assert.match(suaves.colores.a, /red/);
   });
 
-  test("🔴 «sin nombre» y «otras» NO se pintan en ninguna paleta", () => {
-    // «Sin nombre» sale 129 veces, la sección más común de todas: pintarla
-    // sería ruido para todo el mundo. Y «otras» es lo que no se reconoce.
-    for (const paleta of PALETAS) {
-      assert.equal(paleta.colores.sinNombre, null, paleta.id);
-      assert.equal(paleta.colores.otras, null, paleta.id);
+  test("🔴 O-85 · «sin nombre» y «otras» SÍ se pintan, y con la MISMA banda neutra", () => {
+    // Isaac, 2026-09-17: una banda gris entre bandas de color rompe justo lo
+    // que el color viene a hacer, que es separar una sección de la siguiente.
+    // Y comparten banda porque significan lo mismo: esto no está categorizado.
+    for (const id of ["suave", "fuerte"]) {
+      const paleta = paletaPorId(id);
+      assert.ok(paleta.colores.sinNombre, `${id}: «sin nombre» sin pintar`);
+      assert.equal(paleta.colores.sinNombre, paleta.colores.otras, id);
+      assert.match(paleta.colores.sinNombre, /slate/, `${id}: debería ser neutra`);
     }
+  });
+
+  test("🔴 y esa banda neutra NO es el fondo de siempre: se tiene que VER pintada", () => {
+    // Si fuera casi el color de la cabecera, «pintada» y «sin pintar» se verían
+    // igual y no habríamos arreglado nada. El fondo normal es slate-50/800.
+    const suave = paletaPorId("suave");
+    assert.doesNotMatch(suave.colores.sinNombre, /slate-50|slate-800/);
+  });
+
+  test("🔴 pero en «solo el principio y el final» se queda sin pintar, a propósito", () => {
+    // Ahí la gracia es que destaquen solo la intro, la coda y el final; pintar
+    // las demás la convertiría en «Fuertes».
+    const extremos = paletaPorId("extremos");
+    assert.equal(extremos.colores.sinNombre, null);
+    assert.equal(extremos.colores.otras, null);
   });
 
   test("🔴 «solo el principio y el final» deja las letras sin pintar", () => {

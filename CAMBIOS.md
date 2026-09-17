@@ -15,6 +15,10 @@
   la otra.
 - Los acordes siguen negros sobre blanco. Si lo tenías apagado sigue apagado, y si lo tenías
   encendido ya sale así, sin hacer nada.
+- 🔧 **Arreglado:** las secciones **sin nombre** —las que no llevan nada entre corchetes— se
+  quedaban con la franja gris de siempre en medio de las de color, y parecía que les faltaba algo.
+  Ahora también llevan franja, en **gris marcado**: no es un color del arcoíris a propósito, porque
+  significa *esta no está clasificada*.
 - 🔧 **Arreglado:** al desplegar el botón de la paleta 🎨 con la página en **modo oscuro**, las
   opciones salían casi invisibles y solo se leía la señalada. Ya se leen las cuatro.
 

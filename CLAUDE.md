@@ -110,8 +110,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **260 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.545 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **263 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.572 líneas** de TypeScript
    en **96 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -155,7 +155,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 260 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 263 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -327,7 +327,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       260 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       263 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -664,7 +664,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-17, todo PUBLICADO en r79**
+#### Estado del árbol — **2026-09-17, todo PUBLICADO en r80**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -672,10 +672,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r79** — el color en la banda de la sección (O-84) y el selector legible en oscuro. `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r79** — **el color va en la BANDA de la sección, no en la letra** (O-84, corrección de Isaac viéndolo en la app), y la lista del selector legible en oscuro (T-12 otra vez). Antes, **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80) |
-| Pruebas | **260** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.545 líneas** de TypeScript en **96 archivos** |
+| Último commit publicado | **r80** — la sección sin etiqueta también lleva banda (O-85). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r80** — **la sección sin etiqueta también lleva banda**, y neutra (O-85). Antes, **r79**: el color va en la banda y no en la letra (O-84) y el selector legible en oscuro; **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81) |
+| Pruebas | **263** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **18.572 líneas** de TypeScript en **96 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -833,6 +833,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-09-17 | **r80** · la sección sin etiqueta también lleva banda, y neutra (O-85) |
 | 2026-09-17 | **r79** · el color en la banda y no en la letra (O-84), y el selector legible en oscuro |
 | 2026-09-13 | **r78** · un color por sección (O-83, de Carlos), con sus tres paletas y el README recuperado |
 | 2026-09-13 | **r77** · el calderón con su punto (O-82). Anotados O-82 y **O-83** (el color por sección, de Carlos) |

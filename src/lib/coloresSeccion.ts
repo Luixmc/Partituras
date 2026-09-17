@@ -110,10 +110,29 @@ export type Paleta = {
   colores: Colores;
 };
 
-// Lo que NO se pinta. Devolver `null` —y no una clase gris -- deja la cabecera
-// **exactamente** con las clases que ya tenía, así que «sin color» y «esta
-// sección no se pinta» se ven idénticos, que es lo correcto.
+// `null` = **no se pinta**: la cabecera se queda **exactamente** con las clases
+// que ya tenía, así que «el color está apagado» y «esta paleta no pinta esta
+// sección» se ven idénticos. Lo usa la paleta de los extremos.
 const SIN_PINTAR = null;
+
+// 🔴 O-85 · LA SECCIÓN SIN ETIQUETA TAMBIÉN SE PINTA, y con una banda NEUTRA.
+//
+// Isaac, 2026-09-17, viendo r79: *«en la sección en la que no tiene nada
+// escrito para categorizar no tiene un color representativo»*. Tenía razón, y
+// esto corrige un razonamiento mío que era bueno para otra cosa: dejé sin
+// pintar la clave más frecuente —129 de unas 500— pensando que pintar lo más
+// común es ruido. **Eso vale cuando el color adorna.** Aquí el color SEPARA, y
+// una banda gris entre bandas de color es justo el hueco donde el ojo se
+// pierde.
+//
+// 📌 Por qué NEUTRA y no un color más:
+//  · `sinNombre` y `otras` significan lo mismo —esto no está categorizado—, así
+//    que darles dos tonos distintos diría que son cosas distintas. Comparten.
+//  · Los siete tonos que salen JUNTOS en una canción ya están bien separados
+//    entre sí (L-291); meter un octavo color los acercaría a todos.
+//  · Y neutra no es «sin pintar»: la pizarra es bastante más oscura que el
+//    fondo de la cabecera, así que **se ve pintada**, que es lo que él pedía.
+const SIN_CATEGORIA = "bg-slate-300 dark:bg-slate-600";
 
 /**
  * Las paletas, elegidas por Isaac en tres opciones hechas y no en doce
@@ -159,8 +178,8 @@ export const PALETAS: Paleta[] = [
       puente: "bg-teal-100 dark:bg-teal-900",
       coda: "bg-pink-100 dark:bg-pink-900",
       final: "bg-fuchsia-100 dark:bg-fuchsia-900",
-      sinNombre: SIN_PINTAR,
-      otras: SIN_PINTAR,
+      sinNombre: SIN_CATEGORIA,
+      otras: SIN_CATEGORIA,
     },
   },
   {
@@ -179,8 +198,8 @@ export const PALETAS: Paleta[] = [
       puente: "bg-teal-300 dark:bg-teal-700",
       coda: "bg-pink-300 dark:bg-pink-700",
       final: "bg-fuchsia-300 dark:bg-fuchsia-700",
-      sinNombre: SIN_PINTAR,
-      otras: SIN_PINTAR,
+      sinNombre: SIN_CATEGORIA,
+      otras: SIN_CATEGORIA,
     },
   },
   {

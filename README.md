@@ -43,7 +43,8 @@ desplegada en Vercel con publicación automática en cada push a `main`.
 - **Un color por sección**, a elección de cada músico: la **banda** donde va el nombre de cada
   sección —`Intro`, `A`, `B`, `Final`…— se pinta de un color, con tres paletas hechas y apagado por
   defecto. Pinta la banda y **no la letra**: sirve para separar una sección de la siguiente a la
-  distancia a la que se lee tocando. El color sale de la
+  distancia a la que se lee tocando. Las secciones **sin nombre** llevan una banda neutra —también
+  pintada—, porque una franja gris entre franjas de color rompe justo esa separación. El color sale de la
   **primera palabra** de la etiqueta, que es lo único cerrado: las etiquetas completas llevan pegado
   el primer verso y hay más de 300 distintas. Sale en la ficha y a pantalla completa; **en el PDF
   no**, que se imprime en blanco y negro. Se guarda en el navegador de cada uno.
@@ -134,7 +135,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 260 pruebas |
+| `npm test` | Las 263 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -289,7 +290,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 260 pruebas (ver más abajo)
+pruebas/                    → las 263 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -367,7 +368,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 260 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 263 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -417,8 +418,9 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r80** | **La sección sin etiqueta también lleva banda** (O-85): se quedaba gris entre las de color y parecía que le faltaba algo. Va en **neutro** —no un color más—, porque «sin clasificar» es lo que significa, y porque los siete tonos que salen juntos en una canción ya están bien separados entre sí |
 | **r79** | **El color va en la BANDA de la sección, no en la letra** (O-84): Isaac lo corrigió viéndolo en la app — *«que pinte la línea donde está el texto de la sección»*, para separar bloques a la distancia a la que se toca. Y la lista del selector, legible en oscuro: se había saltado el arreglo global de **T-12** al ponerle `bg-transparent` y letra clara |
-| **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **260 pruebas** |
+| **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **263 pruebas** |
 | **r77** | **El calderón con su punto** (O-82): el punto se dibujaba pegado al arco y a tamaño real los dos se fundían. Medido antes de tocar nada y elegido entre cuatro variantes miradas al tamaño real |
 | **r76** | **Sin cuenta ya no se leen las canciones** (P-02, paso 2, migración `20240024`): se cierra el acceso anónimo que quedaba abierto desde agosto |
 | **r75** | **El enlace público del culto, por su función** (P-02, paso 1): quien recibe el enlace ve ese culto y nada más |

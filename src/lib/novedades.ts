@@ -80,6 +80,14 @@ export const TANDAS: Tanda[] = [
         "cambios": [
           {
             "tipo": "arreglado",
+            "titulo": "Las secciones sin nombre también llevan su franja.",
+            "detalle": [
+              "Las secciones que no tienen nada escrito entre corchetes se quedaban con la franja gris de siempre, en medio de las de color: parecía que les faltaba algo y dejaban de separarse de la de al lado.",
+              "Ahora también llevan franja, en <strong>gris marcado</strong>. No es un color del arcoíris a propósito: significa <em>esta no está clasificada</em>, y así no se confunde con «Intro», «A» o «Final»."
+            ]
+          },
+          {
+            "tipo": "arreglado",
             "titulo": "Ahora se pinta la franja, no solo el nombre.",
             "detalle": [
               "Cuando se estrenó, el color iba en <strong>el nombre</strong> de la sección. Se veía poco: tocando, con la tablet a un metro, unas letras de color no separan nada.",

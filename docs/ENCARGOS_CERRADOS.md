@@ -4,6 +4,54 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-17 · O-85 · La sección sin etiqueta también lleva banda (r80)
+
+Isaac, viendo ya r79 publicado: *«está casi del todo bien, la lista sale bien, los colores es como
+yo te digo, pero fíjate que en la sección en la que no tiene nada escrito para categorizar no tiene
+un color representativo»*.
+
+✅ **Confirmó lo otro:** la lista del selector **se lee**, y las bandas son lo que quería.
+
+🔴 **Lo que falta, y por qué él tiene razón:** yo dejé `sinNombre` **sin pintar a propósito** —es la
+más común de todas, 129 de unas 500— razonando que pintar lo más frecuente es ruido. **Ese
+razonamiento era para el mundo de «pintar la letra»**, donde el color es un adorno. Con el color en
+la BANDA el objetivo es otro: *«diferenciar bien entre sección y sección»*. → **Una banda gris
+metida entre bandas de color rompe exactamente eso**: parece que a esa sección le falta algo, y deja
+de separarse de la de al lado.
+
+📌 **La regla que queda, y vale para cualquier código por categorías:** si el color es lo que SEPARA,
+**no puede haber una categoría sin color** — ni siquiera «ninguna». El «sin categoría» es una
+categoría más y necesita su marca; lo contrario es dejar un hueco justo donde el ojo busca el corte.
+
+**Lo decidido, y el porqué de cada cosa:**
+* **`sinNombre` y `otras` comparten banda**, y es **neutra** (pizarra), no un color del arcoíris. Las
+  dos significan lo mismo —*esto no está categorizado*—, así que darles dos tonos distintos diría
+  que son cosas diferentes, que es mentira. Y neutra porque los siete que salen juntos en una canción
+  ya tienen los siete tonos bien separados (L-291 `[PART]`): meter un octavo color los acercaría.
+* **Pero neutra NO es «sin pintar»:** el gris de la banda es claramente más oscuro que el fondo, así
+  que **se ve que está pintada** — que es justo lo que él pedía.
+* **En «solo el principio y el final» NO se pinta**, y es a propósito: ahí la gracia es que solo
+  destaquen la intro, la coda y el final. Pintar las demás la convertiría en «Fuertes».
+
+✅ **HECHO Y PUBLICADO en r80.** `SIN_CATEGORIA = "bg-slate-300 dark:bg-slate-600"` para
+`sinNombre` y `otras` en «Suaves» y «Fuertes»; «solo el principio y el final» se queda como estaba.
+
+**Y el mínimo del tono oscuro deja de ser uno para todos:** **700 para los colores, 600 para la
+neutra**, y está escrito en la prueba con su porqué — un color saturado a 600 ya aclara demasiado
+para llevar letra clara encima, mientras que la pizarra a 600 sigue bastante más oscura que el fondo
+de la cabecera, que es de lo que tiene que despegarse.
+
+**Pruebas nuevas:** que lo sin categorizar **sí pinta** en las paletas de color, que las dos claves
+comparten banda, que esa banda **no es el fondo de siempre** (si no, no habríamos arreglado nada), y
+que en «extremos» **sigue sin pintarse**. Son **263**.
+
+**Comprobado mirándolo:** culto a pantalla completa en **claro y en oscuro** — la sección sin
+etiqueta se ve pintada en los dos, y ya no parece que le falte algo.
+
+⚠️ **Y esto corrige una lección de la carpeta compartida:** el corolario de **L-291 `[PART]`** decía
+«a la categoría más frecuente no se le da color, que es ruido». Vale cuando el color **adorna**; aquí
+**separa**, y entonces la más frecuente es justo la que no puede quedarse sin marca. Corregido allí.
+
 #### ✅ Cerrado el 2026-09-17 · O-84 · El color va en la banda, y el selector legible (r79)
 
 Con dos capturas de la canción «Padre Celestial» ya publicada, Isaac:
