@@ -70,6 +70,35 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "17 de septiembre de 2026",
+    "iso": "2026-09-17",
+    "entrada": "Los colores de sección ahora pintan la franja entera, no solo el nombre.",
+    "secciones": [
+      {
+        "titulo": "El color, en toda la franja de la sección",
+        "resumen": "Se pinta la barra donde va el nombre, para separar una sección de la siguiente de un vistazo.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Ahora se pinta la franja, no solo el nombre.",
+            "detalle": [
+              "Cuando se estrenó, el color iba en <strong>el nombre</strong> de la sección. Se veía poco: tocando, con la tablet a un metro, unas letras de color no separan nada.",
+              "Ahora se pinta <strong>la franja entera</strong> donde va ese nombre, así que se ve de un golpe dónde acaba una sección y empieza la otra. Los acordes siguen negros sobre blanco, como siempre.",
+              "Si lo tenías apagado, sigue apagado. Y si lo tenías encendido, no hay que hacer nada: ya sale así."
+            ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "La lista de colores ya se lee en modo oscuro.",
+            "detalle": [
+              "Al desplegar el botón de la paleta 🎨 con la página en oscuro, las opciones salían casi invisibles y solo se leía la señalada. Ya se leen las cuatro."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "13 de septiembre de 2026",
     "iso": "2026-09-13",
     "entrada": "Cada sección puede salir de su color, si tú quieres. Y el calderón vuelve a tener su punto.",

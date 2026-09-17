@@ -5,6 +5,21 @@
 
 ---
 
+## 17 de septiembre de 2026
+
+### 🎨 El color, en toda la franja de la sección
+
+- 🔧 **Cambiado:** cuando se estrenó, el color iba en **el nombre** de la sección, y se veía poco:
+  tocando, con la tablet a un metro, unas letras de color no separan nada. Ahora se pinta **la
+  franja entera** donde va ese nombre, así que se ve de un golpe dónde acaba una sección y empieza
+  la otra.
+- Los acordes siguen negros sobre blanco. Si lo tenías apagado sigue apagado, y si lo tenías
+  encendido ya sale así, sin hacer nada.
+- 🔧 **Arreglado:** al desplegar el botón de la paleta 🎨 con la página en **modo oscuro**, las
+  opciones salían casi invisibles y solo se leía la señalada. Ya se leen las cuatro.
+
+---
+
 ## 13 de septiembre de 2026
 
 ### 🎨 Un color para cada sección, si tú quieres

@@ -4,6 +4,60 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-09-17 · O-84 · El color va en la banda, y el selector legible (r79)
+
+Con dos capturas de la canción «Padre Celestial» ya publicada, Isaac:
+
+> *«mira como sale la lista para los colores, además fíjate que los colores no son como yo te digo,
+> es que pinte la línea donde está el texto de la sección no como tal el texto, es para que se pueda
+> diferenciar bien entre sección y sección»*
+
+**① EL COLOR VA EN LA LÍNEA, NO EN LA LETRA.** 🔴 **Esto SUPERA la decisión del 2026-09-13**, donde
+eligió «solo la etiqueta» entre tres opciones dibujadas en texto. Manda esto.
+* **Lo que quiere:** la **banda** donde vive el nombre de la sección —la cabecera de
+  `TablaturePreview`— **pintada de su color**. El nombre, del color de siempre.
+* **Para qué, que es lo que da la regla:** *«para que se pueda diferenciar bien entre sección y
+  sección»*. No es adorno: es **separar bloques de un vistazo mientras se toca**. Una letra de color
+  de 13 px no separa nada a un metro de distancia; una banda sí.
+* **Lo que NO cambia:** los acordes siguen negros sobre blanco (eso sí lo decidió y sigue valiendo),
+  el PDF sigue sin color, y sigue siendo elección de cada músico.
+* 📌 **Por qué se eligió mal la primera vez:** las tres opciones se le enseñaron **en dibujos de
+  texto** dentro de la pregunta, no en su pantalla. Con la app delante cambió de opinión en cuanto lo
+  vio. **Para algo que se juzga mirando, preguntar con un dibujo ASCII no es preguntar mirando** —es
+  la misma lección que el silencio de O-47 y el calderón de O-82, y esta vez se pagó igual.
+
+**② LA LISTA DEL SELECTOR NO SE LEE.** En su captura, con la página en oscuro, el desplegable abre
+**en blanco** y las tres paletas salen casi invisibles; solo se lee la opción señalada.
+🔴 **Es T-12 otra vez, y la causa es que mi `<select>` se saltó el arreglo global.** T-12 se resolvió
+en `globals.css` con `color-scheme: light` / `dark`, y funciona para los otros ocho `<select>` del
+proyecto. El mío traía `bg-transparent` y `dark:text-slate-100`: **le impuse letra casi blanca**, y la
+lista la pinta el navegador con fondo claro → blanco sobre blanco, el síntoma exacto de T-12.
+→ **La regla, que es lo que hay que recordar:** un `<select>` **no se estiliza con `bg-transparent` ni
+con un color de letra fijo**; se le da fondo y letra explícitos como a los otros del proyecto, y
+además **color propio a cada `<option>`**, que es lo que T-12 ya decía hacer «por si algún navegador
+ignora `color-scheme`».
+⚠️ **Y no se puede comprobar con una captura del HTML:** esa lista **no está en el DOM**, la dibuja el
+navegador. Lo comprobable desde aquí son las clases y el `color-scheme`; **verla abierta le toca a
+Isaac**.
+
+✅ **HECHO Y PUBLICADO en r79.**
+
+| Pieza | Qué cambió |
+|---|---|
+| `lib/coloresSeccion.ts` | las paletas pasan de `text-…` a `bg-…`, y `colorDeEtiqueta` se llama ahora **`bandaDeEtiqueta`** |
+| Lo que no se pinta | devuelve **`null`** en vez de una clase gris: así «sin color» y «esta sección no se pinta» quedan **idénticos** |
+| `TablaturePreview` | la clase entra en el `<div>` de la cabecera; la letra vuelve a su gris de siempre |
+| `ColoresSeccion.tsx` | fondo y letra explícitos en el `<select>` y **color propio en cada `<option>`** (T-12) |
+| Los tonos | **100/300 en claro, 700/900 en oscuro** — el oscuro hundido, o la banda sería una pared blanca |
+
+**Pruebas nuevas que fijan lo aprendido:** que lo pintado empieza por `bg-` y **no** lleva `text-`
+(si alguien vuelve a pintar la letra, salta), que el tono oscuro es **≥700** y el claro **≤300**, y
+que «sin nombre» y «otras» **no se pintan en ninguna paleta**. Son **260** en total.
+
+**Comprobado mirándolo:** culto a pantalla completa en **claro con las dos paletas** y en **oscuro**,
+**ficha en oscuro** (el selector se lee), **teléfono de 400 px** —donde más se nota— y **el PDF con
+el color encendido, sin bandas**.
+
 #### ✅ Cerrado el 2026-09-13 · O-83 · Un color por cada sección (r78)
 
 Isaac: *«el líder del grupo de la alabanza, Carlos, me pide que se pueda pintar con color diferente

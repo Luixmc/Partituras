@@ -16,7 +16,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { claveDe, colorDeEtiqueta, paletaPorId, PALETAS } = await cargar("coloresSeccion");
+const { claveDe, bandaDeEtiqueta, paletaPorId, PALETAS } = await cargar("coloresSeccion");
 
 describe("la clave sale de la PRIMERA palabra, no de la etiqueta entera", () => {
   test("la etiqueta pelada", () => {
@@ -84,50 +84,83 @@ describe("lo que no tiene nombre y lo que no se reconoce", () => {
 
 describe("apagado es apagado", () => {
   test("sin paleta no se pinta nada", () => {
-    assert.equal(colorDeEtiqueta("Intro", null), undefined);
-    assert.equal(colorDeEtiqueta("Intro", undefined), undefined);
-    assert.equal(colorDeEtiqueta("Intro", ""), undefined);
+    assert.equal(bandaDeEtiqueta("Intro", null), undefined);
+    assert.equal(bandaDeEtiqueta("Intro", undefined), undefined);
+    assert.equal(bandaDeEtiqueta("Intro", ""), undefined);
     assert.equal(paletaPorId(null), null);
   });
 
   test("🔴 una paleta que ya no existe tampoco pinta, no falla", () => {
     // Pasa de verdad: el músico guardó «suave2» en su tablet y un día esa
     // paleta se quita. Tiene que ver la página de siempre, no un error.
-    assert.equal(colorDeEtiqueta("Intro", "una-que-borramos"), undefined);
+    assert.equal(bandaDeEtiqueta("Intro", "una-que-borramos"), undefined);
     assert.equal(paletaPorId("una-que-borramos"), null);
+  });
+
+  test("🔴 una sección que la paleta no pinta devuelve undefined, NUNCA cadena vacía", () => {
+    // Las dos cosas son «no pintar» vistas desde fuera, pero una cadena vacía
+    // obligaría a comprobarlo dos veces en cada sitio que la use.
+    assert.equal(bandaDeEtiqueta("", "fuerte"), undefined);
+    assert.equal(bandaDeEtiqueta("Bombo", "fuerte"), undefined);
+    assert.equal(bandaDeEtiqueta("A (a tus pies...)", "extremos"), undefined);
   });
 });
 
-describe("las paletas están completas y se ven en los dos modos", () => {
+describe("las bandas están completas y se ven en los dos modos (O-84)", () => {
   const CLAVES = ["intro", "a", "b", "c", "d", "e", "f", "coro", "puente", "coda", "final", "sinNombre", "otras"];
+  const PINTADAS = (paleta) => CLAVES.filter((c) => paleta.colores[c] !== null);
 
-  test("cada paleta tiene su color para TODAS las claves", () => {
+  test("cada paleta responde a TODAS las claves, con una clase o con null", () => {
     for (const paleta of PALETAS) {
       for (const clave of CLAVES) {
-        assert.equal(typeof paleta.colores[clave], "string", `${paleta.id} no tiene ${clave}`);
-        assert.ok(paleta.colores[clave].length > 0, `${paleta.id}.${clave} está vacío`);
+        const v = paleta.colores[clave];
+        assert.ok(v === null || (typeof v === "string" && v.length > 0), `${paleta.id}.${clave} no vale`);
       }
     }
   });
 
-  test("🔴 ningún color se queda sin su tono para el modo oscuro", () => {
-    // Un verde que se lee sobre blanco desaparece sobre gris oscuro. Media
-    // iglesia toca con la tablet en oscuro.
+  test("🔴 lo que se pinta es el FONDO de la banda, no la letra", () => {
+    // O-84: Isaac lo corrigió mirando la app. Si alguien vuelve a poner aquí
+    // un `text-`, la letra se pintaría y la banda no, que es lo que él descartó.
     for (const paleta of PALETAS) {
-      for (const clave of CLAVES) {
-        assert.match(paleta.colores[clave], /dark:/, `${paleta.id}.${clave} no tiene tono oscuro`);
+      for (const clave of PINTADAS(paleta)) {
+        assert.match(paleta.colores[clave], /^bg-/, `${paleta.id}.${clave} no pinta fondo`);
+        assert.doesNotMatch(paleta.colores[clave], /text-/, `${paleta.id}.${clave} pinta letra`);
+      }
+    }
+  });
+
+  test("🔴 ninguna banda se queda sin su tono para el modo oscuro", () => {
+    // Un fondo claro en modo oscuro es una pared blanca con letra clara encima.
+    for (const paleta of PALETAS) {
+      for (const clave of PINTADAS(paleta)) {
+        assert.match(paleta.colores[clave], /dark:bg-/, `${paleta.id}.${clave} no tiene tono oscuro`);
+      }
+    }
+  });
+
+  test("🔴 y el tono oscuro es HUNDIDO, no el mismo claro repetido", () => {
+    // 100/300 en claro, 700/900 en oscuro. Repetir el claro dejaría la banda
+    // blanca sobre la página negra.
+    for (const paleta of PALETAS) {
+      for (const clave of PINTADAS(paleta)) {
+        const [claro, oscuro] = paleta.colores[clave].split(" ");
+        const nClaro = Number(claro.match(/-(\d{3})$/)[1]);
+        const nOscuro = Number(oscuro.match(/-(\d{3})$/)[1]);
+        assert.ok(nClaro <= 300, `${paleta.id}.${clave}: el claro es ${nClaro}`);
+        assert.ok(nOscuro >= 700, `${paleta.id}.${clave}: el oscuro es ${nOscuro}`);
       }
     }
   });
 
   test("🔴 las clases están escritas ENTERAS, no armadas a cachos", () => {
     // Tailwind lee el código como texto: una clase compuesta en tiempo de
-    // ejecución no llega al CSS y el color no sale, sin ningún error.
+    // ejecución no llega al CSS y el color no sale, sin ningún error (L-289).
     for (const paleta of PALETAS) {
-      for (const clave of CLAVES) {
+      for (const clave of PINTADAS(paleta)) {
         assert.match(
           paleta.colores[clave],
-          /^text-[a-z]+-\d{3} dark:text-[a-z]+-\d{3}$/,
+          /^bg-[a-z]+-\d{3} dark:bg-[a-z]+-\d{3}$/,
           `${paleta.id}.${clave} no es una clase entera`
         );
       }
@@ -145,12 +178,20 @@ describe("las paletas están completas y se ven en los dos modos", () => {
     assert.match(suaves.colores.a, /red/);
   });
 
-  test("🔴 «sin nombre» y «otras» se quedan del color de siempre", () => {
-    // Si se pintaran, la sección más común de todas (129 veces) cambiaría de
-    // color para todo el mundo, y eso no es lo que se pidió.
+  test("🔴 «sin nombre» y «otras» NO se pintan en ninguna paleta", () => {
+    // «Sin nombre» sale 129 veces, la sección más común de todas: pintarla
+    // sería ruido para todo el mundo. Y «otras» es lo que no se reconoce.
     for (const paleta of PALETAS) {
-      assert.equal(paleta.colores.sinNombre, paleta.colores.otras);
-      assert.match(paleta.colores.sinNombre, /slate/);
+      assert.equal(paleta.colores.sinNombre, null, paleta.id);
+      assert.equal(paleta.colores.otras, null, paleta.id);
     }
+  });
+
+  test("🔴 «solo el principio y el final» deja las letras sin pintar", () => {
+    const extremos = paletaPorId("extremos");
+    for (const letra of ["a", "b", "c", "d", "e", "f"]) {
+      assert.equal(extremos.colores[letra], null, letra);
+    }
+    assert.ok(extremos.colores.intro && extremos.colores.final);
   });
 });

@@ -4,6 +4,29 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-17 · r79 · El color va en la BANDA, no en la letra (O-84)
+
+Isaac, con dos capturas de «Padre Celestial» ya publicada: *«los colores no son como yo te digo, es
+que pinte la línea donde está el texto de la sección no como tal el texto, es para que se pueda
+diferenciar bien entre sección y sección»*. **Supera** lo que él mismo eligió el 13, y con razón: el
+día 13 eligió entre **tres dibujos de texto dentro de la pregunta**; el 17 lo vio en su pantalla.
+
+📌 **La lección del método, que es la cara:** para algo que se juzga MIRANDO, preguntar con un
+mockup ASCII no es preguntar mirando. En este mismo proyecto ya estaba aprendido —el silencio de
+negra (O-47) y el calderón (O-82) se eligieron sobre el dibujo— y aun así la pregunta de las tres
+opciones se hizo en texto. Es **L-292**.
+
+Y la segunda corrección suya: **la lista del selector no se leía en oscuro**. Era **T-12 otra vez**,
+que se arregló en agosto en la hoja global con `color-scheme` para los ocho `<select>` del proyecto
+— y **este se lo saltó** por llevar `bg-transparent` y `dark:text-slate-100`: letra casi blanca sobre
+la lista clara que pinta el navegador. **Un arreglo global se anula sin enterarte en cuanto un
+componente nuevo se estiliza «bonito»**; es **L-293**.
+
+**Comprobado mirándolo:** culto en claro con las dos paletas, en oscuro, ficha en oscuro, teléfono de
+400 px —donde más se nota— y el PDF con el color encendido, sin bandas. **260 pruebas**, con tres
+nuevas que fijan lo aprendido: que lo pintado es `bg-` y nunca `text-`, que el tono oscuro es
+hundido, y que lo que no se pinta devuelve `null`.
+
 ### 2026-09-13 · r78 · Un color por sección (O-83), el primer encargo de Carlos
 
 Isaac contestó las cuatro preguntas —**solo la etiqueta**, en **la ficha y la pantalla completa**

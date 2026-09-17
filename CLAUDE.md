@@ -110,8 +110,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **256 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.476 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **260 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.545 líneas** de TypeScript
    en **96 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -155,7 +155,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 256 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 260 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -327,7 +327,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       256 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       260 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -578,11 +578,93 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 4 | **El PDF del culto con la melodía** | Todavía no: Isaac no lo ha pedido. Se anota para no olvidarlo |
 | 5 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 6 | **Que Isaac vea en uso lo último publicado** (r74–r76: notas privadas, tempo guardado, P-02) | Dijo *«están bien todo»* tras r74; si algo aparece usándolo, vuelve aquí |
+| 7 | **🔴 ABIERTO · A Isaac le sale «This request was blocked · 403» al entrar en `/catalog`** (2026-09-14, de madrugada) | **No es Supabase, es el cortafuegos de Vercel.** No reproducido. Detalle abajo |
+
+#### 🔴 ABIERTO · «This request was blocked · 403 Forbidden» en producción (2026-09-14)
+
+Isaac, de madrugada: *«está caído la página nuevamente, es supabase»*, con una captura de
+`partituras-blush.vercel.app/catalog` en negro: **«This request was blocked — 403 Forbidden —
+iad1::1789394293-sJKRZ1yWpcuO5WIrKKUYHchweO5tQa0Z»**.
+
+🔴 **NO ES SUPABASE, y conviene no volver a empezar por ahí.** Medido en el momento, desde **su
+propio PC**:
+
+| Qué | Resultado |
+|---|---|
+| Supabase `/auth/v1/health` | **200 · 0,30 s**, ocho de ocho |
+| Supabase `/rest/v1/sheets` | **200 · 0,31 s**, ocho de ocho, devolviendo datos |
+| `/login` y `/novedades` en producción | **200**, con su contenido entero |
+| `/catalog` con la cookie de prueba | **200 · 350 KB** |
+| Página de estado de Vercel | **All Systems Operational** |
+| Página de estado de Supabase | «Partially Degraded Service» — API Gateway, y un incidente de **401 por JWT** abierto desde el 2026-09-11. **Pero aquí responde en 0,3 s**, así que no es lo que él ve |
+
+📌 **La pantalla es de VERCEL, no de la app ni de la base.** El fondo negro, el texto «This request
+was blocked» y el identificador `iad1::…` los sirve **el borde de Vercel**, y encima **antes de
+llegar a la función**: su identificador viene en la forma `iad1::<segundos>-<hash>`, sin el prefijo
+del trabajador (`iad1::qpxbq-<ms>-…`) que llevan las respuestas normales. O sea: **cortafuegos**.
+
+🔴 **Y el dato que más descarta: yo corro en SU PC y SU conexión**, y desde ahí `curl` pasa. Misma
+IP, mismo minuto —su bloqueo lleva la marca de tiempo 1789394293, unos tres minutos antes de la
+comprobación—. **No es su internet ni su IP: es algo de lo que manda su navegador**, o una regla que
+solo casa con las peticiones de un navegador de verdad.
+
+**Lo que se probó a reproducir, y NO lo reproduce** (todo desde su PC, contra `/catalog`):
+* Cabeceras de navegador completas: `User-Agent` de Chrome, `sec-ch-ua` con Brave, `sec-fetch-*`,
+  `sec-gpc: 1`, `accept-language: es-ES`, `accept-encoding` con `br`/`zstd` → **307 normal**.
+* Cookie gigante (4 KB, 8, 12, 16, 20, 24, 32, 48, 64 KB) → **500 `MIDDLEWARE_INVOCATION_FAILED`**,
+  que es otra cosa: la petición **llega** a la app. El bloqueo es anterior.
+* Cookie de sesión de verdad → **200 con el catálogo entero**.
+
+⚠️ **Y no se puede mirar el panel:** Vercel es del primo y el plan **Hobby no admite
+colaboradores** (`docs/ACCESOS.md`, fila 1), así que **las reglas del cortafuegos y sus registros no
+se ven desde aquí**. La siguiente prueba tiene que salir del navegador de Isaac.
+
+**LO QUE CONTESTÓ ISAAC (2026-09-14), y lo que descarta cada cosa:**
+
+| Prueba | Resultado | Qué descarta |
+|---|---|---|
+| `/novedades` en Brave | **va bien** | — (ojo: puede venir del service worker, que guarda copia) |
+| `/login` y `/catalog` | **403** | — |
+| **Ventana privada** | **403 igual** | **no son las cookies ni la sesión** |
+| **Escudos de Brave abajo** | **403 igual** | **no es Brave bloqueando nada** |
+| **Microsoft Edge** | **403 igual** | **no es el navegador**: son los dos |
+| **Teléfono con datos móviles** | **va normal** | la app y el despliegue **están bien** |
+
+🔴 **Y el choque que queda, medido en el mismo minuto y desde el MISMO PC:**
+
+| Cliente, misma IP (181.78.18.77) | Resultado |
+|---|---|
+| `curl` (HTTP/1.1) a `/login` | **200** |
+| `curl` a las **dos** direcciones del borde por separado (216.198.79.3 y 64.29.17.3) | **200** las dos |
+| **25 peticiones a la vez** | **200 las 25** — no es un límite de ritmo |
+| Node por **HTTP/2** | **pasa** — no es el protocolo |
+| **Brave sin ventana** contra ese dominio | **se cuelga**, mientras contra `localhost` va perfecto |
+| Sus dos navegadores | **403** |
+
+**Descartado además, comprobado en la máquina:** proxy manual (no hay), proxy automático (`wpad` no
+resuelve), antivirus de terceros (solo Defender), y el DNS —el del sistema y el seguro de Cloudflare
+devuelven **las mismas dos direcciones**—.
+
+📌 **Dónde queda la sospecha:** el cortafuegos de Vercel rechaza lo que llega **desde un Chromium de
+esta red** —Brave y Edge son el mismo motor— y deja pasar todo lo demás desde la misma IP. Eso apunta
+a una regla que mira la **huella del navegador** (TLS/bot), no a la IP. **No se ha podido confirmar,
+y no se podrá desde aquí:** hace falta la pestaña **Firewall** del panel de Vercel, que es del primo
+(Hobby no admite colaboradores, `docs/ACCESOS.md` fila 1).
+
+**Lo que falta por probar, y lo tiene que hacer él:**
+1. **El teléfono en el wifi de casa** (no con datos). Separa «es esta red» de «es este PC».
+2. **Que un músico abra la página.** Es lo que de verdad importa para el domingo.
+3. **El primo, en Vercel → Firewall:** si hay una regla, si está el «Attack Challenge Mode» encendido,
+   y qué dice el registro de peticiones bloqueadas.
+
+📌 **Mientras tanto, el enlace público del culto SIGUE FUNCIONANDO** —comprobado, 200 con las siete
+canciones—, así que si esto vuelve a pasar antes de un culto, **los músicos pueden tocar igual** con
+el enlace de WhatsApp.
 
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-13 (noche), todo PUBLICADO en r78**
+#### Estado del árbol — **2026-09-17, todo PUBLICADO en r79**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -590,10 +672,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r78** — un color por sección (O-83), con su comunicado y el README al día. `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r78** — **un color por sección** (O-83, de Carlos): la etiqueta se pinta según su primera palabra, tres paletas, apagado por defecto, en la ficha y a pantalla completa y **no** en el PDF. Antes, **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80); **r72**: la barra del editor de melodía, más ancha que alta (O-79); **r71**: las 15 duraciones y los botones grandes (O-78); **r70**: la armadura en el pentagrama del editor (O-77) |
-| Pruebas | **256** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.476 líneas** de TypeScript en **96 archivos** |
+| Último commit publicado | **r79** — el color en la banda de la sección (O-84) y el selector legible en oscuro. `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r79** — **el color va en la BANDA de la sección, no en la letra** (O-84, corrección de Isaac viéndolo en la app), y la lista del selector legible en oscuro (T-12 otra vez). Antes, **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82); **r76**: sin cuenta ya no se leen las canciones (P-02, paso 2: migración 024); **r75**: el enlace público del culto por su función (P-02, paso 1); **r74**: las notas privadas (O-74) y el tempo guardado con la canción (O-81); **r73**: las pestañas de la canción ya no se salen en el teléfono (O-80) |
+| Pruebas | **260** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **18.545 líneas** de TypeScript en **96 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -751,6 +833,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-09-17 | **r79** · el color en la banda y no en la letra (O-84), y el selector legible en oscuro |
 | 2026-09-13 | **r78** · un color por sección (O-83, de Carlos), con sus tres paletas y el README recuperado |
 | 2026-09-13 | **r77** · el calderón con su punto (O-82). Anotados O-82 y **O-83** (el color por sección, de Carlos) |
 | 2026-09-11 | **Subir sin pedir permiso, para TODO** (*«para todo, no me pidas permiso»*; D-01 superado, §11) |

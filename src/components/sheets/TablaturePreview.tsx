@@ -7,7 +7,7 @@ import { Grid2X2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NoteFigure, RestFigure, FermataFigure, SlurFigure, FIGURA_ALTO } from "@/components/sheets/MusicFigures";
 import { duracionDe, DURACION } from "@/lib/figuras";
-import { colorDeEtiqueta } from "@/lib/coloresSeccion";
+import { bandaDeEtiqueta } from "@/lib/coloresSeccion";
 
 type Props = {
   notes: string;
@@ -882,24 +882,24 @@ export default function TablaturePreview({
       )}
     >
       {(label || !compact) && (
+        /* 🔴 O-83/O-84 · EL COLOR ENTRA POR UNA PROPIEDAD, no se decide aquí.
+           Esta cabecera la dibujan CINCO pantallas —la ficha, la pantalla
+           completa, el PDF del culto, las versiones por tono y «nueva
+           canción»— e Isaac solo quiso color en las dos primeras: el PDF se
+           imprime en blanco y negro y el color se vuelve gris. Si el color se
+           calculara aquí dentro saldría en las cinco.
+
+           🔴 Y va en la BANDA, no en la letra (O-84, 2026-09-17): *«que pinte
+           la línea donde está el texto de la sección»*, para separar una
+           sección de la siguiente a la distancia a la que se toca.
+           `bandaDeEtiqueta` devuelve `undefined` si no hay que pintar, y
+           entonces `cn` deja intactas las clases de siempre. */
         <div className={cn(
           "flex items-center justify-between border-b border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60",
-          dense ? "px-3 py-0.5" : "px-4 py-2"
+          dense ? "px-3 py-0.5" : "px-4 py-2",
+          bandaDeEtiqueta(label, paletaId)
         )}>
-          {/* 🔴 O-83 · EL COLOR ENTRA POR UNA PROPIEDAD, no se decide aquí.
-              Esta cabecera la dibujan CINCO pantallas —la ficha, la pantalla
-              completa, el PDF del culto, las versiones por tono y «nueva
-              canción»— y Isaac solo quiso color en las dos primeras: el PDF se
-              imprime en blanco y negro y el color se vuelve gris. Si el color
-              se calculara aquí dentro saldría en las cinco.
-              `colorDeEtiqueta` devuelve `undefined` cuando no hay paleta, así
-              que sin ella queda exactamente la clase de siempre. */}
-          <div
-            className={cn(
-              "flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100",
-              colorDeEtiqueta(label, paletaId)
-            )}
-          >
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
             <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
             {label || "Notas"}
           </div>

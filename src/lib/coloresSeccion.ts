@@ -30,10 +30,21 @@
 // `tailwind.config.ts`: hasta hoy solo se escaneaban `components`, `app` y
 // `pages`, así que estas clases, viviendo aquí, no se habrían generado.
 //
-// LO QUE SE PINTA ES SOLO LA ETIQUETA, y lo eligió Isaac el 2026-09-13
-// teniendo delante las tres opciones: los acordes se quedan negros sobre
-// blanco. Un fondo de color detrás de los acordes se ve de más lejos, pero se
-// lee peor, y esto se usa tocando en el culto.
+// 🔴 LO QUE SE PINTA ES LA BANDA DE LA SECCIÓN, NO LA LETRA (O-84).
+// Isaac, 2026-09-17, con la app delante: *«que pinte la línea donde está el
+// texto de la sección, no como tal el texto, es para que se pueda diferenciar
+// bien entre sección y sección»*. **Esto SUPERA** lo que él mismo eligió el
+// 2026-09-13 —«solo la etiqueta»—, que se decidió sobre dibujos de texto y no
+// sobre la pantalla.
+//
+// 📌 Y el porqué manda sobre el gusto: esto se usa **tocando, con la tablet a
+// un metro**. Un nombre de sección de 13 px en verde no separa nada a esa
+// distancia; una banda de color sí. El color aquí no decora: **es el corte
+// entre un bloque y el siguiente**.
+//
+// Lo que NO cambia: **los acordes siguen negros sobre blanco** —eso sí lo
+// decidió y sigue valiendo—, el PDF sigue sin color, y sigue eligiendo cada
+// músico.
 // ─────────────────────────────────────────────────────────────
 
 /** El tipo de sección, sacado de la primera palabra de su etiqueta. */
@@ -83,8 +94,13 @@ export function claveDe(etiqueta?: string | null): ClaveSeccion {
   return conocidas[primera] ?? "otras";
 }
 
-/** Lo que se le pone a la etiqueta: su clase de color, en claro y en oscuro. */
-type Colores = Record<ClaveSeccion, string>;
+/**
+ * La clase de FONDO de la banda de cada sección, en claro y en oscuro.
+ *
+ * `null` = **no se pinta**: la banda se queda con el gris de siempre. Es lo que
+ * llevan «sin nombre» y «otras», y las letras en la paleta de los extremos.
+ */
+type Colores = Record<ClaveSeccion, string | null>;
 
 export type Paleta = {
   id: string;
@@ -94,19 +110,25 @@ export type Paleta = {
   colores: Colores;
 };
 
-// El color «de siempre», para lo que no se pinta. Es el que tiene hoy la
-// cabecera, así que apagar el color y caer aquí se ven exactamente igual.
-const NEUTRO = "text-slate-800 dark:text-slate-100";
+// Lo que NO se pinta. Devolver `null` —y no una clase gris -- deja la cabecera
+// **exactamente** con las clases que ya tenía, así que «sin color» y «esta
+// sección no se pinta» se ven idénticos, que es lo correcto.
+const SIN_PINTAR = null;
 
 /**
  * Las paletas, elegidas por Isaac en tres opciones hechas y no en doce
  * selectores de color: *«un toque en la tablet en vez de doce»*.
  *
- * 🔴 Los dos tonos de cada color NO son decoración: la página tiene modo
- * oscuro, y un verde que se lee sobre blanco desaparece sobre gris oscuro. Por
- * eso cada clase lleva su `dark:`, y el tono oscuro es más CLARO que el claro
- * (600 sobre blanco, 300 sobre negro). Sin eso, media iglesia —la que toca con
- * la tablet en oscuro— no vería nada.
+ * 🔴 Los dos tonos de cada banda NO son decoración: la página tiene modo
+ * oscuro. Un fondo claro (100/300) sobre la página blanca deja leer el nombre
+ * en gris oscuro; el mismo fondo en modo oscuro sería una pared blanca con la
+ * letra clara encima, ilegible. Por eso cada clase lleva su `dark:` con el tono
+ * **hundido** (900/700), que en oscuro se lee con la letra clara de siempre.
+ * Sin esto, media iglesia —la que toca con la tablet en oscuro— no vería nada.
+ *
+ * 📌 Y por eso la letra NO se toca: el nombre se queda con las clases grises
+ * que ya tenía, que son las que el proyecto ya garantiza legibles en los dos
+ * modos. Pintar banda Y letra obligaría a cuadrar contrastes a pares.
  *
  * Los dos colores que pidió Carlos por su nombre —**intro verde** y
  * **parte A roja**— son los mismos en las tres paletas. Lo demás se repartió
@@ -124,41 +146,41 @@ export const PALETAS: Paleta[] = [
   {
     id: "suave",
     nombre: "Suaves",
-    pista: "Colores discretos, para que no canten más que los acordes.",
+    pista: "Bandas de color suave, para que no canten más que los acordes.",
     colores: {
-      intro: "text-emerald-600 dark:text-emerald-400",
-      a: "text-red-600 dark:text-red-400",
-      b: "text-blue-600 dark:text-blue-400",
-      c: "text-amber-600 dark:text-amber-400",
-      d: "text-violet-600 dark:text-violet-400",
-      e: "text-cyan-600 dark:text-cyan-400",
-      f: "text-lime-600 dark:text-lime-400",
-      coro: "text-orange-600 dark:text-orange-400",
-      puente: "text-teal-600 dark:text-teal-400",
-      coda: "text-pink-600 dark:text-pink-400",
-      final: "text-fuchsia-600 dark:text-fuchsia-400",
-      sinNombre: NEUTRO,
-      otras: NEUTRO,
+      intro: "bg-emerald-100 dark:bg-emerald-900",
+      a: "bg-red-100 dark:bg-red-900",
+      b: "bg-blue-100 dark:bg-blue-900",
+      c: "bg-amber-100 dark:bg-amber-900",
+      d: "bg-violet-100 dark:bg-violet-900",
+      e: "bg-cyan-100 dark:bg-cyan-900",
+      f: "bg-lime-100 dark:bg-lime-900",
+      coro: "bg-orange-100 dark:bg-orange-900",
+      puente: "bg-teal-100 dark:bg-teal-900",
+      coda: "bg-pink-100 dark:bg-pink-900",
+      final: "bg-fuchsia-100 dark:bg-fuchsia-900",
+      sinNombre: SIN_PINTAR,
+      otras: SIN_PINTAR,
     },
   },
   {
     id: "fuerte",
     nombre: "Fuertes",
-    pista: "Más saturados, para distinguirlos de un vistazo desde lejos.",
+    pista: "Bandas bien marcadas, para separarlas de un vistazo desde lejos.",
     colores: {
-      intro: "text-emerald-700 dark:text-emerald-300",
-      a: "text-red-700 dark:text-red-300",
-      b: "text-blue-700 dark:text-blue-300",
-      c: "text-amber-700 dark:text-amber-300",
-      d: "text-violet-700 dark:text-violet-300",
-      e: "text-cyan-700 dark:text-cyan-300",
-      f: "text-lime-700 dark:text-lime-300",
-      coro: "text-orange-700 dark:text-orange-300",
-      puente: "text-teal-700 dark:text-teal-300",
-      coda: "text-pink-700 dark:text-pink-300",
-      final: "text-fuchsia-700 dark:text-fuchsia-300",
-      sinNombre: NEUTRO,
-      otras: NEUTRO,
+      intro: "bg-emerald-300 dark:bg-emerald-700",
+      a: "bg-red-300 dark:bg-red-700",
+      b: "bg-blue-300 dark:bg-blue-700",
+      c: "bg-amber-300 dark:bg-amber-700",
+      d: "bg-violet-300 dark:bg-violet-700",
+      e: "bg-cyan-300 dark:bg-cyan-700",
+      f: "bg-lime-300 dark:bg-lime-700",
+      coro: "bg-orange-300 dark:bg-orange-700",
+      puente: "bg-teal-300 dark:bg-teal-700",
+      coda: "bg-pink-300 dark:bg-pink-700",
+      final: "bg-fuchsia-300 dark:bg-fuchsia-700",
+      sinNombre: SIN_PINTAR,
+      otras: SIN_PINTAR,
     },
   },
   {
@@ -166,19 +188,19 @@ export const PALETAS: Paleta[] = [
     nombre: "Solo el principio y el final",
     pista: "Pinta la intro, la coda y el final. Las partes A, B, C… se quedan como están.",
     colores: {
-      intro: "text-emerald-700 dark:text-emerald-300",
-      a: NEUTRO,
-      b: NEUTRO,
-      c: NEUTRO,
-      d: NEUTRO,
-      e: NEUTRO,
-      f: NEUTRO,
-      coro: "text-orange-700 dark:text-orange-300",
-      puente: "text-teal-700 dark:text-teal-300",
-      coda: "text-fuchsia-700 dark:text-fuchsia-300",
-      final: "text-red-700 dark:text-red-300",
-      sinNombre: NEUTRO,
-      otras: NEUTRO,
+      intro: "bg-emerald-300 dark:bg-emerald-700",
+      a: SIN_PINTAR,
+      b: SIN_PINTAR,
+      c: SIN_PINTAR,
+      d: SIN_PINTAR,
+      e: SIN_PINTAR,
+      f: SIN_PINTAR,
+      coro: "bg-orange-300 dark:bg-orange-700",
+      puente: "bg-teal-300 dark:bg-teal-700",
+      coda: "bg-pink-300 dark:bg-pink-700",
+      final: "bg-red-300 dark:bg-red-700",
+      sinNombre: SIN_PINTAR,
+      otras: SIN_PINTAR,
     },
   },
 ];
@@ -231,15 +253,16 @@ export function paletaPorId(id?: string | null): Paleta | null {
 }
 
 /**
- * La clase de color de una etiqueta con una paleta dada.
+ * La clase de FONDO de la banda de una sección con una paleta dada.
  *
  * Devuelve `undefined` cuando no hay que pintar —color apagado, paleta
- * desconocida— para que quien la use deje su color de siempre. **Nunca
- * devuelve una cadena vacía**: una clase vacía y «no pintar» son la misma
- * cosa vista desde fuera, pero mezclarlas obliga a comprobarlo dos veces.
+ * desconocida, o una sección que esa paleta deja sin pintar— para que quien la
+ * use deje la banda de siempre. **Nunca devuelve una cadena vacía**: una clase
+ * vacía y «no pintar» son la misma cosa vista desde fuera, pero mezclarlas
+ * obliga a comprobarlo dos veces.
  */
-export function colorDeEtiqueta(etiqueta?: string | null, paletaId?: string | null): string | undefined {
+export function bandaDeEtiqueta(etiqueta?: string | null, paletaId?: string | null): string | undefined {
   const paleta = paletaPorId(paletaId);
   if (!paleta) return undefined;
-  return paleta.colores[claveDe(etiqueta)];
+  return paleta.colores[claveDe(etiqueta)] ?? undefined;
 }
