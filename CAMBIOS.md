@@ -5,6 +5,20 @@
 
 ---
 
+## 24 de septiembre de 2026
+
+### 🎼 La melodía, abierta para todos
+
+- 🆕 La sección **Melodía** estaba escondida mientras se construía: solo la veía quien administra.
+  Ya está terminada —se escribe, se escucha, se lee a pantalla completa y sale en el PDF del culto—,
+  así que **se abre para todos**. La verás en la barra de la izquierda y como una pestaña dentro de
+  cada canción.
+- ⚠️ **Escribirla sigue siendo cosa de quien administra**: tú la lees y la escuchas, pero no la
+  puedes cambiar sin querer.
+- De momento hay **una sola canción** con melodía escrita; irán apareciendo según se escriban.
+
+---
+
 ## 17 de septiembre de 2026
 
 ### 🎺 El PDF del culto, en TU tono (y con la melodía)

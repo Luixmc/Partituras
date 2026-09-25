@@ -1,54 +1,6 @@
-# CLAUDE.md — Memoria técnica de Partituras
+# CLAUDE.md — Memoria técni| 2026-09-24 | **r83** · la melodía abierta a todos los roles (O-87), y la regla de los chats cortos escrita aquí |
 
-> **ÚNICO documento de referencia del proyecto. Se actualiza en el MISMO cambio que el
-> código, sin pedir permiso.** Tiene que permitir abrir un chat nuevo, decir «lee el
-> CLAUDE.md y continúa», y seguir sin que Isaac explique nada otra vez.
 
-> ### Las dos reglas que se pierden si no se ven al leer el proyecto
->
-> **REGLA 0 — Lo que Isaac dicta se escribe ANTES de programarlo.** En la sección que le
-> toca, no solo en el historial. Aunque no se vaya a hacer hoy, aunque sea una opinión o un
-> descarte, aunque sea una corrección a una respuesta mía. Lo que quede **pendiente va a §9,
-> nunca solo a §13**. Si la conversación se corta, lo escrito es lo único que sobrevive.
->
-> **REGLA DEL «CONTINÚA» — cuando Isaac dice «continúa con el trabajo», ES OTRO DÍA.**
-> Acordado el 2026-09-02 al cerrar la jornada: *«mañana continuamos; cuando te diga que continúes
-> con el trabajo es porque ya es mañana»*. → **No se hereda la fecha de la conversación anterior:
-> se pregunta el reloj** (regla de abajo) y se sigue por **lo que esté en §9 como pendiente**, no
-> por lo último que se dijo. Lo que quedó a medias tiene que poder retomarse leyendo este archivo.
->
-> **REGLA DE LA FECHA — se pregunta el reloj, NO se hereda la del principio de la conversación.**
-> Isaac lo corrigio el 2026-08-22: *«los cambios que se hicieron desde hoy es para el 22 de agosto,
-> estoy viendo los archivos y marcan 21 de agosto, o sea el dia de ayer»*. Tenia razon: una sesion
-> larga cruza la medianoche y todo lo de la madrugada y la mañana siguiente se seguia fechando con
-> el dia en que arranco. → **Antes de escribir una fecha, `date`.** Y si hay que reconstruir lo ya
-> escrito, **la verdad esta en `git log --date=format:'%Y-%m-%d %H:%M'`**: los commits llevan la
-> hora real. Para el comunicado manda **la fecha en que el musico lo puede ver**, no la de cuando
-> se tecleo — la Fase L se escribio la noche del 21 y se publico el 22, asi que va en el 22.
-> ⚠️ Ojo tambien con `npm run export`: **fecha en UTC**, asi que a partir de las 19:00 en Colombia
-> la carpeta lleva ya el dia siguiente.
->
-> **REGLA DEL README — el `README.md` se mantiene al dia, como hacia el primo.**
-> Isaac, 2026-08-28: *«los cambios que se hacen, agregalos al readme, para tener todo ahi como
-> venia haciendo mi primo»*. Y tenia razon en lo de «como venia haciendo»: **el primo lo actualizo
-> hasta `r10` y ahi se quedo** —comprobado con `git log --follow README.md`—, asi que llevaba
-> **veinte versiones** describiendo una app que ya no existe. Era P-07.
-> → **Son TRES documentos y cada uno tiene su lector:** `README.md` **para quien abre el
-> repositorio** (que es publico) y quiere saber que es esto y como se levanta · `CAMBIOS.md` y
-> `/novedades` **para el musico** · `CLAUDE.md` **para quien programa**. Un cambio que altere lo
-> que la app **hace** o **como se usa** toca el README; uno que solo cambie por dentro, no.
->
-> **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md` Y en
-> `/novedades`**, en la sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la
-> página, no qué archivo se tocó.
-> 🔴 **Y son DOS sitios, no uno.** Se incumplió el 2026-08-22 con lo de la trompeta: se publicó,
-> se escribió aquí —D-28, D-29, §9.2-nonies— y **se olvidó el comunicado**. Lo vio Isaac:
-> *«lo subiste pero no lo documentaste en los archivos y en la página de novedades»*.
-> **Documentar en el `CLAUDE.md` no es documentar para el músico**: este archivo lo lee quien
-> programa, y el que toca no entra aquí. Si el cambio se nota usando la página —y lo de la
-> trompeta se nota mucho—, **no está terminado hasta que está en los dos.** Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
-> cambiando. Es un documento **para leer**, no un historial técnico — ese es §13 de aquí.
->
 > **REGLA DE LA CARPETA COMPARTIDA — se repasa CADA tanda y se dice cuáles de los cuatro
 > archivos se tocaron**, o que no había nada que tocar. Callarse no vale.
 > `C:\Users\TECSISTEMAS\Documents\_CLAUDE-COMPARTIDO\` → `LECCIONES.md`, `PROYECTOS.md`,
@@ -110,8 +62,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **276 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.886 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **277 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.894 líneas** de TypeScript
    en **97 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -155,7 +107,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 276 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 277 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -327,7 +279,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       276 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       277 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -572,7 +524,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 
 | # | Qué | De quién / dónde está el detalle |
 |---|---|---|
-| 1 | **Abrir las LETRAS (37 de 85 escritas) y la MELODÍA (1) a todos los roles** | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`) y `ROLES_MELODIA` (`lib/melodia.ts`), una línea cada uno (D-22) |
+| 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 
@@ -673,7 +625,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-17, todo PUBLICADO en r82**
+#### Estado del árbol — **2026-09-24, todo PUBLICADO en r83**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -681,10 +633,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r82** — el PDF del culto en el tono del instrumento y con la melodía (O-86). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r82** — **el PDF del culto sale en el tono de quien lo lee y con la melodía** (O-86, las dos fases). Antes, **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos); **r77**: el calderón con su punto (O-82) |
-| Pruebas | **276** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.886 líneas** de TypeScript en **97 archivos** |
+| Último commit publicado | **r83** — la melodía abierta a todos los roles (O-87). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r83** — **la melodía ya la ven todos los roles** (O-87). Antes, **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **277** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **18.894 líneas** de TypeScript en **97 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |

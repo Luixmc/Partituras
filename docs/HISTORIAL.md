@@ -4,6 +4,30 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-09-24 · r83 · La melodía, abierta a todos los roles (O-87)
+
+Isaac: *«abre las melodias»*. `ROLES_MELODIA` pasa de `["admin"]` a los tres roles. Estuvo cerrada
+desde el 2026-09-03, mientras se hacía; se abrió el día que el editor, el reproductor y el PDF
+estaban terminados.
+
+🔴 **Lo que se comprobó ANTES de tocar la línea, y era lo único que podía salir caro:** que abrir
+«quién lo ve» no abriera también «quién lo escribe». No lo abre — escribir cuelga de `canEdit`, que
+es `role === "admin"` y se calcula aparte en cada pantalla—. Un interruptor de visibilidad que
+además deja escribir es exactamente el fallo que nadie mira.
+
+**Comprobado con la cuenta de MÚSICO** (`pruebaclaude2`): `/melodias` responde **200** —antes
+redirigía al catálogo— y el catálogo sigue entrando. **277 pruebas**, lint 0, build 0.
+
+📌 **La prueba que guardaba que estuviera cerrada cumplió su función y se reescribió**: ahora fija lo
+que importa a partir de hoy —que los tres roles la ven **y que sin sesión no se ve**, ni escribiendo
+la dirección a mano (L-87)—.
+
+⚠️ **Las LETRAS siguen cerradas**: él pidió solo las melodías. Sigue en §9 como pendiente 1.
+
+Y en esta tanda se escribió en la cabecera del `CLAUDE.md` la **regla de los chats cortos** de Isaac
+(5–7 pedidos por chat) y la **del tamaño** de este archivo. Medido: **66 KB, 900 líneas** — por
+debajo del tope de 100 KB, así que no hizo falta recortarlo.
+
 ### 2026-09-17 · r82 · El PDF del culto, en el tono del instrumento y con la melodía (O-86)
 
 Isaac: *«vamos con lo del pdf»*, y de los dos pendientes eligió **«los dos, empezando por el tono»**.

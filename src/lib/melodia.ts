@@ -27,12 +27,20 @@ import type { UserRole } from "@/types";
  * igual: «que tenga una sección aparte como las letras pero que sea oculta
  * también hasta que funcione bien».
  *
- *   para abrirlo:  ["admin", "musician", "viewer"]
+ * 🟢 **ABIERTA A TODOS EL 2026-09-17 (O-87).** Isaac: *«abre las melodias»*.
+ * Estuvo cerrada al admin desde el 2026-09-03, mientras se hacía; se abrió el
+ * día que el editor, el reproductor y el PDF estaban terminados.
+ *
+ * ⚠️ **Abrir esto abre VER, no escribir.** Escribir sigue colgando de `canEdit`,
+ * que es `role === "admin"` y se calcula aparte en cada pantalla: un músico o un
+ * lector entran en la melodía y **no pueden tocarla**. Comprobado antes de
+ * abrir, porque un interruptor de «quién lo ve» que además deja escribir sería
+ * exactamente el fallo que nadie mira.
  *
  * ⚠️ Y no es solo esconder botones: la pantalla lo comprueba en el SERVIDOR y
  * la melodía **no sale del servidor** para quien no debe verla (L-87).
  */
-export const ROLES_MELODIA: UserRole[] = ["admin"];
+export const ROLES_MELODIA: UserRole[] = ["admin", "musician", "viewer"];
 
 export function puedeVerMelodia(rol: UserRole | null | undefined): boolean {
   return Boolean(rol && ROLES_MELODIA.includes(rol));

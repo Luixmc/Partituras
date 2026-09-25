@@ -70,6 +70,29 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "24 de septiembre de 2026",
+    "iso": "2026-09-24",
+    "entrada": "La melodía ya no es solo para quien administra: la ve todo el mundo.",
+    "secciones": [
+      {
+        "titulo": "La melodía, abierta para todos",
+        "resumen": "La sección de melodía estaba oculta mientras se hacía. Ya la puede ver cualquiera con cuenta.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Ya puedes ver la melodía.",
+            "detalle": [
+              "La sección <strong>Melodía</strong> estaba escondida mientras se construía: solo la veía quien administra. Ya está terminada —se escribe, se escucha, se lee a pantalla completa y sale en el PDF del culto—, así que <strong>se abre para todos</strong>.",
+              "La verás en la barra de la izquierda y como una pestaña más dentro de cada canción.",
+              "⚠️ <strong>Escribirla sigue siendo cosa de quien administra</strong>: tú la lees y la escuchas, pero no la puedes cambiar sin querer.",
+              "De momento hay <strong>una sola canción</strong> con melodía escrita. Irán apareciendo según se vayan escribiendo."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "17 de septiembre de 2026",
     "iso": "2026-09-17",
     "entrada": "El PDF del culto sale en tu tono y con la melodía. Y los colores de sección pintan la franja entera.",

@@ -37,13 +37,26 @@ const nota = (paso, duracion = 2, alteracion = null, ligada = false) => ({
   ligada,
 });
 
-test("la melodía está OCULTA hasta que Isaac la abra", () => {
+test("🟢 la melodía está ABIERTA a todos los roles (O-87, 2026-09-17)", () => {
+  // Estuvo cerrada al admin desde el 2026-09-03, mientras se hacía, y esta
+  // misma prueba lo guardaba. Isaac la abrió —«abre las melodias»— el día que
+  // el editor, el reproductor y el PDF estaban terminados.
   // D-22 aplicado igual que a las letras: un solo interruptor.
-  assert.deepEqual(ROLES_MELODIA, ["admin"]);
+  assert.deepEqual(ROLES_MELODIA, ["admin", "musician", "viewer"]);
   assert.equal(puedeVerMelodia("admin"), true);
-  assert.equal(puedeVerMelodia("musician"), false);
-  assert.equal(puedeVerMelodia("viewer"), false);
+  assert.equal(puedeVerMelodia("musician"), true);
+  assert.equal(puedeVerMelodia("viewer"), true);
+});
+
+test("🔴 pero SIN sesión no se ve, ni por una dirección escrita a mano", () => {
+  // El interruptor no es un adorno de la pantalla: el servidor lo comprueba y
+  // la melodía NO SALE del servidor para quien no debe verla (L-87). Sin rol
+  // no hay permiso, y eso tiene que seguir siendo cierto con la sección
+  // abierta.
   assert.equal(puedeVerMelodia(null), false);
+  assert.equal(puedeVerMelodia(undefined), false);
+  assert.equal(puedeVerMelodia(""), false);
+  assert.equal(puedeVerMelodia("cualquier-cosa"), false);
 });
 
 test("las alturas: el do central es «C», el de arriba «c»", () => {
