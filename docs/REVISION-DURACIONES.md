@@ -34,6 +34,20 @@ entero no tiene suma que comprobar). Ahí solo vale mirarlos con las figuras.
 | **Cada Vez** | C (Porque todo…), casilla 2 | `Amaj7:2 E7:1` | **3 de 4** | ¿`E7:2`? |
 | **Es Por Fe** | Final Coda | `Bm7:0.5 Bm7:0.25 z:1.5` | **2,25 de 4**, último compás | Un final puede quedar corto; ¿el `:0.25` es `:0.5`? |
 
+## Segunda pasada, después de que Isaac corrigiera (2026-10-05, 9:43)
+
+Copia `Partituras-datos-2026-10-05-09h43h01`. Solo cambiaron **esas 7 canciones**.
+
+| Canción | Qué hizo | Queda |
+|---|---|---|
+| La Bondad De Dios | puso la barra: `C7:2 Dm7:2 \| Bb:2 F:1 C/E:1` | ✅ |
+| Cielos Abiertos | los `:3` → `:1.5` en los tres compases | ✅ |
+| Simplemente Alaba | `G:0.25` → `G:0.5`, y `4/4` al empezar A | ✅ |
+| Quiero Conocer A Jesús | quitó la barra: `G:3 G/B:1` | ✅ |
+| Cada Vez | casilla 2: `Amaj7:3 E7:1` | ✅ |
+| Es Por Fe | `Bm7:0.5 Bm7:0.25 z:0.25 z:3` | ✅ |
+| Dios Ha Sido Fiel | A c.11 → `Am7` entero ✅ · y `D/D:2` → `G/D:2` (eso lo vio él) · **la Intro**: quitó el `2/4` y `C:0.5 B:0.5` vale 1 de 4 | ✅ **es anacrusa** (Isaac, 2026-10-05: *«es anacrusa la canción»*) |
+
 ## Si se quiere volver a pasar
 
 El script vive en el scratchpad de esa sesión, no en el repositorio. Si Isaac quiere poder repetirlo

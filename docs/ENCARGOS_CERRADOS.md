@@ -4,6 +4,30 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-05 · Revisión de duraciones (las corrigió Isaac)
+
+Isaac: *«te pedí las figuras de las notas musicales porque creo que hay algunas no escribí bien, por
+ello te los pedí, además quiero me digas que canciones tienen las duraciones mal escrita para
+corregirlas»*. → **Por eso pidió O-90**: para ver las figuras y cazar errores suyos. **Las corrige ÉL**:
+aquí solo se le da la lista, **no se toca la base** (D-13, y su notación propia se pregunta, no se limpia).
+Criterios usados (la página no valida compases; estos son los que se le explicaron):
+① duración que no es ninguna de las 15 figuras (`:1.25`, `:5`…) — la página dibuja otra sin avisar ·
+② duración escrita de forma que no se lee (`C:1,5`, `C;2`…) · ③ compás con TODO medido cuya suma no da
+el compás (puede ser anacrusa o casilla: lo decide él).
+
+✅ **Revisado el 2026-10-05** → **`docs/REVISION-DURACIONES.md`**: 0 figuras inválidas, 0 duraciones
+ilegibles, **20 compases que no suman en 7 canciones** (La Bondad De Dios, Cielos Abiertos —`:3` en 6/8,
+parece contado en corcheas—, Simplemente Alaba, Quiero Conocer A Jesús, Dios Ha Sido Fiel, Cada Vez, Es Por
+Fe). **Falta:** ① que Isaac las corrija · ② que diga si quiere el detector como `npm run duraciones` para
+repetirlo (hoy vive en el scratchpad) · ③ volver a pasarlo cuando corrija.
+
+✅ **Isaac las corrigió el mismo día** (*«ya las corregí, míralos»*) y se volvió a pasar con una copia nueva
+(`Partituras-datos-2026-10-05-09h43h01`): **6 de 7 cuadran**, y solo cambió esas 7 canciones. De paso
+arregló por su cuenta `D/D:2` → `G/D:2` en «Dios Ha Sido Fiel». Detalle de la segunda pasada en
+`docs/REVISION-DURACIONES.md`. La Intro de «Dios Ha Sido Fiel» (`C:0.5 B:0.5`, 1 de 4) **es anacrusa**: lo confirmó Isaac. → **Las 7, bien.** Queda abierto solo si quiere el detector como `npm run duraciones` (§9 fila 5).
+
+---
+
 #### ✅ Cerrado el 2026-10-04 · O-88 a O-92 · Menús propios, transporte completo, calderón con punto (r84)
 
 **Sus respuestas (2026-10-04):** ① aprueba el plan · ② **las dos versiones dañadas ya las corrigió él** —no se

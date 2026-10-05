@@ -594,23 +594,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 | 4 | **Que Isaac mire el CALDERÓN en su teléfono** (Samsung A05s) tras r84: ¿sale el punto? ¿y los puntillos? | **De Isaac.** O-92 se arregló por la causa más probable (`calc()` sin unidad en el radio, T-19), pero en Brave el punto ya se veía antes: **solo su teléfono lo confirma**. Si sigue sin punto, preguntar qué navegador usa (Chrome, Samsung Internet) |
-
-#### 🆕 Pedido del 2026-10-05 · ¿Qué canciones tienen las duraciones mal escritas?
-
-Isaac: *«te pedí las figuras de las notas musicales porque creo que hay algunas no escribí bien, por
-ello te los pedí, además quiero me digas que canciones tienen las duraciones mal escrita para
-corregirlas»*. → **Por eso pidió O-90**: para ver las figuras y cazar errores suyos. **Las corrige ÉL**:
-aquí solo se le da la lista, **no se toca la base** (D-13, y su notación propia se pregunta, no se limpia).
-Criterios usados (la página no valida compases; estos son los que se le explicaron):
-① duración que no es ninguna de las 15 figuras (`:1.25`, `:5`…) — la página dibuja otra sin avisar ·
-② duración escrita de forma que no se lee (`C:1,5`, `C;2`…) · ③ compás con TODO medido cuya suma no da
-el compás (puede ser anacrusa o casilla: lo decide él).
-
-✅ **Revisado el 2026-10-05** → **`docs/REVISION-DURACIONES.md`**: 0 figuras inválidas, 0 duraciones
-ilegibles, **20 compases que no suman en 7 canciones** (La Bondad De Dios, Cielos Abiertos —`:3` en 6/8,
-parece contado en corcheas—, Simplemente Alaba, Quiero Conocer A Jesús, Dios Ha Sido Fiel, Cada Vez, Es Por
-Fe). **Falta:** ① que Isaac las corrija · ② que diga si quiere el detector como `npm run duraciones` para
-repetirlo (hoy vive en el scratchpad) · ③ volver a pasarlo cuando corrija.
+| 5 | **¿El detector de duraciones como `npm run duraciones`?** | **De Isaac**, sin contestar. Hoy vive en el scratchpad de la sesión del 2026-10-05 (usa el `parseMeasures` real, sacado de `TablaturePreview.tsx` y compilado al vuelo). Si dice que sí: llevarlo a `scripts/`, con el control de errores plantados como prueba |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -884,9 +868,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-05 | **Revisión de duraciones**: 20 compases en 7 canciones; Isaac las corrigió y **quedan las 7 bien** (la Intro de «Dios Ha Sido Fiel» es anacrusa) |
 | 2026-10-04 | **r84** · menús y calendario propios (O-91), transporte completo (O-89), calderón con punto (O-92), figuras en la botonera (O-90), categorías en el culto (O-88) · encabezado reparado |
 | 2026-09-24 | **r83** · la melodía abierta a todos los roles (O-87) |
-| 2026-09-17 | **r82** · el PDF en el tono del instrumento y con la melodía (O-86) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

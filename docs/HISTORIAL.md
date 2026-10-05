@@ -4,6 +4,23 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-05 · Revisión de duraciones, y Isaac las corrige
+
+Isaac explicó **por qué había pedido las figuras en la botonera** (O-90): *«creo que hay algunas no escribí
+bien»*, y pidió la lista de las canciones con duraciones mal escritas **para corregirlas él**.
+
+Se midió con el `parseMeasures` **real** de la página (sacado de `TablaturePreview.tsx` y compilado con
+el TypeScript del proyecto), sobre 93 canciones y 26 versiones: **0 figuras inválidas, 0 duraciones
+ilegibles, 20 compases que no suman en 7 canciones**. El detector se probó antes con errores plantados y
+**se le escapaba `F;2`** —la página bota el `;` y deja un «2» suelto—; se arregló antes de dar la lista.
+Dos de las siete **no eran de duraciones**: en «Simplemente Alaba» la sección A heredaba el `2/4` del final
+de la Intro, y en «Cielos Abiertos» los `:3` en 6/8 parecían contados en corcheas.
+
+Isaac las corrigió en un rato y se volvió a pasar: **6 de 7 cuadran**, y la séptima —la Intro de «Dios
+Ha Sido Fiel», 1 de 4— **es anacrusa** (lo confirmó él). **Las 7, bien.** No se escribió nada en la base. Detalle: `docs/REVISION-DURACIONES.md`.
+
+Con esto se cerró el chat por la **regla de los chats cortos** (pedido 3 de 3–4, nada a medias).
+
 ### 2026-10-04 · r84 · Menús propios, transporte completo, calderón con punto (O-88 a O-92)
 
 Isaac dictó cinco cosas de una vez (el texto entero, en `docs/ENCARGOS_CERRADOS.md`, O-88 a O-92). Se
