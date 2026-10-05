@@ -807,7 +807,7 @@ antes** (D-04, §11), y **antes de cada migración se saca la copia** con `npm r
    → 🔴 **SUPERADO el 2026-09-05: «no me pidas permiso».** Se sube sin preguntar y **se le dice qué
    se subió**. Las excepciones —migraciones, escribir en la base, `--force`— siguen igual. El
    detalle, en §11.
-5. Publicar y **esperar un minuto largo**.
+5. Publicar y **esperar un minuto largo**. Y **mirar el CI** (`gh run list --repo Luixmc/Partituras --limit 1`): Vercel publica aunque el CI falle, y el de r83 falló sin que nadie lo viera.
 6. **Comprobar en `https://partituras-blush.vercel.app` con Ctrl+F5** (§3). Sin el Ctrl+F5 no
    se está comprobando nada: se está mirando el caché (T-02).
 7. **Si algo salió mal: `git revert`**, que crea un commit nuevo que deshace. **Nunca

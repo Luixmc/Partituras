@@ -30,6 +30,14 @@ en tres fases.
 ⚠️ Brave sin ventana **no abre producción desde esta red** (el bloqueo de Vercel de §9) y Git Bash
 convierte `/catalog/…` en ruta de Windows si no se pone `MSYS_NO_PATHCONV=1`: todo se midió en local.
 
+**En producción** (`curl` con la cuenta de prueba, CI verde, Vercel `success`): `/novedades` con la entrada
+del 4 de octubre · el culto con **9 menús propios y 0 `<select>`** y las dos categorías de «Incompresible
+Amor» · la botonera con `Negra con puntillo (:1.5)` · **ningún `r="calc`** en la página.
+🔴 **Y apareció algo de antes:** el **CI de r83 había FALLADO** (2026-09-25) y nadie lo vio — solo por la
+cifra de líneas del `CLAUDE.md` (decía 18.894, eran 18.917). La página se publicó igual, porque Vercel
+no espera al CI. Quedó arreglado con las cifras de r84. → **Después de cada push, mirar `gh run list`**,
+no solo que Vercel diga `success`.
+
 ### 2026-09-24 · r83 · La melodía, abierta a todos los roles (O-87)
 
 Isaac: *«abre las melodias»*. `ROLES_MELODIA` pasa de `["admin"]` a los tres roles. Estuvo cerrada
