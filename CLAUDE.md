@@ -127,7 +127,7 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **281 pruebas** (`npm test`, sin dependencias
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **286 pruebas** (`npm test`, sin dependencias
    nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.668 líneas** de TypeScript
    en **100 archivos**. *(Contado el 2026-10-04, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
@@ -160,7 +160,15 @@ npm run lint
 npm start            # sirve el build de producción en local
 npm run export       # copia de seguridad de los datos a JSON (§12.1)
 npm run docs         # ¿los documentos dicen la verdad sobre el proyecto de HOY?
+npm run duraciones   # compases mal medidos en las canciones, leyendo la base en vivo (solo lee)
 ```
+
+📌 **`npm run duraciones`** (2026-10-05, pedido de Isaac): usa el `parseMeasures` **real** de
+`TablaturePreview.tsx` (recortado entre `const SP = ` y `return measures; }` y transpilado al vuelo), así
+que si esas marcas se mueven **para con un error** y su prueba falla en el CI. Lo que Isaac ya dio por
+bueno va en `ACEPTADOS` (`scripts/duraciones.mjs`), reconocido por canción + sección + lo escrito: si lo
+escrito cambia, vuelve a salir. Hoy: la anacrusa de «Dios Ha Sido Fiel». Con una copia:
+`npm run duraciones -- <carpeta>`.
 
 ⚠️ **`npm run dev` y `npm run build` NO se ejecutan a la vez**: comparten la carpeta `.next` y
 el build deja al servidor de desarrollo roto (T-04). **Para comprobar que algo compila con el
@@ -172,7 +180,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 281 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 286 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -344,7 +352,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       281 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       286 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -593,8 +601,6 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
-| 4 | **Que Isaac mire el CALDERÓN en su teléfono** (Samsung A05s) tras r84: ¿sale el punto? ¿y los puntillos? | **De Isaac.** O-92 se arregló por la causa más probable (`calc()` sin unidad en el radio, T-19), pero en Brave el punto ya se veía antes: **solo su teléfono lo confirma**. Si sigue sin punto, preguntar qué navegador usa (Chrome, Samsung Internet) |
-| 5 | **¿El detector de duraciones como `npm run duraciones`?** | **De Isaac**, sin contestar. Hoy vive en el scratchpad de la sesión del 2026-10-05 (usa el `parseMeasures` real, sacado de `TablaturePreview.tsx` y compilado al vuelo). Si dice que sí: llevarlo a `scripts/`, con el control de errores plantados como prueba |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -693,7 +699,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-04, todo PUBLICADO en r84**
+#### Estado del árbol — **2026-10-05, todo SUBIDO** (la página sigue en r84; después solo `npm run duraciones` y documentos)
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -701,9 +707,9 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r84** — menús propios, transporte completo, calderón con punto (O-88 a O-92). `git log -1` da el hash. **Árbol limpio** |
+| Último commit publicado | **`npm run duraciones`** (2026-10-05; no cambia la página). La última versión de la página es **r84**. `git log -1` da el hash. **Árbol limpio** |
 | Última versión | **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **281** · lint **0 errores, 61 avisos** · build **0** |
+| Pruebas | **286** · lint **0 errores, 61 avisos** · build **0** |
 | Tamaño | **19.668 líneas** de TypeScript en **100 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
@@ -868,9 +874,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-05 | **`npm run duraciones`** (la revisión, repetible; la anacrusa como ya vista) · el calderón confirmado en el teléfono de Isaac |
 | 2026-10-05 | **Revisión de duraciones**: 20 compases en 7 canciones; Isaac las corrigió y **quedan las 7 bien** (la Intro de «Dios Ha Sido Fiel» es anacrusa) |
 | 2026-10-04 | **r84** · menús y calendario propios (O-91), transporte completo (O-89), calderón con punto (O-92), figuras en la botonera (O-90), categorías en el culto (O-88) · encabezado reparado |
-| 2026-09-24 | **r83** · la melodía abierta a todos los roles (O-87) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

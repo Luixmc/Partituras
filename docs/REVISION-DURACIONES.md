@@ -50,5 +50,5 @@ Copia `Partituras-datos-2026-10-05-09h43h01`. Solo cambiaron **esas 7 canciones*
 
 ## Si se quiere volver a pasar
 
-El script vive en el scratchpad de esa sesión, no en el repositorio. Si Isaac quiere poder repetirlo
-después de corregir, **se propone convertirlo en `npm run duraciones`** (pendiente de su OK, §9).
+**`npm run duraciones`** (desde el 2026-10-05, lo pidió Isaac). Lee la base en vivo; con una copia,
+`npm run duraciones -- <carpeta>`. La anacrusa de «Dios Ha Sido Fiel» sale como **ya vista**, no como error.

@@ -4,6 +4,15 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-05 · `npm run duraciones`, y el calderón visto en el teléfono
+
+Isaac contestó los dos pendientes de §9: el **calderón ya se ve bien en su teléfono** (fila 4, cerrada) y
+**sí quiere la revisión como comando** (fila 5). → `npm run duraciones`: el detector del scratchpad pasó
+a `scripts/` (la lógica aparte, para probarla), lee la base en vivo o una copia, y la anacrusa que él
+confirmó sale como **ya vista**. Contra la copia de antes de corregir da los mismos 20 compases en 7
+canciones; contra la base de hoy, *«Todo cuadra»*. **5 pruebas nuevas (286)**, con los errores plantados;
+se comprobó que fallan si el detector se queda ciego. No cambia la página: sin comunicado.
+
 ### 2026-10-05 · Revisión de duraciones, y Isaac las corrige
 
 Isaac explicó **por qué había pedido las figuras en la botonera** (O-90): *«creo que hay algunas no escribí

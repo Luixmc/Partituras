@@ -4,6 +4,28 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-05 · `npm run duraciones` (antes §9 fila 5)
+
+Isaac, 2026-10-05: *«sí quiero la revisión de duraciones como comando npm run duraciones»*. Hecho en las
+subfases que se escribieron en §9 antes de programar:
+**a)** la lógica en `scripts/duraciones-revisar.mjs`, con el `parseMeasures`, `duracionDe` y
+`parseSections` **reales** transpilados al vuelo · **b)** `scripts/duraciones.mjs`: lee la base en vivo
+(solo lectura, con la cuenta de prueba y preguntando el rol, como `npm run export`) o una copia con
+`npm run duraciones -- <carpeta>` · **c)** la anacrusa de «Dios Ha Sido Fiel» en `ACEPTADOS`: sale aparte,
+y si lo escrito en ese compás cambia, vuelve a salir · **d)** `pruebas/duraciones.test.mjs`, 5 pruebas con
+los errores plantados (el `F;2` incluido) · **e)** README y §2.1; **sin comunicado**, porque la página no
+cambia.
+**Comprobado:** contra la copia de las 9:28 da **los mismos 20 compases en 7 canciones** que la lista que
+corrigió Isaac; contra la de las 9:43 y contra **la base en vivo**, *«Todo cuadra»* y la anacrusa como
+aceptada. Y la prueba **falla** si el detector se queda ciego (mutado: sin el `;` → 1 fallo; marcas de
+`parseMeasures` movidas → error claro). 286 pruebas, lint y build limpios.
+
+#### ✅ Cerrado el 2026-10-05 · El calderón con punto, visto en el teléfono (antes §9 fila 4)
+
+Tras r84 (O-92, el `calc()` sin unidad en el radio, T-19) quedaba que Isaac lo mirara en su **Samsung
+A05s**, porque en Brave el punto ya se veía antes y solo su teléfono lo confirmaba. Isaac, 2026-10-05:
+*«el calderón ya se ve bien en el teléfono»*. → **Cerrado.**
+
 #### ✅ Cerrado el 2026-10-05 · Revisión de duraciones (las corrigió Isaac)
 
 Isaac: *«te pedí las figuras de las notas musicales porque creo que hay algunas no escribí bien, por

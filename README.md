@@ -137,12 +137,13 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 281 pruebas |
+| `npm test` | Las 286 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
 | `npm start` | Sirve el build de producción en local |
 | `npm run export` | Copia de seguridad de los datos a JSON |
+| `npm run duraciones` | **Revisa las duraciones** de todas las canciones y versiones, leyendo la base en vivo (o una copia: `npm run duraciones -- <carpeta>`): compases medidos que no suman, duraciones que no son ninguna figura o que la página no lee. Solo lee. Lo que ya se dio por bueno (una anacrusa) sale aparte |
 | `npm run copy-pdf-worker` | Regenera el *worker* de PDF tras actualizar `pdfjs-dist` |
 
 > ⚠️ **`npm run dev` y `npm run build` no se ejecutan a la vez**: comparten la carpeta `.next` y el
@@ -295,7 +296,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 281 pruebas (ver más abajo)
+pruebas/                    → las 286 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -373,7 +374,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 281 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 286 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
