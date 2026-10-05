@@ -1,6 +1,71 @@
-# CLAUDE.md — Memoria técni| 2026-09-24 | **r83** · la melodía abierta a todos los roles (O-87), y la regla de los chats cortos escrita aquí |
+# CLAUDE.md — Memoria técnica de Partituras
 
+> **ÚNICO documento de referencia del proyecto. Se actualiza en el MISMO cambio que el
+> código, sin pedir permiso.** Tiene que permitir abrir un chat nuevo, decir «lee el
+> CLAUDE.md y continúa», y seguir sin que Isaac explique nada otra vez.
 
+> ### Las dos reglas que se pierden si no se ven al leer el proyecto
+>
+> **REGLA 0 — Lo que Isaac dicta se escribe ANTES de programarlo.** En la sección que le
+> toca, no solo en el historial. Aunque no se vaya a hacer hoy, aunque sea una opinión o un
+> descarte, aunque sea una corrección a una respuesta mía. Lo que quede **pendiente va a §9,
+> nunca solo a §13**. Si la conversación se corta, lo escrito es lo único que sobrevive.
+>
+> **REGLA DEL «CONTINÚA» — cuando Isaac dice «continúa con el trabajo», ES OTRO DÍA.**
+> Acordado el 2026-09-02 al cerrar la jornada: *«mañana continuamos; cuando te diga que continúes
+> con el trabajo es porque ya es mañana»*. → **No se hereda la fecha de la conversación anterior:
+> se pregunta el reloj** (regla de abajo) y se sigue por **lo que esté en §9 como pendiente**, no
+> por lo último que se dijo. Lo que quedó a medias tiene que poder retomarse leyendo este archivo.
+>
+> **REGLA DE LA FECHA — se pregunta el reloj, NO se hereda la del principio de la conversación.**
+> Isaac lo corrigio el 2026-08-22: *«los cambios que se hicieron desde hoy es para el 22 de agosto,
+> estoy viendo los archivos y marcan 21 de agosto, o sea el dia de ayer»*. Tenia razon: una sesion
+> larga cruza la medianoche y todo lo de la madrugada y la mañana siguiente se seguia fechando con
+> el dia en que arranco. → **Antes de escribir una fecha, `date`.** Y si hay que reconstruir lo ya
+> escrito, **la verdad esta en `git log --date=format:'%Y-%m-%d %H:%M'`**: los commits llevan la
+> hora real. Para el comunicado manda **la fecha en que el musico lo puede ver**, no la de cuando
+> se tecleo — la Fase L se escribio la noche del 21 y se publico el 22, asi que va en el 22.
+> ⚠️ Ojo tambien con `npm run export`: **fecha en UTC**, asi que a partir de las 19:00 en Colombia
+> la carpeta lleva ya el dia siguiente.
+>
+> **REGLA DEL README — el `README.md` se mantiene al dia, como hacia el primo.**
+> Isaac, 2026-08-28: *«los cambios que se hacen, agregalos al readme, para tener todo ahi como
+> venia haciendo mi primo»*. Y tenia razon en lo de «como venia haciendo»: **el primo lo actualizo
+> hasta `r10` y ahi se quedo** —comprobado con `git log --follow README.md`—, asi que llevaba
+> **veinte versiones** describiendo una app que ya no existe. Era P-07.
+> → **Son TRES documentos y cada uno tiene su lector:** `README.md` **para quien abre el
+> repositorio** (que es publico) y quiere saber que es esto y como se levanta · `CAMBIOS.md` y
+> `/novedades` **para el musico** · `CLAUDE.md` **para quien programa**. Un cambio que altere lo
+> que la app **hace** o **como se usa** toca el README; uno que solo cambie por dentro, no.
+>
+> **REGLA DEL COMUNICADO — cada cambio que se PUBLICA se anota en `CAMBIOS.md` Y en
+> `/novedades`**, en la sección de su fecha y **en lenguaje de usuario**: qué nota quien abre la
+> página, no qué archivo se tocó.
+> 🔴 **Y son DOS sitios, no uno.** Se incumplió el 2026-08-22 con lo de la trompeta: se publicó,
+> se escribió aquí —D-28, D-29, §9.2-nonies— y **se olvidó el comunicado**. Lo vio Isaac:
+> *«lo subiste pero no lo documentaste en los archivos y en la página de novedades»*.
+> **Documentar en el `CLAUDE.md` no es documentar para el músico**: este archivo lo lee quien
+> programa, y el que toca no entra aquí. Si el cambio se nota usando la página —y lo de la
+> trompeta se nota mucho—, **no está terminado hasta que está en los dos.** Isaac lo pidió el 2026-08-20 para poder avisar a la gente de la iglesia de lo que va
+> cambiando. Es un documento **para leer**, no un historial técnico — ese es §13 de aquí.
+>
+> **REGLA 5 — CHATS CORTOS: de 3 a 4 pedidos por chat** (Isaac, 2026-09-24; bajada de 5–7 a 3–4 el
+> 2026-09-25). Completa en `_CLAUDE-COMPARTIDO\REGLA-CHATS-CORTOS.md`. Cada mensaje suyo que pide
+> hacer, revisar o averiguar algo es **un pedido** (contestar una pregunta mía no cuenta). Al final de
+> cada respuesta: *«Pedido N de 3–4»*. Al terminar el **3.º**, si no queda nada a medias, se cierra; si
+> queda algo de lo pedido, se sigue **hasta el 4.º**. **Al 4.º se cierra sí o sí.** Cerrar = guardar
+> todo sin que lo pida (este archivo con lo pendiente en §9, `docs/HISTORIAL.md`, carpeta compartida,
+> commit) y decir: *«Ya cumplí con los pedidos máximos para este chat. Todo quedó guardado. Abre un
+> chat nuevo y pégale: «lee el CLAUDE.md y continúa»»*. 🔴 **Después del cierre no se hace NADA**, aunque
+> diga «continúa». Un chat resumido solo sigue siendo el mismo chat.
+>
+> **REGLA DEL TAMAÑO — este archivo por debajo de ~100 KB.** Se reenvía entero en cada paso. **Lo que
+> se cierra se MUEVE a `docs/` en el MISMO cambio** (L-415), el historial de §13 guarda solo las
+> últimas filas, y si pasa de ~100 KB se recorta con `PROMPT-RECORTAR-CLAUDE-MD.md`.
+>
+> ⚠️ *Este encabezado se perdió en r83 (2026-09-24): un reemplazo mal hecho pegó la fila del historial
+> en la línea 1 y se comió las reglas de arriba. Se restauró el 2026-10-04 desde `git show 5b12dab`.*
+>
 > **REGLA DE LA CARPETA COMPARTIDA — se repasa CADA tanda y se dice cuáles de los cuatro
 > archivos se tocaron**, o que no había nada que tocar. Callarse no vale.
 > `C:\Users\TECSISTEMAS\Documents\_CLAUDE-COMPARTIDO\` → `LECCIONES.md`, `PROYECTOS.md`,
@@ -62,9 +127,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **277 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **18.894 líneas** de TypeScript
-   en **97 archivos**. *(Contado el 2026-09-10, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **281 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.668 líneas** de TypeScript
+   en **100 archivos**. *(Contado el 2026-10-04, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -107,7 +172,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 277 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 281 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -279,7 +344,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       277 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       281 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -466,6 +531,7 @@ es una estimación del planificador, no un `count(*)`.**
 - **T-08** · Un servidor de desarrollo viejo se queda con el puerto y el nuevo se va a otro, callado.
 - **T-07** · Borrar una columna que el código PUBLICADO todavía usa rompe la página al instante.
 - **T-06** · Una canción en tono menor mostraba mal su tonalidad en la presentación.
+- **T-19** · Un `calc()` dentro de un ATRIBUTO SVG (`r="calc(…)"`) funciona en el PC y en otro navegador deja el punto en 0.
 - **T-18** · `SUPABASE_ACCESS_TOKEN` significa DOS cosas, y el 2026-09-10 chocaron.
 - **T-17** · El middleware se ejecuta en CADA navegacion: ir a la base desde ahi tumba la pagina.
 - **T-16** · «Compila» comprobado con un `grep` MIENTE: el build falla despues de decir «Compiled successfully».
@@ -527,6 +593,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
+| 4 | **Que Isaac mire el CALDERÓN en su teléfono** (Samsung A05s) tras r84: ¿sale el punto? ¿y los puntillos? | **De Isaac.** O-92 se arregló por la causa más probable (`calc()` sin unidad en el radio, T-19), pero en Brave el punto ya se veía antes: **solo su teléfono lo confirma**. Si sigue sin punto, preguntar qué navegador usa (Chrome, Samsung Internet) |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -625,7 +692,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-09-24, todo PUBLICADO en r83**
+#### Estado del árbol — **2026-10-04, todo PUBLICADO en r84**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -633,10 +700,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r83** — la melodía abierta a todos los roles (O-87). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r83** — **la melodía ya la ven todos los roles** (O-87). Antes, **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **277** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **18.894 líneas** de TypeScript en **97 archivos** |
+| Último commit publicado | **r84** — menús propios, transporte completo, calderón con punto (O-88 a O-92). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **281** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **19.668 líneas** de TypeScript en **100 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -689,6 +756,12 @@ las O-xx y P-xx)— está **tal cual** en **`docs/ENCARGOS_CERRADOS.md`**.
   ⚠️ **Y es una regla de comando EXACTO:** `git push origin isaac/arranque:main | tail -5` **no
   casa** y el entorno lo bloquea. Se ejecuta a secas, con el `cd` en una llamada aparte.
 - No se comparte código con los otros proyectos de Isaac, solo criterio.
+- 🔴 **Menús y fechas: NUNCA `<select>` ni `<input type="date">`** (Isaac, 2026-10-04: *«todos los
+  menus de la pagina tenga el diseño de la pagina no del navegador, tanto en pc como en teléfono»*).
+  Se usa **`components/ui/Selector`** (con grupos y opciones desactivadas) y **`ui/SelectorFecha`**;
+  los dos abren `ui/Flotante`, que en el teléfono es una hoja desde abajo. Hoy no queda ninguno
+  nativo: `grep -rn "<select" src` solo debe dar comentarios.
+- **En un dibujo SVG, números a secas en los atributos** (`r`, `strokeWidth`…), nunca `calc()` (T-19).
 
 ---
 
@@ -786,7 +859,7 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 > 🔴 **REGLA DESDE EL 2026-09-11 (el recorte, L-256): el historial NO vive aquí.**
 > * Cada tanda nueva se escribe **ARRIBA del todo de `docs/HISTORIAL.md`** (lo más nuevo primero), y
->   aquí **solo una fila** en la tabla de abajo. Si la tabla pasa de ~10 filas, se quitan las viejas.
+>   aquí **solo una fila** en la tabla de abajo. **Solo las 3 últimas** (regla del tamaño, 2026-09-28).
 > * Lo que se **cierra** de §9 se **mueve** a `docs/ENCARGOS_CERRADOS.md` (arriba del todo).
 > * Una trampa nueva va a `docs/TRAMPAS.md`, y su título al índice de §8.
 > * **Por qué:** este archivo llegó a **566 KB y 8.413 líneas**, y se reenvía entero en cada paso de
@@ -794,19 +867,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
-| 2026-09-17 | **r82** · el PDF en el tono del instrumento y con la melodía (O-86), y la cuenta del tono en un solo sitio |
-| 2026-09-17 | **r81** · el silencio ya no se sale por abajo (O-54 ②), medido antes y después |
-| 2026-09-17 | **r80** · la sección sin etiqueta también lleva banda, y neutra (O-85) |
-| 2026-09-17 | **r79** · el color en la banda y no en la letra (O-84), y el selector legible en oscuro |
-| 2026-09-13 | **r78** · un color por sección (O-83, de Carlos), con sus tres paletas y el README recuperado |
-| 2026-09-13 | **r77** · el calderón con su punto (O-82). Anotados O-82 y **O-83** (el color por sección, de Carlos) |
-| 2026-09-11 | **Subir sin pedir permiso, para TODO** (*«para todo, no me pidas permiso»*; D-01 superado, §11) |
-| 2026-09-11 | **El recorte de este archivo: de 566 KB a 56 KB (762 líneas)** · dos cuentas de Claude (§1) |
-| 2026-09-10 (noche) | Dos cuentas de prueba (admin y músico); el exportador pregunta el rol (L-255) |
-| 2026-09-10 (noche) | 🚀 r75–r76 **P-02**: sin cuenta no se lee ninguna tabla; el enlace del culto por `culto_por_enlace` |
-| 2026-09-10 (noche) | 🚀 r73 pestañas en el teléfono · 🚀 r74 notas privadas (O-74) y tempo guardado (O-81) |
-| 2026-09-10 (noche) | 🚀 r70–r72 armadura en el editor (O-77), 15 duraciones (O-78), barra ancha (O-79) |
-| 2026-09-10 | 🚀 r66–r69 migraciones 020–022, el logo en el login (O-76), el reproductor de la melodía |
+| 2026-10-04 | **r84** · menús y calendario propios (O-91), transporte completo (O-89), calderón con punto (O-92), figuras en la botonera (O-90), categorías en el culto (O-88) · encabezado reparado |
+| 2026-09-24 | **r83** · la melodía abierta a todos los roles (O-87) |
+| 2026-09-17 | **r82** · el PDF en el tono del instrumento y con la melodía (O-86) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

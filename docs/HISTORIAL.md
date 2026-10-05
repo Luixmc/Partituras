@@ -4,6 +4,32 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-04 · r84 · Menús propios, transporte completo, calderón con punto (O-88 a O-92)
+
+Isaac dictó cinco cosas de una vez (el texto entero, en `docs/ENCARGOS_CERRADOS.md`, O-88 a O-92). Se
+propuso el plan, lo aprobó con cinco respuestas —las dos versiones dañadas **las corrigió él**, los
+silencios **también solo con figura**, el calendario **también**, teléfono **Samsung A05s**— y se hizo
+en tres fases.
+
+* **O-89, lo que más importaba:** el transporte tenía **dos** fallos y los dos llegaron a versiones
+  guardadas. Se encontró **comparando las 26 versiones** contra la copia del día (`npm run export`) y
+  luego **las 92 canciones en los 11 semitonos** con la función vieja y la nueva: solo cambian 4, y
+  las 4 son los casos buscados (una, «Cristo Yo Te Amo», solo fallaba transportando en vivo).
+* **O-91:** `ui/Selector`, `ui/SelectorFecha`, `ui/Flotante`. Probado manejando Brave sin ventana con
+  clics y teclas de verdad: abrir, ↑↓, letra, Intro, Esc, clic fuera, grupos, opciones desactivadas,
+  oscuro, hoja en el teléfono y dentro de pantalla completa. **Dos fallos cazados así, antes de
+  subir:** el foco no entraba en la lista (la caja estaba invisible mientras se colocaba) e Intro en el
+  calendario dependía de que el navegador lo convirtiera en clic.
+* **O-92:** el punto del calderón era un `calc()` sin unidad en `r` → **T-19**.
+* **Encabezado del `CLAUDE.md` reparado:** r83 lo había dañado —la fila de su historial quedó pegada
+  en la línea 1 y se comieron las reglas 0, «continúa», fecha, README y comunicado, **y la de los chats
+  cortos que r83 decía haber escrito**—. Restaurado desde `git show 5b12dab`, con la regla de chats
+  cortos ya en **3–4** (la de hoy).
+
+**281 pruebas** (4 nuevas), lint 0 errores / 61 avisos, build 0, **26 de 26 pantallas**.
+⚠️ Brave sin ventana **no abre producción desde esta red** (el bloqueo de Vercel de §9) y Git Bash
+convierte `/catalog/…` en ruta de Windows si no se pone `MSYS_NO_PATHCONV=1`: todo se midió en local.
+
 ### 2026-09-24 · r83 · La melodía, abierta a todos los roles (O-87)
 
 Isaac: *«abre las melodias»*. `ROLES_MELODIA` pasa de `["admin"]` a los tres roles. Estuvo cerrada

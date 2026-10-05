@@ -70,6 +70,69 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "4 de octubre de 2026",
+    "iso": "2026-10-04",
+    "entrada": "Los menús se ven como el resto de la página, el calderón ya trae su punto en el teléfono, y el cambio de tono no se salta acordes.",
+    "secciones": [
+      {
+        "titulo": "Los menús, con el diseño de la página",
+        "resumen": "Las listas para elegir (instrumento, «Lees como», colores de sección…) ya no son las del navegador.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Las listas para elegir ya se ven como el resto de la página.",
+            "detalle": [
+              "Antes, al abrir una lista —el <strong>instrumento</strong> del reproductor, <em>Lees como</em> en la melodía, los <strong>colores de sección</strong>— salía la del navegador: distinta en cada aparato y, en modo oscuro, a veces con letra blanca sobre blanco.",
+              "Ahora la dibuja la página, con sus colores, en claro y en oscuro. En el <strong>teléfono</strong> se abre como una hoja desde abajo, más fácil de acertar con el dedo; para cerrarla, toca fuera."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Signos que faltaban en el teléfono",
+        "resumen": "El calderón salía sin su punto en algunos teléfonos, y con él los puntillos.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "El calderón ya trae su punto.",
+            "detalle": [
+              "En algunos teléfonos el calderón salía <strong>solo con el arco, sin el punto</strong>. Era un detalle de cómo se dibujaba el punto, que ciertos navegadores no entendían.",
+              "Ese mismo punto es el de los <strong>puntillos</strong> de las figuras y el de los silencios de corchea, así que si en tu teléfono te faltaban, también vuelven."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "El cambio de tono, completo",
+        "resumen": "Algunas líneas no cambiaban de tono, y alguna palabra de la letra sí lo hacía.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Ya no se queda ningún acorde en el tono original.",
+            "detalle": [
+              "Si una línea empezaba con una nota amarilla —por ejemplo <code>&lt;C&gt; (x3) | Bm7 | G</code>—, <strong>sus acordes no cambiaban de tono</strong>: se quedaban en el original mientras el resto de la canción sí se movía.",
+              "Y al revés: una palabra de la letra que empezara por A, B, C, D, E, F o G se tomaba por acorde. «<em>Tengo un Dios</em>» llegó a salir «<em>Tengo un Bbios</em>».",
+              "Las dos cosas están arregladas, tanto en las versiones guardadas como cuando el culto cambia el tono al vuelo."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Los cultos, con todas sus categorías",
+        "resumen": "Cada canción del culto enseña todas sus categorías, no solo la primera.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Una canción con varias categorías ya las muestra todas en el culto.",
+            "detalle": [
+              "En el catálogo se veían todas, pero en la página de un culto salía <strong>solo la principal</strong>. Ahora salen todas, igual que en el catálogo."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "24 de septiembre de 2026",
     "iso": "2026-09-24",
     "entrada": "La melodía ya no es solo para quien administra: la ve todo el mundo.",

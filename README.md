@@ -105,7 +105,8 @@ El texto plano se parsea a compases en `TablaturePreview`:
 
 > 📌 **Las duraciones raras no se teclean, se pulsan.** `:0.4375` es impracticable a mano, así que
 > las **15 duraciones** (5 figuras × normal, puntillo y doble puntillo) y los silencios tienen su
-> botón en la botonera del editor. Escribirlas a mano sigue funcionando, pero no hace falta.
+> botón en la botonera del editor —que enseña la **figura**, no el número (O-90)—. Escribirlas a
+> mano sigue funcionando, pero no hace falta.
 
 **Disminuido:** se **escribe** `dim` / `dim7` y se **dibuja** `°` / `°7`. El símbolo no se teclea nunca.
 
@@ -136,7 +137,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 277 pruebas |
+| `npm test` | Las 281 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -264,6 +265,9 @@ src/
     ui/
       Dialogo.tsx           → EL diálogo de la app  ← el único, no lo copies
       AutoTextarea.tsx      → campo que crece con el texto, sin saltar el scroll
+      Selector.tsx          → EL menú desplegable de la app (no `<select>`: O-91)
+      SelectorFecha.tsx     → EL calendario de la app (no `<input type="date">`)
+      Flotante.tsx          → la caja que abren los dos: junto al botón, u hoja en el teléfono
     sheets/
       TablaturePreview.tsx  → EL CORAZÓN: texto → cuadrícula de acordes
       MusicFigures.tsx      → figuras y silencios en SVG
@@ -291,7 +295,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 277 pruebas (ver más abajo)
+pruebas/                    → las 281 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -369,7 +373,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 277 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 281 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -419,6 +423,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r84** | **Los menús y el calendario, con el diseño de la página** (O-91): fuera los 11 `<select>` y el `<input type="date">` del navegador; `ui/Selector` y `ui/SelectorFecha`, que en el teléfono salen como hoja desde abajo · **el cambio de tono ya no se salta acordes** (O-89): las líneas que empiezan con nota amarilla no se transportaban, y una palabra de la letra con A–G sí (`Dios` → `Bbios`) · **el calderón con punto en el teléfono** (O-92): el radio iba como `calc()` sin unidad y un navegador estricto lo dejaba en 0 · **figuras en los botones de duración y silencio** (O-90) · **todas las categorías en el culto** (O-88). **281 pruebas** |
 | **r80** | **La sección sin etiqueta también lleva banda** (O-85): se quedaba gris entre las de color y parecía que le faltaba algo. Va en **neutro** —no un color más—, porque «sin clasificar» es lo que significa, y porque los siete tonos que salen juntos en una canción ya están bien separados entre sí |
 | **r79** | **El color va en la BANDA de la sección, no en la letra** (O-84): Isaac lo corrigió viéndolo en la app — *«que pinte la línea donde está el texto de la sección»*, para separar bloques a la distancia a la que se toca. Y la lista del selector, legible en oscuro: se había saltado el arreglo global de **T-12** al ponerle `bg-transparent` y letra clara |
 | **r78** | **Un color por sección** (O-83, de Carlos, el líder de alabanza): la etiqueta de cada sección se pinta según **su primera palabra** —contadas las 87 canciones, hay 300 etiquetas distintas pero **16 iniciales**—, con tres paletas y apagado por defecto. Preferencia de cada músico en su navegador, **sin base de datos**. En el PDF no sale. ⚠️ Obligó a meter `./src/lib/**` en el `content` de Tailwind: comprobado que sin esa línea las clases **no se generan** y el color no sale, sin ningún error. **277 pruebas** |

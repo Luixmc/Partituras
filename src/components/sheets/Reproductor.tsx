@@ -36,6 +36,7 @@ import {
   type Instrumento,
 } from "@/lib/sonido";
 import { cn } from "@/lib/utils";
+import Selector from "@/components/ui/Selector";
 
 type Props = {
   /** Las secciones, ya leídas. Las vacías se respetan: no suenan. */
@@ -289,18 +290,13 @@ export default function Reproductor({
           </button>
         </div>
 
-        <select
+        <Selector
           value={instrumento}
-          onChange={(e) => guardarInstrumento(e.target.value as Instrumento)}
+          onChange={(v) => guardarInstrumento(v as Instrumento)}
+          options={INSTRUMENTOS.map((i) => ({ value: i.id, label: `${i.icono} ${i.nombre}` }))}
           aria-label="Instrumento"
-          className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-        >
-          {INSTRUMENTOS.map((i) => (
-            <option key={i.id} value={i.id}>
-              {i.icono} {i.nombre}
-            </option>
-          ))}
-        </select>
+          className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+        />
       </div>
 
       <div className="mt-2 h-1 w-full overflow-hidden rounded bg-slate-200 dark:bg-slate-700">

@@ -5,6 +5,33 @@
 
 ---
 
+## 4 de octubre de 2026
+
+### 📋 Los menús, con el diseño de la página
+
+- 🆕 Las listas para elegir —el **instrumento** del reproductor, *Lees como* en la melodía, los
+  **colores de sección**— ya no son las del navegador. Las dibuja la página, con sus colores, en claro y
+  en oscuro. En el **teléfono** se abren como una hoja desde abajo; para cerrarla, toca fuera.
+
+### 🎼 El calderón ya trae su punto en el teléfono
+
+- 🔧 **Arreglado:** en algunos teléfonos el calderón salía solo con el arco. Ese mismo punto es el de
+  los **puntillos** y el de los silencios de corchea, así que si te faltaban, también vuelven.
+
+### 🎹 El cambio de tono, completo
+
+- 🔧 **Arreglado:** si una línea empezaba con una nota amarilla (`<C> (x3) | Bm7 | G`), **sus acordes
+  no cambiaban de tono**. Y una palabra de la letra que empezara por A–G se tomaba por acorde:
+  «Tengo un Dios» salió «Tengo un Bbios». Las dos cosas, arregladas, en las versiones guardadas y
+  cuando el culto cambia el tono al vuelo.
+
+### 🏷️ Los cultos, con todas sus categorías
+
+- 🔧 **Arreglado:** en la página de un culto, una canción con varias categorías enseñaba solo la
+  principal. Ahora salen todas, como en el catálogo.
+
+---
+
 ## 24 de septiembre de 2026
 
 ### 🎼 La melodía, abierta para todos

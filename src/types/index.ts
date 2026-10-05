@@ -142,8 +142,8 @@ export interface ServiceSongItem {
   title:          string;
   composer:       string | null;
   key_signature:  string | null;
-  category_name:  string | null;
-  category_color: string | null;
+  // TODAS sus categorías, la principal primero (O-88). Antes solo la principal.
+  categories:     CategoryBadge[];
   available_keys: SheetKeyOption[];   // versiones guardadas de esta canción
 }
 

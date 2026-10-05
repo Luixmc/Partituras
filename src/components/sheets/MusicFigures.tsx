@@ -11,9 +11,10 @@ import { figuraDe } from "@/lib/figuras";
 // semicorchea se fundían en uno.
 //
 //   --figura-alto    cuánto mide la figura respecto al texto
-//   --figura-escala  cuánto se refuerzan los puntos y los trazos
+//   ~~--figura-escala~~  se quitó en O-92: nadie la definía, y metida en un
+//                        `calc()` dentro del radio borraba el punto en el teléfono
 //
-// Están como variables y no como constantes para poder **probar tamaños sin
+// Está como variable y no como constante para poder **probar tamaños sin
 // tocar el código** (así se eligió, sobre el dibujo). Los valores por defecto
 // son los que se decidieron mirándolo.
 // 1.6 es LA «C» que eligió Isaac mirando las cinco opciones al tamaño real
@@ -48,16 +49,31 @@ const ALTO = `calc(${FIGURA_ALTO} * 1em)`;
 // aire, cualquier número que se escribiera para colocarlo estaba colocando
 // aire, no el signo.
 const ALTO_SILENCIO = `calc(${FIGURA_ALTO} * 1em * 20 / 30)`;
-const ESC = "calc(var(--figura-escala, 1))";
 
-/** Un grosor de trazo, reforzado por `--figura-escala`. */
+// 🔴 O-92 (2026-10-04) · EL RADIO Y EL GROSOR VAN COMO NÚMEROS, NO COMO `calc()`.
+//
+// Isaac, en su teléfono (Samsung Galaxy A05s): *«el calderón sale el arco pero
+// no el punto»*. Aquí iban como `calc(1.7 * var(--figura-escala, 1))`, y eso es
+// un NÚMERO SIN UNIDAD dentro de `calc()`:
+//   · `stroke-width` acepta números → el arco salía siempre.
+//   · `r` pide una LONGITUD → un navegador estricto descarta el valor, el radio
+//     queda en 0 y **el punto desaparece**. Chrome de escritorio lo perdona
+//     (medido en Brave emulando su teléfono: punto de 3,4 px), por eso aquí no
+//     se veía. Y no era solo el calderón: con el mismo `r` se dibujan los
+//     PUNTILLOS de las figuras y las bolitas de los silencios de corchea.
+// Y `--figura-escala` **no lo definía nadie**: valía siempre 1. Se quitó la
+// variable y queda el número a secas, que lo entiende cualquier navegador.
+// ⚠️ Si algún día hace falta reforzar los trazos, que sea con un número
+// calculado en JavaScript, **nunca con `calc()` dentro de un atributo SVG**.
+
+/** Un grosor de trazo. */
 function trazo(base: number) {
-  return `calc(${base} * var(--figura-escala, 1))`;
+  return base;
 }
 
-/** El radio de un puntillo, reforzado igual. */
+/** El radio de un puntillo. */
 function radioPunto(base: number) {
-  return `calc(${base} * var(--figura-escala, 1))`;
+  return base;
 }
 
 // Figuras musicales dibujadas en SVG (más fiables que los caracteres Unicode
@@ -192,11 +208,12 @@ export function SlurFigure({ className }: { className?: string }) {
  * Elegido sobre el dibujo, como el silencio de negra (O-47), no por
  * descripción escrita.
  *
- * ⚠️ La pista falsa que costó un rato: `circle.r.baseVal.value` da **0** aquí,
- * porque `radioPunto` pasa un `calc()` y `baseVal` lee el ATRIBUTO. El
- * navegador lo resuelve igual como propiedad CSS de geometría —medido, 5,76 px
- * de diámetro, lo mismo que con un número—. **Para comprobar si un punto se ve,
- * `getBoundingClientRect()`, no `baseVal`.**
+ * ⚠️ La pista falsa que costó un rato: `circle.r.baseVal.value` daba **0**,
+ * porque `radioPunto` pasaba un `calc()` y `baseVal` lee el ATRIBUTO. Chrome de
+ * escritorio lo resolvía igual —5,76 px de diámetro— y se dio por bueno. **No
+ * lo era**: en el teléfono de Isaac ese `calc()` dejaba el radio en 0 (O-92,
+ * arriba del archivo). **Para comprobar si un punto se ve,
+ * `getBoundingClientRect()`, no `baseVal`; y un 0 en `baseVal` es un aviso.**
  */
 export function FermataFigure({ className }: { className?: string }) {
   return (

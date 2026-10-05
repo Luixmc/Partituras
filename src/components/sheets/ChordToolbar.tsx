@@ -1,6 +1,7 @@
 "use client";
 
-import { RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
+import { NoteFigure, RestFigure, FermataFigure, SlurFigure } from "@/components/sheets/MusicFigures";
+import { figuraDe } from "@/lib/figuras";
 
 // Barra de botones compartida para insertar acordes, alteraciones, duraciones,
 // silencios, secciones y signos de repetición. La usan el editor y la página
@@ -34,18 +35,29 @@ const DURATIONS = [
   ":4", ":6", ":7",
 ];
 // Silencios: token de la notación → tiempos que muestra la figura.
-const RESTS: { token: string; beats: number; label: string }[] = [
-  { token: "Z:4", beats: 4, label: "4" },
-  { token: "Z:3", beats: 3, label: "2." },
-  { token: "Z:2", beats: 2, label: "2" },
-  { token: "Z:1.5", beats: 1.5, label: "1." },
-  { token: "Z:1", beats: 1, label: "1" },
+const RESTS: { token: string; beats: number }[] = [
+  { token: "Z:4", beats: 4 },
+  { token: "Z:3", beats: 3 },
+  { token: "Z:2", beats: 2 },
+  { token: "Z:1.5", beats: 1.5 },
+  { token: "Z:1", beats: 1 },
   // 🔴 Estos dos NO EXISTÍAN, y hasta el 2026-08-29 tampoco se dibujaban: todo
   // silencio de menos de 2 tiempos salía como silencio de NEGRA, así que un
   // `Z:0.5` se leía como el doble de lo que dura (O-49).
-  { token: "Z:0.5", beats: 0.5, label: "1/2" },
-  { token: "Z:0.25", beats: 0.25, label: "1/4" },
+  { token: "Z:0.5", beats: 0.5 },
+  { token: "Z:0.25", beats: 0.25 },
 ];
+
+// El nombre de la figura, para la ayuda del botón: el botón ya no enseña el
+// número (O-90), así que el número va aquí, para quien lo quiera teclear.
+const NOMBRE_FIGURA: Record<number, string> = {
+  0.25: "Semicorchea", 0.5: "Corchea", 1: "Negra", 2: "Blanca", 4: "Redonda",
+};
+function nombreFigura(beats: number): string {
+  const { base, puntillos } = figuraDe(beats);
+  const extra = puntillos === 2 ? " con doble puntillo" : puntillos === 1 ? " con puntillo" : "";
+  return (NOMBRE_FIGURA[base] ?? "Figura") + extra;
+}
 // Secciones de la estructura: "[...]". ("<...>" es texto centrado de la canción.)
 const SECTIONS = ["[Intro]", "[Verso]", "[Coro]", "[Puente]", "[Final]"];
 // Notas amarillas "<...>": etiquetas que se dibujan como una celda de acorde en
@@ -105,16 +117,26 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
           </button>
         ))}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Dur:</span>
-        {DURATIONS.map((d) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => onInsert(d)}
-            className="h-7 rounded border border-slate-200 bg-slate-100 px-1.5 text-[9px] font-semibold text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
-          >
-            {d}
-          </button>
-        ))}
+        {/* 🔴 O-90 (2026-10-04) · Isaac: «que los botones en que se le asigna el
+            tiempo o duración de un acorde en vez de los números tenga los signos
+            musicales». El botón dibuja la MISMA figura que sale en la cuadrícula
+            (`NoteFigure`, con sus puntillos) y sigue escribiendo el número —la
+            notación no cambia—; el número queda en la ayuda. */}
+        {DURATIONS.map((d) => {
+          const beats = parseFloat(d.slice(1));
+          return (
+            <button
+              key={d}
+              type="button"
+              onClick={() => onInsert(d)}
+              title={`${nombreFigura(beats)} (${d})`}
+              aria-label={`${nombreFigura(beats)} (${d})`}
+              className="flex h-8 min-w-[30px] items-center justify-center rounded border border-slate-200 bg-slate-100 px-1 text-[13px] text-slate-700 transition-colors hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            >
+              <NoteFigure beats={beats} />
+            </button>
+          );
+        })}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Bajo:</span>
         <button
           type="button"
@@ -129,11 +151,12 @@ export default function ChordToolbar({ onInsert, onDelete }: Props) {
             key={r.token}
             type="button"
             onClick={() => onInsert(r.token)}
-            className="flex h-7 items-center gap-1 rounded border border-slate-200 bg-slate-50 px-1.5 text-[9px] font-semibold text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
-            title={`Silencio de ${r.label} tiempo(s)`}
+            // Solo la figura, igual que las duraciones (O-90): el número va en la ayuda.
+            className="flex h-8 min-w-[30px] items-center justify-center rounded border border-slate-200 bg-slate-50 px-1 text-[13px] text-slate-700 transition-colors hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            title={`Silencio de ${nombreFigura(r.beats).toLowerCase()} (${r.token})`}
+            aria-label={`Silencio de ${nombreFigura(r.beats).toLowerCase()} (${r.token})`}
           >
-            <RestFigure beats={r.beats} className="h-4" />
-            {r.label}
+            <RestFigure beats={r.beats} />
           </button>
         ))}
         <span className="mx-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">Calderon:</span>

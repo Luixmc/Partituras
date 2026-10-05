@@ -41,6 +41,34 @@ export function estadoElegido(filtros: FiltrosCatalogo): string | null {
   return v && ESTADOS.some((e) => e.valor === v) ? v : null;
 }
 
+/**
+ * TODAS las categorías de una canción, con la principal delante, sin repetir y
+ * el resto por orden alfabético.
+ *
+ * `fila` es lo que devuelve la base pidiendo
+ * `category:categories!category_id(name, color)` **y**
+ * `sheet_categories(category:categories(name, color))`.
+ *
+ * 📌 Vive aquí y no copiada en cada pantalla porque ya se pagó una vez: los
+ * cultos pedían solo la principal y una canción con tres categorías salía con
+ * una (O-88, 2026-10-04), mientras el catálogo las enseñaba todas (O-07).
+ */
+export function categoriasDe(fila: any): CategoryBadge[] {
+  const principal: CategoryBadge | null = fila?.category
+    ? { name: fila.category.name, color: fila.category.color }
+    : null;
+  const resto: CategoryBadge[] = (fila?.sheet_categories ?? [])
+    .map((f: any) => f?.category)
+    .filter((c: any) => c && c.name !== principal?.name)
+    .map((c: any) => ({ name: c.name as string, color: c.color as string }))
+    .sort((a: CategoryBadge, b: CategoryBadge) => a.name.localeCompare(b.name, "es"));
+  return principal ? [principal, ...resto] : resto;
+}
+
+/** Lo que hay que pedirle a la base para que `categoriasDe` tenga con qué. */
+export const CAMPOS_CATEGORIAS =
+  "category:categories!category_id(name, color), sheet_categories(category:categories(name, color))";
+
 /** Convierte los filtros en el texto que va detrás de la "?" (sin la "?"). */
 export function filtrosAQuery(filtros: FiltrosCatalogo): string {
   const p = new URLSearchParams();
@@ -157,15 +185,6 @@ export async function buscarCanciones(
   });
 
   return filtradas.map((cancion: any) => {
-    // Todas las categorías, con la principal delante y sin repetir.
-    const principal: CategoryBadge | null = cancion.category
-      ? { name: cancion.category.name, color: cancion.category.color }
-      : null;
-    const resto: CategoryBadge[] = (cancion.sheet_categories ?? [])
-      .map((fila: any) => fila.category)
-      .filter((c: any) => c && c.name !== principal?.name)
-      .map((c: any) => ({ name: c.name as string, color: c.color as string }))
-      .sort((a: CategoryBadge, b: CategoryBadge) => a.name.localeCompare(b.name, "es"));
 
     // Las otras tonalidades en las que existe la canción (O-48). Se quita la
     // que ya es la original: repetirla al lado no dice nada, y lo que él pidió
@@ -181,7 +200,7 @@ export async function buscarCanciones(
     return {
       ...cancion,
       otros_tonos: otrosTonos,
-      categories: principal ? [principal, ...resto] : resto,
+      categories: categoriasDe(cancion),
       category_name: cancion.category?.name ?? null,
       category_color: cancion.category?.color ?? null,
       category_icon: cancion.category?.icon ?? null,

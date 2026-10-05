@@ -4,6 +4,54 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-04 · O-88 a O-92 · Menús propios, transporte completo, calderón con punto (r84)
+
+**Sus respuestas (2026-10-04):** ① aprueba el plan · ② **las dos versiones dañadas ya las corrigió él** —no se
+toca la base— · ③ los botones de **silencio también solo con la figura**, sin número · ④ el **calendario de la
+fecha** del culto también con el diseño de la página · ⑤ su teléfono es un **Samsung Galaxy A05s** (Android).
+
+**Fases:** 1 = O-89 transporte + O-88 categorías · 2 = O-90 figuras en duraciones y silencios + O-92 calderón ·
+3 = O-91 `Selector` propio en los 11 menús + calendario propio · cierre = pruebas, lint, build, 26 pantallas,
+ancho de teléfono, push, `CAMBIOS.md` y `/novedades`, README si cambia el uso.
+
+Sus palabras: *«en la sección de cultos no salen todas las categorías de las canciones que tienen mas de
+dos categorías seleccionada, porque en la cancion de tu hijo soy no se transportó del todo los acordes a la
+otra version de acordes tuve que ponerlos yo mismo […], que los botones en que se le asigna el tiempo o
+duración de un acorde en vez de los números tenga los signos musicales, todos los menus de la pagina tenga
+el diseño de la pagina no del navegador, tanto en pc como en teléfono, en teléfono el calderon sale el arco
+pero no el punto»*.
+
+| # | Qué | Causa encontrada (2026-10-04) | Plan |
+|---|---|---|---|
+| **O-88** | **Cultos: salen solo UNA categoría** de las canciones que tienen varias | `services/[id]/page.tsx` y `services/new/page.tsx` piden solo `category:categories!category_id` (la principal), no `sheet_categories`. El catálogo sí las trae (`lib/catalogo.ts`) | Pedir `sheet_categories` en las dos páginas, pasar una **lista** de categorías y pintar todas las chapas en `ServiceEditor` (4 sitios: lista del culto, buscador, vista de lectura) |
+| **O-89** | **Transponer una versión deja acordes sin transportar** («Tu Hijo Soy» → B) | **Dos fallos** en `transposeContent` (`lib/music.ts`): ① se salta **la línea entera** si empieza por `<` (pensado para las secciones viejas `<Coro>`), y una línea como `<C> (x3) \| Bm7:1 …` lleva acordes; ② la letra entre paréntesis con espacios se trocea, y una palabra con mayúscula A–G **se transporta**: `(Tengo un Dios...)` → `(Tengo un Bbios...)` | Proteger `<…>`, `(…)` y `[…]` como hace el dibujo (`TablaturePreview`), saltar solo las líneas que son **solo** un `[Sección]`, y pruebas con los tres casos reales |
+| ↳ datos | **Dos versiones guardadas siguen MAL en producción** (comparadas las 26 contra la copia del 2026-10-04): **«Hay Poder En La Alabanza» → Bbm** dice `(Tengo un Bbios... x6)` · **«Tengo Fe» → A** tiene `<A> (Una vez) \| E` y debería ser `B`. «Tu Hijo Soy» ya la arregló Isaac a mano | Arreglarlas es **escribir en la base** → se le pregunta (D-04). «Tengo Fe» tiene ediciones suyas: **no** se regenera entera, solo ese acorde |
+| **O-90** | **Botones de duración con la FIGURA** en vez del número (`:0.25`, `:1.5`…) | `ChordToolbar.tsx`, `DURATIONS` pinta el texto | Usar `NoteFigure` (ya dibuja figura + puntillos) en los 15 botones, y el número en el `title` |
+| **O-91** | **Todos los menús con el diseño de la página**, no el del navegador, en PC y teléfono | Son **11 `<select>` nativos en 9 archivos** (AdminUsers ×2, sheets/new, ServiceEditor ×2, ColoresSeccion, MelodiaPanel, Reproductor, SongDetailEditor ×2, SongKeyVersions); dos con grupos (`optgroup`). Más el selector de **fecha** del culto (`type="date"`) | Un componente propio `Selector` (lista desplegable con el tema claro/oscuro, teclado, grupos y opciones desactivadas; en el teléfono, hoja desde abajo) y cambiar los 11 |
+| **O-92** | **Teléfono: el calderón sale el arco pero no el punto** | Probable: el radio del punto va como `r="calc(1.7 * var(--figura-escala, 1))"`; un `calc()/var()` en un **atributo** SVG no lo entienden todos los navegadores (Safari/WebKit) → radio 0. El arco se ve porque sin grosor válido usa el de por defecto. **`--figura-escala` no se define en ningún sitio**, así que vale siempre 1 | Números a secas en `r` y `strokeWidth` de `MusicFigures.tsx` (arregla también los puntillos y el staccato en ese teléfono). Falta saber **qué teléfono/navegador** usa |
+
+✅ **LAS CINCO, HECHAS Y PUBLICADAS en r84** (2026-10-04, noche). Cómo quedó:
+
+* **O-88** · `categoriasDe()` y `CAMPOS_CATEGORIAS` en `lib/catalogo.ts`, usados por el catálogo **y** por
+  las dos páginas de cultos. Medido en «Escuela Dominical»: *Canta Y Danza → Ofrenda + Alabanzas*,
+  *Incompresible Amor → Santa Cena + Adoraciones*.
+* **O-89** · `transposeContent` con un solo patrón (`PIEZA`) que protege `<…>`, `(…)` y `[…]` enteros.
+  4 pruebas nuevas con los casos reales. **Comparado contra las 92 canciones en los 11 semitonos:** solo
+  cambian 4 —«Tu Hijo Soy», «Tengo Fe», «Hay Poder En La Alabanza» y **«Cristo Yo Te Amo»**, que salía
+  `(Al Eios que me-)` al transponerla en vivo—. Las dos versiones dañadas las corrigió Isaac a mano.
+* **O-90** · `NoteFigure`/`RestFigure` en los 15 + 7 botones, sin número; el número y el nombre de la
+  figura en `title`. El botón sigue escribiendo `:1.5`.
+* **O-91** · `ui/Selector`, `ui/SelectorFecha` y `ui/Flotante`. Los 11 `<select>` y el
+  `type="date"` cambiados; ya **no queda ninguno** (`grep '<select'`). En el teléfono, hoja desde abajo.
+  Si hay un elemento en **pantalla completa**, la caja se cuelga de él (si no, queda detrás, invisible).
+* **O-92** · `trazo()` y `radioPunto()` devuelven el número a secas; fuera `--figura-escala`. → **T-19**.
+
+📌 **Lo único que no se pudo comprobar desde aquí:** el punto **en el A05s de Isaac**. En Brave
+emulando su teléfono el punto ya salía antes del cambio, así que la causa es la más probable, no una
+medida. Queda en §9 como prueba suya.
+
+---
+
 #### ✅ Cerrado el 2026-09-17 · O-86 · El PDF en el tono del instrumento y con la melodía (r82)
 
 Isaac: *«vamos con lo del pdf»*, y preguntado cuál de los dos pendientes, **«los dos, empezando por

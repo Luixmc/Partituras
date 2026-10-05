@@ -168,8 +168,26 @@ function transposeToken(token: string, semitones: number, flats: boolean): strin
 }
 
 /**
+ * Lo que se transporta y lo que no, en un solo patrón. Se prueba en este orden:
+ *   1. `<texto amarillo>`, `(letra)` y `[Sección]` ENTEROS, con sus espacios
+ *      → se quedan tal cual. Es lo mismo que protege el dibujo
+ *      (`TablaturePreview`), que también los trata como un solo token.
+ *   2. Un `<`, `(` o `[` sin cerrar, con lo que lleve pegado → tal cual.
+ *   3. Cualquier otra cosa sin espacios → candidata a acorde.
+ *
+ * 🔴 O-89 (2026-10-04). Antes se partía por espacios a secas y se saltaba la
+ * LÍNEA ENTERA si empezaba por `<` o `[`. Eso dio dos fallos que llegaron a
+ * producción en versiones guardadas:
+ *   · `<C> (x3) | Bm7:1 … | G:1 …` → los acordes de la línea NO se movían
+ *     («Tu Hijo Soy» en B, «Tengo Fe» en A).
+ *   · `(Tengo un Dios... x6)` → «Dios» empieza por D y salía «Bbios»
+ *     («Hay Poder En La Alabanza» en Bbm).
+ */
+const PIEZA = /<[^>]*>|\([^)]*\)|\[[^\]]*\]|[<([]\S*|[^\s(<[]+/g;
+
+/**
  * Transpone todo el contenido de acordes N semitonos. Procesa línea por línea
- * y token por token para no tocar secciones, letras ni símbolos.
+ * y pieza por pieza para no tocar secciones, letras ni textos.
  */
 export function transposeContent(
   content: string,
@@ -179,10 +197,10 @@ export function transposeContent(
   if (!content || !semitones) return content;
   return content
     .split("\n")
-    .map((line) => {
-      // No transponer las líneas de sección (<Coro>, [Intro]...).
-      if (/^\s*[<[]/.test(line)) return line;
-      return line.replace(/\S+/g, (tok) => transposeToken(tok, semitones, flats));
-    })
+    .map((line) =>
+      line.replace(PIEZA, (pieza) =>
+        /^[<([]/.test(pieza) ? pieza : transposeToken(pieza, semitones, flats)
+      )
+    )
     .join("\n");
 }

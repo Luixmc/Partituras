@@ -15,6 +15,7 @@ import { DialogoConfirmar } from "@/components/ui/Dialogo";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types";
+import Selector from "@/components/ui/Selector";
 
 export default function NewSheetPage() {
   const router = useRouter();
@@ -302,15 +303,13 @@ export default function NewSheetPage() {
             </label>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
               Compas
-              <select
+              <Selector
                 value={timeSignature}
-                onChange={(e) => setTimeSignature(e.target.value)}
+                onChange={setTimeSignature}
+                options={["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((m) => ({ value: m, label: m }))}
+                aria-label="Compás"
                 className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-              >
-                {["4/4", "3/4", "2/4", "6/8", "12/8", "2/2"].map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+              />
             </label>
           </div>
 

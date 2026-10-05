@@ -12,6 +12,7 @@ import {
   setActiveAction,
   type ActionResult,
 } from "./actions";
+import Selector from "@/components/ui/Selector";
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "viewer", label: "Lector" },
@@ -173,17 +174,13 @@ export default function AdminUsers({ users, currentUserId }: Props) {
           </label>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Rol
-            <select
+            <Selector
               value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
+              onChange={(v) => setRole(v as UserRole)}
+              options={ROLE_OPTIONS.map((r) => ({ value: r.value, label: r.label }))}
+              aria-label="Rol"
               className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-            >
-              {ROLE_OPTIONS.map((r) => (
-                <option key={r.value} value={r.value} className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
-                  {r.label}
-                </option>
-              ))}
-            </select>
+            />
           </label>
           <div className="flex items-end">
             <button
@@ -272,19 +269,14 @@ export default function AdminUsers({ users, currentUserId }: Props) {
                   {/* Rol */}
                   <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 dark:border-slate-600 dark:bg-slate-800">
                     <ShieldCheck className="h-3.5 w-3.5 text-slate-400" />
-                    <select
+                    <Selector
                       value={u.role}
                       disabled={pending}
-                      onChange={(e) => handleSetRole(u.id, e.target.value as UserRole)}
+                      onChange={(v) => handleSetRole(u.id, v as UserRole)}
+                      options={ROLE_OPTIONS.map((r) => ({ value: r.value, label: ROLE_LABEL[r.value] }))}
                       className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none dark:text-slate-200"
                       title="Cambiar rol"
-                    >
-                      {ROLE_OPTIONS.map((r) => (
-                        <option key={r.value} value={r.value} className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
-                          {ROLE_LABEL[r.value]}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
 
                   {/* Cambiar contraseña */}

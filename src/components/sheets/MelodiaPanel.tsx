@@ -42,6 +42,7 @@ import {
   semitonosDe,
 } from "@/lib/transpositores";
 import { cn } from "@/lib/utils";
+import Selector from "@/components/ui/Selector";
 
 type Props = {
   sheetId: string;
@@ -396,17 +397,13 @@ function SelectorInstrumento({ valor, onChange }: { valor: string; onChange: (v:
   return (
     <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
       Lees como
-      <select
+      <Selector
         value={valor}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-lg border border-slate-300 px-2 py-1 text-sm font-normal normal-case text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-      >
-        {TRANSPOSITORES.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.nombre}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        options={TRANSPOSITORES.map((t) => ({ value: t.id, label: t.nombre }))}
+        aria-label="Lees como"
+        className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm font-normal normal-case text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+      />
     </label>
   );
 }

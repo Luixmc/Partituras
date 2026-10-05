@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import ServiceEditor, { type CatalogSong } from "@/components/services/ServiceEditor";
 import { createClient } from "@/lib/supabase/server";
+import { CAMPOS_CATEGORIAS, categoriasDe } from "@/lib/catalogo";
 
 export default async function NewServicePage() {
   const supabase = await createClient();
@@ -20,7 +21,7 @@ export default async function NewServicePage() {
 
   const { data: catalogRows } = await supabase
     .from("sheets")
-    .select("id, title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)")
+    .select(`id, title, composer, key_signature, sheet_keys(id, key_signature, label), ${CAMPOS_CATEGORIAS}`)
     .order("title", { ascending: true });
 
   const catalog = (catalogRows ?? []).map((c: any) => ({
@@ -28,8 +29,7 @@ export default async function NewServicePage() {
     title: c.title,
     composer: c.composer,
     key_signature: c.key_signature,
-    category_name: c.category?.name ?? null,
-    category_color: c.category?.color ?? null,
+    categories: categoriasDe(c),
     available_keys: (c.sheet_keys ?? []).map((k: any) => ({
       id: k.id,
       key_signature: k.key_signature,

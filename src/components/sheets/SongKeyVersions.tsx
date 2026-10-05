@@ -16,6 +16,7 @@ import {
   transposeContent,
 } from "@/lib/music";
 import type { SheetKey } from "@/types";
+import Selector from "@/components/ui/Selector";
 
 type Props = {
   sheetId: string;
@@ -342,29 +343,27 @@ export default function SongKeyVersions({
         <div className="flex flex-wrap items-end gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
             Nueva tonalidad
-            <select
+            <Selector
               value={newKey}
-              onChange={(e) => setNewKey(e.target.value)}
-              className="mt-1 block w-28 rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-            >
-              <option value="">Elegir...</option>
-              <optgroup label="Mayores">
-                {KEY_OPTIONS.map((k) => (
-                  <option key={k.value} value={k.value} disabled={usedKeys.has(k.value)}>
-                    {k.value}
-                    {usedKeys.has(k.value) ? " ✓" : ""}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Menores">
-                {KEY_OPTIONS_MINOR.map((k) => (
-                  <option key={k.value} value={k.value} disabled={usedKeys.has(k.value)}>
-                    {k.value}
-                    {usedKeys.has(k.value) ? " ✓" : ""}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+              onChange={setNewKey}
+              placeholder="Elegir..."
+              options={[
+                { value: "", label: "Elegir..." },
+                ...[
+                  { grupo: "Mayores", tonos: KEY_OPTIONS },
+                  { grupo: "Menores", tonos: KEY_OPTIONS_MINOR },
+                ].map(({ grupo, tonos }) => ({
+                  grupo,
+                  opciones: tonos.map((k) => ({
+                    value: k.value,
+                    label: k.value + (usedKeys.has(k.value) ? " ✓" : ""),
+                    disabled: usedKeys.has(k.value),
+                  })),
+                })),
+              ]}
+              aria-label="Nueva tonalidad"
+              className="mt-1 flex w-28 rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            />
           </label>
           <button
             type="button"

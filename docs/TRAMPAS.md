@@ -5,6 +5,18 @@
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
 
+**T-19 · Un `calc()` dentro de un ATRIBUTO SVG funciona en el PC y en otro navegador borra el dibujo.**
+*Síntoma:* Isaac, en su Samsung A05s: *«el calderón sale el arco pero no el punto»* (2026-10-04). En el PC,
+y en Brave emulando su teléfono, el punto **sí** salía: medido, 3,4 px.
+*Causa:* `MusicFigures.tsx` escribía `r="calc(1.7 * var(--figura-escala, 1))"`. Eso es un **número sin
+unidad** dentro de `calc()`. `stroke-width` admite números → el arco salía siempre; `r` pide una
+**longitud** → un navegador estricto descarta el valor y el radio queda en **0**. Chrome de escritorio
+lo perdona. Y la variable `--figura-escala` **no la definía nadie**: el `calc()` no servía para nada.
+⚠️ Ya hubo un aviso y se leyó al revés: en O-82 `circle.r.baseVal.value` daba **0** y se anotó como
+«pista falsa» porque `getBoundingClientRect()` medía bien en Chrome.
+*Regla:* **en atributos SVG, números a secas.** Si algo hay que calcular, se calcula en JavaScript. Y un
+`0` en `baseVal` es un aviso, no una curiosidad.
+
 **T-01 · Las migraciones del repositorio no son la base de datos.**
 *Síntoma:* razonar sobre permisos leyendo `supabase/migrations/` y equivocarse.
 *Causa:* la BD registra 18 migraciones con nombres y fechas propios (`20260429191313

@@ -32,9 +32,11 @@ import ShareBox from "@/components/services/ShareBox";
 import Dialogo, { DialogoConfirmar } from "@/components/ui/Dialogo";
 import EstadoCulto from "@/components/services/EstadoCulto";
 import AutoTextarea from "@/components/ui/AutoTextarea";
+import Selector from "@/components/ui/Selector";
+import SelectorFecha from "@/components/ui/SelectorFecha";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
 import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
-import type { ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
+import type { CategoryBadge as CategoryBadgeData, ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
 import { algunoContiene } from "@/lib/texto";
 
 export interface CatalogSong {
@@ -42,8 +44,7 @@ export interface CatalogSong {
   title:          string;
   composer:       string | null;
   key_signature:  string | null;
-  category_name:  string | null;
-  category_color: string | null;
+  categories:     CategoryBadgeData[];   // todas, la principal primero (O-88)
   available_keys: SheetKeyOption[];
 }
 
@@ -55,8 +56,7 @@ interface SongRow {
   title:          string;
   composer:       string | null;
   key_signature:  string | null;
-  category_name:  string | null;
-  category_color: string | null;
+  categories:     CategoryBadgeData[];   // todas, la principal primero (O-88)
   key_override:   string;
   sheet_key_id:   string;             // versión guardada elegida (vacío = ninguna)
   available_keys: SheetKeyOption[];
@@ -68,6 +68,18 @@ type Props = {
   catalog: CatalogSong[];
   canEdit: boolean;
 };
+
+/** Las chapas de TODAS las categorías de la canción (O-88). Antes se pintaba
+    solo la principal, y una canción con tres categorías salía con una. */
+function CategoryBadges({ categories }: { categories: CategoryBadgeData[] }) {
+  return (
+    <>
+      {categories.map((c) => (
+        <CategoryBadge key={c.name} name={c.name} color={c.color} />
+      ))}
+    </>
+  );
+}
 
 /** Chip con la categoría de la canción (color de la categoría). */
 function CategoryBadge({ name, color }: { name: string | null; color: string | null }) {
@@ -103,8 +115,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
       title:          s.title,
       composer:       s.composer,
       key_signature:  s.key_signature,
-      category_name:  s.category_name,
-      category_color: s.category_color,
+      categories:     s.categories ?? [],
       key_override:   s.key_override ?? "",
       sheet_key_id:   s.sheet_key_id ?? "",
       available_keys: s.available_keys ?? [],
@@ -277,8 +288,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
         title:          c.title,
         composer:       c.composer,
         key_signature:  c.key_signature,
-        category_name:  c.category_name,
-        category_color: c.category_color,
+        categories:     c.categories ?? [],
         key_override:   "",
         sheet_key_id:   "",
         available_keys: c.available_keys ?? [],
@@ -485,7 +495,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                     {s.title}
                   </span>
                   <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                    <CategoryBadge name={s.category_name} color={s.category_color} />
+                    <CategoryBadges categories={s.categories} />
                     {s.composer && (
                       <span className="truncate text-xs text-slate-400">{s.composer}</span>
                     )}
@@ -579,26 +589,22 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Tipo
           </label>
-          <select
+          <Selector
             value={serviceType}
-            onChange={(e) => setServiceType(e.target.value as ServiceType)}
+            onChange={(v) => setServiceType(v as ServiceType)}
+            options={SERVICE_TYPES.map((t) => ({ value: t, label: SERVICE_TYPE_META[t].label }))}
+            aria-label="Tipo de culto"
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-          >
-            {SERVICE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {SERVICE_TYPE_META[t].label}
-              </option>
-            ))}
-          </select>
+          />
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Fecha (opcional)
           </label>
-          <input
-            type="date"
+          <SelectorFecha
             value={serviceDate}
-            onChange={(e) => setServiceDate(e.target.value)}
+            onChange={setServiceDate}
+            aria-label="Fecha del culto"
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           />
         </div>
@@ -651,7 +657,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                         )}
                       </span>
                       <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                        <CategoryBadge name={c.category_name} color={c.category_color} />
+                        <CategoryBadges categories={c.categories} />
                         {c.composer && (
                           <span className="truncate text-xs text-slate-400">{c.composer}</span>
                         )}
@@ -719,7 +725,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                 desde su culto era justo el que más entra.
 
                 🔴 El enlace envuelve SOLO el texto, nunca la fila: al lado hay
-                un <select> de tono y tres botones, y un enlace por encima se
+                un menú de tono y tres botones, y un enlace por encima se
                 comería sus clics.
 
                 Y va con `?culto=` como la lista del lector, para que las
@@ -740,7 +746,7 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                   {s.title}
                 </span>
                 <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                  <CategoryBadge name={s.category_name} color={s.category_color} />
+                  <CategoryBadges categories={s.categories} />
                   {s.composer && (
                     <span className="truncate text-xs text-slate-400">{s.composer}</span>
                   )}
@@ -754,50 +760,38 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                   {s.title}
                 </span>
                 <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                  <CategoryBadge name={s.category_name} color={s.category_color} />
+                  <CategoryBadges categories={s.categories} />
                   {s.composer && (
                     <span className="truncate text-xs text-slate-400">{s.composer}</span>
                   )}
                 </span>
               </span>
             )}
-            <select
+            <Selector
               value={s.sheet_key_id ? `k:${s.sheet_key_id}` : s.key_override ? `t:${s.key_override}` : ""}
-              onChange={(e) => {
-                const v = e.target.value;
+              onChange={(v) => {
                 if (v.startsWith("k:")) patchSong(s.uid, { sheet_key_id: v.slice(2), key_override: "" });
                 else if (v.startsWith("t:")) patchSong(s.uid, { sheet_key_id: "", key_override: v.slice(2) });
                 else patchSong(s.uid, { sheet_key_id: "", key_override: "" });
               }}
+              options={[
+                { value: "", label: s.key_signature ? `Orig. ${s.key_signature}` : "Tono original" },
+                ...(s.available_keys.length > 0
+                  ? [{
+                      grupo: "Versiones guardadas",
+                      opciones: s.available_keys.map((k) => ({
+                        value: `k:${k.id}`,
+                        label: `${k.key_signature}${k.label ? ` · ${k.label}` : ""}`,
+                      })),
+                    }]
+                  : []),
+                { grupo: "Transponer · mayores", opciones: KEY_OPTIONS.map((k) => ({ value: `t:${k.value}`, label: k.value })) },
+                { grupo: "Transponer · menores", opciones: KEY_OPTIONS_MINOR.map((k) => ({ value: `t:${k.value}`, label: k.value })) },
+              ]}
+              aria-label={`Tono de «${s.title}» en este culto`}
               className="min-w-[6rem] max-w-[11rem] rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               title="Tono para este culto: versión guardada de la canción o transposición al vuelo"
-            >
-              <option value="">{s.key_signature ? `Orig. ${s.key_signature}` : "Tono original"}</option>
-              {s.available_keys.length > 0 && (
-                <optgroup label="Versiones guardadas">
-                  {s.available_keys.map((k) => (
-                    <option key={k.id} value={`k:${k.id}`}>
-                      {k.key_signature}
-                      {k.label ? ` · ${k.label}` : ""}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-              <optgroup label="Transponer · mayores">
-                {KEY_OPTIONS.map((k) => (
-                  <option key={k.value} value={`t:${k.value}`}>
-                    {k.value}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Transponer · menores">
-                {KEY_OPTIONS_MINOR.map((k) => (
-                  <option key={k.value} value={`t:${k.value}`}>
-                    {k.value}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+            />
             <div className="flex items-center gap-1">
               <button
                 type="button"

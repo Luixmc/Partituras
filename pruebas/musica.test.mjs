@@ -109,6 +109,45 @@ describe("lo que NO se debe tocar", () => {
   });
 });
 
+// O-89 · 2026-10-04. Isaac creó la versión en B de «Tu Hijo Soy» y tuvo que
+// poner a mano los acordes de una línea. Al revisar las 26 versiones salieron
+// DOS fallos distintos, los dos ya en producción:
+describe("lo que NO es acorde no se toca, y lo que sí se mueve todo (O-89)", () => {
+  test("una línea que EMPIEZA con texto amarillo sigue transportando sus acordes", () => {
+    // Antes se saltaba la línea entera si empezaba por "<" (de cuando las
+    // secciones se escribían <Coro>). Caso real: «Tu Hijo Soy», D → B.
+    const linea = "<C> (x3) | Bm7:1 :1 z:2 | G:1 :1 z:2 | D | % |";
+    assert.equal(
+      transposeContent(linea, -3, false),
+      "<C> (x3) | G#m7:1 :1 z:2 | E:1 :1 z:2 | B | % |"
+    );
+    // Caso real: «Tengo Fe», D → A. La E quedaba sin mover.
+    assert.equal(transposeContent("<A> (Una vez) | E", 7, false), "<A> (Una vez) | B");
+  });
+
+  test("la letra entre paréntesis no se transporta aunque tenga palabras con mayúscula", () => {
+    // Caso real: «Hay Poder En La Alabanza», Dm → Bbm: salía «Tengo un Bbios».
+    assert.equal(
+      transposeContent("|: Dm7 (Tengo un Dios... x6) | D:2 C:2 |", -4, true),
+      "|: Bbm7 (Tengo un Dios... x6) | Bb:2 Ab:2 |"
+    );
+  });
+
+  test("el texto amarillo con espacios se queda igual, esté donde esté", () => {
+    assert.equal(
+      transposeContent("C <Entra Guitarra> G <Bajo y Batería>", 2, false),
+      "D <Entra Guitarra> A <Bajo y Batería>"
+    );
+    // Pegado al acorde, también.
+    assert.equal(transposeContent("C(Gloria a Dios)", 2, false), "D(Gloria a Dios)");
+  });
+
+  test("las secciones con espacios no se tocan, y un texto sin cerrar tampoco", () => {
+    assert.equal(transposeContent("[C Banda Solo]", 2, false), "[C Banda Solo]");
+    assert.equal(transposeContent("<Coro", 2, false), "<Coro");
+  });
+});
+
 describe("prefersFlats, que sigue usándose donde el destino ya se conoce", () => {
   test("acierta con las tonalidades escritas", () => {
     assert.equal(prefersFlats("Bb"), true);

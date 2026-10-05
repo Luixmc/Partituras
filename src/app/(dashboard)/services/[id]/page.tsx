@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import ServiceEditor, { type CatalogSong } from "@/components/services/ServiceEditor";
 import { createClient } from "@/lib/supabase/server";
+import { CAMPOS_CATEGORIAS, categoriasDe } from "@/lib/catalogo";
 import { estadoDe, puedeVerCulto } from "@/lib/cultos";
 import type { ServiceWithSongs } from "@/types";
 
@@ -18,7 +19,7 @@ export default async function ServiceDetailPage(
   const { data: service } = await supabase
     .from("services")
     .select(
-      "*, service_songs(sheet_id, position, key_override, sheet_key_id, note, sheet:sheets(title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)))"
+      `*, service_songs(sheet_id, position, key_override, sheet_key_id, note, sheet:sheets(title, composer, key_signature, sheet_keys(id, key_signature, label), ${CAMPOS_CATEGORIAS}))`
     )
     .eq("id", params.id)
     .single();
@@ -50,8 +51,7 @@ export default async function ServiceDetailPage(
       title:          row.sheet?.title ?? "(cancion eliminada)",
       composer:       row.sheet?.composer ?? null,
       key_signature:  row.sheet?.key_signature ?? null,
-      category_name:  row.sheet?.category?.name ?? null,
-      category_color: row.sheet?.category?.color ?? null,
+      categories:     categoriasDe(row.sheet),
       available_keys: (row.sheet?.sheet_keys ?? []).map((k: any) => ({
         id: k.id,
         key_signature: k.key_signature,
@@ -79,7 +79,7 @@ export default async function ServiceDetailPage(
   const { data: catalogRows } = canEdit
     ? await supabase
         .from("sheets")
-        .select("id, title, composer, key_signature, sheet_keys(id, key_signature, label), category:categories!category_id(name, color)")
+        .select(`id, title, composer, key_signature, sheet_keys(id, key_signature, label), ${CAMPOS_CATEGORIAS}`)
         .order("title", { ascending: true })
     : { data: [] };
 
@@ -88,8 +88,7 @@ export default async function ServiceDetailPage(
     title: c.title,
     composer: c.composer,
     key_signature: c.key_signature,
-    category_name: c.category?.name ?? null,
-    category_color: c.category?.color ?? null,
+    categories: categoriasDe(c),
     available_keys: (c.sheet_keys ?? []).map((k: any) => ({
       id: k.id,
       key_signature: k.key_signature,
