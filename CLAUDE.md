@@ -595,6 +595,23 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 | 4 | **Que Isaac mire el CALDERÓN en su teléfono** (Samsung A05s) tras r84: ¿sale el punto? ¿y los puntillos? | **De Isaac.** O-92 se arregló por la causa más probable (`calc()` sin unidad en el radio, T-19), pero en Brave el punto ya se veía antes: **solo su teléfono lo confirma**. Si sigue sin punto, preguntar qué navegador usa (Chrome, Samsung Internet) |
 
+#### 🆕 Pedido del 2026-10-05 · ¿Qué canciones tienen las duraciones mal escritas?
+
+Isaac: *«te pedí las figuras de las notas musicales porque creo que hay algunas no escribí bien, por
+ello te los pedí, además quiero me digas que canciones tienen las duraciones mal escrita para
+corregirlas»*. → **Por eso pidió O-90**: para ver las figuras y cazar errores suyos. **Las corrige ÉL**:
+aquí solo se le da la lista, **no se toca la base** (D-13, y su notación propia se pregunta, no se limpia).
+Criterios usados (la página no valida compases; estos son los que se le explicaron):
+① duración que no es ninguna de las 15 figuras (`:1.25`, `:5`…) — la página dibuja otra sin avisar ·
+② duración escrita de forma que no se lee (`C:1,5`, `C;2`…) · ③ compás con TODO medido cuya suma no da
+el compás (puede ser anacrusa o casilla: lo decide él).
+
+✅ **Revisado el 2026-10-05** → **`docs/REVISION-DURACIONES.md`**: 0 figuras inválidas, 0 duraciones
+ilegibles, **20 compases que no suman en 7 canciones** (La Bondad De Dios, Cielos Abiertos —`:3` en 6/8,
+parece contado en corcheas—, Simplemente Alaba, Quiero Conocer A Jesús, Dios Ha Sido Fiel, Cada Vez, Es Por
+Fe). **Falta:** ① que Isaac las corrija · ② que diga si quiere el detector como `npm run duraciones` para
+repetirlo (hoy vive en el scratchpad) · ③ volver a pasarlo cuando corrija.
+
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
 > 🟢 **CERRADO el 2026-09-17: Isaac, «no ya lo estoy viendo en pc».** Volvió a entrar sin que se
