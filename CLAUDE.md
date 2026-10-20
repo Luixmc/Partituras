@@ -601,6 +601,37 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
+| 4 | **O-94 · El tono ORIGINAL no debe salir como tonalidad nueva** (corrección a r85) | **Plan propuesto, esperando el OK de Isaac.** Detalle justo debajo |
+
+#### O-94 · El tono original no se ofrece como «otra» tonalidad (Isaac, 2026-10-20)
+
+Isaac: *«en «Nueva tonalidad» de la ficha de una canción aparece disponible la tonalidad ORIGINAL, y no
+debe… «Escuché La Voz» (Rabito), original en D, con una versión guardada en Bb: al agregar otra
+tonalidad, D salía disponible, la elegí y la página dijo «Versión en D creada». Una versión en el mismo
+tono que la original no puede crearse.»* Pidió revisar también el menú del culto, y **que la versión
+en D que creó no se borre sin preguntarle**.
+
+**Comprobado en el código:** `SongKeyVersions.tsx` deshabilita con «✓» solo los tonos de `usedKeys`
+(las versiones guardadas) y **no mira `baseKey`**. En `ServiceEditor.tsx`, el grupo «Transponer · …»
+ofrece el tono original **además** de «Orig. X» (transponer 0 semitonos).
+**Comprobado en la base (solo lectura, 2026-10-20 16:30):** 30 versiones y 7 tonos de culto
+(3 al vuelo + 4 versiones elegidas): **ninguno** en el mismo tono que su original. La versión en D de
+«Escuché La Voz» **ya no existe**: los registros de Supabase dan `POST sheet_keys` **201** a las
+16:17 y `DELETE sheet_keys?id=eq.6164cc28…` **204** a las 16:25 (hora de Colombia), desde un Chrome
+de Windows — se borró desde la página, no desde aquí. La canción queda con su única versión en Bb.
+
+**Plan propuesto (fases):**
+* **a)** `lib/music.ts`: `esElOriginal(original, tono)` = misma altura **y** mismo modo (así también
+  casa `C#`↔`Db`), con sus pruebas.
+* **b)** «Nueva tonalidad»: el tono original sale **desactivado** con la marca «· original», y
+  `handleAdd` se niega aunque llegue elegido (si el campo «Tonalidad» cambia a ese tono sin guardar, se
+  suelta, como ya se hace con el modo).
+* **c)** Culto: el tono original **sale del grupo «Transponer»** (ya está arriba como «Orig. X»).
+* **d)** Comprobado en Brave sin ventana sin guardar nada · pruebas, lint, build · comunicado
+  (`CAMBIOS.md` + `/novedades`) · README si cambia el uso · publicar.
+* ❓ **Preguntado a Isaac, sin decidir:** en el culto, ¿quitarlo o dejarlo desactivado? · y el caso al
+  revés: cambiar el campo «Tonalidad» de la canción a un tono que **ya tiene versión** guardada
+  (p. ej. «Escuché La Voz» de D a Bb), ¿se avisa, se impide o se deja?
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
