@@ -127,8 +127,8 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **290 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.726 líneas** de TypeScript
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **294 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.790 líneas** de TypeScript
    en **100 archivos**. *(Contado el 2026-10-20, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -180,7 +180,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 290 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 294 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -352,7 +352,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       290 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       294 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -601,37 +601,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
-| 4 | **O-94 · El tono ORIGINAL no debe salir como tonalidad nueva** (corrección a r85) | **Plan propuesto, esperando el OK de Isaac.** Detalle justo debajo |
-
-#### O-94 · El tono original no se ofrece como «otra» tonalidad (Isaac, 2026-10-20)
-
-Isaac: *«en «Nueva tonalidad» de la ficha de una canción aparece disponible la tonalidad ORIGINAL, y no
-debe… «Escuché La Voz» (Rabito), original en D, con una versión guardada en Bb: al agregar otra
-tonalidad, D salía disponible, la elegí y la página dijo «Versión en D creada». Una versión en el mismo
-tono que la original no puede crearse.»* Pidió revisar también el menú del culto, y **que la versión
-en D que creó no se borre sin preguntarle**.
-
-**Comprobado en el código:** `SongKeyVersions.tsx` deshabilita con «✓» solo los tonos de `usedKeys`
-(las versiones guardadas) y **no mira `baseKey`**. En `ServiceEditor.tsx`, el grupo «Transponer · …»
-ofrece el tono original **además** de «Orig. X» (transponer 0 semitonos).
-**Comprobado en la base (solo lectura, 2026-10-20 16:30):** 30 versiones y 7 tonos de culto
-(3 al vuelo + 4 versiones elegidas): **ninguno** en el mismo tono que su original. La versión en D de
-«Escuché La Voz» **ya no existe**: los registros de Supabase dan `POST sheet_keys` **201** a las
-16:17 y `DELETE sheet_keys?id=eq.6164cc28…` **204** a las 16:25 (hora de Colombia), desde un Chrome
-de Windows — se borró desde la página, no desde aquí. La canción queda con su única versión en Bb.
-
-**Plan propuesto (fases):**
-* **a)** `lib/music.ts`: `esElOriginal(original, tono)` = misma altura **y** mismo modo (así también
-  casa `C#`↔`Db`), con sus pruebas.
-* **b)** «Nueva tonalidad»: el tono original sale **desactivado** con la marca «· original», y
-  `handleAdd` se niega aunque llegue elegido (si el campo «Tonalidad» cambia a ese tono sin guardar, se
-  suelta, como ya se hace con el modo).
-* **c)** Culto: el tono original **sale del grupo «Transponer»** (ya está arriba como «Orig. X»).
-* **d)** Comprobado en Brave sin ventana sin guardar nada · pruebas, lint, build · comunicado
-  (`CAMBIOS.md` + `/novedades`) · README si cambia el uso · publicar.
-* ❓ **Preguntado a Isaac, sin decidir:** en el culto, ¿quitarlo o dejarlo desactivado? · y el caso al
-  revés: cambiar el campo «Tonalidad» de la canción a un tono que **ya tiene versión** guardada
-  (p. ej. «Escuché La Voz» de D a Bb), ¿se avisa, se impide o se deja?
+| 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13) |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -730,7 +700,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-20, todo PUBLICADO en r85**
+#### Estado del árbol — **2026-10-20, todo PUBLICADO en r86**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -738,10 +708,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r85** — las listas de tonalidades, solo del modo de la canción (O-93). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **290** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **19.726 líneas** de TypeScript en **100 archivos** |
+| Último commit publicado | **r86** — el tono original ya no se ofrece como otra tonalidad (O-94). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **294** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **19.790 líneas** de TypeScript en **100 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -913,8 +883,8 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-20 | **r86** · el tono original ya no se ofrece como otra tonalidad (O-94) · aviso si la tonalidad cae en un tono con versión · dos «Escuché La Voz» en la base, para Isaac (§9 fila 4) |
 | 2026-10-20 | **r85** · las listas de tonalidades, solo del modo de la canción (O-93) · aviso de Supabase: las tablas nuevas necesitan `grant` desde el 30-oct (§11) |
-| 2026-10-05 | **`npm run duraciones`** (la revisión, repetible; la anacrusa como ya vista) · el calderón confirmado en el teléfono de Isaac |
 | 2026-10-05 | **Revisión de duraciones**: 20 compases en 7 canciones; Isaac las corrigió y **quedan las 7 bien** (la Intro de «Dios Ha Sido Fiel» es anacrusa) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.

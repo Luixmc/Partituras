@@ -4,6 +4,52 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-20 · O-94 · El tono original no se ofrece como «otra» tonalidad (r86)
+
+Isaac: *«en «Nueva tonalidad» de la ficha de una canción aparece disponible la tonalidad ORIGINAL, y no
+debe… «Escuché La Voz» (Rabito), original en D, con una versión guardada en Bb: al agregar otra
+tonalidad, D salía disponible, la elegí y la página dijo «Versión en D creada». Una versión en el mismo
+tono que la original no puede crearse.»* Pidió revisar también el menú del culto, y **que la versión
+en D que creó no se borre sin preguntarle**.
+
+**Comprobado en el código:** `SongKeyVersions.tsx` deshabilita con «✓» solo los tonos de `usedKeys`
+(las versiones guardadas) y **no mira `baseKey`**. En `ServiceEditor.tsx`, el grupo «Transponer · …»
+ofrece el tono original **además** de «Orig. X» (transponer 0 semitonos).
+**Comprobado en la base (solo lectura, 2026-10-20 16:30):** 30 versiones y 7 tonos de culto
+(3 al vuelo + 4 versiones elegidas): **ninguno** en el mismo tono que su original. La versión en D de
+«Escuché La Voz» **ya no existe**: los registros de Supabase dan `POST sheet_keys` **201** a las
+16:17 y `DELETE sheet_keys?id=eq.6164cc28…` **204** a las 16:25 (hora de Colombia), desde un Chrome
+de Windows — se borró desde la página, no desde aquí. La canción queda con su única versión en Bb.
+
+**Plan propuesto (fases):**
+* **a)** `lib/music.ts`: `esElOriginal(original, tono)` = misma altura **y** mismo modo (así también
+  casa `C#`↔`Db`), con sus pruebas.
+* **b)** «Nueva tonalidad»: el tono original sale **desactivado** con la marca «· original», y
+  `handleAdd` se niega aunque llegue elegido (si el campo «Tonalidad» cambia a ese tono sin guardar, se
+  suelta, como ya se hace con el modo).
+* **c)** Culto: el tono original **sale del grupo «Transponer»** (ya está arriba como «Orig. X»).
+* **d)** Comprobado en Brave sin ventana sin guardar nada · pruebas, lint, build · comunicado
+  (`CAMBIOS.md` + `/novedades`) · README si cambia el uso · publicar.
+* ✅ **Lo que contestó Isaac (2026-10-20):** *«vamos con la opción b, 1. no porque como selecciono una
+  cancion sea en original o en otra tonalidad, 2. que la pagina avise»*.
+  → **Culto: NO se quita**; en «Transponer» queda **desactivado** con «· original», y se elige el
+  original con «Orig. X», arriba, como siempre. **Esto supera la fase c)** de arriba.
+  → **El caso al revés: la página AVISA, no impide.** Si el campo «Tonalidad» queda en un tono que ya
+  tiene versión guardada, debajo del campo sale un aviso; se puede guardar igual.
+  ⚠️ Lo que creó «nuevamente» no fue una versión en D sino **una canción nueva** (§9, fila «Dos canciones «Escuché La Voz»»).
+
+**Hecho:** `esElOriginal(original, tono)` en `lib/music.ts` (misma altura y mismo modo), con 4 pruebas (294).
+«Nueva tonalidad» (`SongKeyVersions.tsx`) desactiva el original con «· original» y suelta el tono elegido
+si el campo «Tonalidad» pasa a ser ese; el «Transponer» del culto (`ServiceEditor.tsx`) lo desactiva igual
+y «Orig. X» sigue arriba. El aviso del caso al revés va debajo del campo «Tonalidad» (`SongDetailEditor.tsx`),
+con los tonos que le pasa el panel en vivo (`onTonos`), así que cuentan también las versiones creadas o
+borradas sin recargar. **Avisa, no impide.**
+**Comprobado en Brave sin ventana** (local, solo mirando, sin guardar): «Escuché La Voz» (D, versión Bb) →
+`D · original` y `Bb ✓` desactivados; campo a `Bb` o `A#` → aviso «Ya hay una versión guardada en Bb…» y
+`Bb · original` desactivado; campo a `Dm` → solo menores con `Dm · original`; culto «Escuela Dominical» →
+`Orig. D` elegible y `D · original` desactivado en «Transponer»; «Es Por Fe» → `Bm · original`.
+294 pruebas, lint 0 errores / 61 avisos, build limpio.
+
 #### ✅ Cerrado el 2026-10-20 · O-93 · Las listas de tonalidades, solo del modo de la canción (r85)
 
 Isaac, 2026-10-14: *«cuando estoy editando una cancion… en el caso en el que quiera agregar otra

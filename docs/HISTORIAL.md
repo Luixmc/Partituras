@@ -4,6 +4,16 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-20 · r86 · El tono original ya no se ofrece como otra tonalidad (O-94)
+
+Corrección de Isaac a r85: «Escuché La Voz» (D) dejaba crear una versión en D. `esElOriginal` en
+`lib/music.ts`; los dos menús lo desactivan con «· original» (en el culto **no se quita**, decisión suya) y
+la ficha **avisa** si el campo «Tonalidad» cae en un tono con versión. Medido antes en la base: ninguna de
+las 30 versiones ni de los 7 tonos de culto repetía su original; la versión en D de su prueba ya la había
+borrado él desde la página (registros de Supabase, 16:25). Al «hacerla nuevamente» creó **una segunda
+canción** «Escuché La Voz», que queda en §9 fila 4 para que decida él. 294 pruebas, lint 0 errores /
+61 avisos, build limpio, medido en Brave sin ventana. Detalle en `docs/ENCARGOS_CERRADOS.md`.
+
 ### 2026-10-20 · r85 · Las listas de tonalidades, solo del modo de la canción (O-93)
 
 Isaac lo pidió el 2026-10-14 y aclaró el alcance el 20 (las listas para llevar una canción a otro tono:

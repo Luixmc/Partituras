@@ -18,6 +18,7 @@ import { puedeVerMelodia } from "@/lib/melodia";
 // común, esa tercera pantalla no tenía a cuál llamar. Se comprobó que las
 // dos copias eran idénticas antes de quitarla.
 import { parseSections } from "@/lib/sections";
+import { esElOriginal } from "@/lib/music";
 import SelectorColoresSeccion, { usePaletaSecciones } from "@/components/sheets/ColoresSeccion";
 import ChordToolbar from "@/components/sheets/ChordToolbar";
 import ImportControls from "@/components/sheets/ImportControls";
@@ -174,6 +175,13 @@ export default function SongDetailEditor({
   // 📌 Es la lección de O-43 otra vez: lo que se añade DESPUÉS no hereda la red.
   const [melodiaSucia, setMelodiaSucia] = useState(false);
   const [versionesSucias, setVersionesSucias] = useState(false);
+  // Los tonos que ya tienen versión guardada, al día con lo que se crea o se
+  // borra en el panel. Si el campo «Tonalidad» cae en uno, se AVISA (O-94):
+  // Isaac, 2026-10-20, *«que la pagina avise»* — avisar, no impedir.
+  const [tonosVersiones, setTonosVersiones] = useState<string[]>(() =>
+    initialKeys.map((k) => k.key_signature)
+  );
+  const versionRepetida = tonosVersiones.find((t) => esElOriginal(keySignature, t)) ?? null;
   // La NOTA PRIVADA (O-74) vive en la pestaña Vista y también guarda aparte:
   // sin esto, escribirla y pasar de canción la perdería sin avisar (O-43 otra vez).
   const [notaSucia, setNotaSucia] = useState(false);
@@ -762,6 +770,11 @@ export default function SongDetailEditor({
                   onChange={(e) => setKeySignature(e.target.value)}
                   className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
+                {versionRepetida && (
+                  <span role="status" className="mt-1.5 block text-xs font-normal text-amber-600 dark:text-amber-400">
+                    Ya hay una versión guardada en {versionRepetida}: la original y esa versión quedarían en el mismo tono.
+                  </span>
+                )}
               </label>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Compas
@@ -934,6 +947,7 @@ export default function SongDetailEditor({
               initialVersions={initialKeys}
               canEdit={canEdit}
               onSucio={setVersionesSucias}
+              onTonos={setTonosVersiones}
             />
           </div>
         </div>

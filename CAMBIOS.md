@@ -13,6 +13,11 @@
   lista ya solo trae las tonalidades de su mismo modo: una canción en **mayor** ofrece las 12 mayores, y
   una en **menor**, las 12 menores. Antes salían las 24 juntas, y era fácil pasar una canción en C a
   Am sin querer, que no es cambiarle el tono sino el carácter.
+- 🔧 **Arreglado:** una canción en D dejaba **agregar una versión en D**, que es la misma canción
+  repetida. Ahora su tono original sale en la lista marcado **«· original»** y no se puede elegir. En el
+  culto pasa igual dentro de «Transponer»: para tocarla en su tono se sigue eligiendo **«Orig.»**, arriba.
+- 🆕 Y al revés: si al editar una canción le pones como tonalidad un tono que **ya tiene versión
+  guardada**, la página te avisa debajo del campo. Puedes guardar igual.
 
 ---
 

@@ -10,6 +10,7 @@ import { parseSections } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/client";
 import {
   tonosDelModo,
+  esElOriginal,
   semitonesBetween,
   prefersFlats,
   transposeContent,
@@ -27,6 +28,8 @@ type Props = {
   canEdit: boolean;
   /** Avisa al editor de si hay alguna versión sin guardar, para protegerla (O-61). */
   onSucio?: (sucio: boolean) => void;
+  /** Avisa de los tonos que tienen versión, para el aviso del campo «Tonalidad» (O-94). */
+  onTonos?: (tonos: string[]) => void;
 };
 
 /** Transpone el contenido base al tono destino como punto de partida. */
@@ -43,6 +46,7 @@ export default function SongKeyVersions({
   initialVersions,
   canEdit,
   onSucio,
+  onTonos,
 }: Props) {
   const supabase = useMemo(() => createClient(), []);
 
@@ -56,8 +60,13 @@ export default function SongKeyVersions({
   // Solo las tonalidades del modo de la canción (O-93), siguiendo al campo
   // «Tonalidad» mientras se edita. Si se cambia de modo con un tono ya elegido
   // del otro, ese tono se suelta: el menú no lo enseñaría y el botón lo crearía.
+  // Y lo mismo con el tono ORIGINAL (O-94): una versión en el tono de la
+  // canción sería la canción repetida.
   const gruposNuevos = tonosDelModo(baseKey);
-  const tonoNuevo = gruposNuevos.some((g) => g.tonos.some((k) => k.value === newKey)) ? newKey : "";
+  const tonoNuevo =
+    gruposNuevos.some((g) => g.tonos.some((k) => k.value === newKey)) && !esElOriginal(baseKey, newKey)
+      ? newKey
+      : "";
   const [message, setMessage] = useState<{ text: string; type: "ok" | "error" } | null>(null);
   // La pregunta abierta (O-60). Lleva dentro la versión, porque el diálogo se
   // dibuja fuera de la fila y allí ya no se sabe de cuál se trataba.
@@ -89,6 +98,10 @@ export default function SongKeyVersions({
   useEffect(() => () => onSucio?.(false), [onSucio]);
 
   const usedKeys = useMemo(() => new Set(versions.map((v) => v.key_signature)), [versions]);
+  // Las que se crean o se borran aquí también cuentan, no solo las que llegaron.
+  useEffect(() => {
+    onTonos?.(versions.map((v) => v.key_signature));
+  }, [versions, onTonos]);
 
   function toggleOpen(id: string) {
     setOpen((prev) => {
@@ -355,11 +368,14 @@ export default function SongKeyVersions({
                 { value: "", label: "Elegir..." },
                 ...gruposNuevos.map(({ grupo, tonos }) => ({
                   grupo,
-                  opciones: tonos.map((k) => ({
-                    value: k.value,
-                    label: k.value + (usedKeys.has(k.value) ? " ✓" : ""),
-                    disabled: usedKeys.has(k.value),
-                  })),
+                  opciones: tonos.map((k) => {
+                    const original = esElOriginal(baseKey, k.value);
+                    return {
+                      value: k.value,
+                      label: k.value + (original ? " · original" : usedKeys.has(k.value) ? " ✓" : ""),
+                      disabled: original || usedKeys.has(k.value),
+                    };
+                  }),
                 })),
               ]}
               aria-label="Nueva tonalidad"

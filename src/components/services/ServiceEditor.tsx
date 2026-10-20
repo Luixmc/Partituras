@@ -35,7 +35,7 @@ import AutoTextarea from "@/components/ui/AutoTextarea";
 import Selector from "@/components/ui/Selector";
 import SelectorFecha from "@/components/ui/SelectorFecha";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
-import { tonosDelModo } from "@/lib/music";
+import { tonosDelModo, esElOriginal } from "@/lib/music";
 import type { CategoryBadge as CategoryBadgeData, ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
 import { algunoContiene } from "@/lib/texto";
 
@@ -786,10 +786,19 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                     }]
                   : []),
                 // Solo las del modo de la canción (O-93): una en mayor se
-                // lleva a otra mayor, una en menor a otra menor.
+                // lleva a otra mayor, una en menor a otra menor. El tono
+                // original se ve pero no se elige aquí (O-94): transponerlo
+                // cero semitonos es lo mismo que «Orig.», que va arriba.
                 ...tonosDelModo(s.key_signature).map(({ grupo, tonos }) => ({
                   grupo: `Transponer · ${grupo.toLowerCase()}`,
-                  opciones: tonos.map((k) => ({ value: `t:${k.value}`, label: k.value })),
+                  opciones: tonos.map((k) => {
+                    const original = esElOriginal(s.key_signature, k.value);
+                    return {
+                      value: `t:${k.value}`,
+                      label: k.value + (original ? " · original" : ""),
+                      disabled: original,
+                    };
+                  }),
                 })),
                 // Un tono al vuelo de otro modo, elegido antes de O-93 o antes de
                 // cambiarle el tono original a la canción: se sigue enseñando

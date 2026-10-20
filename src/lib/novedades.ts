@@ -85,6 +85,14 @@ export const TANDAS: Tanda[] = [
               "Al <strong>agregar otra tonalidad</strong> a una canción, y al elegir el <strong>tono de una canción en el culto</strong>, antes salían las 24 tonalidades juntas, mayores y menores.",
               "Ahora la página mira el tono de la canción: si está en <strong>mayor</strong>, ofrece las 12 mayores; si está en <strong>menor</strong>, las 12 menores. Así no se pasa una canción en C a Am sin querer, que no es cambiarle el tono sino el carácter."
             ]
+          },
+          {
+            "tipo": "arreglado",
+            "titulo": "El tono original ya no se ofrece como «otra» tonalidad.",
+            "detalle": [
+              "Una canción en D dejaba <strong>agregar una versión en D</strong>, que es la misma canción repetida. Ahora su tono original sale en la lista marcado <strong>«· original»</strong> y no se puede elegir. En el culto pasa igual dentro de «Transponer»: para tocarla en su tono se sigue eligiendo <strong>«Orig.»</strong>, arriba.",
+              "Y al revés: si al editar una canción le pones como tonalidad un tono que <strong>ya tiene versión guardada</strong>, la página te avisa debajo del campo. Puedes guardar igual."
+            ]
           }
         ]
       }

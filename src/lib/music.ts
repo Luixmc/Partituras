@@ -122,6 +122,23 @@ export function tonosDelModo(
     : [{ grupo: "Mayores", tonos: KEY_OPTIONS }];
 }
 
+/**
+ * ¿`tono` es la tonalidad ORIGINAL de la canción? (O-94) Misma altura y mismo
+ * modo, así que `C#` y `Db` cuentan como la misma, y `D` y `Dm` no.
+ *
+ * Isaac, 2026-10-20: el menú de «Nueva tonalidad» le ofrecía `D` a una canción
+ * en `D`, y la página creó la versión — *«una versión en el mismo tono que la
+ * original no puede crearse»*.
+ *
+ * Sin original legible no hay nada que comparar: devuelve `false`.
+ */
+export function esElOriginal(
+  original: string | null | undefined,
+  tono: string | null | undefined
+): boolean {
+  return semitonesBetween(original, tono) === 0 && esMenor(original) === esMenor(tono);
+}
+
 /** ¿El tono destino prefiere bemoles? (Eb, F, Ab, Bb, Dm, Cm...) */
 export function prefersFlats(targetKey: string | null | undefined): boolean {
   if (!targetKey) return false;

@@ -18,7 +18,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { transposeContent, keyToPitch, esMenor, prefersFlats, ortografiaDe, tonosDelModo } = await cargar("music");
+const { transposeContent, keyToPitch, esMenor, prefersFlats, ortografiaDe, tonosDelModo, esElOriginal } = await cargar("music");
 
 describe("de qué tonalidad hablamos", () => {
   test("el modo NO se pierde: Bm es una tonalidad distinta de B (T-06)", () => {
@@ -191,5 +191,28 @@ describe("tonosDelModo: a qué tonalidades se puede llevar una canción (O-93)",
     for (const t of ["G", "Em", "F#", "D", "Bm", "Dm", "F", "Bb", "E", "C", "Am", "B", "G#m", "A", "Cm"]) {
       assert.equal(grupos(t).length, 1, t);
     }
+  });
+});
+
+describe("esElOriginal: el tono original no se ofrece como otra tonalidad (O-94)", () => {
+  test("el mismo tono es el original: «Escuché La Voz» en D no admite una versión en D", () => {
+    for (const t of ["D", "Bb", "Am", "C#m", "F#"]) assert.equal(esElOriginal(t, t), true, t);
+  });
+
+  test("la misma tecla escrita de otra forma también lo es", () => {
+    assert.equal(esElOriginal("C#", "Db"), true);
+    assert.equal(esElOriginal("A#", "Bb"), true);
+    assert.equal(esElOriginal("Ebm", "D#m"), true);
+    assert.equal(esElOriginal("A minor", "Am"), true);
+  });
+
+  test("otra altura u otro modo no son el original", () => {
+    assert.equal(esElOriginal("D", "Bb"), false);
+    assert.equal(esElOriginal("D", "Dm"), false);
+    assert.equal(esElOriginal("Am", "C"), false);
+  });
+
+  test("sin original, o uno que no se entiende, no hay nada que desactivar", () => {
+    for (const t of [null, undefined, "", "Re"]) assert.equal(esElOriginal(t, "D"), false, String(t));
   });
 });
