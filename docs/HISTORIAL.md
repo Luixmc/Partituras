@@ -13,8 +13,9 @@ lint 0 errores / 61 avisos, build limpio, medido en Brave sin ventana. Detalle e
 En la misma tanda, Isaac pasó un **correo de Supabase**: desde el **30 de octubre** las tablas nuevas en
 `public` necesitan `grant` explícito para verse por la API; las existentes no cambian. Confirmado en la
 documentación de Supabase. **No hay nada que hacer hoy**; quedó como regla en §11 para la próxima migración
-que cree una tabla, y en `CONVENCIONES.md` de la carpeta compartida (vale también para `mi-dinero` y
-AquíEstoyBro).
+que cree una tabla. En la carpeta compartida **ya lo había escrito la sesión de AquíEstoyBro** en
+`LECCIONES.md` (junto a la regla de los `grant`); se le añadió solo la línea de Partituras, y **L-492**
+(cerrar el Brave de prueba por su PID).
 
 ⚠️ Al limpiar el Brave sin ventana que se quedó colgado se usó `taskkill /IM brave.exe`, que **cierra todos
 los Brave**, también el de Isaac si estaba abierto. → Para cerrar el de prueba: por su PID, nunca por nombre.
