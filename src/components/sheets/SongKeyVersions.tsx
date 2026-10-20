@@ -9,8 +9,7 @@ import { DialogoConfirmar } from "@/components/ui/Dialogo";
 import { parseSections } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/client";
 import {
-  KEY_OPTIONS,
-  KEY_OPTIONS_MINOR,
+  tonosDelModo,
   semitonesBetween,
   prefersFlats,
   transposeContent,
@@ -54,6 +53,11 @@ export default function SongKeyVersions({
   const [busy, setBusy] = useState<string | null>(null); // id de la versión en proceso
   const [adding, setAdding] = useState(false);
   const [newKey, setNewKey] = useState<string>("");
+  // Solo las tonalidades del modo de la canción (O-93), siguiendo al campo
+  // «Tonalidad» mientras se edita. Si se cambia de modo con un tono ya elegido
+  // del otro, ese tono se suelta: el menú no lo enseñaría y el botón lo crearía.
+  const gruposNuevos = tonosDelModo(baseKey);
+  const tonoNuevo = gruposNuevos.some((g) => g.tonos.some((k) => k.value === newKey)) ? newKey : "";
   const [message, setMessage] = useState<{ text: string; type: "ok" | "error" } | null>(null);
   // La pregunta abierta (O-60). Lleva dentro la versión, porque el diálogo se
   // dibuja fuera de la fila y allí ya no se sabe de cuál se trataba.
@@ -100,16 +104,16 @@ export default function SongKeyVersions({
   }
 
   async function handleAdd() {
-    if (!newKey) return;
+    if (!tonoNuevo) return;
     setAdding(true);
     setMessage(null);
-    const content = seedContent(baseKey, baseContent, newKey);
+    const content = seedContent(baseKey, baseContent, tonoNuevo);
 
     const { data, error } = await supabase
       .from("sheet_keys")
       .insert({
         sheet_id: sheetId,
-        key_signature: newKey,
+        key_signature: tonoNuevo,
         content,
         sort_order: versions.length,
       })
@@ -124,7 +128,7 @@ export default function SongKeyVersions({
     setVersions((prev) => [...prev, data as SheetKey]);
     setOpen((prev) => new Set(prev).add((data as SheetKey).id));
     setNewKey("");
-    setMessage({ text: `Versión en ${newKey} creada. Ajusta los acordes si hace falta.`, type: "ok" });
+    setMessage({ text: `Versión en ${tonoNuevo} creada. Ajusta los acordes si hace falta.`, type: "ok" });
   }
 
   async function handleSave(v: SheetKey) {
@@ -344,15 +348,12 @@ export default function SongKeyVersions({
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
             Nueva tonalidad
             <Selector
-              value={newKey}
+              value={tonoNuevo}
               onChange={setNewKey}
               placeholder="Elegir..."
               options={[
                 { value: "", label: "Elegir..." },
-                ...[
-                  { grupo: "Mayores", tonos: KEY_OPTIONS },
-                  { grupo: "Menores", tonos: KEY_OPTIONS_MINOR },
-                ].map(({ grupo, tonos }) => ({
+                ...gruposNuevos.map(({ grupo, tonos }) => ({
                   grupo,
                   opciones: tonos.map((k) => ({
                     value: k.value,
@@ -368,7 +369,7 @@ export default function SongKeyVersions({
           <button
             type="button"
             onClick={handleAdd}
-            disabled={!newKey || adding}
+            disabled={!tonoNuevo || adding}
             className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700 disabled:opacity-50 dark:bg-slate-700 dark:hover:bg-slate-600"
           >
             <Plus className="h-3.5 w-3.5" />

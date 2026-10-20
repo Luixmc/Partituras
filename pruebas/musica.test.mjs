@@ -18,7 +18,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { cargar } from "./preparar.mjs";
 
-const { transposeContent, keyToPitch, esMenor, prefersFlats, ortografiaDe } = await cargar("music");
+const { transposeContent, keyToPitch, esMenor, prefersFlats, ortografiaDe, tonosDelModo } = await cargar("music");
 
 describe("de qué tonalidad hablamos", () => {
   test("el modo NO se pierde: Bm es una tonalidad distinta de B (T-06)", () => {
@@ -157,5 +157,39 @@ describe("prefersFlats, que sigue usándose donde el destino ya se conoce", () =
   test("sin tonalidad no inventa: sostenidos", () => {
     assert.equal(prefersFlats(null), false);
     assert.equal(prefersFlats(undefined), false);
+  });
+});
+
+describe("tonosDelModo: a qué tonalidades se puede llevar una canción (O-93)", () => {
+  const grupos = (t) => tonosDelModo(t).map((g) => g.grupo);
+  const valores = (t) => tonosDelModo(t).flatMap((g) => g.tonos.map((k) => k.value));
+
+  test("una canción en mayor solo ofrece las 12 mayores", () => {
+    for (const t of ["C", "G", "Bb", "F#", "Db"]) {
+      assert.deepEqual(grupos(t), ["Mayores"], t);
+      assert.equal(valores(t).length, 12, t);
+      assert.ok(valores(t).every((v) => !esMenor(v)), t);
+    }
+  });
+
+  test("una canción en menor solo ofrece las 12 menores", () => {
+    for (const t of ["Am", "Em", "C#m", "Bbm", "G#m", "A minor"]) {
+      assert.deepEqual(grupos(t), ["Menores"], t);
+      assert.equal(valores(t).length, 12, t);
+      assert.ok(valores(t).every((v) => esMenor(v)), t);
+    }
+  });
+
+  test("sin tono, o uno que no se entiende, salen las dos listas", () => {
+    for (const t of [null, undefined, "", "  ", "Re", "?"]) {
+      assert.deepEqual(grupos(t), ["Mayores", "Menores"], String(t));
+    }
+  });
+
+  test("todos los tonos que hay hoy en las canciones caen en un solo modo", () => {
+    // Los 15 distintos que había en la base el 2026-10-05.
+    for (const t of ["G", "Em", "F#", "D", "Bm", "Dm", "F", "Bb", "E", "C", "Am", "B", "G#m", "A", "Cm"]) {
+      assert.equal(grupos(t).length, 1, t);
+    }
   });
 });

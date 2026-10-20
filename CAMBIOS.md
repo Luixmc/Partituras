@@ -5,6 +5,17 @@
 
 ---
 
+## 20 de octubre de 2026
+
+### 🎵 Cambiar de tono, sin cambiar de modo
+
+- 🆕 Al **agregar otra tonalidad** a una canción, y al elegir el **tono de una canción en el culto**, la
+  lista ya solo trae las tonalidades de su mismo modo: una canción en **mayor** ofrece las 12 mayores, y
+  una en **menor**, las 12 menores. Antes salían las 24 juntas, y era fácil pasar una canción en C a
+  Am sin querer, que no es cambiarle el tono sino el carácter.
+
+---
+
 ## 4 de octubre de 2026
 
 ### 📋 Los menús, con el diseño de la página

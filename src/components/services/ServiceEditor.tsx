@@ -35,7 +35,7 @@ import AutoTextarea from "@/components/ui/AutoTextarea";
 import Selector from "@/components/ui/Selector";
 import SelectorFecha from "@/components/ui/SelectorFecha";
 import { SERVICE_TYPE_META, SERVICE_TYPES, formatServiceDate } from "@/lib/services";
-import { KEY_OPTIONS, KEY_OPTIONS_MINOR } from "@/lib/music";
+import { tonosDelModo } from "@/lib/music";
 import type { CategoryBadge as CategoryBadgeData, ServiceType, ServiceWithSongs, SheetKeyOption, SheetStatus } from "@/types";
 import { algunoContiene } from "@/lib/texto";
 
@@ -785,8 +785,18 @@ export default function ServiceEditor({ service, catalog, canEdit }: Props) {
                       })),
                     }]
                   : []),
-                { grupo: "Transponer · mayores", opciones: KEY_OPTIONS.map((k) => ({ value: `t:${k.value}`, label: k.value })) },
-                { grupo: "Transponer · menores", opciones: KEY_OPTIONS_MINOR.map((k) => ({ value: `t:${k.value}`, label: k.value })) },
+                // Solo las del modo de la canción (O-93): una en mayor se
+                // lleva a otra mayor, una en menor a otra menor.
+                ...tonosDelModo(s.key_signature).map(({ grupo, tonos }) => ({
+                  grupo: `Transponer · ${grupo.toLowerCase()}`,
+                  opciones: tonos.map((k) => ({ value: `t:${k.value}`, label: k.value })),
+                })),
+                // Un tono al vuelo de otro modo, elegido antes de O-93 o antes de
+                // cambiarle el tono original a la canción: se sigue enseñando
+                // para no esconder lo que el culto tiene guardado.
+                ...(s.key_override && !tonosDelModo(s.key_signature).some((g) => g.tonos.some((k) => k.value === s.key_override))
+                  ? [{ value: `t:${s.key_override}`, label: s.key_override }]
+                  : []),
               ]}
               aria-label={`Tono de «${s.title}» en este culto`}
               className="min-w-[6rem] max-w-[11rem] rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"

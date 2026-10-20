@@ -127,9 +127,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **286 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.668 líneas** de TypeScript
-   en **100 archivos**. *(Contado el 2026-10-04, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **290 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.726 líneas** de TypeScript
+   en **100 archivos**. *(Contado el 2026-10-20, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -180,7 +180,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 286 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 290 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -352,7 +352,7 @@ repo/
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       286 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       290 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -600,7 +600,6 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 |---|---|---|
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
-| 6 | **O-93 · Las listas de tonalidades, solo del MODO de la canción** (Isaac, 2026-10-14): *«cuando estoy editando una cancion… en el caso en el que quiera agregar otra tonalidad de esa misma cancion me sale tanto en tonalidades mayores como en menores, y no quiero eso… si la cancion es en tonalidad mayor pues que me muestre la lista de las tonalidades mayores, y si es menor que me muestre en tonalidades menores, y asi para donde aplique en el resto de las secciones de la pagina ademas de montar una cancion con esa tonalidad»* | 🟡 **PLAN PROPUESTO, esperando su OK** (y una pregunta: qué quiere decir con «montar una canción con esa tonalidad»). **Medido (copia del 2026-10-05):** 93 canciones = **73 mayores + 20 menores**, todas con tono escrito y limpio · las 26 versiones son del mismo modo que su original · los 3 tonos al vuelo en cultos, también. → **No hay dato que quede fuera.** **Dónde salen las dos listas hoy:** solo en dos menús, «Nueva tonalidad» (`SongKeyVersions.tsx`) y el tono de cada canción del culto (`ServiceEditor.tsx`, grupos «Transponer · mayores/menores»). El campo «Tonalidad» al crear y al editar es **texto libre**. La presentación solo tiene ± semitonos (no es lista). **Plan:** F1 `tonosDelModo(tono)` en `lib/music.ts` (mayor → 12 mayores, menor → 12 menores; con pruebas) · F2 los dos menús usan solo esa lista · F3 según lo que conteste · F4 pruebas, pantallas, documentos, comunicado y subir |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
@@ -700,7 +699,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-05, todo SUBIDO** (la página sigue en r84; después solo `npm run duraciones` y documentos)
+#### Estado del árbol — **2026-10-20, todo PUBLICADO en r85**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -708,10 +707,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **`npm run duraciones`** (2026-10-05; no cambia la página). La última versión de la página es **r84**. `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **286** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **19.668 líneas** de TypeScript en **100 archivos** |
+| Último commit publicado | **r85** — las listas de tonalidades, solo del modo de la canción (O-93). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **290** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **19.726 líneas** de TypeScript en **100 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -770,6 +769,14 @@ las O-xx y P-xx)— está **tal cual** en **`docs/ENCARGOS_CERRADOS.md`**.
   los dos abren `ui/Flotante`, que en el teléfono es una hoja desde abajo. Hoy no queda ninguno
   nativo: `grep -rn "<select" src` solo debe dar comentarios.
 - **En un dibujo SVG, números a secas en los atributos** (`r`, `strokeWidth`…), nunca `calc()` (T-19).
+- 🔴 **Supabase, desde el 2026-10-30: una TABLA NUEVA en `public` no se ve por la API sin sus `grant`.**
+  Correo de Supabase que Isaac recibió el 2026-10-20 (*«Final notice: new tables in "public" need grants
+  from October 30»*), confirmado en su documentación («Securing your API»). **Las tablas que ya existen
+  no cambian.** → Toda migración que cree una tabla (o función) lleva **en la misma migración** sus
+  `grant` (`select` a quien lea; `select, insert, update, delete` a `authenticated` si escribe) junto al
+  `enable row level security` y sus políticas. Ojo con `anon`: desde P-02 **no lee ninguna tabla**, así
+  que a `anon` no se le da nada salvo que se decida a propósito. Sin el `grant`, la API responde
+  `42501 permission denied` con la sentencia que falta.
 
 ---
 
@@ -875,9 +882,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-20 | **r85** · las listas de tonalidades, solo del modo de la canción (O-93) · aviso de Supabase: las tablas nuevas necesitan `grant` desde el 30-oct (§11) |
 | 2026-10-05 | **`npm run duraciones`** (la revisión, repetible; la anacrusa como ya vista) · el calderón confirmado en el teléfono de Isaac |
 | 2026-10-05 | **Revisión de duraciones**: 20 compases en 7 canciones; Isaac las corrigió y **quedan las 7 bien** (la Intro de «Dios Ha Sido Fiel» es anacrusa) |
-| 2026-10-04 | **r84** · menús y calendario propios (O-91), transporte completo (O-89), calderón con punto (O-92), figuras en la botonera (O-90), categorías en el culto (O-88) · encabezado reparado |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

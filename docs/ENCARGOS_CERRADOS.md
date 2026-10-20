@@ -4,6 +4,31 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-20 · O-93 · Las listas de tonalidades, solo del modo de la canción (r85)
+
+Isaac, 2026-10-14: *«cuando estoy editando una cancion… en el caso en el que quiera agregar otra
+tonalidad de esa misma cancion me sale tanto en tonalidades mayores como en menores, y no quiero eso…
+si la cancion es en tonalidad mayor pues que me muestre la lista de las tonalidades mayores, y si es
+menor que me muestre en tonalidades menores, y asi para donde aplique en el resto de las secciones de
+la pagina ademas de montar una cancion con esa tonalidad»*. Aclaró el 2026-10-20 (opción A): *«donde
+tenga que aplicar lo de la lista de tonalidades… cuando se va a montar en otra tonalidad, en la sección
+de cultos y así»* → las listas para llevar una canción **a otro tono**; el campo «Tonalidad» al
+crear/editar sigue en texto libre, porque ahí se decide el modo.
+
+**Medido antes (copia del 2026-10-05):** 93 canciones = 73 mayores + 20 menores, todas con tono limpio;
+las 26 versiones y los 3 tonos al vuelo de los cultos, del mismo modo que su canción → nada quedaba fuera.
+
+**Hecho:** `tonosDelModo(tono)` en `lib/music.ts` (mayor → 12 mayores; menor → 12 menores; sin tono o
+ilegible → las dos), con 4 pruebas (290). La usan «Nueva tonalidad» (`SongKeyVersions.tsx`, sigue al campo
+«Tonalidad» mientras se edita; un tono ya elegido del otro modo se suelta para que el botón no cree lo que
+el menú no enseña) y el tono de cada canción del culto (`ServiceEditor.tsx`; un tono al vuelo de otro modo
+ya guardado se sigue enseñando, para no esconderlo).
+**Comprobado en Brave sin ventana** (solo mirando, sin guardar): «Tiempos Mejores» (G) → solo mayores; el
+campo cambiado a Em sin guardar → solo menores; «Jericó» (Am) → solo menores; en el culto «Culto de
+Caballeros», Jericó → «Transponer · menores» con su Em elegido y «Orig. Am», Tiempos Mejores → mayores.
+⚠️ Al cambiar el campo sin guardar, la ficha avisa «cambios sin guardar» al salir y **Brave sin ventana se
+queda esperando ese aviso**: para seguir midiendo hay que abrir otra ventana.
+
 #### ✅ Cerrado el 2026-10-05 · `npm run duraciones` (antes §9 fila 5)
 
 Isaac, 2026-10-05: *«sí quiero la revisión de duraciones como comando npm run duraciones»*. Hecho en las

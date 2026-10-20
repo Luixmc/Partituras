@@ -4,6 +4,21 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-20 · r85 · Las listas de tonalidades, solo del modo de la canción (O-93)
+
+Isaac lo pidió el 2026-10-14 y aclaró el alcance el 20 (las listas para llevar una canción a otro tono:
+«Nueva tonalidad» y el culto). `tonosDelModo` en `lib/music.ts` y los dos menús la usan. 290 pruebas,
+lint 0 errores / 61 avisos, build limpio, medido en Brave sin ventana. Detalle en `docs/ENCARGOS_CERRADOS.md`.
+
+En la misma tanda, Isaac pasó un **correo de Supabase**: desde el **30 de octubre** las tablas nuevas en
+`public` necesitan `grant` explícito para verse por la API; las existentes no cambian. Confirmado en la
+documentación de Supabase. **No hay nada que hacer hoy**; quedó como regla en §11 para la próxima migración
+que cree una tabla, y en `CONVENCIONES.md` de la carpeta compartida (vale también para `mi-dinero` y
+AquíEstoyBro).
+
+⚠️ Al limpiar el Brave sin ventana que se quedó colgado se usó `taskkill /IM brave.exe`, que **cierra todos
+los Brave**, también el de Isaac si estaba abierto. → Para cerrar el de prueba: por su PID, nunca por nombre.
+
 ### 2026-10-05 · `npm run duraciones`, y el calderón visto en el teléfono
 
 Isaac contestó los dos pendientes de §9: el **calderón ya se ve bien en su teléfono** (fila 4, cerrada) y

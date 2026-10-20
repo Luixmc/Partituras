@@ -70,6 +70,27 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "20 de octubre de 2026",
+    "iso": "2026-10-20",
+    "entrada": "Al cambiar una canción de tono, la lista ya solo trae las tonalidades de su mismo modo: mayores con mayores, menores con menores.",
+    "secciones": [
+      {
+        "titulo": "Cambiar de tono, sin cambiar de modo",
+        "resumen": "Las listas de tonalidades respetan si la canción es mayor o menor.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Solo las tonalidades del mismo modo de la canción.",
+            "detalle": [
+              "Al <strong>agregar otra tonalidad</strong> a una canción, y al elegir el <strong>tono de una canción en el culto</strong>, antes salían las 24 tonalidades juntas, mayores y menores.",
+              "Ahora la página mira el tono de la canción: si está en <strong>mayor</strong>, ofrece las 12 mayores; si está en <strong>menor</strong>, las 12 menores. Así no se pasa una canción en C a Am sin querer, que no es cambiarle el tono sino el carácter."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "4 de octubre de 2026",
     "iso": "2026-10-04",
     "entrada": "Los menús se ven como el resto de la página, el calderón ya trae su punto en el teléfono, y el cambio de tono no se salta acordes.",

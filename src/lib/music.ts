@@ -96,6 +96,32 @@ export function esMenor(key: string | null | undefined): boolean {
   return /minor$/i.test(t) || /^[A-G][#b]?m$/i.test(t);
 }
 
+/**
+ * Las tonalidades a las que se puede llevar una canción: **solo las de su modo**
+ * (O-93). Una canción en mayor se pasa a otra mayor, y una en menor a otra
+ * menor; ofrecer las 24 juntas invitaba a convertir «C» en «Am», que no es
+ * transponerla sino cambiarle el carácter.
+ *
+ * Isaac, 2026-10-14: *«si la cancion es en tonalidad mayor pues que me muestre
+ * la lista de las tonalidades mayores, y si es menor… las menores»*.
+ *
+ * Sin tono escrito (o uno que no se entiende) no hay modo que respetar: salen
+ * los dos grupos, como antes.
+ */
+export function tonosDelModo(
+  tono: string | null | undefined
+): { grupo: string; tonos: typeof KEY_OPTIONS }[] {
+  if (keyToPitch(tono) === null) {
+    return [
+      { grupo: "Mayores", tonos: KEY_OPTIONS },
+      { grupo: "Menores", tonos: KEY_OPTIONS_MINOR },
+    ];
+  }
+  return esMenor(tono)
+    ? [{ grupo: "Menores", tonos: KEY_OPTIONS_MINOR }]
+    : [{ grupo: "Mayores", tonos: KEY_OPTIONS }];
+}
+
 /** ¿El tono destino prefiere bemoles? (Eb, F, Ab, Bb, Dm, Cm...) */
 export function prefersFlats(targetKey: string | null | undefined): boolean {
   if (!targetKey) return false;
