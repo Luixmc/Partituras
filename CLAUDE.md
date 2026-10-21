@@ -602,6 +602,27 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 | 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13) |
+| 5 | **O-95 · Eliminar una canción desde la página** | **Plan propuesto, esperando el OK de Isaac.** Detalle justo debajo |
+
+#### O-95 · Eliminar una canción (Isaac, 2026-10-20)
+
+Isaac: *«hay alguna opcion para eliminar una canción que esté montada?»* (a raíz de la «Escuché La Voz»
+repetida, fila 4).
+**Hoy NO hay ninguna** en la página: solo se borran versiones (`SongKeyVersions`) y cultos. Lo más
+cercano es **«Borrador»** en la ficha, que la esconde a músicos y lectores pero no la borra.
+**La base ya lo permite** (leído el 2026-10-20): política `sheets_delete_admin` (`is_admin()`), y TODAS
+las tablas que cuelgan de `sheets` van con **`ON DELETE CASCADE`**: `service_songs` (se cae de los
+cultos), `sheet_keys`, `notas_musico` (las notas privadas **de los músicos**), `favorites`,
+`sheet_categories`, `sheet_versions`, `sheet_tags`, `drive_sync_log`. → **No hace falta migración**,
+pero borrar arrastra todo eso sin preguntar.
+La duplicada `bd13eeda…`: 0 cultos, 1 versión (Bb), 0 favoritos, 0 notas, mismos acordes que la original
+`0271e810…` (que sí está en «Escuela Dominical»).
+**Plan propuesto:** a) acción de servidor `eliminarCancion` con `requireAdmin()` · b) botón rojo
+«Eliminar canción» en la pestaña Edición, con el diálogo de la casa (`DialogoConfirmar`) contando lo que
+se pierde (cultos por nombre, versiones, notas de músicos, favoritos) · c) al borrar, al catálogo ·
+d) comprobación, comunicado, publicar.
+❓ **Preguntado, sin decidir:** si está en un culto, ¿se deja borrar avisando o se impide? · ¿se puede
+comprobar en producción creando y borrando una canción de prueba (escribe en la base, D-04)?
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
