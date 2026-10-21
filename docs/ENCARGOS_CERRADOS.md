@@ -39,6 +39,9 @@ contadas en vivo y las notas/favoritos de los músicos **sin número** (la base 
 admin (permiso de Isaac): el músico la ve sin pestaña Edición ni botón, y su `DELETE` directo a la API borra
 **0 filas**; como admin, «Cancelar» la deja intacta; «Eliminar» lleva a `/catalog`, no sale en él, y en la base
 quedan 0 filas en `sheets`, `sheet_keys` y `service_songs`. El culto de prueba se borró después.
+**En producción** (r87, `7590d84`): CI verde, `/novedades` con la entrada; repetida la prueba entera con otra canción
+y otro culto de prueba → mismo resultado; **26 de 26 pantallas**; al final, 0 canciones y 0 cultos «Prueba O-95» en
+la base (quedan 99 canciones y 3 cultos, los de antes).
 
 #### ✅ Cerrado el 2026-10-20 · O-94 · El tono original no se ofrece como «otra» tonalidad (r86)
 

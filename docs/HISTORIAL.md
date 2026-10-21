@@ -9,8 +9,11 @@
 Isaac preguntó si se podía eliminar una canción montada (por la «Escuché La Voz» repetida). No se podía.
 Eligió **dejar borrar avisando** si está en un culto, y dio **permiso para comprobarlo en la base**. Botón en
 Edición (solo admin), diálogo que nombra los cultos, acción que comprueba que de verdad se borró. Probado con
-una canción y un culto de prueba creados y borrados, y con la cuenta de músico. 294 pruebas, lint 0 errores,
-build limpio. Detalle en `docs/ENCARGOS_CERRADOS.md`.
+una canción y un culto de prueba creados y borrados, y con la cuenta de músico, en local y en producción
+(CI verde, 26 de 26 pantallas). 294 pruebas, lint 0 errores, build limpio. Carpeta compartida: **L-495** en
+`LECCIONES.md` (un borrado bloqueado por RLS da 200 con 0 filas) y las cifras de Partituras en `PROYECTOS.md`
+—que otra sesión había tocado a las 22:24: edición puntual, lo suyo sigue ahí—. Detalle en
+`docs/ENCARGOS_CERRADOS.md`.
 
 ### 2026-10-20 · r86 · El tono original ya no se ofrece como otra tonalidad (O-94)
 
