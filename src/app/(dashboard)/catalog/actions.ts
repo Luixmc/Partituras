@@ -61,3 +61,81 @@ export async function alternarFavorito(
     };
   }
 }
+
+// ── Eliminar una canción (O-95) ─────────────────────────────
+
+/**
+ * Comprueba que quien llama es administrador. Va aquí y no importada de
+ * `services/actions.ts` porque en un archivo `"use server"` todo lo que se
+ * exporta se puede llamar desde el navegador: exportarla la convertiría en
+ * una acción más.
+ */
+async function requireAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado.");
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") throw new Error("No tienes permisos de administrador.");
+  return supabase;
+}
+
+export type ResultadoCultos = { ok: boolean; cultos: string[]; error?: string };
+
+/**
+ * Los cultos donde está la canción, por nombre, para que el diálogo de
+ * borrar diga de cuáles se va a caer. Se pregunta al ABRIR el diálogo, no al
+ * cargar la ficha: así está al día aunque la ficha lleve rato abierta.
+ *
+ * 📌 Las notas privadas y los favoritos de los músicos también se borran, pero
+ * no se pueden contar: la base solo le enseña a cada uno los suyos, también al
+ * administrador. El diálogo los nombra sin número.
+ */
+export async function cultosDeLaCancion(sheetId: string): Promise<ResultadoCultos> {
+  try {
+    const supabase = await requireAdmin();
+    const { data, error } = await supabase
+      .from("service_songs")
+      .select("services(name)")
+      .eq("sheet_id", sheetId);
+    if (error) throw error;
+    const nombres = (data ?? [])
+      .map((f) => {
+        const s = f.services as { name: string } | { name: string }[] | null;
+        return Array.isArray(s) ? s[0]?.name : s?.name;
+      })
+      .filter((n): n is string => !!n);
+    return { ok: true, cultos: [...new Set(nombres)] };
+  } catch (e) {
+    return { ok: false, cultos: [], error: e instanceof Error ? e.message : "No se pudieron leer los cultos." };
+  }
+}
+
+export type ResultadoEliminar = { ok: boolean; error?: string };
+
+/**
+ * Borra la canción. La base se lleva con ella, en cascada, todo lo que cuelga
+ * de `sheets`: su sitio en los cultos, sus versiones por tono, las notas
+ * privadas y los favoritos de los músicos y sus categorías. Por eso solo la
+ * llama el diálogo que lo dice antes.
+ *
+ * Isaac, 2026-10-20: si está en un culto, *se deja borrar avisando*.
+ *
+ * 🔴 Se pide la fila borrada de vuelta (`select`). Si la seguridad de la base
+ * no deja borrar, Supabase NO da error: borra cero filas y calla. Sin esto, la
+ * página diría «eliminada» y la canción seguiría ahí.
+ */
+export async function eliminarCancion(sheetId: string): Promise<ResultadoEliminar> {
+  try {
+    const supabase = await requireAdmin();
+    const { data, error } = await supabase.from("sheets").delete().eq("id", sheetId).select("id");
+    if (error) throw error;
+    if (!data?.length) throw new Error("La base no borró la canción (¿ya no existía, o falta permiso?).");
+    revalidatePath("/catalog");
+    revalidatePath("/services");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "No se pudo eliminar la canción." };
+  }
+}

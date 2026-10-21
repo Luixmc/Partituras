@@ -72,8 +72,22 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "20 de octubre de 2026",
     "iso": "2026-10-20",
-    "entrada": "Al cambiar una canción de tono, la lista ya solo trae las tonalidades de su mismo modo: mayores con mayores, menores con menores.",
+    "entrada": "Ya se puede eliminar una canción, avisando de qué cultos se cae. Y al cambiar una canción de tono, la lista solo trae las tonalidades de su mismo modo, sin repetir la original.",
     "secciones": [
+      {
+        "titulo": "Eliminar una canción",
+        "resumen": "Los administradores ya pueden borrar una canción, y la página avisa de lo que se va con ella.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Botón «Eliminar canción» en la pestaña Edición.",
+            "detalle": [
+              "Está debajo de «Guardar cambios», y solo lo ven los administradores.",
+              "Antes de borrar, la página pregunta y dice <strong>de qué cultos se va a quitar</strong> la canción, y que con ella se van sus versiones en otras tonalidades y las notas privadas y favoritos que los músicos tengan de ella. <strong>No se puede deshacer.</strong> Si solo quieres esconderla, sigue estando «Borrador»."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "Cambiar de tono, sin cambiar de modo",
         "resumen": "Las listas de tonalidades respetan si la canción es mayor o menor.",

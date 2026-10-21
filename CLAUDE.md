@@ -128,7 +128,7 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **294 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.790 líneas** de TypeScript
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.959 líneas** de TypeScript
    en **100 archivos**. *(Contado el 2026-10-20, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
@@ -601,28 +601,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 1 | **Abrir las LETRAS a todos los roles** (37 de 85 escritas) | **De Isaac**, cuando las tenga escritas: es cambiar `ROLES_LETRAS` (`lib/letras.ts`), una línea (D-22). ✅ **La MELODÍA ya se abrió** el 2026-09-17 (O-87) |
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
-| 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13) |
-| 5 | **O-95 · Eliminar una canción desde la página** | **Plan propuesto, esperando el OK de Isaac.** Detalle justo debajo |
-
-#### O-95 · Eliminar una canción (Isaac, 2026-10-20)
-
-Isaac: *«hay alguna opcion para eliminar una canción que esté montada?»* (a raíz de la «Escuché La Voz»
-repetida, fila 4).
-**Hoy NO hay ninguna** en la página: solo se borran versiones (`SongKeyVersions`) y cultos. Lo más
-cercano es **«Borrador»** en la ficha, que la esconde a músicos y lectores pero no la borra.
-**La base ya lo permite** (leído el 2026-10-20): política `sheets_delete_admin` (`is_admin()`), y TODAS
-las tablas que cuelgan de `sheets` van con **`ON DELETE CASCADE`**: `service_songs` (se cae de los
-cultos), `sheet_keys`, `notas_musico` (las notas privadas **de los músicos**), `favorites`,
-`sheet_categories`, `sheet_versions`, `sheet_tags`, `drive_sync_log`. → **No hace falta migración**,
-pero borrar arrastra todo eso sin preguntar.
-La duplicada `bd13eeda…`: 0 cultos, 1 versión (Bb), 0 favoritos, 0 notas, mismos acordes que la original
-`0271e810…` (que sí está en «Escuela Dominical»).
-**Plan propuesto:** a) acción de servidor `eliminarCancion` con `requireAdmin()` · b) botón rojo
-«Eliminar canción» en la pestaña Edición, con el diálogo de la casa (`DialogoConfirmar`) contando lo que
-se pierde (cultos por nombre, versiones, notas de músicos, favoritos) · c) al borrar, al catálogo ·
-d) comprobación, comunicado, publicar.
-❓ **Preguntado, sin decidir:** si está en un culto, ¿se deja borrar avisando o se impide? · ¿se puede
-comprobar en producción creando y borrando una canción de prueba (escribe en la base, D-04)?
+| 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13). Desde r87 la puede borrar **él mismo** con «Eliminar canción» (O-95): no está en ningún culto |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -721,7 +700,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-20, todo PUBLICADO en r86**
+#### Estado del árbol — **2026-10-20, todo PUBLICADO en r87**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -729,10 +708,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r86** — el tono original ya no se ofrece como otra tonalidad (O-94). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Último commit publicado | **r87** — eliminar una canción (O-95). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
 | Pruebas | **294** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **19.790 líneas** de TypeScript en **100 archivos** |
+| Tamaño | **19.959 líneas** de TypeScript en **100 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -904,9 +883,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-20 | **r87** · eliminar una canción desde la página (O-95), comprobado creando y borrando una canción de prueba con permiso de Isaac |
 | 2026-10-20 | **r86** · el tono original ya no se ofrece como otra tonalidad (O-94) · aviso si la tonalidad cae en un tono con versión · dos «Escuché La Voz» en la base, para Isaac (§9 fila 4) |
 | 2026-10-20 | **r85** · las listas de tonalidades, solo del modo de la canción (O-93) · aviso de Supabase: las tablas nuevas necesitan `grant` desde el 30-oct (§11) |
-| 2026-10-05 | **Revisión de duraciones**: 20 compases en 7 canciones; Isaac las corrigió y **quedan las 7 bien** (la Intro de «Dios Ha Sido Fiel» es anacrusa) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

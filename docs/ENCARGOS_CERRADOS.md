@@ -4,6 +4,42 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-20 · O-95 · Eliminar una canción (r87)
+
+Isaac: *«hay alguna opcion para eliminar una canción que esté montada?»* (a raíz de la «Escuché La Voz»
+repetida, fila 4).
+**Hoy NO hay ninguna** en la página: solo se borran versiones (`SongKeyVersions`) y cultos. Lo más
+cercano es **«Borrador»** en la ficha, que la esconde a músicos y lectores pero no la borra.
+**La base ya lo permite** (leído el 2026-10-20): política `sheets_delete_admin` (`is_admin()`), y TODAS
+las tablas que cuelgan de `sheets` van con **`ON DELETE CASCADE`**: `service_songs` (se cae de los
+cultos), `sheet_keys`, `notas_musico` (las notas privadas **de los músicos**), `favorites`,
+`sheet_categories`, `sheet_versions`, `sheet_tags`, `drive_sync_log`. → **No hace falta migración**,
+pero borrar arrastra todo eso sin preguntar.
+La duplicada `bd13eeda…`: 0 cultos, 1 versión (Bb), 0 favoritos, 0 notas, mismos acordes que la original
+`0271e810…` (que sí está en «Escuela Dominical»).
+**Plan propuesto:** a) acción de servidor `eliminarCancion` con `requireAdmin()` · b) botón rojo
+«Eliminar canción» en la pestaña Edición, con el diálogo de la casa (`DialogoConfirmar`) contando lo que
+se pierde (cultos por nombre, versiones, notas de músicos, favoritos) · c) al borrar, al catálogo ·
+d) comprobación, comunicado, publicar.
+✅ **Lo que contestó Isaac (2026-10-20):** *«1. la primera opcion, 2. te doy permiso total, tienes dos
+cuentas, una en admin y otra de lectura o musico»*.
+→ **Si está en un culto, se deja borrar AVISANDO** (el diálogo nombra los cultos; se cae de ellos).
+→ **Permiso para comprobarlo en producción** creando y borrando una canción de prueba, con la cuenta
+admin (`pruebaclaude`) y mirando con la de músico (`pruebaclaude2`) que a ella no le sale ni le deja.
+Vale para ESTA comprobación; las demás escrituras en la base se siguen preguntando (D-04).
+
+**Hecho:** en `catalog/actions.ts`, `cultosDeLaCancion` (los nombres, al abrir el diálogo) y `eliminarCancion`,
+las dos con su propio `requireAdmin()` (no se importa: exportarla de un `"use server"` la volvería acción).
+🔴 `eliminarCancion` pide la fila borrada de vuelta (`.select("id")`): **un borrado que la base no permite
+devuelve 200 con 0 filas, sin error** — medido con la cuenta de músico. Botón rojo contorneado debajo de
+«Guardar cambios» (pestaña Edición, solo admin) → `DialogoConfirmar` con los cultos por nombre, las versiones
+contadas en vivo y las notas/favoritos de los músicos **sin número** (la base solo le da a cada uno los suyos)
+→ al catálogo.
+**Comprobado** con una canción «Prueba O-95 (se borra sola)» + versión Bb + culto de prueba, creados con la cuenta
+admin (permiso de Isaac): el músico la ve sin pestaña Edición ni botón, y su `DELETE` directo a la API borra
+**0 filas**; como admin, «Cancelar» la deja intacta; «Eliminar» lleva a `/catalog`, no sale en él, y en la base
+quedan 0 filas en `sheets`, `sheet_keys` y `service_songs`. El culto de prueba se borró después.
+
 #### ✅ Cerrado el 2026-10-20 · O-94 · El tono original no se ofrece como «otra» tonalidad (r86)
 
 Isaac: *«en «Nueva tonalidad» de la ficha de una canción aparece disponible la tonalidad ORIGINAL, y no

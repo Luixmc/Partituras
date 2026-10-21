@@ -4,6 +4,14 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-20 · r87 · Eliminar una canción (O-95)
+
+Isaac preguntó si se podía eliminar una canción montada (por la «Escuché La Voz» repetida). No se podía.
+Eligió **dejar borrar avisando** si está en un culto, y dio **permiso para comprobarlo en la base**. Botón en
+Edición (solo admin), diálogo que nombra los cultos, acción que comprueba que de verdad se borró. Probado con
+una canción y un culto de prueba creados y borrados, y con la cuenta de músico. 294 pruebas, lint 0 errores,
+build limpio. Detalle en `docs/ENCARGOS_CERRADOS.md`.
+
 ### 2026-10-20 · r86 · El tono original ya no se ofrece como otra tonalidad (O-94)
 
 Corrección de Isaac a r85: «Escuché La Voz» (D) dejaba crear una versión en D. `esElOriginal` en

@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Edit3, Eye, Mic2, Music4, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit3, Eye, Mic2, Music4, Save, Grid2X2, Maximize2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 import TablaturePreview from "@/components/sheets/TablaturePreview";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
@@ -25,7 +25,8 @@ import ImportControls from "@/components/sheets/ImportControls";
 import ChordPasteImport from "@/components/sheets/ChordPasteImport";
 import SongKeyVersions from "@/components/sheets/SongKeyVersions";
 import { autoGrow } from "@/components/ui/AutoTextarea";
-import Dialogo from "@/components/ui/Dialogo";
+import Dialogo, { DialogoConfirmar } from "@/components/ui/Dialogo";
+import { cultosDeLaCancion, eliminarCancion } from "@/app/(dashboard)/catalog/actions";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { appendToken, insertToken, deleteTokenBefore } from "@/lib/chordInput";
 import { createClient } from "@/lib/supabase/client";
@@ -215,6 +216,13 @@ export default function SongDetailEditor({
   // parecía que se usaba algo todavía sin declarar. Lo marcó el lint al
   // estrenarlo, y tenía razón: es frágil y no costaba nada ponerlo en orden.
   const [leavePrompt, setLeavePrompt] = useState<{ proceed: () => void } | null>(null);
+
+  // Eliminar la canción (O-95). `null` = sin diálogo; si no, los cultos donde
+  // está, leídos al abrirlo. Va en su propio estado, como el borrado del culto:
+  // un diálogo dibujado no detiene el programa, así que preguntar y borrar
+  // son dos pasos.
+  const [pidiendoEliminar, setPidiendoEliminar] = useState<{ cultos: string[] } | null>(null);
+  const [eliminando, setEliminando] = useState(false);
 
   // Intercepta la navegación interna (enlaces del menú, "volver", etc.) para
   // mostrar el diálogo de guardar/descartar en vez de salir sin avisar.
@@ -441,6 +449,34 @@ export default function SongDetailEditor({
     return !categoryWarning;
   }
 
+  // Eliminar la canción (O-95): primero se leen sus cultos para que el diálogo
+  // los nombre; borrar es el segundo paso, solo desde el botón del diálogo.
+  async function pedirEliminar() {
+    setEliminando(true);
+    const res = await cultosDeLaCancion(sheet.id);
+    setEliminando(false);
+    if (!res.ok) {
+      setMessage(res.error ?? "No se pudieron leer los cultos de esta canción.");
+      setMessageType("error");
+      return;
+    }
+    setPidiendoEliminar({ cultos: res.cultos });
+  }
+
+  async function eliminarDeVerdad() {
+    setEliminando(true);
+    const res = await eliminarCancion(sheet.id);
+    if (!res.ok) {
+      setEliminando(false);
+      setPidiendoEliminar(null);
+      setMessage(res.error ?? "No se pudo eliminar la canción.");
+      setMessageType("error");
+      return;
+    }
+    router.push("/catalog");
+    router.refresh();
+  }
+
   return (
     <div className="flex-1 bg-slate-100 dark:bg-slate-950">
       {/* La SEGUNDA copia de este diálogo, ahora con el componente único (O-60).
@@ -481,6 +517,35 @@ export default function SongDetailEditor({
         >
           Tienes cambios sin guardar. ¿Quieres guardarlos antes de salir?
         </Dialogo>
+      )}
+
+      {pidiendoEliminar && (
+        <DialogoConfirmar
+          titulo="Eliminar esta canción"
+          mensaje={
+            <div className="space-y-2">
+              <p>
+                Se borra <b>{title || "esta canción"}</b> y no se puede recuperar.
+              </p>
+              {pidiendoEliminar.cultos.length > 0 && (
+                <p>
+                  Está en {pidiendoEliminar.cultos.length === 1 ? "el culto" : "los cultos"}{" "}
+                  <b>{pidiendoEliminar.cultos.join(", ")}</b>: se quita de{" "}
+                  {pidiendoEliminar.cultos.length === 1 ? "él" : "ellos"}.
+                </p>
+              )}
+              <p>
+                También se borran sus versiones en otras tonalidades
+                {tonosVersiones.length > 0 && <> ({tonosVersiones.length})</>}, y las notas privadas y los favoritos
+                que los músicos tengan de ella.
+              </p>
+            </div>
+          }
+          textoConfirmar={eliminando ? "Eliminando..." : "Eliminar"}
+          ocupado={eliminando}
+          onConfirmar={eliminarDeVerdad}
+          onCancelar={() => setPidiendoEliminar(null)}
+        />
       )}
 
       {/* Barra superior. `data-cabecera-cancion`: el reproductor de la melodía
@@ -935,6 +1000,18 @@ export default function SongDetailEditor({
             >
               <Save className="h-4 w-4" />
               {saving ? "Guardando..." : "Guardar cambios"}
+            </button>
+
+            {/* Eliminar la canción (O-95): contorneado y aparte, para que no se
+                confunda con guardar. Lo de verdad lo pregunta el diálogo. */}
+            <button
+              type="button"
+              onClick={pedirEliminar}
+              disabled={eliminando || saving}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+            >
+              <Trash2 className="h-4 w-4" />
+              {eliminando ? "Eliminando..." : "Eliminar canción"}
             </button>
           </section>
 

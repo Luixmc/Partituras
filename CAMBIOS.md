@@ -7,6 +7,14 @@
 
 ## 20 de octubre de 2026
 
+### 🗑️ Eliminar una canción
+
+- 🆕 Los administradores ya pueden **eliminar una canción** desde su pestaña **Edición** (botón rojo
+  debajo de «Guardar cambios»). Antes de borrar, la página pregunta y dice **de qué cultos se va a
+  quitar**, y que con ella se van sus versiones en otras tonalidades y las notas privadas y favoritos
+  que los músicos tengan de ella. No se puede deshacer. Si solo quieres esconderla, sigue estando
+  **«Borrador»**.
+
 ### 🎵 Cambiar de tono, sin cambiar de modo
 
 - 🆕 Al **agregar otra tonalidad** a una canción, y al elegir el **tono de una canción en el culto**, la
