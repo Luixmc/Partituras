@@ -49,6 +49,9 @@ borradas sin recargar. **Avisa, no impide.**
 `Bb · original` desactivado; campo a `Dm` → solo menores con `Dm · original`; culto «Escuela Dominical» →
 `Orig. D` elegible y `D · original` desactivado en «Transponer»; «Es Por Fe» → `Bm · original`.
 294 pruebas, lint 0 errores / 61 avisos, build limpio.
+**En producción** (r86, `9c590b3`): CI verde; la misma prueba en `partituras-blush.vercel.app` da lo mismo
+que en local (la primera pasada pilló la ficha aún con el despliegue viejo); `/novedades` trae la entrada;
+**26 de 26 pantallas**; y **ninguna escritura** en la base desde las 16:40 (registros de Supabase).
 
 #### ✅ Cerrado el 2026-10-20 · O-93 · Las listas de tonalidades, solo del modo de la canción (r85)
 

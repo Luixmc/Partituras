@@ -12,7 +12,10 @@ la ficha **avisa** si el campo «Tonalidad» cae en un tono con versión. Medido
 las 30 versiones ni de los 7 tonos de culto repetía su original; la versión en D de su prueba ya la había
 borrado él desde la página (registros de Supabase, 16:25). Al «hacerla nuevamente» creó **una segunda
 canción** «Escuché La Voz», que queda en §9 fila 4 para que decida él. 294 pruebas, lint 0 errores /
-61 avisos, build limpio, medido en Brave sin ventana. Detalle en `docs/ENCARGOS_CERRADOS.md`.
+61 avisos, build limpio, medido en Brave sin ventana; en producción, CI verde y 26 de 26 pantallas.
+Carpeta compartida: **L-494** en `LECCIONES.md` (la lista de «otro X» quita el actual, por significado; y
+los registros de la API cuentan lo que la tabla ya no tiene) y las cifras de Partituras en `PROYECTOS.md`.
+`CONVENCIONES.md` y `NUEVO-PROYECTO.md`, sin nada que tocar. Detalle en `docs/ENCARGOS_CERRADOS.md`.
 
 ### 2026-10-20 · r85 · Las listas de tonalidades, solo del modo de la canción (O-93)
 
