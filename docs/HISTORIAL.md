@@ -20,6 +20,14 @@ filtro de categoría → catálogo entero ✅, despliegue nuevo simulado → lo 
 «Cerrar sesión» → ninguna canción guardada ✅. 305 pruebas, lint 0 errores (61 avisos, los de antes), build
 limpio. Dos trampas de la medición, en la carpeta compartida: **L-497** y **L-498** (perfil en `%TEMP%` rompe
 CacheStorage). Detalle en `docs/ENCARGOS_CERRADOS.md`.
+**Después, en producción:** el mismo recorrido contra `partituras-blush.vercel.app` (cuenta admin) dio todo ✅
+(1,06 MB de datos), y con la cuenta de **músico** a 400 px guardó **90 canciones y 1 culto** (lo que ve un
+músico). Las capturas del teléfono enseñaron tres fallos de pantalla, corregidos en un segundo commit: el texto
+apretado al lado del botón (ahora va debajo), «1 cultos», y el aviso tapando los botones de tamaño de letra.
+⚠️ **Ese segundo commit rompió el CI**: añadió 8 líneas y no se pasó `npm run docs` antes de subir (§12.6). La
+página no se afectó —Vercel publica igual— y se arregló en el tercero. Y un falso error: `tsc` suelto falló con
+`'/s/[token]' is not assignable to '"/"'` porque `next-env.d.ts` apunta a los tipos de `.next-verificar`, que
+eran del 4 de octubre; `npm run verificar` los regeneró y `tsc` quedó limpio. El build nunca falló.
 
 ### 2026-10-20 · r87 · Eliminar una canción (O-95)
 
