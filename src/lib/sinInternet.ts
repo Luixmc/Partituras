@@ -178,3 +178,35 @@ export function fechaCorta(fecha: string, ahora: number): string {
     .replace(/,/g, "");
   return `${fechaTexto}, ${hora}`;
 }
+
+/**
+ * Dónde recuerda la pestaña que ya enseñó el aviso entero (O-99).
+ *
+ * Isaac, 2026-10-22: el aviso salía en CADA página sin internet. Sin red, Next
+ * no puede pedir sus datos internos (`rsc`) al navegar, así que recarga la
+ * página entera, el service worker la sirve de la copia y el aviso se vuelve a
+ * montar desde cero. Eligió «por cada apertura»: entero la primera vez, y
+ * después un iconito. Va en `sessionStorage`, que sobrevive a esas recargas y
+ * se borra al cerrar la app o la pestaña — al abrirla otra vez sin señal, el
+ * aviso entero sale de nuevo.
+ */
+export const CLAVE_AVISO_VISTO = "partituras-aviso-visto";
+
+type Almacen = Pick<Storage, "getItem" | "setItem">;
+
+/** ¿Esta pestaña ya enseñó el aviso entero? Si el almacén falla, no: mejor de más que de menos. */
+export function avisoYaVisto(almacen: Almacen | null | undefined): boolean {
+  try {
+    return almacen?.getItem(CLAVE_AVISO_VISTO) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function marcarAvisoVisto(almacen: Almacen | null | undefined): void {
+  try {
+    almacen?.setItem(CLAVE_AVISO_VISTO, "1");
+  } catch {
+    /* navegador privado o sin espacio: el aviso saldrá entero otra vez, nada más */
+  }
+}

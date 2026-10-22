@@ -68,7 +68,8 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   sesión se guarda **solo y sin avisar** (O-97, sin botón) **todo** (O-98): cada culto con su presentación,
   Letras y Melodía si el rol las ve, el catálogo, y cada canción **con su pantalla completa** —que lleva el
   catálogo entero dentro, 233 KB cada una—: **~33 MB** en el aparato, **~4,1 MB** de datos, ~50 s. Las páginas esperan la red **6 s** y si
-  no contesta enseñan la copia, con un aviso de **«Copia guardada · fecha»**. Se baja si esa cuenta no
+  no contesta enseñan la copia, con un aviso de **«Copia guardada · fecha»** —entero **una vez por apertura**
+  (`sessionStorage`), y en las páginas siguientes un iconito que lo vuelve a abrir (O-99)—. Se baja si esa cuenta no
   tiene copia en el aparato, tras un despliegue o al día; un despliegue **no borra** la última copia completa hasta tener la
   nueva. «Cerrar sesión» y `/salir` lo borran todo. Sin red **no** hay melodía (los sonidos vienen de
   fuera), ni edición.
@@ -149,7 +150,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 306 pruebas |
+| `npm test` | Las 307 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -308,7 +309,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 306 pruebas (ver más abajo)
+pruebas/                    → las 307 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -386,7 +387,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 306 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 307 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -436,6 +437,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r91** | **El aviso sin internet sale una vez** (O-99): sin red, Next recarga la página entera en cada paso (sus `rsc` fallan) y el aviso salía en cada una. Ahora sale entero la primera vez de cada apertura y después queda un iconito que lo abre. Medido sin red en Chrome: catálogo → canción → Cultos → pantalla completa → pestaña nueva. **307 pruebas** |
 | **r90** | **Se guarda TODO, enseguida** (O-98): también la pantalla completa de cada canción, Letras y Melodía; arranca a los 1,5 s y empieza por los cultos. ~33 MB en el aparato, ~4 MB de datos por descarga. Comprobado tocando tarjeta → canción → pantalla completa → siguiente, sin red. **306 pruebas** |
 | **r89** | **Se guarda solo** (O-97, cambio de opinión de Isaac): fuera el botón «Guardar para tocar sin internet»; al abrir la página con sesión se baja todo en silencio si la cuenta no tiene copia, hay despliegue nuevo o pasó un día. Sigue el aviso de «Copia guardada» al VER una copia |
 | **r88** | **Tocar sin internet** (O-96): el *service worker* por fin se registra (L-497), espera la red 6 s y si no, la copia · botón «Guardar para tocar sin internet» en catálogo y cultos (98 canciones y los cultos, ~10 MB) · aviso «Copia guardada · fecha» · búsqueda del catálogo sin red · «Cerrar sesión» borra lo guardado. **305 pruebas** |

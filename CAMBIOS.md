@@ -17,7 +17,9 @@
   también funciona, por título y autor. Lo guardado **se pone al día solo** al abrir la página con
   internet, como mucho una vez al día.
 - 🆕 Si lo que ves salió de lo guardado, abajo sale **«Copia guardada · hoy, 8:15 a. m.»**: puede no ser
-  la última versión. Sin internet **no** se puede oír la melodía ni editar. Si abres algo que no está
+  la última versión. Sale **una sola vez** cada vez que abres la página sin señal; al pasar de página queda
+  solo un **iconito** abajo a la derecha (el wifi tachado), que al tocarlo vuelve a enseñar el aviso con su
+  fecha. Sin internet **no** se puede oír la melodía ni editar. Si abres algo que no está
   guardado, la página te lo dice.
 - 🆕 Al **cerrar sesión** se borra lo guardado en ese aparato; al volver a entrar con internet se guarda otra vez.
 - 🆕 **En iPad o iPhone, instala la página** (Safari → Compartir → «Añadir a pantalla de inicio») y entra

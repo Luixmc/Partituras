@@ -4,6 +4,14 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-22 · r91 · El aviso sin internet sale una vez (O-99)
+
+Isaac: el aviso salía en cada página sin red. Causa: sin red Next recarga la página entera (sus `rsc` fallan) y el
+aviso se monta de cero. Se le preguntó qué es «una vez»: **por cada apertura**, y en las siguientes un **iconito**
+que lo abre. Marca en `sessionStorage`. Medido sin red en Chrome, los siete pasos ✅. 307 pruebas, lint 0 errores,
+build limpio. En el mismo chat dictó **O-100** (un acorde cortado en el teléfono, «Espíritu Santo»): en §9, sin
+programar.
+
 ### 2026-10-22 · r90 · Se guarda TODO enseguida, también la pantalla completa (O-98)
 
 Isaac probó r89 y la pantalla completa de cada canción salía «no está guardada»: en O-96 la dejé fuera por peso, y

@@ -4,6 +4,28 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-22 · O-99 · El aviso sin internet sale UNA vez (r91)
+
+Isaac: *«el aviso de «Sin conexión» / «Copia guardada · fecha» sale cada vez que paso de una página a otra sin
+internet, y es molesto. Quiero que salga UNA sola vez»*. Capturas en `Downloads\wasd\WhatsApp Image 2026-10-22 at
+3.36.1*.jpeg`.
+* **Causa:** sin red fallan las peticiones `rsc` de Next (el `sw.js` no las toca, a propósito: O-96 Fase 2), Next
+  recarga la página entera, el SW la sirve de la copia, y `AvisoSinInternet` se monta otra vez con su `useState`
+  en blanco. Por eso la «×» solo valía para una página.
+* **Lo que eligió (se le preguntó):** «una vez» = **por cada apertura** (descartó «por cada corte de señal» y «una
+  vez por día»), y en las páginas siguientes **un iconito** (descartó no dejar nada).
+* **Hecho:** `avisoYaVisto`/`marcarAvisoVisto` en `lib/sinInternet.ts` (en `sessionStorage`, a prueba de almacén
+  roto: si falla, el aviso sale entero), con su prueba. El componente lee la marca **una vez al evaluarse** el
+  archivo (como `CARGADA`): si la leyera en cada pintada, se encogería en la misma página donde acaba de salir. La
+  «×» encoge al iconito (`bottom-36 right-3`, encima del control de letra; `md:bottom-4 right-4`).
+* **Medido** (Chrome sin ventana, perfil en `Partituras\perfil-o99`, servidor apagado + `offline`, reloj +10 min):
+  catálogo → aviso entero · tarjeta → canción: iconito · tocarlo: aviso · «×»: iconito · Cultos: iconito ·
+  pantalla completa: iconito · pestaña nueva: aviso entero otra vez. ✅ los siete.
+* **Lo que hay que saber al tocarlo:** sin red cada navegación es una carga nueva, así que todo lo que el aviso
+  tenga que recordar entre páginas va en `sessionStorage`, no en estado de React. En el script de medir, el
+  selector del iconito depende de su `aria-label` («… · ver aviso», en minúscula): cambiarlo rompe la medición
+  sin que falle nada de la app (pasó una vez).
+
 #### ✅ Cerrado el 2026-10-22 · O-98 · Se guarda TODO enseguida, también la pantalla completa (r90)
 
 Isaac, probando r89: *«me dí cuenta que tengo que abrir todas las cosas para que funcione sin internet… tengo que

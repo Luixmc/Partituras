@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { WifiOff, X } from "lucide-react";
 
-import { esCopia, fechaCorta, hayQueRefrescar } from "@/lib/sinInternet";
+import { avisoYaVisto, esCopia, fechaCorta, hayQueRefrescar, marcarAvisoVisto } from "@/lib/sinInternet";
 import { BUILD, guardadoActual, guardarTodo, puedeGuardar } from "@/lib/guardarSinInternet";
 
 // ─────────────────────────────────────────────────────────────
@@ -25,10 +25,31 @@ import { BUILD, guardadoActual, guardarTodo, puedeGuardar } from "@/lib/guardarS
 // salió de lo guardado. Se mira UNA vez, al cargar: el layout no se vuelve a
 // armar al navegar dentro de la app, así que más tarde la hora sería vieja
 // aunque la página no lo fuera.
+//
+// 📌 O-99 — UNA vez por apertura: sin red, cada paso de página es una recarga
+// entera servida de la copia (Next no puede pedir sus `rsc`), y el aviso salía
+// otra vez en cada una. Ahora sale entero en la primera; después queda solo un
+// iconito, que al tocarlo lo abre. La «×» lo encoge al iconito, no lo quita:
+// es lo único que avisa del riesgo de una canción vieja.
 // ─────────────────────────────────────────────────────────────
 
 /** Cuándo se cargó esta página en el navegador (al evaluarse este archivo). */
 const CARGADA = Date.now();
+
+function sesion(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * ¿Esta pestaña ya enseñó el aviso entero ANTES de cargar esta página? Se lee
+ * una vez, al evaluarse el archivo (igual que `CARGADA`): si se leyera en cada
+ * pintada, al marcarlo visto se encogería en la misma página donde acaba de salir.
+ */
+const VISTO_AL_CARGAR = typeof window !== "undefined" && avisoYaVisto(sesion());
 
 function suscribirRed(cambio: () => void) {
   window.addEventListener("online", cambio);
@@ -52,7 +73,9 @@ export default function AvisoSinInternet({
 }) {
   const enLinea = useSyncExternalStore(suscribirRed, () => navigator.onLine, () => true);
   const copia = useSyncExternalStore(nada, () => esCopia(generado, CARGADA), () => false);
-  const [cerrado, setCerrado] = useState<"copia" | "red" | null>(null);
+  const visto = useSyncExternalStore(nada, () => VISTO_AL_CARGAR, () => false);
+  // null = lo que toque por apertura; true/false = lo que eligió quien mira.
+  const [abierto, setAbierto] = useState<boolean | null>(null);
 
   // O-97: se guarda solo al abrir la página — si esta cuenta no tiene copia, si
   // hay despliegue nuevo o si tiene más de un día — y sin decir nada.
@@ -74,7 +97,29 @@ export default function AvisoSinInternet({
   let tipo: "copia" | "red" | null = null;
   if (copia) tipo = "copia";
   else if (!enLinea) tipo = "red";
-  if (!tipo || cerrado === tipo) return null;
+
+  useEffect(() => {
+    if (tipo) marcarAvisoVisto(sesion());
+  }, [tipo]);
+
+  if (!tipo) return null;
+
+  const texto =
+    tipo === "copia" ? `Copia guardada · ${fechaCorta(generado, CARGADA)}` : "Sin conexión";
+
+  if (!(abierto ?? !visto)) {
+    return (
+      <button
+        type="button"
+        onClick={() => setAbierto(true)}
+        title={texto}
+        aria-label={`${texto} · ver aviso`}
+        className="fixed bottom-36 right-3 z-[70] rounded-full border border-amber-300 bg-amber-50 p-2 text-amber-900 shadow-lg print:hidden md:bottom-4 md:right-4 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100"
+      >
+        <WifiOff className="h-4 w-4" />
+      </button>
+    );
+  }
 
   // `bottom-36` en el teléfono: más abajo tapaba los botones de tamaño de letra
   // (ReadingControls, `bottom-20`) y la barra de secciones.
@@ -86,7 +131,7 @@ export default function AvisoSinInternet({
       <WifiOff className="mt-0.5 h-4 w-4 flex-shrink-0" />
       {tipo === "copia" ? (
         <div>
-          <p className="font-semibold">Copia guardada · {fechaCorta(generado, CARGADA)}</p>
+          <p className="font-semibold">{texto}</p>
           <p className="text-xs opacity-80">
             Sin internet o la red no respondió: puede no ser la última versión.
           </p>
@@ -96,7 +141,7 @@ export default function AvisoSinInternet({
       )}
       <button
         type="button"
-        onClick={() => setCerrado(tipo)}
+        onClick={() => setAbierto(false)}
         className="ml-1 rounded-lg p-0.5 opacity-70 hover:opacity-100"
         aria-label="Cerrar aviso"
       >

@@ -92,6 +92,7 @@ export const TANDAS: Tanda[] = [
             "titulo": "Aviso de «copia guardada», con su fecha.",
             "detalle": [
               "Si la página que ves salió de lo guardado porque no había señal (o la red no contestaba), abajo sale <strong>«Copia guardada · hoy, 8:15 a. m.»</strong>. Así sabes que puede no ser la última versión: si alguien corrigió la canción después, la verás cuando vuelva la señal.",
+              "El aviso entero sale <strong>una sola vez</strong> cada vez que abres la página sin señal. Al pasar a otra canción o a otra pantalla queda solo un <strong>iconito</strong> abajo a la derecha (el wifi tachado): tócalo y vuelve a salir el aviso con la fecha. La <strong>×</strong> lo encoge a ese iconito. Si cierras la app y la abres otra vez sin señal, el aviso entero sale de nuevo.",
               "Sin internet <strong>no funciona</strong>: oír la melodía, ni editar o guardar canciones. Si abres algo que no está guardado, la página te lo dice en vez de quedarse en blanco."
             ]
           },

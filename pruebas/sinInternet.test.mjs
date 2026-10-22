@@ -27,6 +27,8 @@ const {
   esCopia,
   COPIA_VIEJA_MS,
   fechaCorta,
+  avisoYaVisto,
+  marcarAvisoVisto,
 } = await cargar("sinInternet");
 
 const A = "5c44c6f4-5ed1-43d6-b9a8-deda69085ce1";
@@ -135,4 +137,20 @@ test("la fecha de la copia se dice como la diría una persona", () => {
   // «dom 18 de oct, 7:40 p. m.»: el día sin los puntos de «dom.» y «oct.» (la hora sí los lleva).
   assert.doesNotMatch(vieja.split(",")[0], /\./, "sin los puntos de las abreviaturas");
   assert.equal(fechaCorta("basura", ahora), "");
+});
+
+test("🔴 O-99 · el aviso entero sale UNA vez por apertura, y un almacén roto no lo esconde", () => {
+  const datos = new Map();
+  const almacen = { getItem: (k) => datos.get(k) ?? null, setItem: (k, v) => datos.set(k, v) };
+  assert.equal(avisoYaVisto(almacen), false);
+  marcarAvisoVisto(almacen);
+  assert.equal(avisoYaVisto(almacen), true);
+  // Pestaña nueva (sessionStorage vacío): sale entero otra vez.
+  assert.equal(avisoYaVisto({ getItem: () => null, setItem: () => {} }), false);
+  // Navegador privado o sin almacén: mejor de más que de menos.
+  const roto = { getItem: () => { throw new Error("SecurityError"); }, setItem: () => { throw new Error("QuotaExceeded"); } };
+  assert.equal(avisoYaVisto(roto), false);
+  assert.doesNotThrow(() => marcarAvisoVisto(roto));
+  assert.equal(avisoYaVisto(undefined), false);
+  assert.doesNotThrow(() => marcarAvisoVisto(null));
 });
