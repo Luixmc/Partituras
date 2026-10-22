@@ -433,7 +433,7 @@ function NoteCell({ token, beamed = false, dense = false }: { token: NoteToken; 
     // hace el compás (que envuelve cuando hay etiquetas) sin partir palabras.
     content = (
       <span
-        className="etiqueta whitespace-nowrap font-bold leading-tight text-yellow-500 dark:text-yellow-300"
+        className="etiqueta whitespace-nowrap font-bold leading-tight text-yellow-500 group-data-[parte]/compas:whitespace-normal dark:text-yellow-300"
         style={{ fontSize: "1.5em" }}
       >
         {token.chordLabel}
@@ -744,8 +744,12 @@ function MeasureBlock({
       // ⚠️ No engorda el compás: con `box-sizing: border-box` —el de Tailwind—
       // el borde va DENTRO del ancho, así que el bloque mide lo mismo y el
       // reparto (O-66) no se entera. Se comprobó midiendo, no suponiendo.
+      // 🔴 O-100 · `max-w-full` y `data-pieza`: un compás nunca mide más que su
+      // fila, y si su contenido no cabe, `usePartirLoQueNoCabe` le pone
+      // `data-parte` y sus acordes bajan a otra línea (ver allí el porqué).
+      data-pieza=""
       className={cn(
-        "relative flex items-stretch",
+        "group/compas relative flex max-w-full items-stretch data-[parte]:!basis-full",
         !noBar && "border-r-2 border-slate-300 dark:border-slate-600"
       )}
       style={{
@@ -780,7 +784,9 @@ function MeasureBlock({
         className={cn(
           "flex flex-1 items-stretch justify-center",
           dense ? "gap-[0.3em]" : "gap-[0.5em]",
-          hasLabel && "flex-wrap gap-y-1"
+          hasLabel && "flex-wrap gap-y-1",
+          // O-100 · solo si este compás no cabe en su fila.
+          "group-data-[parte]/compas:min-w-0 group-data-[parte]/compas:flex-wrap group-data-[parte]/compas:gap-y-1"
         )}
       >
         {chords.length ? (
@@ -837,6 +843,69 @@ function MeasureBlock({
 type Segment = { boxId?: number; label?: string; items: Measure[] };
 
 /**
+ * 🔴 O-100 · Lo que NO CABE en su fila se parte por dentro; lo demás, ni se toca.
+ *
+ * Isaac, 2026-10-22, con una captura de «Espíritu Santo»: *«mira como sale uno
+ * de los acordes incompletos»*. La casilla `{ B/D#:2 G#/C:2 | C#m | A:2 B:2 }1`
+ * no cabía en la columna del teléfono y la tarjeta (`overflow-hidden`) se comía
+ * la `B`. Medido en las 98 canciones a 360 px: con zoom 90 % (dos columnas en la
+ * ficha) **42 canciones** tenían algo cortado; con 100 %, 22 en pantalla completa.
+ * Eligió «que se parta por dentro»: los acordes bajan a otra línea dentro del
+ * MISMO compás, y los compases dentro del MISMO recuadro de casilla.
+ *
+ * 📌 Por qué se MIDE en vez de dejarlo a CSS: se probó primero solo con CSS
+ * (`flex-wrap` siempre, con `width: max-content` para que el compás siguiera
+ * pidiendo su ancho de una línea) y Chrome no lo respeta en un hijo `flex-1`:
+ * partió compases que cabían — «Agnus Dei» pasó de 81 a 134 px de alto, y hasta
+ * en la tablet cambiaron 15 páginas. Así, en cambio, una pieza que cabe no lleva
+ * ninguna clase distinta de las de antes: el reparto (O-52, O-66) no se entera.
+ *
+ * Cómo: cada compás y cada recuadro llevan `data-pieza` y `max-w-full`. Si su
+ * ancho natural no cabe en LA LÍNEA QUE LA CONTIENE —la fila, o el recuadro de
+ * su casilla—, se le pone `data-parte`: ocupa la línea entera (`basis-full`) y
+ * las clases `group-data-[parte]/…` le dejan envolver. Se recorre en el orden
+ * del documento —el recuadro antes que sus compases—, así un compás que tampoco
+ * quepa dentro de su casilla ya partida se parte también.
+ *
+ * ⚠️ Se compara con la línea, NO con la propia pieza (`scrollWidth >
+ * clientWidth`): así se probó primero y marcaba compases con un desborde
+ * inofensivo de 1–4 px que siempre han tenido y que nunca llega al borde; al
+ * partirlos perdían su ancho mínimo y se apretaban («Bendecido», de 62 a 122 px
+ * de alto en la tablet).
+ */
+function usePartirLoQueNoCabe(dependencias: unknown[]) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const rejilla = ref.current;
+    if (!rejilla) return;
+    let ancho = -1;
+    const partir = () => {
+      const piezas = Array.from(rejilla.querySelectorAll<HTMLElement>("[data-pieza]"));
+      // Primero se quita todo: si se mide con algo ya partido, cabe «de mentira».
+      for (const p of piezas) p.removeAttribute("data-parte");
+      for (const p of piezas) {
+        const linea = p.parentElement?.clientWidth ?? Infinity;
+        if (p.scrollWidth > linea + 1) p.setAttribute("data-parte", "");
+      }
+    };
+    partir();
+    // Solo cuando cambia el ANCHO (girar el teléfono, abrir la barra lateral):
+    // al partir, la rejilla crece de alto, y volver a medir por eso sería un bucle.
+    const obs = new ResizeObserver(([e]) => {
+      if (Math.abs(e.contentRect.width - ancho) < 0.5) return;
+      ancho = e.contentRect.width;
+      partir();
+    });
+    obs.observe(rejilla);
+    // La letra de los acordes puede llegar después del primer dibujo y cambiar anchos.
+    document.fonts?.ready.then(partir).catch(() => {});
+    return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, dependencias);
+  return ref;
+}
+
+/**
  * Cuántos bloques visuales tiene una sección: compases y recuadros.
  *
  * 📌 Antes devolvía además `conSaltoManual`, para que quien reparte respetara
@@ -882,6 +951,7 @@ export default function TablaturePreview({
   const measures = parseMeasures(notes);
   const todos = groupSegments(measures);
   const segments = segmentos ? todos.slice(segmentos[0], segmentos[1]) : todos;
+  const rejillaRef = usePartirLoQueNoCabe([notes, fontScale, dense, segmentos?.[0], segmentos?.[1]]);
 
   return (
     <div
@@ -933,6 +1003,7 @@ export default function TablaturePreview({
           // vertical se sabe dónde envuelve la fila. Se mide el dibujo de
           // verdad, no se estima con un número escrito a mano.
           data-rejilla-compases=""
+          ref={rejillaRef}
           // Base de la fuente: todo el contenido escala con esto.
           style={{ fontSize: `${16 * fontScale}px` }}
         >
@@ -974,7 +1045,9 @@ export default function TablaturePreview({
               return (
                 <div
                   key={si}
-                  className="relative flex"
+                  // O-100 · nunca más ancho que la fila (ver `usePartirLoQueNoCabe`).
+                  data-pieza=""
+                  className="group/casilla relative flex max-w-full data-[parte]:!basis-full"
                   style={{ flexGrow: segNotes, flexBasis: `${segNotes * 2.4}em` }}
                 >
                   {/* 🔴 El numero de casilla NO OCUPA SITIO: va absoluto, en la
@@ -994,7 +1067,13 @@ export default function TablaturePreview({
                   >
                     {seg.label || ""}
                   </span>
-                  <div className="flex flex-1 items-stretch rounded-md border-2 border-slate-500 dark:border-slate-400">
+                  {/* 🔴 O-100 · Si el recuadro entero no cabe en la fila, sus compases
+                      bajan a otra línea DENTRO del recuadro: la casilla sigue siendo
+                      un bloque, con su borde y su número, como pidió O-52.
+                      ⚠️ El `min-w-0` hace falta: sin él este recuadro no encoge por
+                      debajo de su contenido, mide más que la casilla, y el compás
+                      de dentro, al compararse con él, «cabe» de mentira. */}
+                  <div className="flex flex-1 items-stretch rounded-md border-2 border-slate-500 group-data-[parte]/casilla:min-w-0 group-data-[parte]/casilla:flex-wrap dark:border-slate-400">
                     {seg.items.map((m, idx) => (
                       <MeasureBlock
                         key={idx}
