@@ -4,6 +4,14 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-22 · r90 · Se guarda TODO enseguida, también la pantalla completa (O-98)
+
+Isaac probó r89 y la pantalla completa de cada canción salía «no está guardada»: en O-96 la dejé fuera por peso, y
+él lee así. Ahora se guarda todo —cultos primero, Letras y Melodía según el rol, cada canción y su pantalla
+completa—, arrancando a los 1,5 s. Local: 50 s, **33 MB** en el aparato, **4,1 MB** de datos; sin red, tocando
+tarjeta → canción → pantalla completa (5/98) → siguiente (6/98) ✅, 98 de 98 pantallas completas guardadas ✅.
+306 pruebas, lint 0 errores, build limpio.
+
 ### 2026-10-22 · r89 · Se guarda solo, sin botón (O-97)
 
 Isaac cambió de opinión sobre r88: que se guarde al abrir la página, sin botón y sin aviso de que se guardó. Fuera

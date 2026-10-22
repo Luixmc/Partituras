@@ -18,6 +18,7 @@ const {
   nombreCache,
   cancionesEn,
   cultosEn,
+  seccionesEn,
   paginasAGuardar,
   estaticosEn,
   leerGuardado,
@@ -55,19 +56,29 @@ test("cultos: los ids de /services, y /services/new NO", () => {
   assert.deepEqual(cultosEn(html), [B]);
 });
 
-test("qué se guarda: catálogo, cultos, cada canción y cada culto CON su presentación", () => {
-  assert.deepEqual(paginasAGuardar([A], [B]), [
+test("qué se guarda, y en qué orden: primero los cultos (si se corta, lo del domingo ya está)", () => {
+  assert.deepEqual(paginasAGuardar([A], [B], ["/letras"]), [
     "/catalog",
     "/services",
-    `/catalog/${A}`,
-    `/services/${B}`,
     `/services/${B}/present`,
+    `/services/${B}`,
+    "/letras",
+    "/novedades",
+    `/catalog/${A}`,
+    `/catalog/${A}/present`,
   ]);
 });
 
-test("📌 la pantalla completa de cada canción NO se guarda (233 KB × 98 ≈ 23 MB)", () => {
-  const paginas = paginasAGuardar([A], []);
-  assert.ok(!paginas.some((p) => p.endsWith(`/catalog/${A}/present`)));
+test("🔴 O-98 · la pantalla completa de CADA canción también se guarda", () => {
+  const paginas = paginasAGuardar([A, B], []);
+  assert.ok(paginas.includes(`/catalog/${A}/present`));
+  assert.ok(paginas.includes(`/catalog/${B}/present`));
+});
+
+test("Letras y Melodía solo si el menú de quien mira las enseña (dependen del rol)", () => {
+  assert.deepEqual(seccionesEn(`<a href="/catalog">c</a><a href="/letras">l</a><a href="/melodias">m</a>`), ["/letras", "/melodias"]);
+  assert.deepEqual(seccionesEn(`<a href="/catalog">c</a><a href="/melodias">m</a>`), ["/melodias"]);
+  assert.deepEqual(seccionesEn(`<a href="/catalog">c</a>`), []);
 });
 
 test("los archivos del programa: de las etiquetas y del texto escapado, sin la barra del escape", () => {

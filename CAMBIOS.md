@@ -10,20 +10,20 @@
 ### 📴 Tocar sin internet
 
 - 🆕 **Las canciones se guardan solas** en tu teléfono o tablet: al abrir la página **con internet** y con tu
-  cuenta, en menos de un minuto se guardan **todas las canciones y los cultos**, sin botones ni avisos (unos
-  **10 MB** en el aparato, poco más de **1 MB de datos**). Sin señal se abre el catálogo, cada canción y cada
-  culto, y en la presentación del culto se **pasa de canción** como siempre. La búsqueda del catálogo
+  cuenta, en menos de un minuto se guarda **todo**: los cultos, el catálogo, **cada canción y su pantalla
+  completa**, y Letras y Melodía si las ves; sin botones ni avisos, igual con cuenta de administrador, músico
+  o lector (unos **33 MB** en el aparato y unos **4 MB de datos**). Sin señal se abre todo eso, y a pantalla
+  completa se **pasa de canción** como siempre. La búsqueda del catálogo
   también funciona, por título y autor. Lo guardado **se pone al día solo** al abrir la página con
   internet, como mucho una vez al día.
 - 🆕 Si lo que ves salió de lo guardado, abajo sale **«Copia guardada · hoy, 8:15 a. m.»**: puede no ser
-  la última versión. Sin internet **no** se puede oír la melodía, editar, ni abrir a pantalla completa
-  una canción suelta del catálogo (la presentación de los cultos sí). Si abres algo que no está guardado,
-  la página te lo dice.
+  la última versión. Sin internet **no** se puede oír la melodía ni editar. Si abres algo que no está
+  guardado, la página te lo dice.
 - 🆕 Al **cerrar sesión** se borra lo guardado en ese aparato; al volver a entrar con internet se guarda otra vez.
 - 🆕 **En iPad o iPhone, instala la página** (Safari → Compartir → «Añadir a pantalla de inicio») y entra
   con tu cuenta desde ese icono: si no, Safari borra lo guardado cuando pasan 7 días sin abrirla.
-- *(Primero salió con un botón «Guardar para tocar sin internet»; el mismo día se cambió a que se guarde
-  solo.)*
+- *(Primero salió con un botón «Guardar para tocar sin internet» y sin la pantalla completa de cada canción;
+  el mismo día se cambió a que se guarde solo, y todo.)*
 
 ---
 

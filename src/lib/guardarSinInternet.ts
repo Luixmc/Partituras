@@ -25,6 +25,7 @@ import {
   PREFIJO_CACHE,
   cancionesEn,
   cultosEn,
+  seccionesEn,
   estaticosEn,
   leerGuardado,
   nombreCache,
@@ -37,7 +38,7 @@ import { algunoContiene } from "@/lib/texto";
 export const BUILD = process.env.NEXT_PUBLIC_BUILD_ID || "dev";
 
 /** Cuántas páginas se bajan a la vez: más rápido que de una en una sin ahogar un teléfono. */
-const A_LA_VEZ = 4;
+const A_LA_VEZ = 6;
 
 /** Los archivos sueltos que la app instalada pide al abrir. */
 const SUELTOS = ["/manifest.json", "/icon-192.png", "/icon-512.png", "/favicon.ico"];
@@ -125,13 +126,15 @@ async function guardar(usuario: string): Promise<Resultado> {
 
   const idsCanciones = cancionesEn(catalogo);
   const idsCultos = cultosEn(cultos);
-  const resto = paginasAGuardar(idsCanciones, idsCultos).slice(2);
+  const resto = paginasAGuardar(idsCanciones, idsCultos, seccionesEn(catalogo)).slice(2);
 
   await enTandas(resto, async (ruta) => {
     try {
       await guardarPagina(ruta, await bajar(ruta));
-    } catch (e) {
-      if (e instanceof SesionVencida) throw e;
+    } catch {
+      // Una página suelta que no llega (o que a este rol lo manda a otra parte)
+      // no tumba el resto: si la sesión de verdad venció, ya habría fallado el
+      // catálogo, que va primero.
       fallidas++;
     }
   });

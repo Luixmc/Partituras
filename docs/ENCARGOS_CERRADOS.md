@@ -4,6 +4,27 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-22 · O-98 · Se guarda TODO enseguida, también la pantalla completa (r90)
+
+Isaac, probando r89: *«me dí cuenta que tengo que abrir todas las cosas para que funcione sin internet… tengo que
+abrir cancion por cancion y como los quiero ver en modo pantalla completa me sale el mensaje de que está guardado
+[no está guardada], y yo quiero que apenas abra la pagina sea en la app o en el navegador me cargue todo, sea rol
+de adim o de lecto»*.
+* **La causa:** en O-96 decidí NO guardar `/catalog/<id>/present` por peso (233 KB c/u: lleva el catálogo entero
+  para «la siguiente»), y él lee justo así. Lo demás sí estaba guardado. → **SUPERADA esa decisión**: ahora sí.
+* **Lo que se guarda y en qué orden** (`paginasAGuardar`): catálogo, cultos, **cada culto con su presentación
+  primero**, Letras y Melodía si el menú de ese rol las enseña (`seccionesEn`), `/novedades`, cada canción y **cada
+  pantalla completa**. Si se corta a medias, lo del domingo ya está. Una página que falla (o que redirige a un rol
+  que no la ve) ya no tumba el resto.
+* **Enseguida:** arranca a los **1,5 s** de abrir (antes 8), 6 a la vez (antes 4).
+* **Todos los roles:** sale de los enlaces que ve cada uno; el lector guarda lo publicado. **App y navegador**: cada
+  uno guarda lo suyo (en iPhone/iPad son almacenes separados; en Android, el mismo).
+* **El costo, dicho a Isaac:** **~33 MB** en el aparato y **~4,1 MB de datos** por descarga (~50 s). Se repite la
+  primera vez en cada aparato, tras cada publicación y como mucho una vez al día. Antes eran ~10 MB y ~1,1 MB.
+* **Comprobado (local, `next start`) TOCANDO, no escribiendo direcciones:** sin red, tarjeta → canción → «pantalla
+  completa» → «5/98 · Aleluya» → flecha → «6/98 · Altísimo»; las 98 pantallas completas en el caché; `/letras`
+  abre. Next, al fallar su petición interna sin red, recarga la página entera y esa la sirve el service worker.
+
 #### ✅ Cerrado el 2026-10-22 · O-97 · Se guarda solo, sin botón y sin aviso (r89)
 
 Isaac, el mismo día de r88: *«cambié de opinión en algo, quiero que lo guarde apenas uno abra la pagina, osea
@@ -36,8 +57,8 @@ guardado»*. → **SUPERA la Fase 3 de O-96** (abajo): ya no hay botón «Guarda
   `s/[token]/layout.tsx`, `print:hidden`. Solo cachés con prefijo `partituras-` (L-373).
 * ~~**Fase 3** · `BotonGuardarSinInternet` en `/catalog` y `/services`~~ → 🔴 **SUPERADO por O-97 (arriba): sin botón, se guarda solo.** Lo de abajo sobre qué se baja sigue valiendo: baja `/catalog`, `/services`, cada
   `/catalog/<id>` y cada `/services/<id>` + `/present`, más los `/_next/static` que piden. **Las canciones
-  salen de los enlaces del propio catálogo**, así cada rol guarda lo que puede ver. **NO se guarda la
-  pantalla completa de cada canción suelta**: lleva el catálogo entero dentro (233 KB) y serían ~23 MB en vez
+  salen de los enlaces del propio catálogo**, así cada rol guarda lo que puede ver. ~~**NO se guarda la
+  pantalla completa de cada canción suelta**~~ (🔴 **SUPERADO por O-98: sí se guarda**): lleva el catálogo entero dentro (233 KB) y serían ~23 MB en vez
   de ~10; la de los cultos sí. Refresco automático (`hayQueRefrescar`): despliegue nuevo o más de un día,
   solo si ESA cuenta lo guardó. **Un despliegue no borra la última copia completa** (`activate` conserva la
   que lleva `/__sin-internet__`) hasta que hay otra: si no, abrir la app con señal floja tras publicar

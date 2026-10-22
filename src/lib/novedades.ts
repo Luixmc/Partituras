@@ -82,8 +82,8 @@ export const TANDAS: Tanda[] = [
             "tipo": "nuevo",
             "titulo": "Las canciones se guardan solas en tu aparato.",
             "detalle": [
-              "No hay que hacer nada: al abrir la página <strong>con internet</strong> y con tu cuenta, en menos de un minuto se guardan <strong>todas las canciones y los cultos</strong> en tu teléfono o tablet, sin avisos ni botones. Ocupa unos <strong>10 MB</strong> en el aparato y gasta poco más de <strong>1 MB de datos</strong>.",
-              "Sin señal se puede abrir el catálogo, cada canción y cada culto, y en la presentación del culto <strong>pasar de canción</strong> como siempre. La búsqueda del catálogo también funciona, por título y autor.",
+              "No hay que hacer nada: al abrir la página <strong>con internet</strong> y con tu cuenta, en menos de un minuto se guarda <strong>todo</strong> en tu teléfono o tablet: los cultos, el catálogo, <strong>cada canción y su pantalla completa</strong>, y Letras y Melodía si las ves. Sin avisos ni botones, y con cualquier cuenta: administrador, músico o lector. Ocupa unos <strong>33 MB</strong> en el aparato y gasta unos <strong>4 MB de datos</strong>.",
+              "Sin señal se abre todo eso, y a pantalla completa —la del culto o la de una canción— se <strong>pasa de canción</strong> como siempre. La búsqueda del catálogo también funciona, por título y autor.",
               "Lo guardado <strong>se pone al día solo</strong> al abrir la página con internet: como mucho una vez al día, y cada vez que hay cambios en la página."
             ]
           },
@@ -92,7 +92,7 @@ export const TANDAS: Tanda[] = [
             "titulo": "Aviso de «copia guardada», con su fecha.",
             "detalle": [
               "Si la página que ves salió de lo guardado porque no había señal (o la red no contestaba), abajo sale <strong>«Copia guardada · hoy, 8:15 a. m.»</strong>. Así sabes que puede no ser la última versión: si alguien corrigió la canción después, la verás cuando vuelva la señal.",
-              "Sin internet <strong>no funciona</strong>: oír la melodía, editar o guardar canciones, ni la pantalla completa de una canción suelta del catálogo (la de los cultos sí). Si abres algo que no está guardado, la página te lo dice en vez de quedarse en blanco."
+              "Sin internet <strong>no funciona</strong>: oír la melodía, ni editar o guardar canciones. Si abres algo que no está guardado, la página te lo dice en vez de quedarse en blanco."
             ]
           },
           {

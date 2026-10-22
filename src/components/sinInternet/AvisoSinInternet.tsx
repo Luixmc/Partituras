@@ -55,8 +55,9 @@ export default function AvisoSinInternet({
   const [cerrado, setCerrado] = useState<"copia" | "red" | null>(null);
 
   // O-97: se guarda solo al abrir la página — si esta cuenta no tiene copia, si
-  // hay despliegue nuevo o si tiene más de un día — y sin decir nada. Se espera
-  // un poco para no competir con la carga de la página.
+  // hay despliegue nuevo o si tiene más de un día — y sin decir nada.
+  // O-98: «apenas abra la pagina… me cargue todo»: arranca a los 1,5 s (antes 8),
+  // lo justo para que la página termine de pintarse primero.
   useEffect(() => {
     if (!usuario || copia || !puedeGuardar()) return;
     const t = setTimeout(() => {
@@ -66,7 +67,7 @@ export default function AvisoSinInternet({
           /* se intentará la próxima vez que se abra con internet */
         });
       }
-    }, 8000);
+    }, 1500);
     return () => clearTimeout(t);
   }, [usuario, copia]);
 

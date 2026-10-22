@@ -52,20 +52,31 @@ export function cultosEn(html: string): string[] {
   return idsTras(html, "/services");
 }
 
+/** Las secciones de lectura que el menú le enseña a quien mira (Letras y Melodía dependen del rol). */
+export function seccionesEn(html: string): string[] {
+  return ["/letras", "/melodias"].filter((ruta) => html.includes(`href="${ruta}"`));
+}
+
 /**
- * Lo que se guarda de una vez.
+ * Lo que se guarda de una vez, EN ESTE ORDEN: si la descarga se corta a medias
+ * —se cerró la app, se fue la señal—, lo que ya bajó se queda, así que primero
+ * va lo que se toca el domingo: los cultos con su presentación.
  *
- * 📌 De cada canción se guarda su página (85 KB), **no su pantalla completa**:
- * esa lleva dentro el catálogo entero para pasar a «la siguiente» y pesa
- * 233 KB — las 98 serían ~23 MB en vez de ~8. Los cultos sí van con su
- * presentación, que es con la que se toca.
+ * 🔴 O-98 (Isaac, 2026-10-22): **también la pantalla completa de cada canción**.
+ * En O-96 se dejó fuera por peso —lleva el catálogo entero dentro para pasar a
+ * «la siguiente», 233 KB cada una, ~23 MB las 98— y él la usa justo así: le
+ * salía «no está guardada» canción por canción. Él decide el peso: ~33 MB en
+ * total en el aparato, ~4–5 MB de datos por descarga.
  */
-export function paginasAGuardar(canciones: string[], cultos: string[]): string[] {
+export function paginasAGuardar(canciones: string[], cultos: string[], secciones: string[] = []): string[] {
   return [
     "/catalog",
     "/services",
+    ...cultos.flatMap((id) => [`/services/${id}/present`, `/services/${id}`]),
+    ...secciones,
+    "/novedades",
     ...canciones.map((id) => `/catalog/${id}`),
-    ...cultos.flatMap((id) => [`/services/${id}`, `/services/${id}/present`]),
+    ...canciones.map((id) => `/catalog/${id}/present`),
   ];
 }
 
