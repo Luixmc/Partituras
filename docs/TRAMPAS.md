@@ -40,6 +40,10 @@ dijo el primo a Isaac.
 cacheado.
 *Cómo se resuelve:* recargar con **Ctrl+F5**. De raíz, versionar el `CACHE` del service
 worker en cada despliegue — **pendiente, ver §9**.
+⚠️ *Nota del 2026-10-22 (O-96):* medido con un perfil limpio en producción, **el service worker NO se registra**
+(`PWARegister` espera el `load` dentro de un `useEffect`, y para entonces ya pasó). Así que en un aparato nuevo **este
+caché no existe**: si alguien ve una versión vieja, buscar antes el caché HTTP o un registro antiguo de antes de P-12. Al
+arreglar el registro (O-96 Fase 1) esta trampa vuelve a ser posible; el plan lleva un aviso visible de «copia guardada».
 
 **T-09 · Mover una dirección sin dejar la vieja redirigiendo rompe lo que la gente tiene abierto.**
 *Síntoma:* Isaac recargó la pestaña que tenía y le salió **404**.
