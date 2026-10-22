@@ -69,10 +69,12 @@ export default function AvisoSinInternet({
   else if (!enLinea) tipo = "red";
   if (!tipo || cerrado === tipo) return null;
 
+  // `bottom-36` en el teléfono: más abajo tapaba los botones de tamaño de letra
+  // (ReadingControls, `bottom-20`) y la barra de secciones.
   return (
     <div
       role="status"
-      className="fixed inset-x-0 bottom-24 z-[70] mx-auto flex w-fit max-w-[92vw] items-start gap-2 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 shadow-lg print:hidden md:bottom-4 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100"
+      className="fixed inset-x-0 bottom-36 z-[70] mx-auto flex w-fit max-w-[92vw] items-start gap-2 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 shadow-lg print:hidden md:bottom-4 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100"
     >
       <WifiOff className="mt-0.5 h-4 w-4 flex-shrink-0" />
       {tipo === "copia" ? (

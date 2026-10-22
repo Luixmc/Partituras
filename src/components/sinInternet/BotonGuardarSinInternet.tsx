@@ -46,6 +46,11 @@ function esIOSSinInstalar(): boolean {
 /** «hoy» y «ayer» se cuentan desde que se abrió la página (React no deja leer el reloj al dibujar). */
 const CARGADA = Date.now();
 
+/** «1 culto», «3 cultos»: el músico lee esto, no un programador. */
+function cuantos(n: number, uno: string, varios: string): string {
+  return `${n} ${n === 1 ? uno : varios}`;
+}
+
 function megas(kb: number): string {
   return (kb / 1024).toLocaleString("es-CO", { maximumFractionDigits: 1 }) + " MB";
 }
@@ -71,7 +76,7 @@ export default function BotonGuardarSinInternet({ usuario }: { usuario: string }
         setMensaje({
           error: false,
           texto:
-            `Listo: ${r.canciones} canciones y ${r.cultos} cultos guardados (${megas(r.kb)}).` +
+            `Listo: ${cuantos(r.canciones, "canción", "canciones")} y ${cuantos(r.cultos, "culto", "cultos")} guardados (${megas(r.kb)}).` +
             (r.fallidas ? ` ${r.fallidas} no se pudieron bajar; pulsa «Actualizar» para intentarlo otra vez.` : ""),
         })
       )
@@ -90,8 +95,8 @@ export default function BotonGuardarSinInternet({ usuario }: { usuario: string }
 
   return (
     <section className="mb-5 rounded-xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-700 dark:bg-slate-900">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="min-w-0 sm:flex-1">
           <p className="font-semibold text-slate-800 dark:text-slate-100">Para tocar sin internet</p>
           {progreso ? (
             <p className="text-slate-500 dark:text-slate-400">
@@ -99,7 +104,8 @@ export default function BotonGuardarSinInternet({ usuario }: { usuario: string }
             </p>
           ) : guardado ? (
             <p className="text-slate-500 dark:text-slate-400">
-              Guardado: {guardado.canciones} canciones y {guardado.cultos} cultos ·{" "}
+              Guardado: {cuantos(guardado.canciones, "canción", "canciones")} y{" "}
+              {cuantos(guardado.cultos, "culto", "cultos")} ·{" "}
               {fechaCorta(guardado.fecha, CARGADA)} · {megas(guardado.kb)}
             </p>
           ) : (
