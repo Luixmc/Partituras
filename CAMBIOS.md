@@ -5,6 +5,26 @@
 
 ---
 
+## 22 de octubre de 2026
+
+### 📴 Tocar sin internet
+
+- 🆕 Botón **«Guardar para tocar sin internet»**, en el **Catálogo** y en **Cultos**. Con internet, púlsalo
+  una vez: guarda **todas las canciones y los cultos** en tu teléfono o tablet (unos **10 MB** en el aparato,
+  poco más de **1 MB de datos**, menos de un minuto). Sin señal se abre el catálogo, cada canción y cada
+  culto, y en la presentación del culto se **pasa de canción** como siempre. La búsqueda del catálogo
+  también funciona, por título y autor. Lo guardado **se pone al día solo** al abrir la página con
+  internet, como mucho una vez al día.
+- 🆕 Si lo que ves salió de lo guardado, abajo sale **«Copia guardada · hoy, 8:15 a. m.»**: puede no ser
+  la última versión. Sin internet **no** se puede oír la melodía, editar, ni abrir a pantalla completa
+  una canción suelta del catálogo (la presentación de los cultos sí). Si abres algo que no está guardado,
+  la página te lo dice.
+- 🆕 Al **cerrar sesión** se borra lo guardado en ese aparato.
+- 🆕 **En iPad o iPhone, instala la página** (Safari → Compartir → «Añadir a pantalla de inicio») y entra
+  con tu cuenta desde ese icono: si no, Safari borra lo guardado cuando pasan 7 días sin abrirla.
+
+---
+
 ## 20 de octubre de 2026
 
 ### 🗑️ Eliminar una canción

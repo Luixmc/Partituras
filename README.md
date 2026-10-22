@@ -63,8 +63,17 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   icono y sin barra de direcciones. El caché del *service worker* lleva el id del despliegue, así
   que cada publicación limpia el anterior; y es *network-first*, o sea que **con internet siempre se
   ve lo último**.
-  ⚠️ **No funciona sin conexión**: el *service worker* no toca las peticiones a Supabase, a
-  propósito, y las canciones viven ahí. La app abre y no carga nada.
+  📴 **Funciona sin conexión** (O-96, 2026-10-22): las páginas llegan del servidor con las canciones
+  dentro, así que el *service worker* guarda cada página que se abre, y el botón **«Guardar para tocar
+  sin internet»** (catálogo y cultos) guarda de una vez el catálogo, cada canción y cada culto con su
+  presentación: **~10 MB** en el aparato, **~1,2 MB** de datos. Las páginas esperan la red **6 s** y si
+  no contesta enseñan la copia, con un aviso de **«Copia guardada · fecha»**. Lo guardado se refresca
+  solo tras un despliegue o al día; un despliegue **no borra** la última copia completa hasta tener la
+  nueva. «Cerrar sesión» y `/salir` lo borran todo. Sin red **no** hay melodía (los sonidos vienen de
+  fuera), ni edición, ni la pantalla completa de una canción suelta del catálogo (pesaría ~23 MB).
+  Las cuentas viven en `lib/sinInternet.ts`, con pruebas; el botón, en `lib/guardarSinInternet.ts`.
+  ⚠️ **Hasta el 2026-10-22 el *service worker* no se registraba en ningún aparato** (esperaba un
+  `load` que ya había pasado): lo de «el caché del despliegue» de arriba no aplicaba a nadie.
   📌 **`orientation` es `any`** (2026-09-04): la app **sigue al aparato**. Estuvo en
   `portrait-primary` y eso dejaba la app instalada **clavada en vertical**, que es justo al revés de
   como se lee tocando. Ese campo **solo aplica a la app instalada** —en el navegador no hace nada— y
@@ -139,7 +148,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 294 pruebas |
+| `npm test` | Las 305 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -298,7 +307,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 294 pruebas (ver más abajo)
+pruebas/                    → las 305 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -376,7 +385,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 294 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 305 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -426,6 +435,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r88** | **Tocar sin internet** (O-96): el *service worker* por fin se registra (L-497), espera la red 6 s y si no, la copia · botón «Guardar para tocar sin internet» en catálogo y cultos (98 canciones y los cultos, ~10 MB) · aviso «Copia guardada · fecha» · búsqueda del catálogo sin red · «Cerrar sesión» borra lo guardado. **305 pruebas** |
 | **r87** | **Eliminar una canción** (O-95): botón en la pestaña Edición, solo administradores; el diálogo nombra los cultos de los que se cae (se deja borrar avisando, decisión de Isaac). La base ya lo permitía (`sheets_delete_admin`, todo en cascada); la acción (`eliminarCancion`, `catalog/actions.ts`) pide la fila borrada de vuelta, porque un borrado bloqueado por la seguridad de la base devuelve 0 filas sin error |
 | **r86** | **El tono original ya no se ofrece como otra tonalidad** (O-94): en «Nueva tonalidad» y en el «Transponer» del culto sale desactivado con «· original» (`esElOriginal`, `lib/music.ts`: misma altura y mismo modo, así que `C#` = `Db`); y si el campo «Tonalidad» cae en un tono que ya tiene versión, la ficha avisa sin impedir. **294 pruebas** |
 | **r85** | **Las listas de tonalidades, solo del modo de la canción** (O-93): «Nueva tonalidad» en la ficha y el tono de cada canción en el culto ofrecen las 12 mayores o las 12 menores según el tono de la canción (`tonosDelModo`, `lib/music.ts`); sin tono escrito, las dos. **290 pruebas** |

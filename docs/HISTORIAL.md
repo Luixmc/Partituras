@@ -4,6 +4,23 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-22 · r88 · Tocar sin internet (O-96)
+
+Isaac preguntó si se podía ver la página sin internet, como GestionDineroTrabajo. Medido antes de proponer: **el
+service worker no se registraba en ningún aparato** (esperaba un `load` ya pasado, L-497), y registrado a mano el
+culto visitado ya abría sin red y pasaba de canción, porque las páginas llegan con las canciones dentro. Plan de 5
+fases; Isaac respondió *«1. el catalogo, 2. un musico usa ipad, 3. si, 4. toda la fase»*. Hecho todo: registro
+arreglado, `sw.js` con 6 s de plazo y página propia de «no guardada», aviso «Copia guardada · fecha», botón
+«Guardar para tocar sin internet» en Catálogo y Cultos con refresco automático, búsqueda del catálogo sin red,
+«Cerrar sesión» y `/salir` borran todo, y consejo de instalar en iPad/iPhone. Recorrido en Chrome sin ventana
+contra `next start` (proxy muerto + `offline` + reloj adelantado): registro solo ✅, guardado 98 canciones + 3
+cultos en ~40 s (**10,3 MB en el aparato, 1,17 MB de datos**) ✅, catálogo 98/98 sin red ✅, aviso ✅, búsqueda
+«dios» 6 de 98 sin recargar ✅, canción ✅, culto 1/6 → 2/6 ✅, pantalla completa no guardada → página propia ✅,
+filtro de categoría → catálogo entero ✅, despliegue nuevo simulado → lo guardado sigue y abre sin red ✅,
+«Cerrar sesión» → ninguna canción guardada ✅. 305 pruebas, lint 0 errores (61 avisos, los de antes), build
+limpio. Dos trampas de la medición, en la carpeta compartida: **L-497** y **L-498** (perfil en `%TEMP%` rompe
+CacheStorage). Detalle en `docs/ENCARGOS_CERRADOS.md`.
+
 ### 2026-10-20 · r87 · Eliminar una canción (O-95)
 
 Isaac preguntó si se podía eliminar una canción montada (por la «Escuché La Voz» repetida). No se podía.

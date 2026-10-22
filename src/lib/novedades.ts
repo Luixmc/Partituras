@@ -70,6 +70,50 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "22 de octubre de 2026",
+    "iso": "2026-10-22",
+    "entrada": "Las canciones y los cultos ya se pueden abrir <strong>sin internet</strong>: se guardan una vez en el teléfono o la tablet y abren aunque no haya señal.",
+    "secciones": [
+      {
+        "titulo": "Tocar sin internet",
+        "resumen": "Un botón guarda el catálogo y los cultos en tu aparato; sin señal siguen abriendo.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Botón «Guardar para tocar sin internet», en el Catálogo y en Cultos.",
+            "detalle": [
+              "Con internet, púlsalo una vez: guarda <strong>todas las canciones y los cultos</strong> en tu teléfono o tablet. Ocupa unos <strong>10 MB</strong> en el aparato y gasta poco más de <strong>1 MB de datos</strong>. Tarda menos de un minuto.",
+              "Sin señal se puede abrir el catálogo, cada canción y cada culto, y en la presentación del culto <strong>pasar de canción</strong> como siempre. La búsqueda del catálogo también funciona, por título y autor.",
+              "Lo guardado <strong>se pone al día solo</strong> cuando abres la página con internet, como mucho una vez al día y cada vez que hay cambios en la página."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Aviso de «copia guardada», con su fecha.",
+            "detalle": [
+              "Si la página que ves salió de lo guardado porque no había señal (o la red no contestaba), abajo sale <strong>«Copia guardada · hoy, 8:15 a. m.»</strong>. Así sabes que puede no ser la última versión: si alguien corrigió la canción después, la verás cuando vuelva la señal.",
+              "Sin internet <strong>no funciona</strong>: oír la melodía, editar o guardar canciones, ni la pantalla completa de una canción suelta del catálogo (la de los cultos sí). Si abres algo que no está guardado, la página te lo dice en vez de quedarse en blanco."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "Al cerrar sesión se borra lo guardado.",
+            "detalle": [
+              "Para que una tablet compartida no siga enseñando las canciones a quien no tiene cuenta. Al volver a entrar, se guarda otra vez con el botón."
+            ]
+          },
+          {
+            "tipo": "nuevo",
+            "titulo": "En iPad o iPhone: instala la página.",
+            "detalle": [
+              "Safari borra lo guardado si pasan <strong>7 días sin abrir</strong> la página. Para que no pase, ábrela en Safari, toca <strong>Compartir → «Añadir a pantalla de inicio»</strong>, y entra con tu cuenta desde ese icono. Ahí guarda las canciones con el botón."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "20 de octubre de 2026",
     "iso": "2026-10-20",
     "entrada": "Ya se puede eliminar una canción, avisando de qué cultos se cae. Y al cambiar una canción de tono, la lista solo trae las tonalidades de su mismo modo, sin repetir la original.",

@@ -127,9 +127,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **294 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **19.959 líneas** de TypeScript
-   en **100 archivos**. *(Contado el 2026-10-20, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **305 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **20.753 líneas** de TypeScript
+   en **105 archivos**. *(Contado el 2026-10-22, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -180,7 +180,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 294 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 305 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -346,13 +346,16 @@ repo/
       sonido.ts                  Tocar una nota suelta y el instrumento elegido (O-75 fase 1)
       notas.ts                   Quién tiene notas privadas (admin, músico) y cómo se guardan — con pruebas
       notasBase.ts               Leer y guardar las notas en `notas_musico` (la base solo da las propias)
+      sinInternet.ts             Ver sin internet (O-96): qué se guarda, cuándo se refresca, ¿es copia? — con pruebas
+      guardarSinInternet.ts      El botón «Guardar para tocar sin internet», «Salir» borra, búsqueda sin red
       songImport.ts              Extraer texto de PDF / OCR / texto plano
       supabase/{client,server}.ts  Clientes de navegador y de servidor
     types/index.ts               Tipos del dominio
   supabase/migrations/           24 migraciones ⚠️ con otros nombres en la BD (T-01)
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
-  public/sw.js                   Service worker ⚠️ causa de T-02
-  pruebas/                       294 pruebas + el recorrido de las 26 pantallas
+  public/sw.js                   Service worker: VER SIN INTERNET (O-96). Red primero con 6 s de plazo ⚠️ T-02
+  src/components/sinInternet/    El aviso «Copia guardada · fecha» y el botón de guardar (O-96)
+  pruebas/                       305 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -602,64 +605,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 2 | **`pruebaclaude` es ADMINISTRADORA con una contraseña sencilla** | **Isaac lo asume.** Desactivarla (o pasarla a músico) el día que no haga falta. La contraseña vive **solo** en `.env.local` |
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 | 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13). Desde r87 la puede borrar **él mismo** con «Eliminar canción» (O-95): no está en ningún culto |
-| 5 | 🟡 **O-96 · Ver la página SIN INTERNET** (canciones y culto en tablet/teléfono) | **Analizado y medido el 2026-10-22; plan propuesto, ESPERANDO OK de Isaac** y la respuesta a sus 4 preguntas. Detalle justo abajo. **No se programa nada hasta el OK** |
-
-#### 🟡 O-96 · Ver la página sin internet — análisis (2026-10-22), esperando OK
-
-Isaac, 2026-10-22: *«¿se puede ver la página de Partituras sin internet, como hago con GestionDineroTrabajo? La idea es
-poder abrir las canciones (y el culto del domingo) en la tablet o el teléfono aunque no haya conexión»*. Pidió analizar,
-explicar qué se vería, qué no y cuánto cuesta, y **no programar hasta aprobar el plan**.
-
-**Lo medido** (Chrome sin ventana contra producción; «sin internet» = proxy muerto, que corta también al service worker):
-* 🔴 **El service worker de hoy NO SE REGISTRA.** Perfil limpio, tres visitas, 24 s: `getRegistrations()` = **0**. Registrado
-  a mano, funciona. Causa probable: `PWARegister.tsx` espera el evento `load` **dentro de un `useEffect`**, y cuando React
-  monta el `load` ya pasó (`readyState` = `complete`), así que nunca se llama. → **Hoy nadie tiene copia sin internet**, y
-  lo que se le achacaba a T-02 en aparatos nuevos no puede venir de este caché (ver la nota en `docs/TRAMPAS.md`, T-02).
-* ✅ **Con el service worker registrado, lo YA VISITADO se ve sin internet tal cual**: el culto público (lista y
-  presentación, 6 canciones) abrió sin red y **pasó de canción** (1/6 → 2/6). Las páginas llegan con los datos dentro
-  (las arma el servidor), así que guardar la página guarda la canción.
-* ❌ Lo **no visitado** no abre (sale el error del navegador).
-* **Pesos:** el culto (lista + presentación) = **878 KB en 26 respuestas**, casi todo es el programa (JS), no las canciones.
-  Todas las canciones juntas en la base: **98 canciones, ~84 KB de texto** (acordes 35 KB, letras 38 KB, 30 versiones 10 KB).
-  Páginas: catálogo **395 KB**, una canción **85 KB**, su pantalla completa **233 KB** (lleva todo el catálogo para «la siguiente»).
-  → Guardar el **catálogo entero** página por página ≈ **8–10 MB** en el aparato.
-* Dos cosas del `sw.js` actual que pesan para el domingo: **no tiene tiempo límite** (con señal floja espera a la red
-  antes de usar la copia) y **cada despliegue borra todo lo guardado** (`activate`).
-* ⚠️ Trampa de la medición: **Brave/Chrome sin ventana con el perfil en `%TEMP%`** dan `UnknownError` al abrir CacheStorage;
-  con el perfil en `repo/.pruebas-tmp/` (ignorada) funciona. Script en el scratchpad de la conversación, no en el repo.
-
-**GestionDineroTrabajo no sirve de molde entero:** allí los datos **viven en el aparato** (página estática, la nube es
-opcional); aquí la verdad está en Supabase y cada página la arma el servidor con la sesión. Copiar ese modelo = reescribir
-la app. **Sí se aprovecha** lo que aprendió con su `sw.js`: L-86 y L-373 (caché con versión y prefijo propio), el
-`waitUntil` del *stale-while-revalidate*, el aviso de 401/403 y probar en **modo avión**.
-
-**Qué se vería sin internet y qué no** (con el plan hecho): ✅ cultos y canciones guardados, pasar de canción, tamaño de
-letra, transponer y colores (es del navegador) · ❌ **la melodía no suena** (los sonidos vienen de un servidor de fuera),
-❌ **editar/guardar** (va a la base), ❌ importar PDF/OCR, ❌ notas privadas nuevas, ❌ lo nunca abierto con internet.
-
-**Riesgo de ver canciones viejas:** con internet siempre se ve lo último (red primero). Sin internet se ve **la copia del
-último día que se abrió con internet**; si Isaac corrige una canción el domingo temprano, quien esté sin señal ve la de
-antes. → Por eso el plan pone un **aviso visible con la fecha de la copia**.
-
-**PLAN PROPUESTO — fases (ninguna empezada):**
-* **Fase 1 · Que el service worker se registre de verdad.** Registrar al montar si `readyState === "complete"`, si no en
-  `load`. Comprobar en producción con perfil limpio: registrado y lo visitado abre en modo avión. Solo con esto, lo visitado
-  con internet (desde el último despliegue) se ve sin internet.
-* **Fase 2 · Señal floja y aviso.** Tiempo límite de ~4 s a la red antes de usar la copia · barrita **«Sin conexión · copia
-  del sáb 21 oct, 8:15 p. m.»** (fecha de la cabecera `Date` guardada) · página propia de «esta canción no está guardada»
-  en vez del error del navegador (hoy cae a `/catalog`, que puede no estar) · borrar solo cachés con prefijo `partituras-`.
-* **Fase 3 · Botón «Guardar para tocar sin internet».** En el culto: baja de una vez su lista, su presentación y cada
-  canción (~1–1,5 MB). Opcional (pregunta 1): **todo el catálogo** (~8–10 MB). Lo guardado **se vuelve a bajar solo**
-  tras un despliegue, la primera vez que haya internet (si no, cada push lo borraría). Dice qué hay guardado y de cuándo.
-* **Fase 4 · Privacidad.** «Salir» borra las copias (si no, la tablet compartida sigue enseñando letras y notas sin sesión).
-* **Fase 5 · Comprobar y documentar.** Modo avión real en su teléfono y su tablet · pruebas del cálculo del tiempo límite y
-  de qué se guarda · `CAMBIOS.md` + `/novedades` + README · T-02 al día · carpeta compartida.
-
-**Preguntas a Isaac (sin respuesta todavía):**
-1. ¿Se guarda **solo el culto** (con su botón) o también **todo el catálogo** (~8–10 MB por aparato)?
-2. ¿Algún músico usa **iPhone/iPad**? Safari borra lo guardado tras **7 días sin abrir** la página si no está instalada.
-3. ¿Al **salir de la cuenta** se borran las copias (Fase 4)?
-4. ¿Las fases van **todas juntas** o primero la 1 y 2 (pequeñas) para probarlas un domingo?
+| 5 | **O-96 · probar «sin internet» en SUS aparatos** (r88, publicado 2026-10-22) | **De Isaac.** En el teléfono y la tablet: entrar, pulsar «Guardar para tocar sin internet» en Catálogo, poner **modo avión** y abrir un culto y una canción. Y decirle al **músico del iPad** que instale la página (Safari → Compartir → «Añadir a pantalla de inicio») y guarde desde ahí. Detalle en `docs/ENCARGOS_CERRADOS.md` (O-96) |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -758,7 +704,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-20, todo PUBLICADO en r87**
+#### Estado del árbol — **2026-10-22, todo PUBLICADO en r88**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -766,10 +712,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r87** — eliminar una canción (O-95). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **294** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **19.959 líneas** de TypeScript en **100 archivos** |
+| Último commit publicado | **r88** — tocar sin internet (O-96). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r88** — **tocar sin internet** (O-96): el service worker por fin se registra, botón «Guardar para tocar sin internet» en Catálogo y Cultos (~10 MB), aviso «Copia guardada · fecha», búsqueda sin red, «Cerrar sesión» borra lo guardado. Antes, **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **305** · lint **0 errores, 61 avisos** · build **0** |
+| Tamaño | **20.753 líneas** de TypeScript en **105 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -941,9 +887,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-10-22 | **r88** · **tocar sin internet** (O-96, las 5 fases): el service worker no se registraba en ningún aparato (L-497); botón de guardar el catálogo, aviso de copia, «Salir» borra |
 | 2026-10-20 | **r87** · eliminar una canción desde la página (O-95), comprobado creando y borrando una canción de prueba con permiso de Isaac |
 | 2026-10-20 | **r86** · el tono original ya no se ofrece como otra tonalidad (O-94) · aviso si la tonalidad cae en un tono con versión · dos «Escuché La Voz» en la base, para Isaac (§9 fila 4) |
-| 2026-10-20 | **r85** · las listas de tonalidades, solo del modo de la canción (O-93) · aviso de Supabase: las tablas nuevas necesitan `grant` desde el 30-oct (§11) |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

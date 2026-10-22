@@ -5,6 +5,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ReadingControls from "@/components/theme/ReadingControls";
 import ContentScale from "@/components/theme/ContentScale";
+import AvisoSinInternet from "@/components/sinInternet/AvisoSinInternet";
 
 export default async function DashboardLayout({
   children,
@@ -52,6 +53,11 @@ export default async function DashboardLayout({
         <div data-suelo className="fixed bottom-20 right-3 z-30 md:hidden">
           <ReadingControls className="shadow-lg" />
         </div>
+
+        {/* «Copia guardada» / «sin conexión», y el refresco de lo guardado (O-96).
+            La hora es la de AHORA en el servidor: si la página llega más vieja,
+            salió de lo guardado. */}
+        <AvisoSinInternet generado={new Date().toISOString()} usuario={user.id} />
       </div>
     </ThemeProvider>
   );

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SERVICE_TYPE_META, formatServiceDate } from "@/lib/services";
 import { ESTADO_CULTO, estadoDe, puedeVerCulto } from "@/lib/cultos";
 import type { Service } from "@/types";
+import BotonGuardarSinInternet from "@/components/sinInternet/BotonGuardarSinInternet";
 
 type ServiceRow = Service & { service_songs: { count: number }[] };
 
@@ -55,6 +56,8 @@ export default async function ServicesPage() {
       </div>
 
       <div className="flex-1 p-4 md:p-8">
+        {/* El mismo de catálogo: guarda las dos cosas a la vez (O-96). */}
+        {user && <BotonGuardarSinInternet usuario={user.id} />}
         {services.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {services.map((s) => {

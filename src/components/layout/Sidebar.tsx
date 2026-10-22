@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import ReadingControls from "@/components/theme/ReadingControls";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { seccionesDe } from "@/lib/navegacion";
+import { borrarCopias } from "@/lib/guardarSinInternet";
 import type { Profile } from "@/types";
 
 
@@ -24,6 +25,10 @@ export default function Sidebar({
   const { toggleSidebar } = useTheme();
 
   async function handleSignOut() {
+    // O-96, Fase 4 (Isaac: «sí»): al salir no queda nada guardado en el
+    // aparato. Si no, una tablet compartida seguiría enseñando las canciones
+    // —y las letras, que no son para todos los roles— sin sesión.
+    await borrarCopias();
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");

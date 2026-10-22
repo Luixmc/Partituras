@@ -43,6 +43,7 @@ const MODULOS = [
   "notas",
   "coloresSeccion",
   "tonoLeido",
+  "sinInternet",
 ];
 
 function preparar() {

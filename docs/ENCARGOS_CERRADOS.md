@@ -4,6 +4,106 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-22 · O-96 · Ver la página sin internet (r88)
+
+**Hecho, las cinco fases, publicado en r88.** Lo que quedó (y por qué así):
+* **Fase 1** · `PWARegister` registra al montar si `readyState === "complete"` (L-497). Medido: perfil limpio →
+  `/sw.js?v=…` registrado solo.
+* **Fase 2** · `sw.js` nuevo: páginas **red primero con 6 s de plazo** (no 4: las páginas tardan 1,3–2,6 s
+  con buena señal desde La Guajira), si no, fallo o 5xx → la copia (y si no está la dirección exacta, la
+  misma sin `?…`); `/_next/static` primero la copia; las peticiones `rsc` de Next **no se tocan** (si fallan,
+  Next recarga la página entera y esa sí pasa por el SW — así un `router.refresh()` del admin nunca recibe
+  una copia vieja); página propia «Sin internet · no está guardada». Aviso `AvisoSinInternet` («Copia
+  guardada · fecha» si la hora del servidor tiene > 5 min, o «Sin conexión»), en el layout del panel y en
+  `s/[token]/layout.tsx`, `print:hidden`. Solo cachés con prefijo `partituras-` (L-373).
+* **Fase 3** · `BotonGuardarSinInternet` en `/catalog` y `/services`: baja `/catalog`, `/services`, cada
+  `/catalog/<id>` y cada `/services/<id>` + `/present`, más los `/_next/static` que piden. **Las canciones
+  salen de los enlaces del propio catálogo**, así cada rol guarda lo que puede ver. **NO se guarda la
+  pantalla completa de cada canción suelta**: lleva el catálogo entero dentro (233 KB) y serían ~23 MB en vez
+  de ~10; la de los cultos sí. Refresco automático (`hayQueRefrescar`): despliegue nuevo o más de un día,
+  solo si ESA cuenta lo guardó. **Un despliegue no borra la última copia completa** (`activate` conserva la
+  que lleva `/__sin-internet__`) hasta que hay otra: si no, abrir la app con señal floja tras publicar
+  dejaba al músico sin nada el domingo. Sin red, la **búsqueda del catálogo filtra las tarjetas en
+  pantalla** (`data-buscar`, título y autor; la letra no viene en la tarjeta).
+* **Fase 4** · «Cerrar sesión» (`Sidebar`) llama `borrarCopias()`; `/salir` lo borra en el SW.
+* **Fase 5** · 11 pruebas nuevas (`pruebas/sinInternet.test.mjs`). Recorrido en Chrome sin ventana con
+  proxy muerto + `offline` + reloj 10 min adelante, contra `next start` local: todo ✅ (ver HISTORIAL r88).
+  Cifras medidas: **98 canciones y 3 cultos, 136 entradas, 10,3 MB en el aparato, 1,17 MB de datos, ~40 s**.
+
+**Lo que hay que saber al tocarlo:**
+* `public/sw.js` repite `PREFIJO` y `MARCA` de `lib/sinInternet.ts` (el SW no pasa por el compilador).
+* El aviso de copia compara la hora del servidor con la de **carga** de la página (constante de módulo), no
+  con la de ahora: el layout no se vuelve a armar al navegar dentro de la app.
+* Para medir: el perfil del navegador sin ventana **fuera de `%TEMP%`** (L-498), y `Date.now` adelantado con
+  `Page.addScriptToEvaluateOnNewDocument` para ver el aviso. Scripts en el scratchpad de la conversación.
+
+##### El análisis y el plan, tal como se le presentaron a Isaac
+
+
+> ✅ **Respuestas de Isaac (2026-10-22):** *«1. el catalogo, 2. un musico usa ipad, 3. si, 4. toda la fase»*.
+> 1. **Se guarda TODO EL CATÁLOGO**, no solo el culto (~8–10 MB por aparato).
+> 2. **Un músico usa iPad** → hay que decirle que **instale la página** (Safari → Compartir → «Añadir a pantalla de
+>    inicio») y entre con su cuenta **dentro** de la app instalada: así no le aplica el borrado de los 7 días.
+> 3. **Sí: «Salir» borra las copias.**
+> 4. **Todas las fases juntas** (1 a 5), sin volver a pedir permiso entre fases.
+
+
+Isaac, 2026-10-22: *«¿se puede ver la página de Partituras sin internet, como hago con GestionDineroTrabajo? La idea es
+poder abrir las canciones (y el culto del domingo) en la tablet o el teléfono aunque no haya conexión»*. Pidió analizar,
+explicar qué se vería, qué no y cuánto cuesta, y **no programar hasta aprobar el plan**.
+
+**Lo medido** (Chrome sin ventana contra producción; «sin internet» = proxy muerto, que corta también al service worker):
+* 🔴 **El service worker de hoy NO SE REGISTRA.** Perfil limpio, tres visitas, 24 s: `getRegistrations()` = **0**. Registrado
+  a mano, funciona. Causa probable: `PWARegister.tsx` espera el evento `load` **dentro de un `useEffect`**, y cuando React
+  monta el `load` ya pasó (`readyState` = `complete`), así que nunca se llama. → **Hoy nadie tiene copia sin internet**, y
+  lo que se le achacaba a T-02 en aparatos nuevos no puede venir de este caché (ver la nota en `docs/TRAMPAS.md`, T-02).
+* ✅ **Con el service worker registrado, lo YA VISITADO se ve sin internet tal cual**: el culto público (lista y
+  presentación, 6 canciones) abrió sin red y **pasó de canción** (1/6 → 2/6). Las páginas llegan con los datos dentro
+  (las arma el servidor), así que guardar la página guarda la canción.
+* ❌ Lo **no visitado** no abre (sale el error del navegador).
+* **Pesos:** el culto (lista + presentación) = **878 KB en 26 respuestas**, casi todo es el programa (JS), no las canciones.
+  Todas las canciones juntas en la base: **98 canciones, ~84 KB de texto** (acordes 35 KB, letras 38 KB, 30 versiones 10 KB).
+  Páginas: catálogo **395 KB**, una canción **85 KB**, su pantalla completa **233 KB** (lleva todo el catálogo para «la siguiente»).
+  → Guardar el **catálogo entero** página por página ≈ **8–10 MB** en el aparato.
+* Dos cosas del `sw.js` actual que pesan para el domingo: **no tiene tiempo límite** (con señal floja espera a la red
+  antes de usar la copia) y **cada despliegue borra todo lo guardado** (`activate`).
+* ⚠️ Trampa de la medición: **Brave/Chrome sin ventana con el perfil en `%TEMP%`** dan `UnknownError` al abrir CacheStorage;
+  con el perfil en `repo/.pruebas-tmp/` (ignorada) funciona. Script en el scratchpad de la conversación, no en el repo.
+
+**GestionDineroTrabajo no sirve de molde entero:** allí los datos **viven en el aparato** (página estática, la nube es
+opcional); aquí la verdad está en Supabase y cada página la arma el servidor con la sesión. Copiar ese modelo = reescribir
+la app. **Sí se aprovecha** lo que aprendió con su `sw.js`: L-86 y L-373 (caché con versión y prefijo propio), el
+`waitUntil` del *stale-while-revalidate*, el aviso de 401/403 y probar en **modo avión**.
+
+**Qué se vería sin internet y qué no** (con el plan hecho): ✅ cultos y canciones guardados, pasar de canción, tamaño de
+letra, transponer y colores (es del navegador) · ❌ **la melodía no suena** (los sonidos vienen de un servidor de fuera),
+❌ **editar/guardar** (va a la base), ❌ importar PDF/OCR, ❌ notas privadas nuevas, ❌ lo nunca abierto con internet.
+
+**Riesgo de ver canciones viejas:** con internet siempre se ve lo último (red primero). Sin internet se ve **la copia del
+último día que se abrió con internet**; si Isaac corrige una canción el domingo temprano, quien esté sin señal ve la de
+antes. → Por eso el plan pone un **aviso visible con la fecha de la copia**.
+
+**PLAN PROPUESTO — fases (ninguna empezada):**
+* **Fase 1 · Que el service worker se registre de verdad.** Registrar al montar si `readyState === "complete"`, si no en
+  `load`. Comprobar en producción con perfil limpio: registrado y lo visitado abre en modo avión. Solo con esto, lo visitado
+  con internet (desde el último despliegue) se ve sin internet.
+* **Fase 2 · Señal floja y aviso.** Tiempo límite de ~4 s a la red antes de usar la copia · barrita **«Sin conexión · copia
+  del sáb 21 oct, 8:15 p. m.»** (fecha de la cabecera `Date` guardada) · página propia de «esta canción no está guardada»
+  en vez del error del navegador (hoy cae a `/catalog`, que puede no estar) · borrar solo cachés con prefijo `partituras-`.
+* **Fase 3 · Botón «Guardar para tocar sin internet».** En el culto: baja de una vez su lista, su presentación y cada
+  canción (~1–1,5 MB). Opcional (pregunta 1): **todo el catálogo** (~8–10 MB). Lo guardado **se vuelve a bajar solo**
+  tras un despliegue, la primera vez que haya internet (si no, cada push lo borraría). Dice qué hay guardado y de cuándo.
+* **Fase 4 · Privacidad.** «Salir» borra las copias (si no, la tablet compartida sigue enseñando letras y notas sin sesión).
+* **Fase 5 · Comprobar y documentar.** Modo avión real en su teléfono y su tablet · pruebas del cálculo del tiempo límite y
+  de qué se guarda · `CAMBIOS.md` + `/novedades` + README · T-02 al día · carpeta compartida.
+
+**Preguntas a Isaac (sin respuesta todavía):**
+1. ¿Se guarda **solo el culto** (con su botón) o también **todo el catálogo** (~8–10 MB por aparato)?
+2. ¿Algún músico usa **iPhone/iPad**? Safari borra lo guardado tras **7 días sin abrir** la página si no está instalada.
+3. ¿Al **salir de la cuenta** se borran las copias (Fase 4)?
+4. ¿Las fases van **todas juntas** o primero la 1 y 2 (pequeñas) para probarlas un domingo?
+
+
 #### ✅ Cerrado el 2026-10-20 · O-95 · Eliminar una canción (r87)
 
 Isaac: *«hay alguna opcion para eliminar una canción que esté montada?»* (a raíz de la «Escuché La Voz»

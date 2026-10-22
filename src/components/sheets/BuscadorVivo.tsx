@@ -22,6 +22,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
+import { filtrarSinInternet, mostrarTodasLasTarjetas } from "@/lib/guardarSinInternet";
+
 type Props = {
   /** A qué pantalla se busca: `/catalog`, `/letras`, `/melodias`. */
   base: string;
@@ -68,6 +70,11 @@ export default function BuscadorVivo({ base, q = "", placeholder, extra }: Props
 
   const irA = useCallback(
     (busqueda: string) => {
+      // 📴 Sin internet no se le puede preguntar al servidor (O-96): se filtran
+      // las tarjetas que ya están en pantalla. Antes, cada letra intentaba
+      // recargar la página y, sin conexión, se perdía lo escrito.
+      if (!navigator.onLine && filtrarSinInternet(busqueda)) return;
+      mostrarTodasLasTarjetas();
       const params = new URLSearchParams(otros);
       const limpia = busqueda.trim();
       if (limpia) params.set("q", limpia);
@@ -83,7 +90,9 @@ export default function BuscadorVivo({ base, q = "", placeholder, extra }: Props
   useEffect(() => {
     // Lo que hay en la caja ya es lo que pide la dirección: no hay nada que
     // buscar. Esto es lo que corta el lazo después de cada búsqueda.
-    if (texto.trim() === q.trim()) return;
+    // Sin internet la dirección no cambia al filtrar, así que esta comparación
+    // no sirve para cortar: se filtra con lo que haya (también al borrar todo).
+    if (texto.trim() === q.trim() && navigator.onLine) return;
     const t = setTimeout(() => irA(texto), ESPERA_MS);
     return () => clearTimeout(t);
   }, [texto, q, irA]);

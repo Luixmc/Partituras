@@ -32,7 +32,9 @@ export default function SheetCard({
   const estado = esAdmin ? ESTADO[sheet.status] ?? ESTADO.draft : null;
 
   return (
-    <article className="relative rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+    // `data-buscar`: sin internet, la búsqueda filtra estas tarjetas en la
+    // pantalla, porque no puede preguntarle al servidor (O-96).
+    <article data-buscar={`${sheet.title} ${sheet.composer ?? ""}`} className="relative rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
       {favorito !== undefined && (
         <BotonFavorito sheetId={sheet.id} favorito={favorito} titulo={sheet.title} />
       )}

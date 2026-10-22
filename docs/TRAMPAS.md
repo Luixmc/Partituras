@@ -44,6 +44,9 @@ worker en cada despliegue — **pendiente, ver §9**.
 (`PWARegister` espera el `load` dentro de un `useEffect`, y para entonces ya pasó). Así que en un aparato nuevo **este
 caché no existe**: si alguien ve una versión vieja, buscar antes el caché HTTP o un registro antiguo de antes de P-12. Al
 arreglar el registro (O-96 Fase 1) esta trampa vuelve a ser posible; el plan lleva un aviso visible de «copia guardada».
+✅ *2026-10-22, r88:* registro arreglado. El caché **sí existe** desde r88, pero es **red primero**: con internet se ve
+lo último. Solo si la red tarda más de **6 s**, falla o da 5xx se enseña la copia, y entonces sale abajo **«Copia
+guardada · fecha»**. Si alguien dice «no veo el cambio» y no ve ese aviso, no es este caché.
 
 **T-09 · Mover una dirección sin dejar la vieja redirigiendo rompe lo que la gente tiene abierto.**
 *Síntoma:* Isaac recargó la pestaña que tenía y le salió **404**.

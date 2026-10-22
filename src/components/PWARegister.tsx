@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-// Registra el service worker para que la app sea instalable (PWA) y funcione
-// mejor offline. No renderiza nada.
+// Registra el service worker: la app se puede instalar y lo guardado se ve SIN
+// INTERNET (O-96). No renderiza nada.
 export default function PWARegister() {
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -20,6 +20,16 @@ export default function PWARegister() {
         /* ignoramos errores de registro */
       });
     };
+
+    // 🔴 L-497: aquí solo se esperaba el `load`, y cuando React monta este
+    // componente el `load` YA PASÓ (la página carga antes de que React
+    // termine). Un evento que ya ocurrió no vuelve a dispararse, así que el
+    // service worker **no se registró en ningún aparato** hasta el 2026-10-22
+    // — medido con un perfil limpio: cero registros tras tres visitas.
+    if (document.readyState === "complete") {
+      register();
+      return;
+    }
     window.addEventListener("load", register);
     return () => window.removeEventListener("load", register);
   }, []);

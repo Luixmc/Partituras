@@ -7,6 +7,7 @@ import { buscarCanciones, categoriasElegidas, estadoElegido, filtrosAQuery, type
 import type { Category } from "@/types";
 import BuscadorVivo from "@/components/sheets/BuscadorVivo";
 import { misFavoritos } from "@/lib/favoritos";
+import BotonGuardarSinInternet from "@/components/sinInternet/BotonGuardarSinInternet";
 
 export default async function CatalogPage(
   props: {
@@ -75,6 +76,8 @@ export default async function CatalogPage(
       </div>
 
       <div className="flex-1 p-4 md:p-8">
+        {/* Guardar el catálogo y los cultos para verlos sin internet (O-96). */}
+        {user && <BotonGuardarSinInternet usuario={user.id} />}
         {sheets && sheets.length > 0 ? (
           <>
             <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
