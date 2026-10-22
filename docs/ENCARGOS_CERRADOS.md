@@ -4,6 +4,24 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-22 · O-97 · Se guarda solo, sin botón y sin aviso (r89)
+
+Isaac, el mismo día de r88: *«cambié de opinión en algo, quiero que lo guarde apenas uno abra la pagina, osea
+que no tenga que darle al botón para que no esté ese botón y que no salga ningún aviso de que se hizo el
+guardado»*. → **SUPERA la Fase 3 de O-96** (abajo): ya no hay botón «Guardar para tocar sin internet» ni su
+«Listo: …», ni «Borrar», ni la barra de progreso.
+* **Cómo quedó:** `AvisoSinInternet` (layout del panel) lanza `guardarTodo` 8 s después de abrir cualquier página
+  con sesión, en silencio, si `hayQueRefrescar` dice que sí: **la cuenta no tiene copia en el aparato** (antes
+  devolvía «no» — era el botón quien lo pedía la primera vez), hay despliegue nuevo, o pasó un día.
+* **Lo que se quedó, a propósito:** el aviso «Copia guardada · fecha» / «Sin conexión». No es un aviso de que
+  se guardó: sale solo cuando lo que se VE es una copia, y es lo que protege de tocar una versión vieja.
+  «Cerrar sesión» y `/salir` siguen borrando todo.
+* **Lo que se fue con el botón:** el consejo del iPad (instalar la página). Hay que decírselo al músico en persona.
+* **El costo, dicho:** cada músico gasta ~1,1 MB de datos la primera vez que abre con internet, y otra vez tras
+  cada publicación o al día — **sin enterarse**, porque no hay aviso. Ocupa ~10 MB en el aparato.
+* Comprobado en local (`next start`): sin botón ✅, a mitad y al terminar no se ve ningún aviso ✅, guardado solo
+  en 44 s (98 canciones + 3 cultos, 10,3 MB, 1,14 MB de datos) ✅, y todo el recorrido sin red igual que en r88.
+
 #### ✅ Cerrado el 2026-10-22 · O-96 · Ver la página sin internet (r88)
 
 **Hecho, las cinco fases, publicado en r88.** Lo que quedó (y por qué así):
@@ -16,7 +34,7 @@
   una copia vieja); página propia «Sin internet · no está guardada». Aviso `AvisoSinInternet` («Copia
   guardada · fecha» si la hora del servidor tiene > 5 min, o «Sin conexión»), en el layout del panel y en
   `s/[token]/layout.tsx`, `print:hidden`. Solo cachés con prefijo `partituras-` (L-373).
-* **Fase 3** · `BotonGuardarSinInternet` en `/catalog` y `/services`: baja `/catalog`, `/services`, cada
+* ~~**Fase 3** · `BotonGuardarSinInternet` en `/catalog` y `/services`~~ → 🔴 **SUPERADO por O-97 (arriba): sin botón, se guarda solo.** Lo de abajo sobre qué se baja sigue valiendo: baja `/catalog`, `/services`, cada
   `/catalog/<id>` y cada `/services/<id>` + `/present`, más los `/_next/static` que piden. **Las canciones
   salen de los enlaces del propio catálogo**, así cada rol guarda lo que puede ver. **NO se guarda la
   pantalla completa de cada canción suelta**: lleva el catálogo entero dentro (233 KB) y serían ~23 MB en vez

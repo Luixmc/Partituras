@@ -72,19 +72,19 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "22 de octubre de 2026",
     "iso": "2026-10-22",
-    "entrada": "Las canciones y los cultos ya se pueden abrir <strong>sin internet</strong>: se guardan una vez en el teléfono o la tablet y abren aunque no haya señal.",
+    "entrada": "Las canciones y los cultos ya se pueden abrir <strong>sin internet</strong>: se guardan solos en el teléfono o la tablet y abren aunque no haya señal.",
     "secciones": [
       {
         "titulo": "Tocar sin internet",
-        "resumen": "Un botón guarda el catálogo y los cultos en tu aparato; sin señal siguen abriendo.",
+        "resumen": "El catálogo y los cultos se guardan solos en tu aparato; sin señal siguen abriendo.",
         "cambios": [
           {
             "tipo": "nuevo",
-            "titulo": "Botón «Guardar para tocar sin internet», en el Catálogo y en Cultos.",
+            "titulo": "Las canciones se guardan solas en tu aparato.",
             "detalle": [
-              "Con internet, púlsalo una vez: guarda <strong>todas las canciones y los cultos</strong> en tu teléfono o tablet. Ocupa unos <strong>10 MB</strong> en el aparato y gasta poco más de <strong>1 MB de datos</strong>. Tarda menos de un minuto.",
+              "No hay que hacer nada: al abrir la página <strong>con internet</strong> y con tu cuenta, en menos de un minuto se guardan <strong>todas las canciones y los cultos</strong> en tu teléfono o tablet, sin avisos ni botones. Ocupa unos <strong>10 MB</strong> en el aparato y gasta poco más de <strong>1 MB de datos</strong>.",
               "Sin señal se puede abrir el catálogo, cada canción y cada culto, y en la presentación del culto <strong>pasar de canción</strong> como siempre. La búsqueda del catálogo también funciona, por título y autor.",
-              "Lo guardado <strong>se pone al día solo</strong> cuando abres la página con internet, como mucho una vez al día y cada vez que hay cambios en la página."
+              "Lo guardado <strong>se pone al día solo</strong> al abrir la página con internet: como mucho una vez al día, y cada vez que hay cambios en la página."
             ]
           },
           {
@@ -99,14 +99,14 @@ export const TANDAS: Tanda[] = [
             "tipo": "nuevo",
             "titulo": "Al cerrar sesión se borra lo guardado.",
             "detalle": [
-              "Para que una tablet compartida no siga enseñando las canciones a quien no tiene cuenta. Al volver a entrar, se guarda otra vez con el botón."
+              "Para que una tablet compartida no siga enseñando las canciones a quien no tiene cuenta. Al volver a entrar con internet, se guardan solas otra vez."
             ]
           },
           {
             "tipo": "nuevo",
             "titulo": "En iPad o iPhone: instala la página.",
             "detalle": [
-              "Safari borra lo guardado si pasan <strong>7 días sin abrir</strong> la página. Para que no pase, ábrela en Safari, toca <strong>Compartir → «Añadir a pantalla de inicio»</strong>, y entra con tu cuenta desde ese icono. Ahí guarda las canciones con el botón."
+              "Safari borra lo guardado si pasan <strong>7 días sin abrir</strong> la página. Para que no pase, ábrela en Safari, toca <strong>Compartir → «Añadir a pantalla de inicio»</strong>, y entra con tu cuenta desde ese icono: ahí se guardan solas."
             ]
           }
         ]

@@ -8,7 +8,12 @@ import { BUILD, guardadoActual, guardarTodo, puedeGuardar } from "@/lib/guardarS
 
 // ─────────────────────────────────────────────────────────────
 // El aviso de «esto es una copia» y «sin conexión» (O-96, Fase 2), y el
-// refresco automático de lo guardado (Fase 3).
+// guardado AUTOMÁTICO y callado de todo (O-97).
+//
+// 📌 Lo que se avisa y lo que no: Isaac no quiere ningún aviso de que se
+// guardó (O-97). Este componente SOLO habla cuando lo que se ve es una copia o
+// no hay red — eso no es un aviso de guardado, es el del riesgo de estar
+// tocando una versión vieja, y se queda.
 //
 // 🔴 POR QUÉ EL AVISO NO ES UN ADORNO: sin internet se ve la copia del último
 // día que se abrió con internet. Si Isaac corrige una canción el domingo
@@ -49,8 +54,9 @@ export default function AvisoSinInternet({
   const copia = useSyncExternalStore(nada, () => esCopia(generado, CARGADA), () => false);
   const [cerrado, setCerrado] = useState<"copia" | "red" | null>(null);
 
-  // Fase 3: lo guardado se vuelve a bajar solo si hay despliegue nuevo o tiene
-  // más de un día. Se espera un poco para no competir con la carga de la página.
+  // O-97: se guarda solo al abrir la página — si esta cuenta no tiene copia, si
+  // hay despliegue nuevo o si tiene más de un día — y sin decir nada. Se espera
+  // un poco para no competir con la carga de la página.
   useEffect(() => {
     if (!usuario || copia || !puedeGuardar()) return;
     const t = setTimeout(() => {

@@ -7,8 +7,8 @@
 //
 // 📌 Cómo funciona, en una línea: las páginas llegan del servidor CON las
 // canciones dentro, así que guardar la página es guardar la canción. Lo hace
-// el service worker (`public/sw.js`) con lo que se visita, y el botón «Guardar
-// para tocar sin internet» (`lib/guardarSinInternet.ts`) con todo de una vez.
+// el service worker (`public/sw.js`) con lo que se visita, y
+// `lib/guardarSinInternet.ts` con todo de una vez, solo, al abrir la página (O-97).
 //
 // Aquí vive lo que se puede probar sin navegador: qué páginas se guardan,
 // qué archivos del programa necesitan, cuándo hay que volver a bajarlo y
@@ -53,7 +53,7 @@ export function cultosEn(html: string): string[] {
 }
 
 /**
- * Lo que se guarda al pulsar el botón.
+ * Lo que se guarda de una vez.
  *
  * 📌 De cada canción se guarda su página (85 KB), **no su pantalla completa**:
  * esa lleva dentro el catálogo entero para pasar a «la siguiente» y pesa
@@ -121,9 +121,11 @@ export function leerGuardado(texto: string | null): Guardado | null {
 export const REFRESCO_MS = 24 * 60 * 60 * 1000;
 
 /**
- * ¿Hay que volver a bajar lo guardado? Solo si ESTA persona lo pidió alguna vez
- * en este aparato, y: hay despliegue nuevo (el anterior se borra con él), o la
- * copia tiene más de un día.
+ * ¿Hay que bajar lo guardado? Desde O-97 se guarda SOLO, sin botón (Isaac,
+ * 2026-10-22: «quiero que lo guarde apenas uno abra la pagina»), así que sí
+ * cuando: ESTA cuenta no tiene copia en este aparato (nunca, o es de otra
+ * cuenta de la misma tablet), hay despliegue nuevo, o la copia tiene más de un
+ * día. Si no, no: cada apertura no puede gastarle datos al músico.
  */
 export function hayQueRefrescar(
   g: Guardado | null,
@@ -131,7 +133,7 @@ export function hayQueRefrescar(
   usuario: string,
   ahora: number
 ): boolean {
-  if (!g || g.usuario !== usuario) return false;
+  if (!g || g.usuario !== usuario) return true;
   if (g.build !== build) return true;
   return ahora - Date.parse(g.fecha) > REFRESCO_MS;
 }

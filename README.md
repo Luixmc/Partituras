@@ -64,14 +64,14 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   que cada publicación limpia el anterior; y es *network-first*, o sea que **con internet siempre se
   ve lo último**.
   📴 **Funciona sin conexión** (O-96, 2026-10-22): las páginas llegan del servidor con las canciones
-  dentro, así que el *service worker* guarda cada página que se abre, y el botón **«Guardar para tocar
-  sin internet»** (catálogo y cultos) guarda de una vez el catálogo, cada canción y cada culto con su
-  presentación: **~10 MB** en el aparato, **~1,2 MB** de datos. Las páginas esperan la red **6 s** y si
-  no contesta enseñan la copia, con un aviso de **«Copia guardada · fecha»**. Lo guardado se refresca
-  solo tras un despliegue o al día; un despliegue **no borra** la última copia completa hasta tener la
+  dentro, así que el *service worker* guarda cada página que se abre, y al abrir cualquier página con
+  sesión se guarda **solo y sin avisar** (O-97, sin botón) el catálogo, cada canción y cada culto con su
+  presentación: **~10 MB** en el aparato, **~1,1 MB** de datos. Las páginas esperan la red **6 s** y si
+  no contesta enseñan la copia, con un aviso de **«Copia guardada · fecha»**. Se baja si esa cuenta no
+  tiene copia en el aparato, tras un despliegue o al día; un despliegue **no borra** la última copia completa hasta tener la
   nueva. «Cerrar sesión» y `/salir` lo borran todo. Sin red **no** hay melodía (los sonidos vienen de
   fuera), ni edición, ni la pantalla completa de una canción suelta del catálogo (pesaría ~23 MB).
-  Las cuentas viven en `lib/sinInternet.ts`, con pruebas; el botón, en `lib/guardarSinInternet.ts`.
+  Las cuentas viven en `lib/sinInternet.ts`, con pruebas; la descarga, en `lib/guardarSinInternet.ts`.
   ⚠️ **Hasta el 2026-10-22 el *service worker* no se registraba en ningún aparato** (esperaba un
   `load` que ya había pasado): lo de «el caché del despliegue» de arriba no aplicaba a nadie.
   📌 **`orientation` es `any`** (2026-09-04): la app **sigue al aparato**. Estuvo en
@@ -435,6 +435,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r89** | **Se guarda solo** (O-97, cambio de opinión de Isaac): fuera el botón «Guardar para tocar sin internet»; al abrir la página con sesión se baja todo en silencio si la cuenta no tiene copia, hay despliegue nuevo o pasó un día. Sigue el aviso de «Copia guardada» al VER una copia |
 | **r88** | **Tocar sin internet** (O-96): el *service worker* por fin se registra (L-497), espera la red 6 s y si no, la copia · botón «Guardar para tocar sin internet» en catálogo y cultos (98 canciones y los cultos, ~10 MB) · aviso «Copia guardada · fecha» · búsqueda del catálogo sin red · «Cerrar sesión» borra lo guardado. **305 pruebas** |
 | **r87** | **Eliminar una canción** (O-95): botón en la pestaña Edición, solo administradores; el diálogo nombra los cultos de los que se cae (se deja borrar avisando, decisión de Isaac). La base ya lo permitía (`sheets_delete_admin`, todo en cascada); la acción (`eliminarCancion`, `catalog/actions.ts`) pide la fila borrada de vuelta, porque un borrado bloqueado por la seguridad de la base devuelve 0 filas sin error |
 | **r86** | **El tono original ya no se ofrece como otra tonalidad** (O-94): en «Nueva tonalidad» y en el «Transponer» del culto sale desactivado con «· original» (`esElOriginal`, `lib/music.ts`: misma altura y mismo modo, así que `C#` = `Db`); y si el campo «Tonalidad» cae en un tono que ya tiene versión, la ficha avisa sin impedir. **294 pruebas** |

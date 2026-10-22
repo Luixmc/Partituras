@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// «Guardar para tocar sin internet» (O-96, Fase 3): lo que hace el botón.
+// Guardar para tocar sin internet (O-96), SOLO y en silencio (O-97).
 //
 // Baja el catálogo, la lista de cultos, cada canción y cada culto con su
 // presentación, más los archivos del programa que esas páginas piden, y lo
@@ -7,8 +7,13 @@
 // Las cuentas puras —qué se guarda, cuándo se refresca— están en
 // `lib/sinInternet.ts`, con pruebas; esto es la parte que necesita navegador.
 //
+// 🔴 Isaac, 2026-10-22, cambiando de opinión sobre el botón: «quiero que lo
+// guarde apenas uno abra la pagina… que no esté ese botón y que no salga
+// ningún aviso de que se hizo el guardado». Lo lanza `AvisoSinInternet` al
+// abrir cualquier página con sesión; aquí no se pinta nada.
+//
 // 📌 Se hace desde la página y no desde el service worker porque la página
-// puede contar el progreso y enterarse de que la sesión venció. Las peticiones
+// sabe de quién es la sesión y se entera de que venció. Las peticiones
 // llevan `x-partituras-guardar` para que el service worker las deje pasar a la
 // red sin meterse: si no, con señal floja podría devolver la copia vieja y se
 // «guardaría» lo mismo que ya había.
@@ -47,53 +52,20 @@ export function puedeGuardar(): boolean {
   return typeof window !== "undefined" && "caches" in window && "serviceWorker" in navigator;
 }
 
-// ── Lo que el aparato recuerda, y quién se entera cuando cambia ──
+// ── Lo que el aparato recuerda ──
 
-const AVISO = "partituras-sin-internet-cambio";
-
-function avisar() {
-  window.dispatchEvent(new Event(AVISO));
-}
-
-/** Para `useSyncExternalStore`: lo guardado, en crudo (el texto es estable entre lecturas). */
-export function suscribirGuardado(cambio: () => void): () => void {
-  window.addEventListener(AVISO, cambio);
-  window.addEventListener("storage", cambio);
-  return () => {
-    window.removeEventListener(AVISO, cambio);
-    window.removeEventListener("storage", cambio);
-  };
-}
-
-export function guardadoEnCrudo(): string {
+export function guardadoActual(): Guardado | null {
   try {
-    return localStorage.getItem(CLAVE_GUARDADO) ?? "";
+    return leerGuardado(localStorage.getItem(CLAVE_GUARDADO));
   } catch {
-    return "";
+    return null;
   }
 }
 
-export function guardadoActual(): Guardado | null {
-  return leerGuardado(guardadoEnCrudo());
-}
-
-// ── El progreso, compartido entre el botón y el refresco automático ──
-
-export type Progreso = { hechas: number; total: number } | null;
-let progreso: Progreso = null;
-/** Lo guardado, más cuántas páginas no se pudieron bajar (para decirlo). */
+/** Lo guardado, más cuántas páginas no se pudieron bajar. */
 export type Resultado = Guardado & { fallidas: number };
 
 let enCurso: Promise<Resultado> | null = null;
-
-function ponerProgreso(p: Progreso) {
-  progreso = p;
-  avisar();
-}
-
-export function progresoActual(): Progreso {
-  return progreso;
-}
 
 // ── Guardar ──
 
@@ -119,14 +91,13 @@ async function enTandas<T>(cosas: T[], hacer: (cosa: T) => Promise<void>) {
 }
 
 /**
- * Baja todo y lo deja guardado. Si ya hay una descarga en marcha (el botón y el
- * refresco automático a la vez), devuelve esa misma en vez de empezar otra.
+ * Baja todo y lo deja guardado. Si ya hay una descarga en marcha (dos pestañas
+ * de la app montan el aviso a la vez), devuelve esa misma en vez de empezar otra.
  */
 export function guardarTodo(usuario: string): Promise<Resultado> {
   if (!enCurso) {
     enCurso = guardar(usuario).finally(() => {
       enCurso = null;
-      ponerProgreso(null);
     });
   }
   return enCurso;
@@ -149,15 +120,12 @@ async function guardar(usuario: string): Promise<Resultado> {
     return html;
   };
 
-  ponerProgreso({ hechas: 0, total: 2 });
   const catalogo = await guardarPagina("/catalog", await bajar("/catalog"));
   const cultos = await guardarPagina("/services", await bajar("/services"));
 
   const idsCanciones = cancionesEn(catalogo);
   const idsCultos = cultosEn(cultos);
   const resto = paginasAGuardar(idsCanciones, idsCultos).slice(2);
-  let hechas = 2;
-  ponerProgreso({ hechas, total: resto.length + 2 });
 
   await enTandas(resto, async (ruta) => {
     try {
@@ -166,7 +134,6 @@ async function guardar(usuario: string): Promise<Resultado> {
       if (e instanceof SesionVencida) throw e;
       fallidas++;
     }
-    ponerProgreso({ hechas: ++hechas, total: resto.length + 2 });
   });
 
   // Los archivos del programa: los que ya estén (los guardó el service worker al
@@ -214,7 +181,6 @@ async function guardar(usuario: string): Promise<Resultado> {
   // está instalada; Safari lo ignora y ahí lo que vale es instalarla).
   navigator.storage?.persist?.().catch(() => {});
 
-  avisar();
   return { ...guardado, fallidas };
 }
 
@@ -235,7 +201,6 @@ export async function borrarCopias(): Promise<void> {
   } catch {
     /* igual */
   }
-  avisar();
 }
 
 // ── La búsqueda del catálogo, sin internet ──

@@ -4,6 +4,15 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-22 · r89 · Se guarda solo, sin botón (O-97)
+
+Isaac cambió de opinión sobre r88: que se guarde al abrir la página, sin botón y sin aviso de que se guardó. Fuera
+`BotonGuardarSinInternet` (y su progreso, mensajes y «Borrar»); `hayQueRefrescar` devuelve «sí» cuando la cuenta
+no tiene copia; el guardado lo lanza `AvisoSinInternet` en silencio. Se quedó el aviso de «Copia guardada», que
+no es de guardado sino del riesgo de canción vieja. Recorrido local: sin botón, sin aviso a mitad ni al final,
+guardado solo en 44 s, sin red todo ✅. 305 pruebas, lint 0 errores, build limpio. Pendiente de Isaac: probarlo
+en sus aparatos y avisar al músico del iPad (el consejo se fue con el botón).
+
 ### 2026-10-22 · r88 · Tocar sin internet (O-96)
 
 Isaac preguntó si se podía ver la página sin internet, como GestionDineroTrabajo. Medido antes de proponer: **el

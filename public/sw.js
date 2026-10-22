@@ -8,7 +8,7 @@
 //   · lo que no es GET o no es de aquí (Supabase, sonidos)  → no se toca
 //   · las peticiones internas de Next (`rsc`)               → no se tocan: si
 //     fallan, Next recarga la página entera, y esa sí pasa por aquí
-//   · lo que guarda el botón (`x-partituras-guardar`)       → directo a la red
+//   · lo que se guarda solo (`x-partituras-guardar`, O-97)  → directo a la red
 //   · `/salir`                                              → borra las copias
 //   · `/_next/static/…` (llevan el contenido en el nombre)  → primero la copia
 //   · las páginas                                           → primero la red,
@@ -44,7 +44,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       // De los despliegues anteriores se conserva SOLO la última copia completa
-      // (la del botón «Guardar»), hasta que la página baje la de este. Sin esto,
+      // (la que se guarda sola, O-97), hasta que la página baje la de este. Sin esto,
       // abrir la app con señal floja después de un despliegue borraba lo guardado
       // y no daba tiempo a bajarlo otra vez: justo el domingo en la iglesia.
       const viejas = (await caches.keys()).filter((k) => k.startsWith(PREFIJO) && k !== CACHE);
@@ -179,7 +179,7 @@ p{color:#475569;line-height:1.5;margin:.4rem 0}
 <div style="font-size:2.5rem">📴</div>
 <h1>Sin internet</h1>
 <p>Esta página no está guardada en este aparato, así que sin conexión no se puede abrir.</p>
-<p>Para la próxima: con internet, entra al <b>Catálogo</b> y pulsa <b>«Guardar para tocar sin internet»</b>.</p>
+<p>Para la próxima: abre la página <b>con internet</b> y déjala abierta un minuto; las canciones se guardan solas.</p>
 <div class="bs">${verCancion}<a class="b" href="/catalog">Ir al catálogo</a>
 <button class="b b2" onclick="history.back()">Volver</button></div>
 </div></body></html>`;

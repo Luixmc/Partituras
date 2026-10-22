@@ -4,8 +4,9 @@
 // 🔴 POR QUÉ IMPORTA QUE ESTO ESTÉ PROBADO: si `cancionesEn` deja de ver un
 // enlace, esa canción no se guarda y el domingo, sin señal, sale «no está
 // guardada» — sin que ningún error lo avise antes. Y si `hayQueRefrescar`
-// se equivoca hacia el «sí», cada músico baja ~2,5 MB de datos en cada
-// apertura; hacia el «no», ve canciones viejas sin saberlo.
+// se equivoca hacia el «sí», cada músico baja ~1 MB de datos en CADA
+// apertura sin enterarse (O-97: se guarda solo y sin aviso); hacia el «no»,
+// ve canciones viejas sin saberlo.
 // ─────────────────────────────────────────────────────────────
 
 import { test } from "node:test";
@@ -93,10 +94,11 @@ test("lo guardado se lee, y lo roto o ajeno no rompe nada", () => {
   assert.equal(leerGuardado(JSON.stringify({ build: "x" })), null);
 });
 
-test("refrescar: solo si ESTA persona lo guardó, y hay despliegue nuevo o pasó un día", () => {
+test("🔴 O-97 · se guarda SOLO: sin copia de esta cuenta, despliegue nuevo o más de un día", () => {
   const ahora = Date.parse(BIEN.fecha) + 60 * 60 * 1000; // una hora después
-  assert.equal(hayQueRefrescar(null, "868f8ad", "u1", ahora), false, "nunca pidió guardar: no se baja nada");
-  assert.equal(hayQueRefrescar(BIEN, "868f8ad", "u2", ahora), false, "otra cuenta en la misma tablet");
+  // Isaac, 2026-10-22: «quiero que lo guarde apenas uno abra la pagina». Ya no hay botón.
+  assert.equal(hayQueRefrescar(null, "868f8ad", "u1", ahora), true, "primera vez en este aparato: se guarda");
+  assert.equal(hayQueRefrescar(BIEN, "868f8ad", "u2", ahora), true, "otra cuenta en la misma tablet: la suya");
   assert.equal(hayQueRefrescar(BIEN, "868f8ad", "u1", ahora), false, "mismo despliegue, de hace una hora");
   assert.equal(hayQueRefrescar(BIEN, "aaaaaaa", "u1", ahora), true, "despliegue nuevo: lo viejo se borra con él");
   assert.equal(hayQueRefrescar(BIEN, "868f8ad", "u1", Date.parse(BIEN.fecha) + REFRESCO_MS + 1), true, "más de un día");
