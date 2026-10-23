@@ -4,6 +4,15 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-10-23 · r92 · Ningún acorde cortado en el teléfono (O-100)
+
+Isaac mandó una captura de «Espíritu Santo» con la B cortada. Medido: 42 de 98 canciones con algo cortado a 360 px con
+zoom 90 %. Eligió «que se parta por dentro». Tres intentos (solo CSS; comparar con la propia pieza; sin `min-w-0` en la
+casilla) partían de más o «cabían de mentira», y se cazaron comparando la geometría de las 98 canciones antes y
+después. Quedó: la pieza que no cabe en su línea se marca y solo esa envuelve. 54 → 2 y 24 → 0 páginas cortadas; las
+dos que quedan son cadenas de ligadura (un arco, D-19). Se cortó la noche del 22 con un commit local sin subir (Isaac
+apagó el equipo) y se terminó la mañana del 23. 307 pruebas, lint 0 errores, 26 pantallas.
+
 ### 2026-10-22 · r91 · El aviso sin internet sale una vez (O-99)
 
 Isaac: el aviso salía en cada página sin red. Causa: sin red Next recarga la página entera (sus `rsc` fallan) y el

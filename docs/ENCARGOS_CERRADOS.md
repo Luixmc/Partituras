@@ -4,6 +4,42 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-10-23 · O-100 · Ningún acorde cortado en el teléfono (r92)
+
+Isaac, 2026-10-22, con una captura de «Espíritu Santo» (`Downloads\wasd\WhatsApp Image 2026-10-22 at 3.43.24 PM.jpeg`):
+*«mira como sale uno de los acordes incompletos»*. La casilla `{ B/D#:2 G#/C:2 | C#m | A:2 B:2 }1` no cabía en la columna
+del teléfono y la tarjeta (`overflow-hidden`) se comía la `B`.
+* **Medido antes de proponer** (Chrome sin ventana, 360 px, las 98 canciones, ficha y pantalla completa): con zoom
+  **90 %** (la ficha pasa a dos columnas, `twoCols`) **42 canciones** con algo cortado; con 100 %, 22 en pantalla
+  completa. Hasta 152 px («Simplemente Alaba»).
+* **Eligió (se le preguntó):** «que se parta por dentro». Descartó «una columna en el teléfono» (no arreglaba la
+  pantalla completa) y «las dos cosas».
+* **Hecho:** `usePartirLoQueNoCabe` en `TablaturePreview.tsx`. Cada compás y cada recuadro de casilla llevan
+  `data-pieza` y `max-w-full`; si su ancho natural (`scrollWidth`) no cabe en **la línea que lo contiene** (la rejilla,
+  o el recuadro de su casilla), se le pone `data-parte`: `!basis-full` y, con `group-data-[parte]/compas|casilla:`,
+  `flex-wrap` y `min-w-0`; la etiqueta `<…>` puede partirse (`whitespace-normal`). Se mide al dibujar, al cambiar el
+  ancho (`ResizeObserver`, solo el ancho: el alto lo cambia el propio partir) y cuando cargan las fuentes.
+* **Lo que se probó y NO sirvió (medido, para no repetirlo):**
+  1. **Solo CSS** (`flex-wrap` siempre + `width: max-content` en el grupo de acordes, para que pidiera su ancho de
+     una línea): Chrome no lo respeta en un hijo `flex-1`; partía compases que cabían — «Agnus Dei» de 81 a 134 px
+     de alto, 15 páginas distintas en la tablet.
+  2. **Comparar `scrollWidth > clientWidth` de la propia pieza**: marcaba compases con un desborde inofensivo de
+     1–4 px que siempre han tenido; al partirlos perdían su mínimo y se apretaban («Bendecido» de 62 a 122 px).
+  3. **Sin `min-w-0` en el recuadro interior de la casilla**: ese recuadro (`flex-1`) no encoge por debajo de su
+     contenido, mide más que la casilla, y el compás de dentro «cabe» de mentira.
+  4. `basis-full` sin `!`: el `flexBasis` en línea le gana a la clase.
+* **Medido antes/después** contra una foto de la geometría (posición y ancho de cada pieza de cada rejilla, 196
+  páginas por tamaño): 360 px zoom 90 % **54 → 2** páginas cortadas; 100 % **24 → 0**; 1024 px 0 → 0. En la ficha
+  no cambia nada que cupiera; en pantalla completa, 2–3 px (auto-ajuste de letra), y en «Sube La Alabanza» la sonda
+  de `SeccionRepartida` trocea distinto algunas secciones (ahora recibe el ancho real de la fila en vez del
+  desbordado), sin cortes; sus 7 primeros trozos, idénticos.
+* **Lo que queda, a propósito:** una **cadena de ligadura** (`TieGroup`, D-19: UN arco) no se parte — «Fiesta»
+  (`Bm ~ D ~ F#m7`, 17 px a 90 %) y «Tengo Victoria» (`Am7:2 ~ Em7:2`, 3 px). Partirla rompería el arco.
+* **Lo que hay que saber al tocarlo:** lo que cabe NO debe llevar ninguna clase distinta de las de antes — ese es el
+  seguro del reparto (O-52, O-66). Para medir: foto de la geometría antes de tocar, otra después, y comparar página
+  por página (las que cambian sin haber estado cortadas son el problema). La pantalla completa también se escala con
+  el zoom de lectura, así que medirla a 90 % es inestable: medirla a 100 %.
+
 #### ✅ Cerrado el 2026-10-22 · O-99 · El aviso sin internet sale UNA vez (r91)
 
 Isaac: *«el aviso de «Sin conexión» / «Copia guardada · fecha» sale cada vez que paso de una página a otra sin

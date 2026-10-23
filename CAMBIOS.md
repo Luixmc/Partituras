@@ -5,6 +5,20 @@
 
 ---
 
+## 23 de octubre de 2026
+
+### ✂️ Ningún acorde cortado en el teléfono
+
+- 🐛 En el teléfono, sobre todo con la letra al **90 %** (las secciones en dos columnas), **42 de las 98 canciones**
+  tenían algún acorde cortado por el borde de su cuadro, y varias también en **pantalla completa**: una casilla
+  `1ª/2ª vez` o un compás largo no cabía y se perdía lo de la derecha (en «Espíritu Santo», la **B** de la casilla 1).
+  Ahora, si algo no cabe, **sus acordes bajan a otra línea dentro del mismo compás**, y los compases de una casilla
+  bajan **dentro de la misma casilla**, que sigue entera con su borde y su número. Lo que ya cabía se ve igual.
+- Quedan dos casos a propósito: una **ligadura** que une tres acordes con un solo arco («Fiesta», «Tengo Victoria»)
+  no se parte, para no romper el arco.
+
+---
+
 ## 22 de octubre de 2026
 
 ### 📴 Tocar sin internet

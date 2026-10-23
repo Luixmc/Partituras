@@ -70,6 +70,28 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "23 de octubre de 2026",
+    "iso": "2026-10-23",
+    "entrada": "En el teléfono ya <strong>no se corta ningún acorde</strong>: lo que no cabe baja a otra línea dentro de su compás.",
+    "secciones": [
+      {
+        "titulo": "Ningún acorde cortado en el teléfono",
+        "resumen": "Si un compás o una casilla no cabe, sus acordes bajan a otra línea en vez de cortarse.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Los acordes ya no se cortan por el borde.",
+            "detalle": [
+              "En el teléfono, sobre todo con la letra al <strong>90 %</strong> (las secciones en dos columnas), <strong>42 de las 98 canciones</strong> tenían algún acorde cortado, y varias también en pantalla completa: una casilla <strong>1ª/2ª vez</strong> o un compás largo no cabía y se perdía lo de la derecha.",
+              "Ahora, si algo no cabe, <strong>sus acordes bajan a otra línea dentro del mismo compás</strong>, y los compases de una casilla bajan <strong>dentro de la misma casilla</strong>, que sigue entera con su borde y su número. Lo que ya cabía se ve igual que antes.",
+              "Una <strong>ligadura</strong> que une varios acordes con un solo arco no se parte, para no romper el arco: en «Fiesta» y «Tengo Victoria» puede asomar un poco cortada en el teléfono."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "22 de octubre de 2026",
     "iso": "2026-10-22",
     "entrada": "Las canciones y los cultos ya se pueden abrir <strong>sin internet</strong>: se guardan solos en el teléfono o la tablet y abren aunque no haya señal.",
