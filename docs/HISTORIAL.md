@@ -13,6 +13,7 @@ catálogo; con el arreglo, abajo en la pantalla (695–760 de 760). `.alto-panta
 `100dvh` si existe) + `layout/AltoVisible.tsx`, que mide `innerHeight` solo donde falta `dvh`. **O-101:** se le preguntó
 dónde y cuánto: pantalla completa, el doble (400 → 800 %); el auto-ajuste se queda en 400 %. En el mismo chat dictó
 **O-103** (el «tamaño elefante» del teléfono: mucho hueco entre tiempos), a §9 sin programar. 307 pruebas, lint 0 errores.
+Medido también en producción (las mismas cifras). Lección compartida: **L-524 [PA]**.
 
 ### 2026-10-23 · r92 · Ningún acorde cortado en el teléfono (O-100)
 
