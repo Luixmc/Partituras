@@ -70,6 +70,40 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "4 de noviembre de 2026",
+    "iso": "2026-11-04",
+    "entrada": "La barra de <strong>Cultos · Catálogo</strong> ya queda fija abajo en todos los aparatos, y en pantalla completa la letra se puede agrandar <strong>el doble</strong>.",
+    "secciones": [
+      {
+        "titulo": "La barra de abajo, siempre a la vista",
+        "resumen": "En los aparatos de navegador viejo ya no hay que bajar hasta el final del catálogo para cambiar de pestaña.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "La barra de abajo ya no se va al final de la página.",
+            "detalle": [
+              "En algunos teléfonos y tablets (los de navegador más viejo) la barra de <strong>Cultos · Catálogo…</strong> no se quedaba abajo en la pantalla: había que bajar <strong>hasta el final del catálogo</strong> para encontrarla. Ahora se queda fija abajo en todos los aparatos."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Más grande en pantalla completa",
+        "resumen": "El botón + de la pantalla completa llega ahora al 800 %.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "La letra en pantalla completa se agranda el doble.",
+            "detalle": [
+              "En <strong>pantalla completa</strong>, el botón <strong>+</strong> ahora agranda hasta <strong>800 %</strong> (antes paraba en 400 %). Sigue subiendo de a poco con cada toque, y el botón de <strong>ajustar a pantalla</strong> la devuelve al tamaño automático.",
+              "Al abrir una canción se ve igual que antes: solo cambia hasta dónde puedes agrandarla tú."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "23 de octubre de 2026",
     "iso": "2026-10-23",
     "entrada": "En el teléfono ya <strong>no se corta ningún acorde</strong>: lo que no cabe baja a otra línea dentro de su compás.",

@@ -4,6 +4,16 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-11-04 · O-101 · La letra de la pantalla completa llega a 800 % (r93)
+
+Isaac, 2026-11-04: *«necesito que le extiendas el límite de la letra para poder agrandar más»*. Había **dos topes**: el
+−/+ general (`theme/ThemeProvider.tsx`, 200 %) y el de la pantalla completa (`PresentationView.tsx`, 400 %, subido de 2 a
+4 el 2026-09-01 con «Avivamiento»). **Se le preguntó y eligió:** solo la pantalla completa, **el doble**.
+* **Hecho:** `MAX_SCALE` 4 → **8** para los −/+ del músico (y para el tamaño guardado por canción). El auto-ajuste
+  usa `MAX_AUTO = 4`: no se pidió que las canciones **abran** más grandes. Paso de 0,1 como siempre (de 400 a 800 % son
+  40 toques). El pentagrama sigue acotado a 2 (`escalaMelodia`), y el −/+ general sigue en 200 %.
+* **Medido** (Brave sin ventana, 400 px, cuenta de prueba): 90 toques en + → guarda **8**; «Ajustar a pantalla» → vuelve a automático.
+
 #### ✅ Cerrado el 2026-10-23 · O-100 · Ningún acorde cortado en el teléfono (r92)
 
 Isaac, 2026-10-22, con una captura de «Espíritu Santo» (`Downloads\wasd\WhatsApp Image 2026-10-22 at 3.43.24 PM.jpeg`):

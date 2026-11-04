@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import ReadingControls from "@/components/theme/ReadingControls";
 import ContentScale from "@/components/theme/ContentScale";
 import AvisoSinInternet from "@/components/sinInternet/AvisoSinInternet";
+import AltoVisible from "@/components/layout/AltoVisible";
 
 export default async function DashboardLayout({
   children,
@@ -36,7 +37,11 @@ export default async function DashboardLayout({
 
   return (
     <ThemeProvider>
-      <div className="flex h-dvh overflow-hidden bg-slate-50 dark:bg-slate-950">
+      {/* `alto-pantalla` y no `h-dvh`: en los navegadores viejos `dvh` no existe,
+          el armazón se quedaba sin alto y la barra de abajo acababa al final del
+          catálogo (O-102). */}
+      <AltoVisible />
+      <div className="alto-pantalla flex overflow-hidden bg-slate-50 dark:bg-slate-950">
         {/* Desktop sidebar (plegable) */}
         <DesktopSidebar profile={profile} />
 

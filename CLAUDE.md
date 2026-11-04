@@ -128,8 +128,8 @@ cada push a `main`.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
 5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **307 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **20.746 líneas** de TypeScript
-   en **104 archivos**. *(Contado el 2026-10-22, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **20.817 líneas** de TypeScript
+   en **105 archivos**. *(Contado el 2026-11-04, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -312,6 +312,8 @@ repo/
         services/                Cultos (setlists)
         services/[id]/           Editor del culto
         services/[id]/present/   Modo presentación
+    ⚠️ El armazón del panel (`(dashboard)/layout.tsx`) usa `.alto-pantalla` (globals.css) + `layout/AltoVisible.tsx`,
+       NO `h-dvh` a secas: sin `dvh` (navegadores viejos) la barra de abajo se iba al final del catálogo (O-102)
         services/actions.ts ★    Server actions de cultos. requireAdmin() vive aquí
         admin/                   Gestión de usuarios (solo admin) + actions.ts
       s/[token]/                 Culto compartido, PÚBLICO y sin cuenta
@@ -606,6 +608,8 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 3 | **Que Isaac vea en uso lo último publicado** (r78–r81: el color por sección y el silencio) | **Ya lo está viendo** (2026-09-17, en el PC, tras irse solo el 403). De r78 a r81 salieron **tres correcciones suyas** mirándolo: O-84, O-85 y el color de lo sin categorizar. Si aparece algo más usándolo, vuelve aquí |
 | 4 | **Dos canciones «Escuché La Voz»** (Rabito, D, publicadas, cada una con una versión en Bb) | **De Isaac.** La segunda (`bd13eeda…`) la creó él el 2026-10-20 a las 16:34 al «hacer nuevamente la canción». **No se borra ni se toca sin preguntarle** (D-13). Desde r87 la puede borrar **él mismo** con «Eliminar canción» (O-95): no está en ningún culto |
 | 5 | **O-96/97/98 · probar «sin internet» en SUS aparatos** (r90, 2026-10-22) | **De Isaac.** En el teléfono y la tablet, en la app instalada **y** en el navegador (cada uno guarda lo suyo): abrir la página **con internet** y dejarla abierta **~1 minuto** (se guarda todo solo, sin aviso), poner **modo avión**, y tocar un culto, una canción y su **pantalla completa**. Y decirle al **músico del iPad** que instale la página (Safari → Compartir → «Añadir a pantalla de inicio») y entre desde ese icono. Detalle en `docs/ENCARGOS_CERRADOS.md` (O-96, O-97, O-98) |
+| 7 | **O-102 · Que Isaac confirme en los aparatos de esos músicos que la barra de abajo ya queda fija** (publicado en r93) | **De Isaac.** Arreglado para la causa reproducida: el armazón usaba `h-dvh` y donde `dvh` no existe (iOS < 15.4, Chrome < 108) se quedaba sin alto → barra al final del catálogo (medido: 12.501 px). Detalle en `docs/HISTORIAL.md` (r93). **Si en algún aparato sigue igual**, la causa es otra: pedir modelo, navegador y si tiene la letra del sistema agrandada (ver O-103) |
+| 8 | **O-103 · Teléfonos con la letra del sistema en «tamaño elefante»** (Isaac, 2026-11-04: *«hay músicos que ponen el tamaño del teléfono en tamaño elefante… tienen al 200 % la página y la letra es un poco grande pero tiene mucho espacio de sobra entre celda y celda que separa cada tempo»*) | **Por averiguar.** El tamaño de letra del teléfono agranda la página entera, y en la cuadrícula **crece más el hueco entre tiempos que la letra**. Falta saber en qué pantalla lo ve (ficha, pantalla completa, culto) y en qué teléfono/navegador, y una captura. ⚠️ Si en algún aparato la barra sigue sin quedar fija tras r93, mirar si es por esto |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -704,7 +708,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-10-23, todo PUBLICADO en r92**
+#### Estado del árbol — **2026-11-04, todo PUBLICADO en r93**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -712,10 +716,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r92** — ningún acorde cortado en el teléfono (O-100). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r92** — **lo que no cabe en su fila se parte por dentro** (O-100): ningún acorde cortado en el teléfono. Antes, **r91** — **el aviso sin internet sale UNA vez por apertura** y luego un iconito (O-99). Antes, **r90** — **se guarda TODO enseguida** (O-98): también la pantalla completa de cada canción, Letras y Melodía; ~33 MB, ~4 MB de datos. Antes, **r89** — **se guarda solo** (O-97): fuera el botón; al abrir la página con sesión se baja todo en silencio. Antes, **r88** — **tocar sin internet** (O-96): el service worker por fin se registra, botón «Guardar para tocar sin internet» en Catálogo y Cultos (~10 MB), aviso «Copia guardada · fecha», búsqueda sin red, «Cerrar sesión» borra lo guardado. Antes, **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Último commit publicado | **r93** — la barra de abajo fija en navegadores viejos (O-102) y la pantalla completa hasta 800 % (O-101). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r93** — **la barra de abajo queda fija también donde no existe `dvh`** (O-102) y **el + de la pantalla completa llega a 800 %** (O-101). Antes, **r92** — **lo que no cabe en su fila se parte por dentro** (O-100): ningún acorde cortado en el teléfono. Antes, **r91** — **el aviso sin internet sale UNA vez por apertura** y luego un iconito (O-99). Antes, **r90** — **se guarda TODO enseguida** (O-98): también la pantalla completa de cada canción, Letras y Melodía; ~33 MB, ~4 MB de datos. Antes, **r89** — **se guarda solo** (O-97): fuera el botón; al abrir la página con sesión se baja todo en silencio. Antes, **r88** — **tocar sin internet** (O-96): el service worker por fin se registra, botón «Guardar para tocar sin internet» en Catálogo y Cultos (~10 MB), aviso «Copia guardada · fecha», búsqueda sin red, «Cerrar sesión» borra lo guardado. Antes, **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
 | Pruebas | **307** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **20.746 líneas** de TypeScript en **104 archivos** |
+| Tamaño | **20.817 líneas** de TypeScript en **105 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -887,9 +891,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-11-04 | **r93** · **la barra de abajo fija en navegadores viejos** (O-102, era `h-dvh`) y **la pantalla completa hasta 800 %** (O-101). Dictado O-103 («tamaño elefante»), sin programar |
 | 2026-10-23 | **r92** · **ningún acorde cortado en el teléfono** (O-100): lo que no cabe en su fila baja a otra línea dentro de su compás o casilla — Isaac eligió «que se parta por dentro»
-| 2026-10-22 | **r91** · **el aviso sin internet sale UNA vez por apertura** (O-99), y después un iconito que lo abre — Isaac lo eligió así
-| 2026-10-22 | **r90** · **se guarda TODO enseguida** (O-98): también la pantalla completa de cada canción — Isaac la usa así y le salía «no está guardada» |
+| 2026-10-22 | **r91** · **el aviso sin internet sale UNA vez por apertura** (O-99), y después un iconito que lo abre — Isaac lo eligió así |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

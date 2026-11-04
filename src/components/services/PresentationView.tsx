@@ -53,7 +53,7 @@ type Props = {
   startIndex?: number;
 };
 
-// Límites del tamaño de letra: 40% – 200%.
+// Límites del tamaño de letra: 40% – 800% (el auto-ajuste, hasta 400%).
 const MIN_SCALE = 0.4;
 // 🔴 SUBIDO de 2 a 4 el 2026-09-01, y lo pidio Isaac con «Avivamiento»: *«por
 // mas que quiera que se ponga grande para aprovechar el tamano de la pantalla y
@@ -63,7 +63,13 @@ const MIN_SCALE = 0.4;
 // el auto-ajuste queria crecer — y **chocaba contra este techo**, dejando media
 // pantalla vacia. El techo no protegia de nada: el auto-ajuste ya para solo
 // cuando el contenido llena el alto, y ademas itera hasta converger.
-const MAX_SCALE = 4;
+//
+// 🔴 Y SUBIDO otra vez, de 4 a 8, el 2026-11-04 (O-101), pero SOLO para los
+// botones −/+ del musico: *«extiendas el limite de la letra para poder agrandar
+// mas»*. El auto-ajuste se queda en 4 (`MAX_AUTO`): nadie pidio que las
+// canciones se ABRAN mas grandes, solo poder agrandarlas a mano.
+const MAX_SCALE = 8;
+const MAX_AUTO = 4;
 
 // ─────────────────────────────────────────────────────────────
 // Tamaño de letra guardado, POR CANCIÓN y POR MÚSICO.
@@ -417,7 +423,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
       const prev = scaleRef.current;
       const ratio = (availH / contentH) * 0.985; // pequeño margen para no rozar
-      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(prev * ratio).toFixed(3)));
+      const next = Math.min(MAX_AUTO, Math.max(MIN_SCALE, +(prev * ratio).toFixed(3)));
 
       if (Math.abs(next - prev) > 0.015 && steps < 10) {
         steps += 1;
@@ -654,7 +660,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
             </button>
           )}
 
-          {/* Tamaño de letra (40%–200%) + volver al ajuste automático. */}
+          {/* Tamaño de letra (40%–800%) + volver al ajuste automático. */}
           <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
           <button
             type="button"

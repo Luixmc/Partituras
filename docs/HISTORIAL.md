@@ -4,6 +4,16 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-11-04 · r93 · La barra de abajo fija en navegadores viejos (O-102) · la pantalla completa hasta 800 % (O-101)
+
+Isaac: algunos músicos tienen que bajar hasta el final del catálogo para encontrar la barra de Cultos/Catálogo, y quiere
+agrandar más la letra. **O-102:** el armazón del panel era `h-dvh` (del primo, r14); donde `dvh` no existe la regla se
+descarta y el armazón queda sin alto. Reproducido simulándolo en Brave: la barra a **12.501 px**, al final del
+catálogo; con el arreglo, abajo en la pantalla (695–760 de 760). `.alto-pantalla` (`100vh` → `var(--alto-visible)` →
+`100dvh` si existe) + `layout/AltoVisible.tsx`, que mide `innerHeight` solo donde falta `dvh`. **O-101:** se le preguntó
+dónde y cuánto: pantalla completa, el doble (400 → 800 %); el auto-ajuste se queda en 400 %. En el mismo chat dictó
+**O-103** (el «tamaño elefante» del teléfono: mucho hueco entre tiempos), a §9 sin programar. 307 pruebas, lint 0 errores.
+
 ### 2026-10-23 · r92 · Ningún acorde cortado en el teléfono (O-100)
 
 Isaac mandó una captura de «Espíritu Santo» con la B cortada. Medido: 42 de 98 canciones con algo cortado a 360 px con

@@ -86,3 +86,21 @@ body {
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* El alto de la pantalla para el armazón del panel (O-102, 2026-11-04).
+   Antes era la utilidad `h-dvh` a secas, y los navegadores que no conocen
+   `dvh` (iPad con iOS < 15.4, Chrome/Android < 108) tiraban la regla entera:
+   el armazón se quedaba SIN alto, la página crecía con el catálogo y la barra
+   de Culto/Catálogo acababa al final de todo. Lo vieron los músicos.
+   → Respaldo en dos pasos: `100vh` por si no hay variables, y el alto VISIBLE
+   que mide `AltoVisible.tsx` con `innerHeight` (con `100vh` a pelo la barra
+   quedaría debajo de la barra de direcciones del teléfono). */
+.alto-pantalla {
+  height: 100vh;
+  height: var(--alto-visible, 100vh);
+}
+@supports (height: 100dvh) {
+  .alto-pantalla {
+    height: 100dvh;
+  }
+}

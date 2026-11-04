@@ -5,6 +5,22 @@
 
 ---
 
+## 4 de noviembre de 2026
+
+### 📱 La barra de abajo, siempre a la vista
+
+- 🐛 En algunos teléfonos y tablets (los de navegador más viejo) la barra de **Cultos · Catálogo…** no se
+  quedaba abajo en la pantalla: había que bajar **hasta el final del catálogo** para encontrarla. Ahora
+  se queda fija abajo en todos los aparatos, como en los demás.
+
+### 🔍 Más grande en pantalla completa
+
+- 🆕 En **pantalla completa**, el botón **+** ahora agranda la letra **hasta el doble que antes**
+  (antes paraba en 400 %, ahora en **800 %**). Sigue subiendo de a poco con cada toque, y el botón de
+  **ajustar a pantalla** la devuelve al tamaño automático. Al abrir una canción se ve igual que antes.
+
+---
+
 ## 23 de octubre de 2026
 
 ### ✂️ Ningún acorde cortado en el teléfono
