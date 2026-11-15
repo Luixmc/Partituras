@@ -5,6 +5,25 @@
 
 ---
 
+## 14 de noviembre de 2026
+
+### 🎼 Las notas de la escala
+
+- 🆕 Junto a los botones **♭** y **♯** del tono hay uno nuevo, **Escala**. Al tocarlo, arriba de la canción salen
+  **las 7 notas de la escala**: en **G**, G A B C D E F#; en tono menor, la escala **natural** (en **Em**,
+  E F# G A B C D). Sigue al tono: si subes o bajas con ♭ y ♯, o eliges **Trompeta**, la escala cambia con los
+  acordes. En **pantalla completa** el botón está en los ajustes (la chapa del tono) y la escala se queda a la
+  vista aunque los cierres. Se recuerda en tu aparato. Funciona en el PC y en el teléfono.
+
+### 📱 Pantalla completa en iPhone
+
+- 🐛 En **iPhone** el botón de pantalla completa no hacía nada (el iPhone solo deja poner en pantalla completa
+  los videos, también con Chrome). Ahora **esconde las barras de la propia página** y la canción se ve como en
+  la pantalla completa del PC. La primera vez sale un aviso: para que ocupe **toda** la pantalla, instala la
+  página desde Safari con **Compartir → Añadir a pantalla de inicio** y ábrela desde ese icono.
+
+---
+
 ## 4 de noviembre de 2026
 
 ### 📱 La barra de abajo, siempre a la vista

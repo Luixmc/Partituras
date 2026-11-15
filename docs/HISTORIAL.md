@@ -4,6 +4,21 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-11-14 · r94 · La escala en la pantalla completa (O-104) · pantalla completa en iPhone (O-105)
+
+Isaac aprobó las dos cosas dictadas en el chat anterior: contestó las cuatro preguntas de **O-104** (botón junto a ♭/♯,
+menor natural, sigue al tono y al instrumento, solo 7 notas) y aprobó **tal cual** la propuesta de **O-105** (donde el
+navegador no deja pantalla completa, el botón esconde las barras de la página; la primera vez, aviso de instalarla).
+Escrito en §9 antes de programar (regla 0). **O-104:** `notasDeEscala()` deletreada por letras, 6 pruebas. **O-105:**
+`toggleFullscreen` sin `requestFullscreen` (o si la promesa se rechaza) → estado `sinBarras`: la raíz pasa a `fixed
+inset-0 z-[60]` (`inset-0` y no `dvh`, por O-102) y todo lo demás lo trata como pantalla completa; Esc sale; el aviso
+sale una vez por aparato (`presentacion-aviso-iphone`) y **no sale si la página ya está instalada** (`display-mode:
+standalone` / `navigator.standalone`) — eso último no lo dictó él: el aviso pide instalarla, y ya lo está. Medido en
+Brave quitando la Fullscreen API a 390 px: la raíz cubre 390×760, la barra de abajo de la página queda tapada, el aviso
+sale la 1.ª vez y no la 2.ª, ni instalada. Y una cosa que salió sola: **Brave sin ventana NIEGA la pantalla completa
+real**, y el botón cayó en «sin barras» en vez de quedarse muerto — la segunda vía (promesa rechazada) también
+funciona. **Falta lo que pidió él: probarlo en un iPhone de verdad** (§9, fila 10). 313 pruebas, lint 0 errores.
+
 ### 2026-11-14 · sin código · dictados O-104 y O-105, respuestas de O-103
 
 Último pedido del chat de r93 (regla 5). Isaac contestó lo de O-103 (pantalla completa, Samsung con Chrome, sin captura)

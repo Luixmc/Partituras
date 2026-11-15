@@ -127,9 +127,9 @@ cada push a `main`.
    cuenta es **de su hermano**. Estado y primeros pasos en §9.0 (fila 0-bis) y §12.2-ter.
 4. **Las migraciones del repositorio NO son la fuente de la verdad de la base de datos.**
    No coinciden (T-01). Antes de razonar sobre permisos, comprobar las políticas reales.
-5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **307 pruebas** (`npm test`, sin dependencias
-   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **20.817 líneas** de TypeScript
-   en **105 archivos**. *(Contado el 2026-11-04, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
+5. ✅ **SÍ hay red de seguridad, y hay que usarla.** **313 pruebas** (`npm test`, sin dependencias
+   nuevas) y **CI en cada push** que ejecuta pruebas → lint → build. **21.083 líneas** de TypeScript
+   en **105 archivos**. *(Contado el 2026-11-14, y lo vigila `npm run docs`. Estas tres cifras cambian cada tanda: **antes de
    citarlas, contarlas**.)*
    ⚠️ *Esto decía lo contrario —«no hay ni una prueba, ni CI»— hasta el 2026-09-04, y llevaba
    equivocado desde el 22 de agosto. Un chat nuevo lo leía aquí, en la sección que se llama «léeme
@@ -180,7 +180,7 @@ se edita a mano y no debe entrar en un commit** — si `git status` lo saca, `gi
 next-env.d.ts`. En el repositorio está la versión de `verificar`. *(Visto el 2026-09-04 al cerrar
 O-63: salió como archivo modificado sin que nadie lo tocara.)*
 
-**`npm test` ejecuta 307 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
+**`npm test` ejecuta 313 pruebas** y no necesita nada instalado aparte (usa el ejecutor de Node).
 Compila `src/lib` con el TypeScript del proyecto y prueba **el archivo real**, no una copia.
 ⚠️ Aquí ponía *«no existe ninguna prueba»* hasta el 2026-09-04: P-11 se cerró el 22 de agosto y esta
 línea se quedó atrás.
@@ -336,7 +336,7 @@ repo/
         ServiceEditor.tsx        Armar el culto (876 líneas), arrastrando
         PresentationView.tsx ★   Modo presentación (1.016 líneas): acordes ↔ letra ↔ melodía
     lib/
-      music.ts ★                 Transposición de acordes
+      music.ts ★                 Transposición de acordes · las 7 notas de la escala (`notasDeEscala`, O-104)
       texto.ts                   Comparar sin tildes: las cuatro búsquedas (O-72)
       favoritos.ts               Los favoritos de cada músico (O-73)
       figuras.ts                 Qué figura es cada duración · `duracionDe()` (O-70)
@@ -357,7 +357,7 @@ repo/
                                  ✅ TODAS aplicadas (de la 020 a la 024, el 2026-09-10)
   public/sw.js                   Service worker: VER SIN INTERNET (O-96). Red primero con 6 s de plazo ⚠️ T-02
   src/components/sinInternet/    El aviso «Copia guardada · fecha», y lanza el guardado automático (O-96, O-97)
-  pruebas/                       307 pruebas + el recorrido de las 26 pantallas
+  pruebas/                       313 pruebas + el recorrido de las 26 pantallas
   docs/                          Lo que salió de este archivo al recortarlo (2026-09-11): historial,
                                  encargos cerrados, trampas, ideas y accesos. Se lee cuando se cita
 ```
@@ -610,8 +610,7 @@ mismo cambio (arriba del todo), y aquí se borra su fila. Nada tachado, nada «�
 | 5 | **O-96/97/98 · probar «sin internet» en SUS aparatos** (r90, 2026-10-22) | **De Isaac.** En el teléfono y la tablet, en la app instalada **y** en el navegador (cada uno guarda lo suyo): abrir la página **con internet** y dejarla abierta **~1 minuto** (se guarda todo solo, sin aviso), poner **modo avión**, y tocar un culto, una canción y su **pantalla completa**. Y decirle al **músico del iPad** que instale la página (Safari → Compartir → «Añadir a pantalla de inicio») y entre desde ese icono. Detalle en `docs/ENCARGOS_CERRADOS.md` (O-96, O-97, O-98) |
 | 7 | **O-102 · Que Isaac confirme en los aparatos de esos músicos que la barra de abajo ya queda fija** (publicado en r93) | **De Isaac.** Arreglado para la causa reproducida: el armazón usaba `h-dvh` y donde `dvh` no existe (iOS < 15.4, Chrome < 108) se quedaba sin alto → barra al final del catálogo (medido: 12.501 px). Detalle en `docs/HISTORIAL.md` (r93). **Si en algún aparato sigue igual**, la causa es otra: pedir modelo, navegador y si tiene la letra del sistema agrandada (ver O-103) |
 | 8 | **O-103 · Teléfonos con la letra del sistema en «tamaño elefante»** (Isaac, 2026-11-04: *«hay músicos que ponen el tamaño del teléfono en tamaño elefante… tienen al 200 % la página y la letra es un poco grande pero tiene mucho espacio de sobra entre celda y celda que separa cada tempo»*) | **Por averiguar.** El tamaño de letra del teléfono agranda la página entera, y en la cuadrícula **crece más el hueco entre tiempos que la letra**. **Contestó el 2026-11-14:** pasa en la **pantalla completa** (mandó dos capturas de la del culto en su PC, «Amigo De Dios», como referencia de la pantalla); el teléfono es **un Samsung con Chrome**, «creo»; **captura del teléfono no hay** (no es suyo). **Siguiente paso:** reproducirlo en Chrome sin ventana a ancho de teléfono con la letra del sistema al máximo (en Chrome de Android el «tamaño de fuente» del sistema escala la página; en el PC se simula con el tamaño de letra por defecto del navegador o `Emulation.setPageScaleFactor`), medir texto vs. ancho de celda, y **proponer** antes de tocar. Pedirle a Isaac la captura de ese músico si se consigue. ⚠️ Si en algún aparato la barra sigue sin quedar fija tras r93, mirar si es por esto |
-| 9 | **O-104 · Ver las notas de la ESCALA de la canción en la pantalla completa**, en PC y en teléfono (Isaac, 2026-11-14: *«quiero que haya una manera en que se pueda ver las notas de la escala de la canción ya cuando se está en pantalla completa, tanto en pc como en teléfono»*) | **Sin plan aprobado. Preguntarle antes de programar:** ① **dónde**: ¿un botón en la barra de arriba (junto a Tono/♭/♯) que abra una franja o un cuadrito con las notas, o siempre visible? ② **qué escala**: en mayor está claro (G → G A B C D E F#); en **menor**, ¿natural, armónica o las dos? ③ ¿sigue al **Tono transpuesto** y a **«Tu instrumento»** (trompeta lee otra tonalidad)? Lo natural es que sí, con la misma cuenta que los acordes (T-14, `lib/music.ts`: `keyToPitch`, `esMenor`, `ortografiaDe`). ④ ¿solo las 7 notas, o también los **grados/acordes** de la escala (I ii iii IV V vi vii°)? Idea: función pura `notasDeEscala(tono, menor)` en `lib/music.ts` con pruebas, y el botón en `PresentationView.tsx`. Que funcione también en el **teléfono** (la barra se compacta allí: el botón tiene que caber) |
-| 10 | **O-105 · En iPhone el botón de pantalla completa no hace nada** (Isaac, 2026-11-14) | **Causa (conocida de Safari, falta verla en un iPhone):** el iPhone **no deja poner en pantalla completa nada que no sea un video**: ni `requestFullscreen` ni `webkitRequestFullscreen` existen para un `div` (el iPad sí, desde iOS 12). Y **Chrome en iPhone es Safari por dentro** (WebKit), así que falla igual. El botón está en `PresentationView.tsx:266` (`toggleFullscreen`). **Propuesta, por aprobar:** ① donde no exista la función, el botón **no queda muerto**: pasa a un **modo «sin barras» de la propia página** (esconde la cabecera y la barra de herramientas, igual que se ve en la pantalla completa del PC) y ② la primera vez sale un aviso corto: *«En iPhone, para que ocupe TODA la pantalla, instala la página: Compartir → Añadir a pantalla de inicio»* (el `manifest.json` ya dice `"display": "standalone"`, así que instalada abre sin las barras de Safari). **Comprobarlo en un iPhone de verdad** antes de darlo por cerrado |
+| 10 | **O-105 · Probar en un iPhone de verdad la pantalla completa** (Isaac, 2026-11-14; publicado en **r94**) | **De Isaac (o de un músico con iPhone).** Lo aprobado está hecho: donde el navegador no deja pantalla completa (iPhone: la Fullscreen API no existe para un `div`; Chrome en iPhone es Safari por dentro), el botón **esconde las barras de la propia página** (`sinBarras` en `PresentationView.tsx`: la raíz pasa a `fixed inset-0 z-[60]`) y **la primera vez** sale el aviso *«En iPhone, para que ocupe TODA la pantalla, instala la página: Compartir → Añadir a pantalla de inicio»* (no sale si ya está instalada). Medido simulándolo en Brave a 390 px (`docs/HISTORIAL.md`, r94). 🔴 **Él pidió probarlo en un iPhone de verdad antes de darlo por cerrado:** abrir una canción → pantalla completa → ¿se esconden las barras y sale el aviso? → cerrarlo, salir y volver a entrar (ya no sale) → instalar la página y entrar desde el icono. Si algo falla: modelo de iPhone, versión de iOS y captura |
 
 #### ✅ SE FUE SOLO · «This request was blocked · 403 Forbidden» (2026-09-14 → 2026-09-17)
 
@@ -710,7 +709,7 @@ el enlace de WhatsApp.
 👥 **Dos cuentas de Claude** desde el 2026-09-11 (§1): cuando se acaba el límite de una, sigue con la
 otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no ve este chat.
 
-#### Estado del árbol — **2026-11-04, todo PUBLICADO en r93**
+#### Estado del árbol — **2026-11-14, todo PUBLICADO en r94**
 
 > 🔴 **Esta tabla se reescribe entera al cerrar cada tanda, y se CUENTA, no se recuerda.** El
 > 2026-09-07 tenía **la fila «Pruebas» DUPLICADA** —197 en una y 192 en otra— y las dos estaban mal.
@@ -718,10 +717,10 @@ otra. **Por eso esta tabla tiene que estar siempre al día**: la otra cuenta no 
 
 | | |
 |---|---|
-| Último commit publicado | **r93** — la barra de abajo fija en navegadores viejos (O-102) y la pantalla completa hasta 800 % (O-101). `git log -1` da el hash. **Árbol limpio** |
-| Última versión | **r93** — **la barra de abajo queda fija también donde no existe `dvh`** (O-102) y **el + de la pantalla completa llega a 800 %** (O-101). Antes, **r92** — **lo que no cabe en su fila se parte por dentro** (O-100): ningún acorde cortado en el teléfono. Antes, **r91** — **el aviso sin internet sale UNA vez por apertura** y luego un iconito (O-99). Antes, **r90** — **se guarda TODO enseguida** (O-98): también la pantalla completa de cada canción, Letras y Melodía; ~33 MB, ~4 MB de datos. Antes, **r89** — **se guarda solo** (O-97): fuera el botón; al abrir la página con sesión se baja todo en silencio. Antes, **r88** — **tocar sin internet** (O-96): el service worker por fin se registra, botón «Guardar para tocar sin internet» en Catálogo y Cultos (~10 MB), aviso «Copia guardada · fecha», búsqueda sin red, «Cerrar sesión» borra lo guardado. Antes, **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
-| Pruebas | **307** · lint **0 errores, 61 avisos** · build **0** |
-| Tamaño | **20.817 líneas** de TypeScript en **105 archivos** |
+| Último commit publicado | **r94** — la escala en la pantalla completa (O-104) y la pantalla completa en iPhone (O-105). `git log -1` da el hash. **Árbol limpio** |
+| Última versión | **r94** — **botón «Escala»** junto a ♭/♯ con las 7 notas del tono que se lee (O-104) y **«sin barras» donde no hay pantalla completa** (iPhone), con aviso de instalar la página (O-105). Antes, **r93** — **la barra de abajo queda fija también donde no existe `dvh`** (O-102) y **el + de la pantalla completa llega a 800 %** (O-101). Antes, **r92** — **lo que no cabe en su fila se parte por dentro** (O-100): ningún acorde cortado en el teléfono. Antes, **r91** — **el aviso sin internet sale UNA vez por apertura** y luego un iconito (O-99). Antes, **r90** — **se guarda TODO enseguida** (O-98): también la pantalla completa de cada canción, Letras y Melodía; ~33 MB, ~4 MB de datos. Antes, **r89** — **se guarda solo** (O-97): fuera el botón; al abrir la página con sesión se baja todo en silencio. Antes, **r88** — **tocar sin internet** (O-96): el service worker por fin se registra, botón «Guardar para tocar sin internet» en Catálogo y Cultos (~10 MB), aviso «Copia guardada · fecha», búsqueda sin red, «Cerrar sesión» borra lo guardado. Antes, **r87** — botón «Eliminar canción» en la pestaña Edición, solo admin, con diálogo que nombra los cultos (O-95). Antes, **r86** — el tono original sale desactivado («· original») en «Nueva tonalidad» y en el «Transponer» del culto, y la ficha avisa si la tonalidad cae en un tono con versión (O-94). Antes, **r85** — «Nueva tonalidad» y el tono en el culto ofrecen solo mayores o solo menores, según la canción (O-93). Antes, **r84** — los menús y el calendario los dibuja la página (O-91), el transporte ya no se salta acordes ni toca la letra (O-89), el calderón con punto en el teléfono (O-92), figuras en la botonera (O-90), todas las categorías en el culto (O-88). Antes, **r83**: la melodía para todos los roles (O-87); **r82**: el PDF del culto en el tono del instrumento y con la melodía (O-86); **r81**: el silencio ya no se sale por abajo (O-54 ②); **r80**: la sección sin etiqueta también lleva banda (O-85); **r79**: el color va en la banda y no en la letra (O-84); **r78**: un color por sección (O-83, de Carlos) |
+| Pruebas | **313** · lint **0 errores, 64 avisos** · build **0** |
+| Tamaño | **21.083 líneas** de TypeScript en **105 archivos** |
 | CI | verde · **26 de 26 pantallas** comprobadas en producción |
 | Migraciones | **24**, **todas aplicadas** (de la 020 a la 024, el 2026-09-10) |
 | Páginas desechables | **ninguna viva.** Han existido **seis** y **ninguna ha llegado nunca a producción** |
@@ -893,9 +892,9 @@ fue su propio fallo**, que es la mejor señal de que mide de verdad.
 
 | Fecha | Tanda |
 |---|---|
+| 2026-11-14 | **r94** · **la escala en la pantalla completa** (O-104: botón «Escala», 7 notas, menor natural) y **«sin barras» en iPhone** con aviso de instalarla (O-105; falta probarlo en un iPhone de verdad) |
 | 2026-11-14 | Sin código · dictados **O-104** (la escala en pantalla completa) y **O-105** (pantalla completa en iPhone) y respuestas de O-103: todo en §9, con preguntas |
 | 2026-11-04 | **r93** · **la barra de abajo fija en navegadores viejos** (O-102, era `h-dvh`) y **la pantalla completa hasta 800 %** (O-101). Dictado O-103 («tamaño elefante»), sin programar |
-| 2026-10-23 | **r92** · **ningún acorde cortado en el teléfono** (O-100): lo que no cabe en su fila baja a otra línea dentro de su compás o casilla — Isaac eligió «que se parta por dentro» |
 
 Todo lo demás, tanda por tanda desde el 2026-08-19: **`docs/HISTORIAL.md`**.
 

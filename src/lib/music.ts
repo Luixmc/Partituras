@@ -247,3 +247,64 @@ export function transposeContent(
     )
     .join("\n");
 }
+
+// ─────────────────────────────────────────────────────────────
+// Las 7 notas de la ESCALA de un tono (O-104).
+//
+// Isaac, 2026-11-14: *«quiero que haya una manera en que se pueda ver las
+// notas de la escala de la canción ya cuando se está en pantalla completa»*.
+// Lo que aprobó: mayor, o menor NATURAL; solo las 7 notas, sin grados.
+//
+// 🔴 Se escriben POR LETRAS, no por alturas. Una escala tiene las siete
+// letras una vez cada una: en F es `Bb` y no `A#`, y en F# es `E#` y no `F`
+// —aunque `F` sea la misma tecla, escribir `F` dejaría la escala con dos F y
+// sin E—. Con una tabla de alturas (como `transposeContent`) eso no sale.
+// ─────────────────────────────────────────────────────────────
+
+const LETRAS = ["C", "D", "E", "F", "G", "A", "B"];
+const ALTURA_LETRA: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const PASOS_MAYOR = [0, 2, 4, 5, 7, 9, 11];
+const PASOS_MENOR_NATURAL = [0, 2, 3, 5, 7, 8, 10];
+
+/** Escribe la escala desde una tónica ya deletreada; `null` si haría falta un doble sostenido/bemol. */
+function deletrear(tonica: string, menor: boolean): string[] | null {
+  const letra0 = LETRAS.indexOf(tonica[0]);
+  const altura0 = NOTE_TO_PITCH[tonica];
+  if (letra0 < 0 || altura0 === undefined) return null;
+  const pasos = menor ? PASOS_MENOR_NATURAL : PASOS_MAYOR;
+  const notas: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const letra = LETRAS[(letra0 + i) % 7];
+    const quiero = (altura0 + pasos[i]) % 12;
+    // Cuánto hay que subir o bajar la letra para llegar a la altura: -1, 0 o +1.
+    let dif = (quiero - ALTURA_LETRA[letra] + 12) % 12;
+    if (dif > 6) dif -= 12;
+    if (dif === 0) notas.push(letra);
+    else if (dif === 1) notas.push(letra + "#");
+    else if (dif === -1) notas.push(letra + "b");
+    else return null;
+  }
+  return notas;
+}
+
+/**
+ * Las 7 notas de la escala de `tono`: mayor si es mayor, menor NATURAL si es
+ * menor («Em», «E minor»). `[]` si el tono no se entiende.
+ *
+ * Se respeta la tónica tal como viene (`Bb` → empieza en `Bb`, `A#` → en
+ * `A#`) salvo que eso obligue a un doble sostenido o bemol —`A#` mayor
+ * necesitaría `Fx`—; entonces se usa la de las tablas (`Bb`), que es la que
+ * se toca.
+ */
+export function notasDeEscala(tono: string | null | undefined): string[] {
+  const altura = keyToPitch(tono);
+  if (altura === null || !tono) return [];
+  const menor = esMenor(tono);
+  const m = tono.trim().match(/^([A-Ga-g])([#b]?)/);
+  const escrita = m ? m[1].toUpperCase() + m[2] : "";
+  const directa = deletrear(escrita, menor);
+  if (directa) return directa;
+  const tabla = (menor ? KEY_OPTIONS_MINOR : KEY_OPTIONS).find((k) => k.pitch === altura);
+  const tonica = tabla ? tabla.value.replace(/m$/, "") : escrita;
+  return deletrear(tonica, menor) ?? [];
+}

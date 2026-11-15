@@ -15,7 +15,7 @@ import { semitonosQueSuenan, type Momento } from "@/lib/reproduccion";
 import { ChordPopoverProvider } from "@/components/sheets/ChordPopover";
 import { cn } from "@/lib/utils";
 import { parseSections } from "@/lib/sections";
-import { transposeContent } from "@/lib/music";
+import { esMenor, notasDeEscala, transposeContent } from "@/lib/music";
 import { tonoLeido } from "@/lib/tonoLeido";
 import {
   TRANSPOSITORES,
@@ -125,6 +125,25 @@ function etiquetaModo(m: Modo): string {
 type Recorrido = "filas" | "columnas";
 const CLAVE_RECORRIDO = "presentacion-recorrido";
 
+// ¿Se enseñan las notas de la escala? (O-104) Preferencia de quien lee, como el
+// recorrido: el trompetista que la quiere la quiere en todas las canciones.
+const CLAVE_ESCALA = "presentacion-escala";
+
+// El aviso de «instala la página» en iPhone sale UNA vez por aparato (O-105).
+const CLAVE_AVISO_IPHONE = "presentacion-aviso-iphone";
+
+/** ¿La página está abierta como app instalada (sin las barras del navegador)? */
+function abiertaComoApp(): boolean {
+  try {
+    return (
+      window.matchMedia?.("(display-mode: standalone)").matches === true ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true
+    );
+  } catch {
+    return false;
+  }
+}
+
 function leerRecorrido(): Recorrido {
   if (typeof window === "undefined") return "filas";
   try {
@@ -225,7 +244,43 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   // navegador muestra SOLO la presentación y deja la navbar/sidebar del layout
   // fuera por completo.
   const rootRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fsReal, setFsReal] = useState(false);
+
+  // ── «Sin barras»: la pantalla completa donde el navegador no la deja (O-105) ──
+  //
+  // 🔴 El iPhone NO deja poner en pantalla completa nada que no sea un video:
+  // ni `requestFullscreen` ni `webkitRequestFullscreen` existen para un `div`
+  // (el iPad sí). Y Chrome en iPhone es Safari por dentro, así que falla igual.
+  // Antes el botón no hacía NADA. Ahora, donde no existe, la propia página
+  // tapa su cabecera, su menú y su barra de abajo, y se ve igual que la
+  // pantalla completa del PC. Lo que no puede quitar son las barras de Safari:
+  // para eso está el aviso de instalarla (aprobado por Isaac, 2026-11-14).
+  const [sinBarras, setSinBarras] = useState(false);
+  // Espejo para los atajos de teclado, que no se re-enganchan en cada cambio.
+  const sinBarrasRef = useRef(false);
+  const [avisoIphone, setAvisoIphone] = useState(false);
+
+  // Para todo lo que se dibuja, las dos son «pantalla completa».
+  const isFullscreen = fsReal || sinBarras;
+
+  // Las notas de la escala (O-104), encendidas o no.
+  const [verEscala, setVerEscala] = useState(false);
+  useEffect(() => {
+    try {
+      setVerEscala(localStorage.getItem(CLAVE_ESCALA) === "1");
+    } catch {
+      /* almacenamiento bloqueado: arranca apagada */
+    }
+  }, []);
+  function alternarEscala() {
+    const nuevo = !verEscala;
+    setVerEscala(nuevo);
+    try {
+      localStorage.setItem(CLAVE_ESCALA, nuevo ? "1" : "0");
+    } catch {
+      /* almacenamiento lleno o bloqueado: se sigue sin guardar */
+    }
+  }
 
   // Referencias para medir el espacio disponible vs. el contenido y auto-ajustar.
   const mainRef = useRef<HTMLElement>(null);
@@ -262,28 +317,64 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     [total]
   );
 
-  // Entrar/salir de pantalla completa (con prefijos para Safari/iOS antiguos).
+  // Entra en «sin barras» (O-105) y, la primera vez, avisa de que instalada
+  // ocupa TODA la pantalla. Si ya está instalada, no hay nada que avisar.
+  const entrarSinBarras = useCallback(() => {
+    sinBarrasRef.current = true;
+    setSinBarras(true);
+    if (abiertaComoApp()) return;
+    try {
+      if (localStorage.getItem(CLAVE_AVISO_IPHONE) === "1") return;
+      localStorage.setItem(CLAVE_AVISO_IPHONE, "1");
+    } catch {
+      /* sin almacenamiento: se avisa, mejor de más que nunca */
+    }
+    setAvisoIphone(true);
+  }, []);
+
+  const salirSinBarras = useCallback(() => {
+    sinBarrasRef.current = false;
+    setSinBarras(false);
+    setAvisoIphone(false);
+    setAjustesAbiertos(false);
+  }, []);
+
+  // Entrar/salir de pantalla completa (con prefijos para Safari antiguo). Donde
+  // el navegador no la deja —iPhone—, «sin barras» (O-105).
   const toggleFullscreen = useCallback(() => {
     const el = rootRef.current as any;
     const doc = document as any;
     const fsElement =
       document.fullscreenElement || doc.webkitFullscreenElement || null;
-    if (!fsElement) {
-      const req =
-        el?.requestFullscreen || el?.webkitRequestFullscreen || el?.webkitEnterFullscreen;
-      req?.call(el);
-    } else {
+    if (fsElement) {
       const exit = document.exitFullscreen || doc.webkitExitFullscreen;
       exit?.call(document);
+      return;
     }
-  }, []);
+    if (sinBarrasRef.current) {
+      salirSinBarras();
+      return;
+    }
+    const req = el?.requestFullscreen || el?.webkitRequestFullscreen;
+    if (!req) {
+      entrarSinBarras();
+      return;
+    }
+    try {
+      const promesa = req.call(el);
+      // Si el navegador la tiene pero la niega, tampoco se queda muerto.
+      if (promesa && typeof promesa.catch === "function") promesa.catch(entrarSinBarras);
+    } catch {
+      entrarSinBarras();
+    }
+  }, [entrarSinBarras, salirSinBarras]);
 
   // Mantener el estado sincronizado con el navegador (ESC, gestos, etc.).
   useEffect(() => {
     const onChange = () => {
       const doc = document as any;
       const fs = Boolean(document.fullscreenElement || doc.webkitFullscreenElement);
-      setIsFullscreen(fs);
+      setFsReal(fs);
       // No se toca el tamaño: si el músico fijó uno, manda el suyo. Si está en
       // automático, el propio auto-ajuste se re-dispara al cambiar el espacio.
       // Al salir de pantalla completa el panel sobra: sus mandos vuelven a estar
@@ -348,6 +439,8 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
       else if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
+      // Esc saca de la pantalla completa real por sí solo; de «sin barras», aquí.
+      else if (e.key === "Escape" && sinBarrasRef.current) { e.preventDefault(); salirSinBarras(); }
       // + y − ajustan el tamaño de letra, igual que los botones (O-21). Se
       // aceptan las variantes del teclado: "=" es el "+" sin Shift, y el pad
       // numérico manda "Add"/"Subtract" en algunos navegadores.
@@ -356,7 +449,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, toggleFullscreen, bumpScale]);
+  }, [go, toggleFullscreen, bumpScale, salirSinBarras]);
 
   // Mantener la pantalla encendida durante el servicio (best-effort).
   useEffect(() => {
@@ -434,7 +527,7 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, modo, isFullscreen]);
+  }, [autoFit, index, viewport, liveOffset, desplazamiento, columns, recorrido, modo, isFullscreen, verEscala]);
 
 
   // 🔴 LA CUENTA DEL TONO VIVE EN `lib/tonoLeido.ts`, no aquí (O-86).
@@ -519,6 +612,13 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   const keyLabel = tono.seLee;
   const etiquetaQueSuena = tono.suena;
 
+  // Las 7 notas de la escala (O-104), del tono que SE LEE: ya transpuesto, con
+  // los ± del músico y con su instrumento — la misma cuenta que los acordes
+  // (T-14), así que la escala no puede contradecir a la partitura. Menor =
+  // natural, como pidió Isaac.
+  const escala = notasDeEscala(keyLabel);
+  const escalaMenor = esMenor(keyLabel);
+
   if (!song) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-white p-8 text-center dark:bg-slate-950">
@@ -530,7 +630,12 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
   return (
     <div
       ref={rootRef}
-      className="relative flex min-h-dvh flex-col bg-white dark:bg-slate-950"
+      className={cn(
+        "flex flex-col bg-white dark:bg-slate-950",
+        // «Sin barras» (O-105): tapa el menú y la barra de abajo de la página.
+        // `inset-0` y no `h-dvh`: en un iPhone viejo `dvh` no existe (O-102).
+        sinBarras ? "fixed inset-0 z-[60]" : "relative min-h-dvh"
+      )}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -649,6 +754,24 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
           >
             ♯
           </button>
+          {/* Las notas de la escala (O-104). Junto a ♭ y ♯ porque es del tono:
+              se mueve con ellos. Solo si hay tono del que sacarla. */}
+          {escala.length > 0 && (
+            <button
+              type="button"
+              onClick={alternarEscala}
+              aria-pressed={verEscala}
+              title={verEscala ? "Ocultar las notas de la escala" : "Ver las notas de la escala"}
+              className={cn(
+                "flex h-8 items-center rounded-lg px-2 text-xs font-semibold ring-1 transition-colors",
+                verEscala
+                  ? "bg-brand-600 text-white ring-brand-600"
+                  : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700"
+              )}
+            >
+              Escala
+            </button>
+          )}
           {liveOffset !== 0 && (
             <button
               type="button"
@@ -809,6 +932,29 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
         )}
       >
         <div ref={contentRef}>
+          {/* ── LAS NOTAS DE LA ESCALA (O-104) ──
+              Dentro de `contentRef`, como la nota privada: el auto-ajuste las
+              cuenta y la canción sigue cabiendo entera. Fuera del panel de
+              ajustes a propósito: el panel se cierra, la escala se queda. */}
+          {verEscala && escala.length > 0 && (
+            <div
+              data-escala
+              className="mb-2 flex flex-wrap items-center justify-center gap-1.5 text-sm md:text-base"
+            >
+              <span className="text-slate-500 dark:text-slate-400">
+                Escala de {keyLabel}
+                {escalaMenor ? " (natural)" : ""}:
+              </span>
+              {escala.map((n) => (
+                <span
+                  key={n}
+                  className="rounded-md bg-slate-100 px-2 py-0.5 font-bold text-slate-900 dark:bg-slate-800 dark:text-slate-50"
+                >
+                  {n}
+                </span>
+              ))}
+            </div>
+          )}
           {/* ── LA NOTA PRIVADA de quien toca (O-74) ──
               Isaac, 2026-09-10: «salen a pantalla completa y en los cultos como
               un aviso pequeño arriba». Solo llega si es suya (la lee el
@@ -1030,6 +1176,29 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
           )}
         </div>
       </main>
+
+      {/* El aviso de instalar la página, la primera vez que se usa «sin barras»
+          (O-105). Texto aprobado por Isaac el 2026-11-14. */}
+      {avisoIphone && (
+        <div
+          role="status"
+          data-aviso-iphone
+          className="absolute inset-x-3 bottom-14 z-50 flex items-start gap-2 rounded-xl bg-slate-900 p-3 text-sm text-white shadow-xl dark:bg-slate-800"
+        >
+          <p className="flex-1">
+            En iPhone, para que ocupe TODA la pantalla, instala la página:{" "}
+            <b>Compartir → Añadir a pantalla de inicio</b>
+          </p>
+          <button
+            type="button"
+            onClick={() => setAvisoIphone(false)}
+            aria-label="Cerrar el aviso"
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Navegación inferior. En pantalla completa se ENCOGE y reserva su
           sitio, igual que la cabecera (O-63): flotando, el toque en un acorde

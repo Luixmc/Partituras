@@ -4,6 +4,25 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Cerrado el 2026-11-14 · O-104 · Las notas de la escala en la pantalla completa (r94)
+
+Isaac, 2026-11-14: *«quiero que haya una manera en que se pueda ver las notas de la escala de la canción ya cuando se
+está en pantalla completa, tanto en pc como en teléfono»*. **Sus respuestas a las cuatro preguntas** (ese mismo día):
+① un **botón en la barra de arriba, junto a ♭ y ♯** del Tono; ② en menor, escala **natural**; ③ **sí** sigue al tono
+transpuesto y a «Tu instrumento»; ④ **solo las 7 notas**, sin grados ni acordes.
+* **Hecho:** `notasDeEscala(tono)` en `lib/music.ts` — deletrea **por letras** (cada letra una vez: `F#` mayor lleva `E#`,
+  `F` lleva `Bb`); si la tónica escrita obligaría a un doble sostenido (`A#` mayor → `Fx`) usa la de las tablas (`Bb`).
+  6 pruebas nuevas en `pruebas/musica.test.mjs`, una de ellas sobre las **24 tonalidades de los menús** (7 letras
+  distintas, sin dobles, bemoles solo si la tonalidad es de bemoles). En `PresentationView.tsx`: botón **«Escala»** tras
+  ♯ (solo si hay tono), y la franja con las notas **dentro de `contentRef`** —el auto-ajuste la cuenta, como la nota
+  privada— y fuera del panel de ajustes, así que en pantalla completa se queda a la vista al cerrarlo. Sale del tono
+  que **se lee** (`tono.seLee`): ya con el culto, los ± y el instrumento. Se recuerda por aparato
+  (`localStorage` `presentacion-escala`), como el recorrido. *Esto último no lo dictó él: se decidió por ser preferencia
+  de quien lee, igual que las demás de esa barra.*
+* **Medido** (Brave sin ventana, cuenta de prueba, «Aceleración» en Dm): PC 1280 px → `Escala de Dm (natural): D E F G
+  A Bb C`; con ♯ → `D#m: D# E# F# G# A# B C#`; con Trompeta → `Em: E F# G A B C D`; recargando, sigue puesta. Teléfono
+  390 px → el botón cabe en el panel (49×32 px) y la franja queda a la vista con el panel cerrado. Sin errores de página.
+
 #### ✅ Cerrado el 2026-11-04 · O-101 · La letra de la pantalla completa llega a 800 % (r93)
 
 Isaac, 2026-11-04: *«necesito que le extiendas el límite de la letra para poder agrandar más»*. Había **dos topes**: el

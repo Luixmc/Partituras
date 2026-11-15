@@ -24,6 +24,10 @@ desplegada en Vercel con publicación automática en cada push a `main`.
   tamaño de letra guardado por canción y dos maneras de recorrer las columnas. Las barras **se
   encogen y reservan su sitio** —arriba una sola fila con salir, la canción y el tono—, así que no
   se montan sobre los acordes; el resto de los mandos se abre pulsando la chapa del tono.
+  Un botón **Escala**, junto a ♭ y ♯, enseña **las 7 notas de la escala** del tono que se lee (mayor, o
+  menor natural), ya transpuesta y en el tono del instrumento. En **iPhone**, que no deja poner una
+  página en pantalla completa, el botón esconde las barras de la propia página y la primera vez avisa
+  de instalarla (Compartir → Añadir a pantalla de inicio).
 - **Cultos (setlists)**: repertorio ordenado arrastrando, con tono por canción, estado
   (borrador / publicado / archivado), **PDF con las canciones completas** y enlace público para
   quien no tiene cuenta.
@@ -150,7 +154,7 @@ npm run dev      # http://localhost:3000
 | Script | Para qué |
 |---|---|
 | `npm run dev` | Servidor de desarrollo en `localhost:3000` |
-| `npm test` | Las 307 pruebas |
+| `npm test` | Las 313 pruebas |
 | `npm run docs` | Comprueba que **este README y el `CLAUDE.md` dicen la verdad** sobre el proyecto de hoy: pruebas, archivos, líneas y migraciones. Corre también en el CI |
 | `npm run build` | Compilación de producción (es lo que ejecuta Vercel) |
 | `npm run verificar` | **Compila SIN romper el servidor de desarrollo**, en otra carpeta |
@@ -309,7 +313,7 @@ src/
     chordInput.ts · songImport.ts · utils.ts
     supabase/               → clientes (navegador / servidor)
   types/index.ts            → tipos del dominio
-pruebas/                    → las 307 pruebas (ver más abajo)
+pruebas/                    → las 313 pruebas (ver más abajo)
 supabase/migrations/        → 24 migraciones (todas aplicadas)
 ```
 
@@ -387,7 +391,7 @@ supabase/migrations/        → 24 migraciones (todas aplicadas)
 ## Pruebas
 
 ```bash
-npm test        # 307 pruebas, sin dependencias externas (usa el runner de Node)
+npm test        # 313 pruebas, sin dependencias externas (usa el runner de Node)
 ```
 
 Compilan `src/lib` con el TypeScript del proyecto y **prueban el archivo real**, no una copia. El CI
@@ -437,6 +441,7 @@ pública `/novedades`; esto es el resumen técnico.
 | **r56** | **En el teléfono las barras ya no tapan los acordes ni se comen el toque** (O-63): en pantalla completa dejan de flotar y **reservan su sitio**, encogidas de **200 px a 74** en una pantalla de 540. Con ellas muere el auto-ocultado —y con él el fallo de que tocar un acorde de abajo disparara «Siguiente»—. Los mandos que no caben pasan detrás de la chapa del tono |
 | **r57** | **El reparto partía secciones que caben** (O-66): redondeaba el ancho de cada compás por separado y comparaba la suma con la fila, así que con tres bloques ya se pasaba. Ahora **el número de filas lo cuenta el navegador** en la sonda y el reparto solo equilibra. **De 12 cortes de más a 0** en el culto de prueba, medido en tres pantallas. **197 pruebas** |
 | **r58** | **Ninguna sección sobresale** (O-67): un compás con anotación de texto pedía el ancho de un compás de un acorde, no le alcanzaba y envolvía — y al envolver crecía el cuadro entero. Medido: 334 px donde los demás medían 189, con 749 px de necesidad en una fila de 895. Ahora la anotación pide su **ancho natural** |
+| **r94** | **La escala en la pantalla completa** (O-104): botón «Escala» junto a ♭/♯ con las 7 notas del tono que se lee —mayor o menor natural, deletreadas por letras (`F#` mayor lleva `E#`)—; `notasDeEscala()` en `lib/music.ts`, con pruebas sobre las 24 tonalidades. Y **pantalla completa en iPhone** (O-105): donde no existe la Fullscreen API para un `div` (o el navegador la niega), modo «sin barras» de la propia página (`fixed inset-0`), con el aviso de instalarla la primera vez. **313 pruebas** |
 | **r93** | **La barra de abajo fija en navegadores viejos** (O-102): el armazón del panel usaba `h-dvh` a secas y donde `dvh` no existe (iOS < 15.4, Chrome < 108) se quedaba sin alto y la barra acababa al final del catálogo (medido: a 12.501 px). Ahora `.alto-pantalla` con respaldo medido por `AltoVisible`. Y **el + de la pantalla completa llega a 800 %** (O-101); el auto-ajuste sigue en 400 %. **307 pruebas** |
 | **r92** | **Ningún acorde cortado en el teléfono** (O-100): un compás o una casilla más ancho que su fila se salía y la tarjeta lo recortaba (42 de 98 canciones a 360 px con zoom 90 %). Ahora `TablaturePreview` MIDE lo que no cabe en su línea y solo a eso lo deja partirse por dentro (`data-parte`); lo que cabía no cambia. Medido antes/después en las 98 canciones: 54 → 2 páginas cortadas (90 %), 24 → 0 (100 %), tablet sin cambios. **307 pruebas** |
 | **r91** | **El aviso sin internet sale una vez** (O-99): sin red, Next recarga la página entera en cada paso (sus `rsc` fallan) y el aviso salía en cada una. Ahora sale entero la primera vez de cada apertura y después queda un iconito que lo abre. Medido sin red en Chrome: catálogo → canción → Cultos → pantalla completa → pestaña nueva. **307 pruebas** |

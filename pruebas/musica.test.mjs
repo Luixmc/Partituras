@@ -216,3 +216,52 @@ describe("esElOriginal: el tono original no se ofrece como otra tonalidad (O-94)
     for (const t of [null, undefined, "", "Re"]) assert.equal(esElOriginal(t, "D"), false, String(t));
   });
 });
+
+// ─────────────────────────────────────────────────────────────
+// O-104 · Las notas de la escala en la pantalla completa.
+// ─────────────────────────────────────────────────────────────
+const { notasDeEscala, KEY_OPTIONS, KEY_OPTIONS_MINOR } = await cargar("music");
+
+describe("las 7 notas de la escala (O-104)", () => {
+  test("mayor: G y F, con su sostenido y su bemol", () => {
+    assert.deepEqual(notasDeEscala("G"), ["G", "A", "B", "C", "D", "E", "F#"]);
+    assert.deepEqual(notasDeEscala("F"), ["F", "G", "A", "Bb", "C", "D", "E"]);
+    assert.deepEqual(notasDeEscala("C major"), ["C", "D", "E", "F", "G", "A", "B"]);
+  });
+
+  test("F# mayor lleva E#, no F: una escala tiene las siete letras", () => {
+    assert.deepEqual(notasDeEscala("F#"), ["F#", "G#", "A#", "B", "C#", "D#", "E#"]);
+    assert.deepEqual(notasDeEscala("Db"), ["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"]);
+  });
+
+  test("menor es la NATURAL (lo eligió Isaac)", () => {
+    assert.deepEqual(notasDeEscala("Em"), ["E", "F#", "G", "A", "B", "C", "D"]);
+    assert.deepEqual(notasDeEscala("Am"), ["A", "B", "C", "D", "E", "F", "G"]);
+    assert.deepEqual(notasDeEscala("A minor"), ["A", "B", "C", "D", "E", "F", "G"]);
+    assert.deepEqual(notasDeEscala("Dm"), ["D", "E", "F", "G", "A", "Bb", "C"]);
+    assert.deepEqual(notasDeEscala("Bbm"), ["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"]);
+  });
+
+  test("una tónica que pediría doble sostenido se escribe como se toca", () => {
+    // A# mayor necesitaría Fx: se escribe Bb mayor, que es la misma.
+    assert.deepEqual(notasDeEscala("A#"), ["Bb", "C", "D", "Eb", "F", "G", "A"]);
+  });
+
+  test("las 24 tonalidades de los menús: 7 letras distintas, sin dobles alteraciones", () => {
+    for (const k of [...KEY_OPTIONS, ...KEY_OPTIONS_MINOR]) {
+      const notas = notasDeEscala(k.value);
+      assert.equal(notas.length, 7, k.value);
+      assert.equal(new Set(notas.map((n) => n[0])).size, 7, k.value);
+      assert.equal(notas[0], k.value.replace(/m$/, ""), k.value);
+      // Con bemoles si la tonalidad es de bemoles, y al revés (T-14).
+      if (k.flats) assert.ok(!notas.some((n) => n.includes("#")), k.value);
+      else assert.ok(!notas.some((n) => n.includes("b")), k.value);
+    }
+  });
+
+  test("sin tono o con uno que no se entiende, no hay escala", () => {
+    assert.deepEqual(notasDeEscala(null), []);
+    assert.deepEqual(notasDeEscala(""), []);
+    assert.deepEqual(notasDeEscala("xyz"), []);
+  });
+});

@@ -70,6 +70,42 @@ export type Tanda = {
 /** De más reciente a más antigua. */
 export const TANDAS: Tanda[] = [
   {
+    "fecha": "14 de noviembre de 2026",
+    "iso": "2026-11-14",
+    "entrada": "En pantalla completa ya puedes ver <strong>las notas de la escala</strong> de la canción, y en <strong>iPhone</strong> el botón de pantalla completa por fin hace algo.",
+    "secciones": [
+      {
+        "titulo": "Las notas de la escala",
+        "resumen": "Un botón «Escala» junto a ♭ y ♯ enseña las 7 notas del tono en el que estás leyendo.",
+        "cambios": [
+          {
+            "tipo": "nuevo",
+            "titulo": "Botón «Escala» en la pantalla de tocar.",
+            "detalle": [
+              "Junto a los botones <strong>♭</strong> y <strong>♯</strong> del tono hay uno nuevo, <strong>Escala</strong>. Al tocarlo, arriba de la canción salen <strong>las 7 notas de la escala</strong>: en <strong>G</strong>, G A B C D E F#; en tono menor, la escala <strong>natural</strong> (en <strong>Em</strong>, E F# G A B C D).",
+              "Sigue al tono: si subes o bajas con ♭ y ♯, o eliges <strong>Trompeta</strong> en «Tu instrumento», la escala cambia con los acordes.",
+              "En <strong>pantalla completa</strong> el botón está en los ajustes (la chapa del tono), y la escala se queda a la vista aunque cierres los ajustes. Se recuerda en tu aparato: si la dejas puesta, sale en todas las canciones. Funciona en el PC y en el teléfono."
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "Pantalla completa en iPhone",
+        "resumen": "En iPhone el botón ya no se queda quieto: esconde las barras de la página.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "En iPhone el botón de pantalla completa no hacía nada.",
+            "detalle": [
+              "El iPhone no deja poner una página en pantalla completa (solo los videos), y eso pasa también con Chrome en el iPhone. Ahora, en vez de no hacer nada, el botón <strong>esconde las barras de la propia página</strong> y la canción se ve igual que en la pantalla completa del PC.",
+              "La primera vez sale un aviso: para que ocupe <strong>toda</strong> la pantalla, instala la página desde Safari con <strong>Compartir → Añadir a pantalla de inicio</strong>, y ábrela desde ese icono."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "fecha": "4 de noviembre de 2026",
     "iso": "2026-11-04",
     "entrada": "La barra de <strong>Cultos · Catálogo</strong> ya queda fija abajo en todos los aparatos, y en pantalla completa la letra se puede agrandar <strong>el doble</strong>.",
