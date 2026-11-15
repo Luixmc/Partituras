@@ -4,6 +4,14 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-11-14 · sin código · O-103 («tamaño elefante») reproducido y medido, propuesta por aprobar
+
+Isaac: «adelante con lo pendiente». Reproducido en producción con «Amigo De Dios» a pantalla completa y 412 px, en las
+dos formas en que Chrome de Android puede agrandar (zoom de página / solo letra). Los títulos de sección (`rem`) crecen y
+se parten en varios renglones, y el auto-ajuste encoge los acordes (`px`) al mínimo: acorde de 33 px a 19 (zoom) o 9,6
+(letra). Inyectando estilos, el título en una línea y del tamaño de los acordes lo deja en 23 px con la letra agrandada;
+con zoom hace falta además que rellenos y huecos sigan a los acordes. Propuesta en §9, fila 8. Nada programado.
+
 ### 2026-11-14 · r94 · La escala en la pantalla completa (O-104) · pantalla completa en iPhone (O-105)
 
 Isaac aprobó las dos cosas dictadas en el chat anterior: contestó las cuatro preguntas de **O-104** (botón junto a ♭/♯,
