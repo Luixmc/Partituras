@@ -12,6 +12,7 @@ Isaac aprobó «1 + 2» (título de sección en una línea y del tamaño de los 
 sistema al 200 % pasa de 9,6 a 24,5 px. Y una captura del PC destapó que el aviso «En iPhone…» salía también donde la
 pantalla completa se niega: ahora solo donde no existe. 313 pruebas, lint 0 errores. Detalle en
 `docs/ENCARGOS_CERRADOS.md` (O-103).
+Publicado (CI verde) y **medido igual en producción** (33,5 · 24,4 · 21,4 · 24,5 px). Lección compartida: **L-554 [PA]**.
 
 ### 2026-11-14 · sin código · O-103 («tamaño elefante») reproducido y medido, propuesta por aprobar
 
