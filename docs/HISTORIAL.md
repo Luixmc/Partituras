@@ -4,6 +4,13 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-11-14 · sin código · dictados O-104 y O-105, respuestas de O-103
+
+Último pedido del chat de r93 (regla 5). Isaac contestó lo de O-103 (pantalla completa, Samsung con Chrome, sin captura)
+y dictó dos cosas nuevas: **O-104**, ver las notas de la escala en la pantalla completa, y **O-105**, el botón de pantalla
+completa no hace nada en iPhone. Las tres quedaron en §9 con lo averiguado y las preguntas que hay que hacerle; nada
+programado.
+
 ### 2026-11-04 · r93 · La barra de abajo fija en navegadores viejos (O-102) · la pantalla completa hasta 800 % (O-101)
 
 Isaac: algunos músicos tienen que bajar hasta el final del catálogo para encontrar la barra de Cultos/Catálogo, y quiere
