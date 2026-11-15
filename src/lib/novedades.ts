@@ -72,8 +72,22 @@ export const TANDAS: Tanda[] = [
   {
     "fecha": "14 de noviembre de 2026",
     "iso": "2026-11-14",
-    "entrada": "En pantalla completa ya puedes ver <strong>las notas de la escala</strong> de la canción, y en <strong>iPhone</strong> el botón de pantalla completa por fin hace algo.",
+    "entrada": "En pantalla completa ya puedes ver <strong>las notas de la escala</strong> de la canción, en <strong>iPhone</strong> el botón de pantalla completa por fin hace algo, y con la <strong>letra del teléfono agrandada</strong> los acordes ya no se ven diminutos.",
     "secciones": [
+      {
+        "titulo": "Teléfonos con la letra agrandada",
+        "resumen": "Si tienes la letra del teléfono en grande, los acordes de la pantalla completa ya no se encogen.",
+        "cambios": [
+          {
+            "tipo": "arreglado",
+            "titulo": "Con la letra del teléfono en grande, los acordes salían diminutos y con mucho espacio vacío.",
+            "detalle": [
+              "Si tienes la letra del teléfono agrandada (en el tamaño más grande), en la pantalla de tocar los <strong>títulos de las secciones</strong> crecían y se partían en dos o tres renglones, y para que la canción cupiera los <strong>acordes se encogían</strong> y quedaba mucho espacio entre uno y otro. En «Amigo De Dios» bajaban a menos de la tercera parte de su tamaño.",
+              "Ahora el título de cada sección va en <strong>una sola línea</strong> (si es largo, termina en «…») y los márgenes van con el tamaño de los acordes. Con la letra del teléfono al doble, los acordes se ven <strong>más del doble de grandes</strong> que antes. Con la letra normal se ve igual que siempre."
+            ]
+          }
+        ]
+      },
       {
         "titulo": "Las notas de la escala",
         "resumen": "Un botón «Escala» junto a ♭ y ♯ enseña las 7 notas del tono en el que estás leyendo.",

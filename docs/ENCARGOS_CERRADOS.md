@@ -4,6 +4,28 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+#### ✅ Hecho el 2026-11-14 · O-103 · Teléfonos con la letra del sistema en «tamaño elefante» (r95) — falta que Isaac lo vea en ese teléfono (§9, fila 8)
+
+Isaac, 2026-11-04: *«hay músicos que ponen el tamaño del teléfono en tamaño elefante… la letra es un poco grande pero
+tiene mucho espacio de sobra entre celda y celda»*; el 2026-11-14: en la pantalla completa, Samsung con Chrome.
+* **Reproducido** en producción con «Amigo De Dios», pantalla completa, 412 px, simulando las dos formas en que Chrome de
+  Android agranda: **A** zoom de página (ancho útil 206 px) y **B** solo la letra (`Page.setFontSizes` 32). **Causa:** la
+  cuadrícula va en `px` (`16 × escala`) y el título de sección (`text-sm`) y los rellenos en `rem`: crecían ellos, el
+  título se partía en 2–3 renglones y el auto-ajuste encogía los acordes al mínimo (40 %). Acorde visto: normal 33 px,
+  A 19, **B 9,6**.
+* **Aprobado «1 + 2»** (2026-11-14): ① título en una línea con «…» y del tamaño de los acordes; ② rellenos y huecos
+  también. Solo en la pantalla de tocar.
+* **Hecho:** prop `marcoEscalado` en `TablaturePreview` y `SeccionRepartida` (también en la sonda, o mediría otra
+  cosa), que solo pasa `PresentationView`. La tarjeta lleva `font-size: 16 × escala px` y las clases `marco-*` de
+  `globals.css`. 🔴 **Primer intento con `em` a secas: en un teléfono normal el acorde bajó de 33 a 28 px**, porque el
+  marco crecía con la escala y le quitaba sitio. Quedó **`min(px de siempre, em)`**: nunca mide más que antes, solo
+  encoge con los acordes; título `clamp(10px, 0.875em, 14px)`. Cada regla lleva primero el valor de antes, para
+  navegadores sin `min()` (iOS < 13.4).
+* **Medido después** (mismo medidor): normal **33,5 px** (igual); B **24,5**; A zoom 150 % **17 → 24**; A zoom 200 %
+  **19 → 21** (ahí manda el ancho de 206 px). Escala, «sin barras» y aviso de O-104/O-105 repetidos sin cambios.
+* **De paso, un fallo de r94:** donde el navegador **niega** la pantalla completa (Brave sin ventana; podría pasar en un
+  PC) salía el aviso «En iPhone…». Ahora el aviso solo sale donde la función **no existe**.
+
 #### ✅ Cerrado el 2026-11-14 · O-104 · Las notas de la escala en la pantalla completa (r94)
 
 Isaac, 2026-11-14: *«quiero que haya una manera en que se pueda ver las notas de la escala de la canción ya cuando se

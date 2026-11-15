@@ -7,6 +7,14 @@
 
 ## 14 de noviembre de 2026
 
+### 🔠 Teléfonos con la letra agrandada
+
+- 🐛 Si tienes la letra del teléfono agrandada (en el tamaño más grande), en la pantalla de tocar los **títulos de
+  las secciones** crecían y se partían en dos o tres renglones, y para que la canción cupiera los **acordes se
+  encogían** y quedaba mucho espacio entre uno y otro. Ahora el título va en **una sola línea** (si es largo,
+  termina en «…») y los márgenes van con el tamaño de los acordes: con la letra del teléfono al doble, los acordes
+  se ven **más del doble de grandes** que antes. Con la letra normal se ve igual que siempre.
+
 ### 🎼 Las notas de la escala
 
 - 🆕 Junto a los botones **♭** y **♯** del tono hay uno nuevo, **Escala**. Al tocarlo, arriba de la canción salen

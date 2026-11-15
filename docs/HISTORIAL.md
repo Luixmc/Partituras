@@ -4,6 +4,15 @@
 > Movido **tal cual** desde `CLAUDE.md` el 2026-09-11 (el recorte, L-256).
 > Lo nuevo se escribe **arriba**, debajo de esta cabecera.
 
+### 2026-11-14 · r95 · Teléfonos con la letra agrandada (O-103)
+
+Isaac aprobó «1 + 2» (título de sección en una línea y del tamaño de los acordes; rellenos y huecos también). Escrito en
+§9 antes de programar. Prop `marcoEscalado` y clases `marco-*`. El primer intento (`em` a secas) bajó el acorde normal de
+33 a 28 px: el marco crecía con la escala. Con `min(px de siempre, em)` el normal queda igual (33,5) y con la letra del
+sistema al 200 % pasa de 9,6 a 24,5 px. Y una captura del PC destapó que el aviso «En iPhone…» salía también donde la
+pantalla completa se niega: ahora solo donde no existe. 313 pruebas, lint 0 errores. Detalle en
+`docs/ENCARGOS_CERRADOS.md` (O-103).
+
 ### 2026-11-14 · sin código · O-103 («tamaño elefante») reproducido y medido, propuesta por aprobar
 
 Isaac: «adelante con lo pendiente». Reproducido en producción con «Amigo De Dios» a pantalla completa y 412 px, en las

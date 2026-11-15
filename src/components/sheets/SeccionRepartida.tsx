@@ -33,6 +33,8 @@ type Props = {
   paletaId?: string | null;
   fontScale?: number;
   dense?: boolean;
+  /** El marco va con el tamaño de los acordes (O-103). Pasa de largo. */
+  marcoEscalado?: boolean;
   /** Clases de cada casilla (las pone la pantalla que dibuja la rejilla). */
   claseCelda?: string;
   /** Estilo de cada casilla (multi-columna necesita `breakInside`). */
@@ -54,6 +56,7 @@ export default function SeccionRepartida({
   paletaId = null,
   fontScale = 1,
   dense = false,
+  marcoEscalado = false,
   claseCelda,
   estiloCelda,
   mostrarMedida = false,
@@ -271,6 +274,7 @@ export default function SeccionRepartida({
               paletaId={paletaId}
               fontScale={fontScale}
               dense={dense}
+              marcoEscalado={marcoEscalado}
             />
 
             {/* ── La sonda ──
@@ -301,7 +305,8 @@ export default function SeccionRepartida({
                 className="pointer-events-none absolute inset-x-0 top-0 -z-10"
                 style={{ visibility: "hidden" }}
               >
-                <TablaturePreview notes={notes} label={label} paletaId={paletaId} fontScale={fontScale} dense={dense} />
+                {/* 🔴 Con el MISMO marco que lo que se ve, o la sonda mide otra cosa. */}
+                <TablaturePreview notes={notes} label={label} paletaId={paletaId} fontScale={fontScale} dense={dense} marcoEscalado={marcoEscalado} />
               </div>
             )}
           </div>

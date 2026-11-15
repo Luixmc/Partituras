@@ -95,6 +95,50 @@ body {
    → Respaldo en dos pasos: `100vh` por si no hay variables, y el alto VISIBLE
    que mide `AltoVisible.tsx` con `innerHeight` (con `100vh` a pelo la barra
    quedaría debajo de la barra de direcciones del teléfono). */
+/* EL MARCO DE LA PANTALLA DE TOCAR va con el tamaño de los acordes (O-103,
+   2026-11-14). En `em` del tamaño de la cuadrícula (16 px × escala), NO en
+   `rem`: los `rem` crecen con la letra del sistema del teléfono, los acordes
+   no, y en un teléfono con la letra al 200 % («tamaño elefante») los títulos
+   se partían en tres renglones y el auto-ajuste encogía los acordes al 40 %
+   para hacerles sitio. Medido: acorde de 33 px a 9,6.
+   🔴 Con `min(px de siempre, em)`: el marco NUNCA pasa de lo que medía antes
+   y solo encoge cuando encogen los acordes. Con `em` a secas crecía con la
+   escala y en un teléfono normal los acordes bajaban de 33 a 28 px.
+   La primera línea de cada regla es lo de antes, para navegadores sin
+   `min()`/`clamp()` (iOS < 13.4): allí se ve como siempre. */
+.marco-etiqueta {
+  font-size: 14px;
+  font-size: clamp(10px, 0.875em, 14px);
+  line-height: 1.4286; /* = `text-sm` (20 px a 14 px) */
+  padding: 2px 12px;
+  /* En `em` de la PROPIA etiqueta (14 px a tamaño normal): 2 y 12 px. */
+  padding: min(2px, 0.143em) min(12px, 0.857em);
+}
+.marco-cuerpo {
+  padding: 6px;
+  padding: min(6px, 0.375em);
+}
+.marco-filas-fs {
+  row-gap: 6px;
+  row-gap: min(6px, 0.375em);
+}
+.marco-filas {
+  row-gap: 16px;
+  row-gap: min(16px, 1em);
+}
+.marco-columnas {
+  column-gap: 24px;
+  column-gap: min(24px, 1.5em);
+}
+.marco-pie-fs {
+  margin-bottom: 6px;
+  margin-bottom: min(6px, 0.375em);
+}
+.marco-pie {
+  margin-bottom: 16px;
+  margin-bottom: min(16px, 1em);
+}
+
 .alto-pantalla {
   height: 100vh;
   height: var(--alto-visible, 100vh);

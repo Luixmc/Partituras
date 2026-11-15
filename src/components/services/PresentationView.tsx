@@ -319,10 +319,14 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
 
   // Entra en «sin barras» (O-105) y, la primera vez, avisa de que instalada
   // ocupa TODA la pantalla. Si ya está instalada, no hay nada que avisar.
-  const entrarSinBarras = useCallback(() => {
+  // 🔴 El aviso habla del iPhone, así que SOLO sale donde la pantalla completa
+  // no existe (`conAviso`). Si un navegador la tiene pero la niega —le pasa a
+  // Brave sin ventana, y puede pasar en un PC—, se esconden las barras igual
+  // pero sin decirle a nadie «En iPhone…». Lo cazó una captura del PC.
+  const entrarSinBarras = useCallback((conAviso: boolean) => {
     sinBarrasRef.current = true;
     setSinBarras(true);
-    if (abiertaComoApp()) return;
+    if (!conAviso || abiertaComoApp()) return;
     try {
       if (localStorage.getItem(CLAVE_AVISO_IPHONE) === "1") return;
       localStorage.setItem(CLAVE_AVISO_IPHONE, "1");
@@ -357,15 +361,15 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
     }
     const req = el?.requestFullscreen || el?.webkitRequestFullscreen;
     if (!req) {
-      entrarSinBarras();
+      entrarSinBarras(true);
       return;
     }
     try {
       const promesa = req.call(el);
       // Si el navegador la tiene pero la niega, tampoco se queda muerto.
-      if (promesa && typeof promesa.catch === "function") promesa.catch(entrarSinBarras);
+      if (promesa && typeof promesa.catch === "function") promesa.catch(() => entrarSinBarras(false));
     } catch {
-      entrarSinBarras();
+      entrarSinBarras(false);
     }
   }, [entrarSinBarras, salirSinBarras]);
 
@@ -1123,24 +1127,27 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                 cansan— pero **esto es una cuadricula de acordes que se lee de un
                 vistazo**: cuanto mas ancha, mas compases por fila y menos
                 envolver. */}
+            {/* 🔴 O-103 · Los huecos entre secciones van en `em` del tamaño de
+                los acordes (`marco-*`, globals.css), no en `rem`: con la letra
+                del teléfono al 200 % crecían ellos y no los acordes, y el
+                auto-ajuste encogía los acordes para hacerles sitio. */}
             <div
               className={cn(
                 "mx-auto",
                 columns === 1
-                  ? cn("flex w-full flex-col", isFullscreen ? "gap-1.5" : "gap-4")
+                  ? cn("flex w-full flex-col", isFullscreen ? "marco-filas-fs" : "marco-filas")
                   : recorrido === "columnas"
-                    ? "w-full"
+                    ? "marco-columnas w-full"
                     : cn(
-                        "grid items-start gap-x-6",
+                        "marco-columnas grid items-start",
                         columns === 2 ? "grid-cols-2" : "grid-cols-3",
-                        isFullscreen ? "gap-y-1.5" : "gap-y-4"
+                        isFullscreen ? "marco-filas-fs" : "marco-filas"
                       )
               )}
-              style={
-                columns > 1 && recorrido === "columnas"
-                  ? { columnCount: columns, columnGap: "1.5rem" }
-                  : undefined
-              }
+              style={{
+                fontSize: `${16 * fontScale}px`,
+                ...(columns > 1 && recorrido === "columnas" ? { columnCount: columns } : {}),
+              }}
             >
               {/* 📌 O-52 · `SeccionRepartida` en vez de `TablaturePreview` a
                   secas. Una sección que cabe se dibuja EXACTAMENTE igual que
@@ -1156,12 +1163,13 @@ export default function PresentationView({ title, songs, backHref, startIndex = 
                   paletaId={paletaId}
                   fontScale={fontScale}
                   dense
+                  marcoEscalado
                   // El envoltorio es lo que se mantiene entero dentro de una
                   // columna; el margen hace de separación entre secciones,
                   // porque en multi-columna `gap` no aplica.
                   claseCelda={
                     columns > 1 && recorrido === "columnas"
-                      ? cn("break-inside-avoid", isFullscreen ? "mb-1.5" : "mb-4")
+                      ? cn("break-inside-avoid", isFullscreen ? "marco-pie-fs" : "marco-pie")
                       : undefined
                   }
                   estiloCelda={

@@ -24,6 +24,15 @@ type Props = {
   /** Compacta los márgenes (título de sección y contenido) para ganar espacio. */
   dense?: boolean;
   /**
+   * El título de la sección y los rellenos van con el tamaño de los ACORDES,
+   * no con la letra del sistema, y el título cabe en UNA línea (O-103).
+   *
+   * 🔴 Solo lo pide la pantalla de tocar. Con la letra del teléfono al 200 %
+   * el título (en `rem`) se partía en tres renglones y el auto-ajuste encogía
+   * los acordes al mínimo para hacerle sitio. La ficha y el PDF no se tocan.
+   */
+  marcoEscalado?: boolean;
+  /**
    * Dibuja SOLO un tramo de la sección: `[desde, hasta)` en índices de segmento
    * (O-52). Sirve para que una sección larga se reparta en varias casillas de
    * la rejilla en vez de apretarse en una sola.
@@ -946,6 +955,7 @@ export default function TablaturePreview({
   paletaId = null,
   fontScale = 1,
   dense = false,
+  marcoEscalado = false,
   segmentos,
 }: Props) {
   const measures = parseMeasures(notes);
@@ -959,6 +969,8 @@ export default function TablaturePreview({
         "overflow-hidden rounded-lg",
         !compact && "border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
       )}
+      // O-103 · Base de los `em` del marco: la misma que la de los acordes.
+      style={marcoEscalado ? { fontSize: `${16 * fontScale}px` } : undefined}
     >
       {(label || !compact) && (
         /* 🔴 O-83/O-84 · EL COLOR ENTRA POR UNA PROPIEDAD, no se decide aquí.
@@ -973,22 +985,33 @@ export default function TablaturePreview({
            sección de la siguiente a la distancia a la que se toca.
            `bandaDeEtiqueta` devuelve `undefined` si no hay que pintar, y
            entonces `cn` deja intactas las clases de siempre. */
-        <div className={cn(
-          "flex items-center justify-between border-b border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60",
-          dense ? "px-3 py-0.5" : "px-4 py-2",
-          bandaDeEtiqueta(label, paletaId)
-        )}>
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
-            <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
-            {label || "Notas"}
-          </div>
+        <div
+          className={cn(
+            "flex items-center justify-between border-b border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/60",
+            marcoEscalado ? "marco-etiqueta" : dense ? "px-3 py-0.5" : "px-4 py-2",
+            bandaDeEtiqueta(label, paletaId)
+          )}
+        >
+          {marcoEscalado ? (
+            // O-103 · UNA línea: lo que no quepa se corta con «…». El título
+            // entero se ve en la ficha; aquí solo hace falta reconocerlo.
+            <div className="flex min-w-0 items-center gap-[0.5em] font-semibold text-slate-800 dark:text-slate-100">
+              <Grid2X2 className="flex-shrink-0 text-brand-600" style={{ width: "1em", height: "1em" }} />
+              <span className="truncate">{label || "Notas"}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+              <Grid2X2 className="h-3.5 w-3.5 text-brand-600" />
+              {label || "Notas"}
+            </div>
+          )}
         </div>
       )}
 
       <div
         className={cn(
           "w-full",
-          compact ? "p-0" : dense ? "p-1.5" : "p-4",
+          compact ? "p-0" : marcoEscalado ? "marco-cuerpo" : dense ? "p-1.5" : "p-4",
           compact ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-900"
         )}
       >
