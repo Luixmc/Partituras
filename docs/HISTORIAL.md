@@ -18,6 +18,7 @@ Brave quitando la Fullscreen API a 390 px: la raíz cubre 390×760, la barra de 
 sale la 1.ª vez y no la 2.ª, ni instalada. Y una cosa que salió sola: **Brave sin ventana NIEGA la pantalla completa
 real**, y el botón cayó en «sin barras» en vez de quedarse muerto — la segunda vía (promesa rechazada) también
 funciona. **Falta lo que pidió él: probarlo en un iPhone de verdad** (§9, fila 10). 313 pruebas, lint 0 errores.
+Publicado (CI verde) y **medido igual en producción** con el mismo recorrido. Lección compartida: **L-552 [PA]**.
 
 ### 2026-11-14 · sin código · dictados O-104 y O-105, respuestas de O-103
 
